@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 
+import com.fasterxml.jackson.databind.InjectableValues;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,20 +62,22 @@ public class JobTest {
     Salary job1Salary2;
     Bonus job1Bonus2;
     Salary job2Salary;
+    EntityManager entityManager;
 
     @Before
     public void setUp() throws Exception {
-        company1 = new Company("comp1");
+        entityManager = new EntityManager();
+        company1 = new Company(entityManager, "comp1");
         company1.setCompanyName("IBM");
-        company2 = new Company("comp2");
+        company2 = new Company(entityManager, "comp2");
         company2.setCompanyName("Xerox");
 
-        person1 = new Person("john1");
+        person1 = new Person(entityManager, "john1");
         person1.setFirstName("John");
         person1.setLastName("Doe");
         person1.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
         person1.setRetirementAge(65);
-        person2 = new Person("jane1");
+        person2 = new Person(entityManager, "jane1");
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
         person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
@@ -87,7 +90,7 @@ public class JobTest {
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2002, Month.AUGUST, 15));
         job2 = new Job();
-        job2.setId("comp2");
+        job2.setId("job2");
         job2.setEmployer(company2);
         job2.setEmployee(person2);
         job2.setStartDate(LocalDate.of(2001, Month.JUNE, 15));
@@ -134,7 +137,7 @@ public class JobTest {
 
     @After
     public void tearDown() throws Exception {
-        Entity.removeAllEntities();
+        entityManager.removeAllEntities();
     }
 
     @Test
@@ -195,6 +198,7 @@ public class JobTest {
         List<IncomeSource> incomeSources2 = job2.getIncomeSources();
     }
 
+    @Test
     public void setIncomeSources() {
         IncomeSource[] job2IS = {job1Salary2, job2Salary};
 
@@ -211,25 +215,30 @@ public class JobTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String job1Str = writer.writeValueAsString(job1);
-        assertEquals("{\"id\":\"job1\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\",[],\"employeer\":\"comp1\",\"employee\":\"john1\"}", job1Str);
+        assertEquals("{\"id\":\"job1\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}", job1Str);
 
         String job2Str = writer.writeValueAsString(job2);
-        assertEquals("{\"id\":\"job2\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\",[],\"employeer\":\"comp1\",\"employee\":\"john1\"}", job2Str);
+        assertEquals("{\"id\":\"job2\",\"startDate\":\"2001-06-15\",\"endDate\":\"2002-05-07\",\"incomeSources\":[],\"employer\":\"comp2\",\"employee\":\"jane1\"}", job2Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
+
+
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
+        //entitymanager for creating any static data based entities
+        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
+        mapper.setInjectableValues(injects);
 
-        String job1Str = writer.writeValueAsString(job1);
-        Job job1a = mapper.readValue(job1Str, Job.class);
-        assertEquals(job1, job1a);
+        String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
+        String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
 
-        String job2Str = writer.writeValueAsString(job2);
-        Job job2a = mapper.readValue(job2Str, Job.class);
-        assertEquals(job2, job2a);
+        Job job1a = mapper.readValue(job1aStr, Job.class);
+        assertEquals("job1a", job1a.getId());
+
+        Job job2a = mapper.readValue(job2aStr, Job.class);
+        assertEquals("job2a", job2a.getId());
     }
 
 }

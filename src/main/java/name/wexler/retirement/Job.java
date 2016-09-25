@@ -23,9 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -40,6 +38,7 @@ import java.util.List;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
+@JsonPropertyOrder({ "id", "startDate", "endDate", "incomeSources", "employer", "employee" })
 public class Job {
     private String id;
     @JsonDeserialize(using=JSONDateDeserialize.class)
@@ -49,13 +48,36 @@ public class Job {
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate endDate;
     private MonthDay bonusDay;
+
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "@id")
+    @JsonIdentityReference(alwaysAsId = true)
     private List<IncomeSource> incomeSources;
+
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Entity employer;
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Person employee;
 
 
-    public Job() {
 
+    @JsonCreator
+    public Job(@JacksonInject("entityManager") EntityManager entityManager,
+               @JsonProperty("employer") String employer,
+               @JsonProperty("employee") String employee) {
+        this.employer = entityManager.getById(employer);
+        this.employee = (Person) entityManager.getById(employee);
+        incomeSources = new ArrayList<IncomeSource>();
+    }
+
+    public Job() {
+        incomeSources = new ArrayList<IncomeSource>();
     }
 
     @Override

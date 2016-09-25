@@ -20,15 +20,17 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class PersonTest {
     Person person1;
     Person person2;
+    EntityManager entityManager;
 
     @Before
     public void setUp() throws Exception {
-        person1 = new Person("johhn1");
+        this.entityManager = new EntityManager();
+        person1 = new Person(entityManager, "john1");
         person1.setFirstName("John");
         person1.setLastName("Doe");
         person1.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
         person1.setRetirementAge(65);
-        person2 = new Person("jane1");
+        person2 = new Person(entityManager, "jane1");
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
         person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
@@ -37,7 +39,7 @@ public class PersonTest {
 
     @After
     public void tearDown() throws Exception {
-        Entity.removeAllEntities();
+        entityManager.removeAllEntities();
     }
 
     @Test
@@ -104,12 +106,12 @@ public class PersonTest {
 
     @Test
     public void equals() throws Exception {
-        Person person1a = new Person("john1");
+        Person person1a = new Person(entityManager, "john1a");
         person1a.setFirstName("John");
         person1a.setLastName("Doe");
         person1a.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
         person1a.setRetirementAge(65);
-        assertEquals(person1, person1a);
+        assertNotEquals(person1, person1a);
         assertNotEquals(person1, person2);
     }
 
@@ -128,15 +130,17 @@ public class PersonTest {
     @Test
     public void deserialize() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
 
-        String person1Str = writer.writeValueAsString(person1);
+        String person1Str = "{\"type\":\"person\",\"id\":\"john1a\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}";
+        String person2Str ="{\"type\":\"person\",\"id\":\"jane1a\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}";
+
         Person person1a = mapper.readValue(person1Str, Person.class);
-        assertEquals(person1, person1a);
+        assertEquals(person1a.getId(), "john1a");
 
-        String person2Str = writer.writeValueAsString(person2);
         Person person2a = mapper.readValue(person2Str, Person.class);
-        assertEquals(person2, person2a);
+        assertEquals(person2a.getId(), "jane1a");
+
+
     }
 
 }

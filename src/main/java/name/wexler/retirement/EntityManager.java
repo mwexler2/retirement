@@ -23,39 +23,31 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 
 /**
  * Created by mwexler on 7/5/16.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = Person.class, name = "person"),
-        @JsonSubTypes.Type(value = Company.class, name = "company") })
-public abstract class Entity {
-    private String id;
 
-    public Entity(EntityManager entityManager, @JsonProperty("id") String id) throws Exception {
-        this.id = id;
-        if (entityManager.getById(id) != null)
-            throw new Exception("Key " + id + " already exists");
-        entityManager.put(id, this);
+public class EntityManager {
+    private HashMap<String, Entity> allEntities = new HashMap<>();
+
+    public EntityManager() {
     }
 
-    @JsonCreator
-    public static Entity findById(@JacksonInject EntityManager entityManager, @JsonProperty("id") String id) {
-        return entityManager.getById(id);
+    public Entity getById(String id) {
+        return allEntities.get(id);
     }
 
-    abstract public String getName ();
+    public void put(String id, Entity entity) {
+        allEntities.put(id, entity);
+    }
 
-    public String getId() {
-        return id;
+    void removeAllEntities() {
+        allEntities.clear();
     }
 }

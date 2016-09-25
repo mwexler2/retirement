@@ -23,10 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -35,11 +32,7 @@ import java.time.LocalDate;
 /**
  * Created by mwexler on 7/5/16.
  */
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class Person extends Entity {
-    private String id;
     private String firstName;
     private String lastName;
     @JsonDeserialize(using=JSONDateDeserialize.class)
@@ -47,8 +40,8 @@ public class Person extends Entity {
     private LocalDate birthDate;
     private int retirementAge;
 
-    public Person(@JsonProperty("id") String id) throws Exception {
-        super(id);
+    public Person(@JacksonInject("entityManager") EntityManager entityManager, @JsonProperty("id") String id) throws Exception {
+        super(entityManager, id);
     }
 
     @JsonIgnore
@@ -89,10 +82,6 @@ public class Person extends Entity {
         this.retirementAge = retirementAge;
     }
 
-    public String getId() {
-        return id;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -101,7 +90,9 @@ public class Person extends Entity {
         Person person = (Person) o;
 
         if (retirementAge != person.retirementAge) return false;
-        if (id != null ? !id.equals(person.id) : person.id != null) return false;
+        String thisId = getId();
+        String thatId = person.getId();
+        if ((thisId != null) ? !thisId.equals(thatId) : (thatId != null)) return false;
         if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) return false;
         if (lastName != null ? !lastName.equals(person.lastName) : person.lastName != null) return false;
         return birthDate != null ? birthDate.equals(person.birthDate) : person.birthDate == null;
@@ -110,7 +101,7 @@ public class Person extends Entity {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = getId() != null ? getId().hashCode() : 0;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (birthDate != null ? birthDate.hashCode() : 0);

@@ -1,5 +1,6 @@
 package name.wexler.retirement;
 
+import com.fasterxml.jackson.databind.InjectableValues;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,18 +21,20 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class CompanyTest {
     Company company1;
     Company company2;
+    EntityManager entityManager;
 
     @Before
     public void setUp() throws Exception {
-        company1 = new Company("comp1");
+        this.entityManager = new EntityManager();
+        company1 = new Company(entityManager, "comp1");
         company1.setCompanyName("IBM");
-        company2 = new Company("comp2");
+        company2 = new Company(entityManager, "comp2");
         company2.setCompanyName("Xerox");
     }
 
     @After
     public void tearDown() throws Exception {
-        Entity.removeAllEntities();
+        entityManager.removeAllEntities();
 
     }
 
@@ -78,16 +81,21 @@ public class CompanyTest {
 
     @Test
     public void deserialize() throws Exception {
+        String comp1aStr = "{\"type\":\"company\",\"id\":\"comp1a\",\"companyName\":\"IBM\"}";
+        String comp2aStr = "{\"type\":\"company\",\"id\":\"comp2a\",\"companyName\":\"Xerox\"}";
+
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
+        mapper.setInjectableValues(injects);
         ObjectWriter writer = mapper.writer();
 
-        String company1Str = writer.writeValueAsString(company1);
-        Company company1a = mapper.readValue(company1Str, Company.class);
-        assertEquals(company1, company1a);
+       Company company1a = mapper.readValue(comp1aStr, Company.class);
+        assertEquals("comp1a", company1a.getId());
+        assertEquals("IBM", company1a.getCompanyName());
 
-        String company2Str = writer.writeValueAsString(company2);
-        Company company2a = mapper.readValue(company2Str, Company.class);
-        assertEquals(company2, company2a);
+        Company company2a = mapper.readValue(comp2aStr, Company.class);
+        assertEquals("comp2a", company2a.getId());
+        assertEquals("Xerox", company2a.getCompanyName());
     }
 
 }

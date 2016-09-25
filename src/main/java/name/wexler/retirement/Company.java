@@ -22,23 +22,18 @@
 */
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 
 /**
  * Created by mwexler on 7/5/16.
  */
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+@JsonTypeName("company")
 public class Company extends Entity {
-    private String id;
     private String companyName;
 
-    public Company(@JsonProperty("id") String id) throws Exception {
-        super(id);
+    @JsonCreator
+    public Company(@JacksonInject("entityManager") EntityManager entityManager, @JsonProperty("id") String id) throws Exception {
+        super(entityManager, id);
     }
 
     @Override
@@ -49,19 +44,19 @@ public class Company extends Entity {
         Company company = (Company) o;
 
         if (companyName != null ? !companyName.equals(company.companyName) : company.companyName != null) return false;
-        return id != null ? id.equals(company.id) : company.id == null;
+        return getId() != null ? getId().equals(company.getId()) : company.getId() == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = companyName != null ? companyName.hashCode() : 0;
-        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
 
     public String getId() {
-        return id;
+        return super.getId();
     }
 
     @JsonIgnore
