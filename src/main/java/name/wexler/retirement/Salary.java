@@ -23,9 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.CashFlow.CashFlowSource;
 
 import java.math.BigDecimal;
@@ -44,6 +42,10 @@ import java.time.YearMonth;
         property = "id")
 public class Salary extends IncomeSource {
     private String id;
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Job job;
     private BigDecimal baseAnnualSalary;
     private static BigDecimal monthsPerYear = new BigDecimal(12);
@@ -86,11 +88,12 @@ public class Salary extends IncomeSource {
         return annualSalaryAmount;
     }
 
+    @JsonIgnore
     public BigDecimal getAnnualCashFlow() {
         return getAnnualCashFlow(LocalDate.now().getYear());
     }
 
-
+    @JsonIgnore
     public String getName() {
         if (job == null)
             return "Unkonwn job salary";

@@ -35,9 +35,7 @@ import java.util.List;
 /**
  * Created by mwexler on 7/5/16.
  */
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+
 @JsonPropertyOrder({ "id", "startDate", "endDate", "incomeSources", "employer", "employee" })
 public class Job {
     private String id;
@@ -61,22 +59,52 @@ public class Job {
     @JsonIdentityReference(alwaysAsId = true)
     private Entity employer;
 
-    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    @JsonIdentityInfo(
+            generator=ObjectIdGenerators.PropertyGenerator.class,
+            property="id")
     @JsonIdentityReference(alwaysAsId = true)
     private Person employee;
 
+   /*  public Job(@JacksonInject("jobManager") EntityManager<Job> jobManager, @JsonProperty("id") String id) throws Exception {
+        this.id = id;
+        this.init(jobManager);
+    } */
+
+    @JsonCreator
+    public Job(@JacksonInject("jobManager") EntityManager<Job> jobManager,
+               @JacksonInject("entityManager") EntityManager<Entity> entityManager,
+               @JsonProperty(value = "id", required = true) String id,
+               @JsonProperty(value = "employer", required = true) String employer,
+               @JsonProperty(value = "employee", required = true) String employee) throws Exception {
+        this.id = id;
+        this.employer = entityManager.getById(employer);
+        this.employee = (Person) entityManager.getById(employee);
+        this.init(jobManager);
+    }
+
+    public Job(EntityManager<Job> jobManager,
+               String id,
+               Company employer,
+               Person employee) throws Exception {
+        this.id = id;
+        this.employer = employer;
+        this.employee = employee;
+        this.init(jobManager);
+    }
 
 
     @JsonCreator
-    public Job(@JacksonInject("entityManager") EntityManager entityManager,
-               @JsonProperty("employer") String employer,
-               @JsonProperty("employee") String employee) {
-        this.employer = entityManager.getById(employer);
-        this.employee = (Person) entityManager.getById(employee);
-        incomeSources = new ArrayList<IncomeSource>();
+    public static Job jobFactory(@JacksonInject("jobManager") EntityManager<Job> jobManager,
+                       String id) {
+        Job job = jobManager.getById(id);
+        return job;
     }
 
-    public Job() {
+
+    private void init(EntityManager<Job> jobManager) throws Exception {
+        if (jobManager.getById(id) != null)
+            throw new Exception("Key " + id + " already exists");
+        jobManager.put(id, this);
         incomeSources = new ArrayList<IncomeSource>();
     }
 

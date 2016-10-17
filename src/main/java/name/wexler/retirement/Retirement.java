@@ -37,6 +37,7 @@ import java.text.NumberFormat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -51,6 +52,7 @@ import name.wexler.retirement.CashFlow.*;
 public class Retirement {
     private Scenario[] scenarios;
     private Job[] jobs;
+    private Company[] companies;
     private Person[] people;
 
     public NumberFormat getCf() {
@@ -68,15 +70,24 @@ public class Retirement {
         Locale enUS = Locale.forLanguageTag("en-US");
         cf = NumberFormat.getCurrencyInstance(enUS);
         pf = NumberFormat.getPercentInstance();
+        EntityManager entityManager = new EntityManager();
 
         try {
             ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+            InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
+            mapper.setInjectableValues(injects);
+
+            mapper.setInjectableValues(injects);
             String userHome = System.getProperty("user.home");
             String resourceDir = userHome + "/.retirement/resources";
             
             String peoplePath = resourceDir + "/people.json";
             File peopleFile = new File(peoplePath);
             this.people = mapper.readValue(peopleFile, Person[].class);
+
+            String companyPath = resourceDir + "/company.json";
+            File companyFile = new File(companyPath);
+            this.companies = mapper.readValue(companyFile, Company[].class);
 
             String jobsPath = resourceDir + "/jobs.json";
             File jobsFile = new File(jobsPath);

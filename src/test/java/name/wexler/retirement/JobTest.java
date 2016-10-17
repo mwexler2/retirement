@@ -62,11 +62,13 @@ public class JobTest {
     Salary job1Salary2;
     Bonus job1Bonus2;
     Salary job2Salary;
-    EntityManager entityManager;
+    EntityManager<Entity> entityManager;
+    EntityManager<Job> jobManager;
 
     @Before
     public void setUp() throws Exception {
-        entityManager = new EntityManager();
+        entityManager = new EntityManager<Entity>();
+        jobManager = new EntityManager<Job>();
         company1 = new Company(entityManager, "comp1");
         company1.setCompanyName("IBM");
         company2 = new Company(entityManager, "comp2");
@@ -83,16 +85,10 @@ public class JobTest {
         person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
         person2.setRetirementAge(40);
 
-        job1 = new Job();
-        job1.setId("job1");
-        job1.setEmployer(company1);
-        job1.setEmployee(person1);
+        job1 = new Job(jobManager, "job1", company1, person1);
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2002, Month.AUGUST, 15));
-        job2 = new Job();
-        job2.setId("job2");
-        job2.setEmployer(company2);
-        job2.setEmployee(person2);
+        job2 = new Job(jobManager, "job2", company2, person2);
         job2.setStartDate(LocalDate.of(2001, Month.JUNE, 15));
         job2.setEndDate(LocalDate.of(2002, Month.MAY, 7));
 
@@ -228,7 +224,7 @@ public class JobTest {
 
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         //entitymanager for creating any static data based entities
-        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
+        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager).addValue("jobManager", jobManager);
         mapper.setInjectableValues(injects);
 
         String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";

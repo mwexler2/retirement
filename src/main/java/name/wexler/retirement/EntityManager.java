@@ -33,17 +33,17 @@ import java.util.HashMap;
  * Created by mwexler on 7/5/16.
  */
 
-public class EntityManager {
-    private HashMap<String, Entity> allEntities = new HashMap<>();
+public class EntityManager<T> {
+    private HashMap<String, T> allEntities = new HashMap<>();
 
     public EntityManager() {
     }
 
-    public Entity getById(String id) {
+    public T getById(String id) {
         return allEntities.get(id);
     }
 
-    public void put(String id, Entity entity) {
+    public void put(String id, T entity) {
         allEntities.put(id, entity);
     }
 

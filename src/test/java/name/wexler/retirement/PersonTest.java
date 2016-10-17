@@ -1,5 +1,6 @@
 package name.wexler.retirement;
 
+import com.fasterxml.jackson.databind.InjectableValues;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,6 +119,7 @@ public class PersonTest {
     @Test
     public void serialize() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+
         ObjectWriter writer = mapper.writer();
         String person1Str = writer.writeValueAsString(person1);
         assertEquals("{\"type\":\"person\",\"id\":\"john1\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}", person1Str);
@@ -130,6 +132,8 @@ public class PersonTest {
     @Test
     public void deserialize() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
+        mapper.setInjectableValues(injects);
 
         String person1Str = "{\"type\":\"person\",\"id\":\"john1a\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}";
         String person2Str ="{\"type\":\"person\",\"id\":\"jane1a\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}";

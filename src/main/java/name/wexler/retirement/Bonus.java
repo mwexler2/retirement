@@ -23,9 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.CashFlowSource;
@@ -45,7 +43,12 @@ import java.time.YearMonth;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Bonus extends IncomeSource {
     private String id;
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Job job;
+    @JsonIdentityReference(alwaysAsId = true)
     private Salary salary;
     private BigDecimal bonusPct;
     @JsonDeserialize(using=JSONMonthDayDeserialize.class)
@@ -76,10 +79,12 @@ public class Bonus extends IncomeSource {
         return annualBonusAmount;
     }
 
+    @JsonIgnore
     public BigDecimal getAnnualCashFlow() {
         return getAnnualCashFlow(LocalDate.now().getYear());
     }
 
+    @JsonIgnore
     public String getName() {
         return job.getName() + " Bonus";
     }

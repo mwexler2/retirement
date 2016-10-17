@@ -48,10 +48,6 @@ public abstract class Entity {
         entityManager.put(id, this);
     }
 
-    @JsonCreator
-    public static Entity findById(@JacksonInject EntityManager entityManager, @JsonProperty("id") String id) {
-        return entityManager.getById(id);
-    }
 
     abstract public String getName ();
 
