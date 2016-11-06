@@ -36,7 +36,8 @@ public class Annual extends CashFlowSource {
     private int firstYear;
     private int lastYear;
 
-    public Annual(MonthDay flowMonthDay, int firstYear, int lastYear) {
+    public Annual(String id, MonthDay flowMonthDay, int firstYear, int lastYear) {
+        super(id);
         this.flowMonthDay = flowMonthDay;
         this.firstYear = firstYear;
         this.lastYear = lastYear;

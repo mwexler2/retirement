@@ -33,8 +33,8 @@ public class SemiMonthly extends Monthly {
     private int firstDayOfMonth;
     private int secondDayOfMonth;
 
-    public SemiMonthly(int firstDayOfMonth, int secondDayOfMonth, LocalDate startDate, LocalDate endDate) {
-        super(firstDayOfMonth, startDate, endDate);
+    public SemiMonthly(String id, int firstDayOfMonth, int secondDayOfMonth, LocalDate startDate, LocalDate endDate) {
+        super(id, firstDayOfMonth, startDate, endDate);
         this.firstDayOfMonth = firstDayOfMonth;
         this.secondDayOfMonth = this.secondDayOfMonth;
     }

@@ -45,7 +45,7 @@ public class Salary extends IncomeSource {
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIgnore
     private Job job;
     private BigDecimal baseAnnualSalary;
     private static BigDecimal monthsPerYear = new BigDecimal(12);
@@ -100,9 +100,19 @@ public class Salary extends IncomeSource {
         return job.getName() + " Salary";
     }
 
+    public void setJobId(@JacksonInject("jobManager") EntityManager<Job> jobManager, @JsonProperty(value="job", required=true) String jobId) {
+        this.job = jobManager.getById(jobId);
+    }
+
+    @JsonProperty(value = "job")
+    public String getJobId() {
+        return job.getId();
+    }
+
     public Job getJob() {
         return job;
     }
+
 
     public void setJob(Job job) {
         this.job = job;

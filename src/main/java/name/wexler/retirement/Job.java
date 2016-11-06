@@ -93,12 +93,12 @@ public class Job {
     }
 
 
-    @JsonCreator
+   /* @JsonCreator
     public static Job jobFactory(@JacksonInject("jobManager") EntityManager<Job> jobManager,
-                       String id) {
+                       @JsonProperty(value = "@id", required=true) String id) {
         Job job = jobManager.getById(id);
         return job;
-    }
+    } */
 
 
     private void init(EntityManager<Job> jobManager) throws Exception {

@@ -23,6 +23,10 @@
 
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import name.wexler.retirement.Debt;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
@@ -31,10 +35,25 @@ import java.time.YearMonth;
 /**
  * Created by mwexler on 7/9/16.
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Annual.class, name = "annual"),
+        @JsonSubTypes.Type(value = Biweekly.class, name = "biweekly"),
+        @JsonSubTypes.Type(value = Monthly.class, name = "monthly"),
+        @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly")
+})
 public abstract class CashFlowSource {
+    private String id;
 
+    public CashFlowSource(String id) {
+        this.id = id;
+    }
 
-    public CashFlowSource() {
+    public String getId() {
+        return this.id;
     }
 
     public abstract BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount);

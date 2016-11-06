@@ -23,6 +23,7 @@
 
 package name.wexler.retirement;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -57,11 +58,11 @@ public class Account {
         return assets;
     }
 
-    public double getAccountValue(LocalDate date) {
-        double result = 0.00;
+    public BigDecimal getAccountValue(LocalDate date) {
+        BigDecimal result = BigDecimal.ONE.ZERO;
 
         for (Asset asset : this.assets) {
-            result += asset.getAssetValue(date);
+            result = result.add(asset.getAssetValue(date));
         }
         return result;
     }

@@ -41,12 +41,10 @@ import java.time.YearMonth;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "type", "id", "source", "job", "salary", "bonusPct", "bonusDay" })
 public class Bonus extends IncomeSource {
     private String id;
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class,
-            property = "id")
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIgnore
     private Job job;
     @JsonIdentityReference(alwaysAsId = true)
     private Salary salary;
@@ -89,6 +87,16 @@ public class Bonus extends IncomeSource {
         return job.getName() + " Bonus";
     }
 
+    @JsonProperty(value = "job")
+    public String getJobId() {
+        return job.getId();
+    }
+
+    @JsonProperty(value = "job")
+    public void setJobId(@JacksonInject("jobManager") EntityManager<Job> jobManager, @JsonProperty(value="job", required=true) String jobId) {
+        this.job = jobManager.getById(jobId);
+    }
+
     public Job getJob() {
         return job;
     }
@@ -97,6 +105,17 @@ public class Bonus extends IncomeSource {
         this.job = job;
     }
 
+    @JsonProperty(value = "salary")
+    public String getSalaryId() {
+        return salary.getId();
+    }
+
+    @JsonProperty(value = "salary")
+    public void setSalaryId(@JacksonInject("salaryManager") EntityManager<Job> jobManager, @JsonProperty(value="job", required=true) String jobId) {
+        this.job = jobManager.getById(jobId);
+    }
+
+    @JsonIgnore
     public Salary getSalary() {
         return salary;
     }

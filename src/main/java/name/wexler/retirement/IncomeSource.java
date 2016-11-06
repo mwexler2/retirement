@@ -33,6 +33,7 @@ import java.time.YearMonth;
 /**
  * Created by mwexler on 7/9/16.
  */
+@JsonPropertyOrder({ "type", "id", "source", "job", "baseAnnualSalary"})
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,

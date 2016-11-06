@@ -94,12 +94,12 @@ public class JobTest {
 
         MonthDay job1BonusDay = MonthDay.of(Month.MARCH, 15);
         BigDecimal job1BonusPct = new BigDecimal(.30);
-        CashFlowSource job1SalarySource = new SemiMonthly(5, 20, job1.getStartDate(), job1.getEndDate());
+        CashFlowSource job1SalarySource = new SemiMonthly("semi-monthly-salary1", 5, 20, job1.getStartDate(), job1.getEndDate());
         job1Salary = new Salary();
         job1Salary.setJob(job1);
         job1Salary.setBaseAnnualSalary(new BigDecimal(100000.00));
         job1Salary.setSource(job1SalarySource);
-        Annual job1BonusSource = new Annual(job1BonusDay,
+        Annual job1BonusSource = new Annual("annual-bonus1", job1BonusDay,
                 job1.getStartDate().getYear(), job1.getEndDate().getYear());
         job1Bonus = new Bonus();
         job1Bonus.setJob(job1);
@@ -109,12 +109,12 @@ public class JobTest {
         job1Bonus.setSource(job1BonusSource);
         IncomeSource[] job1IS = {job1Salary, job1Bonus};
 
-        CashFlowSource job1SalarySource2 = new SemiMonthly(10, 25, job2.getStartDate(), job2.getEndDate());
+        CashFlowSource job1SalarySource2 = new SemiMonthly("semi-monthly-salary2", 10, 25, job2.getStartDate(), job2.getEndDate());
         job1Salary2 = new Salary();
         job1Salary2.setJob(job2);
         job1Salary2.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
         job1Salary2.setSource(job1SalarySource2);
-        Annual job1BonusSource2 = new Annual(job1BonusDay,
+        Annual job1BonusSource2 = new Annual("annual-bonus2", job1BonusDay,
                 job1.getStartDate().getYear(), job1.getEndDate().getYear());
         job1Bonus2 = new Bonus();
         job1Bonus2.setJob(job2);
@@ -123,7 +123,7 @@ public class JobTest {
         job1Bonus2.setBonusDay(job1BonusDay);
         job1Bonus2.setSource(job1BonusSource2);
 
-        CashFlowSource job2SalarySource = new Biweekly(DayOfWeek.FRIDAY, job2.getStartDate(), job2.getEndDate());
+        CashFlowSource job2SalarySource = new Biweekly("biweekly-job2-salary", DayOfWeek.FRIDAY, job2.getStartDate(), job2.getEndDate());
         job2Salary = new Salary();
         job2Salary.setJob(job2);
         job2Salary.setBaseAnnualSalary(BigDecimal.valueOf(80000.00));

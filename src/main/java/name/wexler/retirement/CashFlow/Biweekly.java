@@ -36,7 +36,8 @@ public class Biweekly extends CashFlowSource {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public Biweekly(DayOfWeek dayOfWeek, LocalDate startDate, LocalDate endDate) {
+    public Biweekly(String id, DayOfWeek dayOfWeek, LocalDate startDate, LocalDate endDate) {
+        super(id);
         this.dayOfWeek = dayOfWeek;
         this.startDate = this.startDate;
         this.endDate = this.endDate;

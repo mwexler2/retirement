@@ -54,6 +54,10 @@ public class Retirement {
     private Job[] jobs;
     private Company[] companies;
     private Person[] people;
+    private IncomeSource[] incomeSources;
+    private Asset[] assets;
+    private ExpenseSource[] expenseSources;
+    private Assumptions assumptions;
 
     public NumberFormat getCf() {
         return cf;
@@ -70,11 +74,14 @@ public class Retirement {
         Locale enUS = Locale.forLanguageTag("en-US");
         cf = NumberFormat.getCurrencyInstance(enUS);
         pf = NumberFormat.getPercentInstance();
-        EntityManager entityManager = new EntityManager();
+        EntityManager<Entity> entityManager = new EntityManager<>();
+        EntityManager<Job> jobManager = new EntityManager<>();
 
         try {
             ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-            InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
+            InjectableValues injects = new InjectableValues.Std().
+                    addValue("entityManager", entityManager).
+                    addValue("jobManager",    jobManager);
             mapper.setInjectableValues(injects);
 
             mapper.setInjectableValues(injects);
@@ -92,6 +99,22 @@ public class Retirement {
             String jobsPath = resourceDir + "/jobs.json";
             File jobsFile = new File(jobsPath);
             this.jobs = mapper.readValue(jobsFile, Job[].class);
+
+            String incomeSourcesPath = resourceDir + "/incomeSources.json";
+            File incomeSourcesFile = new File(incomeSourcesPath);
+            this.incomeSources = mapper.readValue(incomeSourcesFile, IncomeSource[].class);
+
+            String assetsPath = resourceDir + "/assets.json";
+            File assetssFile = new File(assetsPath);
+            this.assets = mapper.readValue(assetssFile, Asset[].class);
+
+            String expenseSourcesPath = resourceDir + "/expenseSources.json";
+            File expenseSourcesFile = new File(expenseSourcesPath);
+            this.expenseSources = mapper.readValue(expenseSourcesFile, ExpenseSource[].class);
+
+            String assumptionsPath = resourceDir + "/assumptions.json";
+            File assumptionsFile = new File(assumptionsPath);
+            this.assumptions = mapper.readValue(assumptionsFile, Assumptions.class);
 
             String scenariosPath = resourceDir + "/scenarios.json";
             File scenariosFile = new File(scenariosPath);

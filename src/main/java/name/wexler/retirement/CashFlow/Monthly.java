@@ -23,6 +23,7 @@
 
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import name.wexler.retirement.CashFlow.CashFlowSource;
 
 import java.math.BigDecimal;
@@ -38,9 +39,11 @@ public class Monthly extends CashFlowSource {
     private int dayOfMonth;
     private LocalDate startDate;
     private LocalDate endDate;
+    @JsonIgnore
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
-    public Monthly(int dayOfMonth, LocalDate startDate, LocalDate endDate) {
+    public Monthly(String id, int dayOfMonth, LocalDate startDate, LocalDate endDate) {
+        super(id);
         this.dayOfMonth = dayOfMonth;
         this.startDate = startDate;
         this.endDate = endDate;

@@ -23,7 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.CashFlowSource;
@@ -36,9 +36,13 @@ import java.time.YearMonth;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "term", "interestRate", "startingBalance", "paymentAmount" })
 public class Debt extends ExpenseSource {
+    @JsonIgnore
     private Entity lender;
+    @JsonIgnore
     private Entity[] borrowers;
+    @JsonIgnore
     private Asset security;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
@@ -54,10 +58,10 @@ public class Debt extends ExpenseSource {
 
     }
 
-    public Debt(Entity lender, Entity[] borrowers, Asset security,
+    public Debt(String id, Entity lender, Entity[] borrowers, Asset security,
          LocalDate startDate, int term, BigDecimal interestRate, BigDecimal startingBalance,
          BigDecimal paymentAmount, CashFlowSource source) {
-        super(source);
+        super(id, source);
         this.security = security;
         this.lender = lender;
         this.borrowers = borrowers;
@@ -76,11 +80,13 @@ public class Debt extends ExpenseSource {
         return paymentAmount.negate().multiply(monthsPerYear);
     }
 
+    @JsonIgnore
     public BigDecimal getAnnualCashFlow() {
         return getAnnualCashFlow(LocalDate.now().getYear());
     }
 
 
+    @JsonIgnore
     @Override
     public String getName() {
         String result;
@@ -93,12 +99,49 @@ public class Debt extends ExpenseSource {
         return result;
     }
 
+    @JsonProperty(value = "source")
+    public String getSourceId() {
+        return this.getSource().getId();
+    }
+
+    @JsonProperty(value = "security")
+    public String getSecurityId() {
+        return this.security.getId();
+    }
+
+    public void setLenderId(@JacksonInject("entityManager") EntityManager<Entity> entityManager,
+                            @JsonProperty(value="lender", required=true) String lenderId) {
+        this.lender = entityManager.getById(lenderId);
+    }
+
+    @JsonProperty(value = "lender")
+    public String getLenderId() {
+        return lender.getId();
+    }
+
     public Entity getLender() {
         return lender;
     }
 
     public void setLender(Entity lender) {
         this.lender = lender;
+    }
+
+    public void setBorrowersIds(@JacksonInject("entityManager") EntityManager<Entity> entityManager,
+                                @JsonProperty(value="borrowers", required=true) String[] borrowerIds) {
+        this.borrowers = new Entity[borrowerIds.length];
+        for (int i = 0; i < borrowerIds.length; ++i) {
+            borrowers[i] = entityManager.getById(borrowerIds[i]);
+        }
+    }
+
+    @JsonProperty(value = "borrowers")
+    public String[] getBorrowerIds() {
+
+        String[] result = new String[borrowers.length];
+        for (int i = 0; i < borrowers.length; ++i)
+            result[i] = borrowers[i].getId();
+        return result;
     }
 
     public Entity[] getBorrowers() {
@@ -157,6 +200,7 @@ public class Debt extends ExpenseSource {
         this.paymentAmount = paymentAmount;
     }
 
+    @JsonIgnore
     public BigDecimal getMonthsPerYear() {
         return monthsPerYear;
     }

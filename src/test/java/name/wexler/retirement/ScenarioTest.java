@@ -21,8 +21,8 @@ public class ScenarioTest {
     public void setUp() throws Exception {
         IncomeSource[] is = new IncomeSource[0];
         ExpenseSource[] es = new ExpenseSource[0];
-        scenario1 = new Scenario("incomeSource1", is, es);
-        scenario2 = new Scenario("incomeSource2", is, es);
+        scenario1 = new Scenario("salary", is, es);
+        scenario2 = new Scenario("bonus", is, es);
     }
 
     @After
@@ -34,9 +34,9 @@ public class ScenarioTest {
     @Test
     public void getName() throws Exception {
         String name1 = scenario1.getName();
-        assertEquals(name1, "incomeSource1");
+        assertEquals(name1, "salary");
         String name2 = scenario2.getName();
-        assertEquals(name2, "incomeSource2");
+        assertEquals(name2, "bonus");
     }
 
 
@@ -50,10 +50,10 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = writer.writeValueAsString(scenario1);
-        assertEquals("{\"assumptions\":null,\"incomeSources\":[],\"name\":\"incomeSource1\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}", scenario1Str);
+        assertEquals("{\"assumptions\":null,\"incomeSources\":[],\"name\":\"salary\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}", scenario1Str);
 
         String scenario2Str = writer.writeValueAsString(scenario2);
-        assertEquals("{\"assumptions\":null,\"incomeSources\":[],\"name\":\"incomeSource2\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}", scenario2Str);
+        assertEquals("{\"assumptions\":null,\"incomeSources\":[],\"name\":\"bonus\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}", scenario2Str);
     }
 
 

@@ -25,6 +25,7 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -42,9 +43,9 @@ public class RealProperty extends Asset {
 
     }
 
-    protected RealProperty(Entity owner, double initialAssetValue, LocalDate initialAssetValueDate,
+    protected RealProperty(String id, Entity owner, BigDecimal initialAssetValue, LocalDate initialAssetValueDate,
                            String[] address, String city, String county, String state, String zipCode, String country) {
-        super(owner, initialAssetValue, initialAssetValueDate);
+        super(id, owner, initialAssetValue, initialAssetValueDate);
         this.address = address;
         this.city = city;
         this.county = county;

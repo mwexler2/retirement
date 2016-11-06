@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -40,34 +41,41 @@ import java.time.LocalDate;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RealProperty.class, name = "real-property") })
 public abstract class Asset {
-    private double initialAssetValue;
+    private BigDecimal initialAssetValue;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate initialAssetValueDate;
     private Entity owner;
 
+    public String getId() {
+        return id;
+    }
+
+    private String id;
+
     public Asset() {
 
     }
 
-    protected Asset(Entity owner, double initialAssetValue, LocalDate initialAssetValueDate) {
+    protected Asset(String id, Entity owner, BigDecimal initialAssetValue, LocalDate initialAssetValueDate) {
+        this.id = id;
         this.setInitialAssetValue(initialAssetValue);
         this.setInitialAssetValueDate(initialAssetValueDate);
     }
 
     abstract public String getName();
 
-    public double getAssetValue(LocalDate valueDate) {
-        double gains = 0.00;
-        double assetValue = initialAssetValue + gains;
+    public BigDecimal getAssetValue(LocalDate valueDate) {
+        BigDecimal gains = BigDecimal.ZERO;
+        BigDecimal assetValue = initialAssetValue.add(gains);
         return assetValue;
     }
 
-    public double getInitialAssetValue() {
+    public BigDecimal getInitialAssetValue() {
         return initialAssetValue;
     }
 
-    public void setInitialAssetValue(double initialAssetValue) {
+    public void setInitialAssetValue(BigDecimal initialAssetValue) {
         this.initialAssetValue = initialAssetValue;
     }
 

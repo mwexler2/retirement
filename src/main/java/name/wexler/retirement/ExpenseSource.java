@@ -23,8 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.CashFlow.CashFlowSource;
 
 import java.math.BigDecimal;
@@ -41,16 +40,29 @@ import java.time.YearMonth;
         @JsonSubTypes.Type(value = Debt.class, name = "debt")
          })
 public abstract class ExpenseSource {
+
+    @JsonIgnore
     private CashFlowSource source;
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public ExpenseSource() {
 
     }
 
-    public ExpenseSource(CashFlowSource source) {
+    public ExpenseSource(String id, CashFlowSource source) {
+        this.id = id;
         this.source = source;
     }
 
+    @JsonIgnore
     abstract public String getName();
 
     public  BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
@@ -62,12 +74,19 @@ public abstract class ExpenseSource {
         return source.getMonthlyCashFlow(annualAmount);
     }
 
+    @JsonIgnore
     public BigDecimal getAnnualCashFlow(int year, BigDecimal annualAmount) {
         return source.getAnnualCashFlow(year, annualAmount);
     }
 
+    public CashFlowSource getSource() {
+        return source;
+    }
+
+    @JsonIgnore
     public abstract BigDecimal getAnnualCashFlow(int year);
 
+    @JsonCreator
     public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
         return source.getAnnualCashFlow(annualAmount);
     }
