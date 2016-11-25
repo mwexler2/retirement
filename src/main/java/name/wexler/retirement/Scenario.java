@@ -24,7 +24,7 @@
 package name.wexler.retirement;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -33,29 +33,30 @@ import java.math.BigDecimal;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "assumptions", "name", "incomeSources", "expenseSources", "numYears" })
 public class Scenario {
     private Assumptions assumptions;
-    private IncomeSource[] incomeSources;
     private String name;
-    private int[] years;
 
-    public ExpenseSource[] getExpenseSources() {
-        return expenseSources;
-    }
+    @JsonIgnore
+    private IncomeSource[] incomeSources;
 
-    public void setExpenseSources(ExpenseSource[] expenseSources) {
-        this.expenseSources = expenseSources;
-    }
-
+    @JsonIgnore
     private ExpenseSource[] expenseSources;
 
-    Scenario() {
-    }
+    @JsonIgnore
+    private int[] years;
 
-    Scenario(String name, IncomeSource[] incomeSources, ExpenseSource[] expenseSources) {
+
+    @JsonCreator
+    Scenario(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+             @JacksonInject("expenseSourceManager") EntityManager<ExpenseSource> expenseSourceManager,
+             @JsonProperty("name") String name,
+             @JsonProperty("incomeSources") String[] incomeSources,
+             @JsonProperty("expenseSources") String[] expenseSources) {
         this.name = name;
-        this.incomeSources = incomeSources;
-        this.expenseSources = expenseSources;
+        this.setIncomeSourceIds(incomeSourceManager, incomeSources);
+        this.setExpenseSourceIds(expenseSourceManager, expenseSources);
         int startYear = 2016;
         this.years = new int[51];
         for (int i = 0; i <= 50; ++i) {
@@ -63,6 +64,51 @@ public class Scenario {
         }
     }
 
+    @JsonIgnore
+    public ExpenseSource[] getExpenseSources() {
+        return expenseSources;
+    }
+
+    @JsonIgnore
+    public void setExpenseSources(ExpenseSource[] expenseSources) {
+        this.expenseSources = expenseSources;
+    }
+
+    @JsonProperty(value = "incomeSources")
+    public void setIncomeSourceIds(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+                                @JsonProperty(value="incomeSources", required=true) String[] incomeSourceIds) {
+        this.incomeSources = new IncomeSource[incomeSourceIds.length];
+        for (int i = 0; i < incomeSourceIds.length; ++i) {
+            incomeSources[i] = incomeSourceManager.getById(incomeSourceIds[i]);
+        }
+    }
+
+    @JsonProperty(value = "incomeSources")
+    public String[] getIncomeSourceIds() {
+        String[] result = new String[incomeSources.length];
+        for (int i = 0; i < incomeSources.length; ++i)
+            result[i] = incomeSources[i].getId();
+        return result;
+    }
+
+    @JsonProperty(value = "expenseSources")
+    public void setExpenseSourceIds(@JacksonInject("expenseSourceManager") EntityManager<ExpenseSource> expenseSourceManager,
+                                   @JsonProperty(value="expenseSources", required=true) String[] expenseSourceIds) {
+        this.expenseSources = new ExpenseSource[expenseSourceIds.length];
+        for (int i = 0; i < expenseSourceIds.length; ++i) {
+            expenseSources[i] = expenseSourceManager.getById(expenseSourceIds[i]);
+        }
+    }
+
+    @JsonProperty(value = "expenseSources")
+    public String[] getExpenseSourceIds() {
+        String[] result = new String[expenseSources.length];
+        for (int i = 0; i < expenseSources.length; ++i)
+            result[i] = expenseSources[i].getId();
+        return result;
+    }
+
+    @JsonIgnore
     public BigDecimal getAnnualIncome(int year) {
         BigDecimal income = BigDecimal.ZERO;
 
@@ -72,6 +118,7 @@ public class Scenario {
         return income;
     }
 
+    @JsonIgnore
     public BigDecimal getAnnualExpense(int year) {
         BigDecimal expense = BigDecimal.ZERO;
 
@@ -89,10 +136,12 @@ public class Scenario {
         this.assumptions = assumptions;
     }
 
+    @JsonIgnore
     public IncomeSource[] getIncomeSources() {
         return incomeSources;
     }
 
+    @JsonIgnore
     public void setIncomeSources(IncomeSource[] incomeSources) {
         this.incomeSources = incomeSources;
     }

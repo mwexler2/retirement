@@ -40,7 +40,6 @@ import java.time.YearMonth;
         @JsonSubTypes.Type(value = Debt.class, name = "debt")
          })
 public abstract class ExpenseSource {
-
     @JsonIgnore
     private CashFlowSource source;
     private String id;
@@ -53,12 +52,16 @@ public abstract class ExpenseSource {
         this.id = id;
     }
 
-    public ExpenseSource() {
 
+    public ExpenseSource(EntityManager<ExpenseSource> expenseSourceManager, String id) throws Exception {
+        this.id = id;
+        if (expenseSourceManager.getById(id) != null)
+            throw new Exception("Key " + id + " already exists");
+        expenseSourceManager.put(id, this);
     }
 
-    public ExpenseSource(String id, CashFlowSource source) {
-        this.id = id;
+
+    public void setSource(CashFlowSource source) {
         this.source = source;
     }
 

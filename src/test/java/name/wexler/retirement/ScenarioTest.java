@@ -16,13 +16,27 @@ import static org.junit.Assert.assertNotEquals;
 public class ScenarioTest {
     Scenario scenario1;
     Scenario scenario2;
+    EntityManager<Entity> entityManager;
+    EntityManager<ExpenseSource> expenseSourceManager;
+    EntityManager<IncomeSource> incomeSourceManager;
+    EntityManager<Job> jobManager;
 
     @Before
     public void setUp() throws Exception {
-        IncomeSource[] is = new IncomeSource[0];
-        ExpenseSource[] es = new ExpenseSource[0];
-        scenario1 = new Scenario("salary", is, es);
-        scenario2 = new Scenario("bonus", is, es);
+        entityManager = new EntityManager<>();
+        incomeSourceManager = new EntityManager<>();
+        expenseSourceManager = new EntityManager<>();
+        jobManager = new EntityManager<>();
+        Person mike = new Person(entityManager, "mike");
+        Company yahoo = new Company(entityManager, "yahoo1");
+        Job job1 = new Job(jobManager, entityManager, "job1", "yahoo", "mike");
+        Salary salary1 = new Salary(incomeSourceManager, jobManager, "salary1", "job1");
+        Company bankOfNowhere = new Company(entityManager, "bon1");
+        Debt debt1 = new Debt(expenseSourceManager, entityManager, "debt1", "bon1");
+        String[] is = {"salary1"};
+        String[] es = {"debt1"};
+        scenario1 = new Scenario(incomeSourceManager, expenseSourceManager, "scenario1", is, es);
+        scenario2 = new Scenario(incomeSourceManager, expenseSourceManager, "scenario2", is, es);
     }
 
     @After
@@ -34,9 +48,9 @@ public class ScenarioTest {
     @Test
     public void getName() throws Exception {
         String name1 = scenario1.getName();
-        assertEquals(name1, "salary");
+        assertEquals(name1, "scenario1");
         String name2 = scenario2.getName();
-        assertEquals(name2, "bonus");
+        assertEquals(name2, "scenario2");
     }
 
 
@@ -50,21 +64,24 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = writer.writeValueAsString(scenario1);
-        assertEquals("{\"assumptions\":null,\"incomeSources\":[],\"name\":\"salary\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}", scenario1Str);
+        assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"],\"numYears\":51}", scenario1Str);
 
         String scenario2Str = writer.writeValueAsString(scenario2);
-        assertEquals("{\"assumptions\":null,\"incomeSources\":[],\"name\":\"bonus\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}", scenario2Str);
+        assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"],\"numYears\":51}", scenario2Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}";
-        String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"years\":[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035,2036,2037,2038,2039,2040,2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059,2060,2061,2062,2063,2064,2065,2066],\"expenseSources\":[],\"numYears\":51}";
+        String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"numYears\":51}";
+        String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"numYears\":51}";
 
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        /* InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
-        mapper.setInjectableValues(injects); */
+        InjectableValues injects = new InjectableValues.Std().
+                addValue("entityManager", entityManager).
+                addValue("incomeSourceManager", incomeSourceManager).
+                addValue("expenseSourceManager", expenseSourceManager);
+        mapper.setInjectableValues(injects);
         ObjectWriter writer = mapper.writer();
 
        Scenario scenario1a = mapper.readValue(scenario1aStr, Scenario.class);

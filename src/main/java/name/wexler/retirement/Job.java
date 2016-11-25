@@ -65,10 +65,6 @@ public class Job {
     @JsonIdentityReference(alwaysAsId = true)
     private Person employee;
 
-   /*  public Job(@JacksonInject("jobManager") EntityManager<Job> jobManager, @JsonProperty("id") String id) throws Exception {
-        this.id = id;
-        this.init(jobManager);
-    } */
 
     @JsonCreator
     public Job(@JacksonInject("jobManager") EntityManager<Job> jobManager,
@@ -91,15 +87,6 @@ public class Job {
         this.employee = employee;
         this.init(jobManager);
     }
-
-
-   /* @JsonCreator
-    public static Job jobFactory(@JacksonInject("jobManager") EntityManager<Job> jobManager,
-                       @JsonProperty(value = "@id", required=true) String id) {
-        Job job = jobManager.getById(id);
-        return job;
-    } */
-
 
     private void init(EntityManager<Job> jobManager) throws Exception {
         if (jobManager.getById(id) != null)

@@ -37,13 +37,9 @@ import java.time.YearMonth;
 /**
  * Created by mwexler on 7/5/16.
  */
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "job", "salary", "bonusPct", "bonusDay" })
 public class Bonus extends IncomeSource {
-    private String id;
     @JsonIgnore
     private Job job;
     @JsonIdentityReference(alwaysAsId = true)
@@ -53,7 +49,14 @@ public class Bonus extends IncomeSource {
     @JsonSerialize(using=JSONMonthDaySerialize.class)
     private MonthDay bonusDay;
 
-    public Bonus() {
+    public Bonus(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+                 @JacksonInject("jobManager") EntityManager<Job> jobManager,
+                 @JsonProperty("id") String id,
+                 @JsonProperty("job") String jobId,
+                 @JsonProperty(value = "salary", required = true) String salaryId) throws Exception {
+        super(incomeSourceManager, id);
+        this.setJobId(jobManager, jobId);
+        this.setSalaryId(incomeSourceManager, salaryId);
     }
 
     @Override
@@ -111,8 +114,9 @@ public class Bonus extends IncomeSource {
     }
 
     @JsonProperty(value = "salary")
-    public void setSalaryId(@JacksonInject("salaryManager") EntityManager<Job> jobManager, @JsonProperty(value="job", required=true) String jobId) {
-        this.job = jobManager.getById(jobId);
+    public void setSalaryId(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+                            @JsonProperty(value="salary", required=true) String salaryId) {
+        this.salary = (Salary) incomeSourceManager.getById(salaryId);
     }
 
     @JsonIgnore
@@ -138,13 +142,5 @@ public class Bonus extends IncomeSource {
 
     public void setBonusDay(MonthDay bonusDay) {
         this.bonusDay = bonusDay;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 }

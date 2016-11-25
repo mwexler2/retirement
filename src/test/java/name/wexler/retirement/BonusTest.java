@@ -22,27 +22,25 @@ public class BonusTest {
     Salary salary;
     Bonus bonus;
     EntityManager<Job> jobManager;
+    EntityManager<IncomeSource> incomeSourceManager = new EntityManager<>();
+
 
     @Before
     public void setUp() throws Exception {
         EntityManager<Entity> entityManager = new EntityManager<Entity>();
+        this.incomeSourceManager = new EntityManager<>();
         this.jobManager = new EntityManager<Job>();
         Company employer = new Company(entityManager, "employer1");
         Person employee = new Person(entityManager, "employee1");
         Job job1 = new Job(jobManager, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
-        salary = new Salary();
-        salary.setId("salary1");
+        salary = new Salary(this.incomeSourceManager, jobManager, "salary1", "job1");
         salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
-        salary.setJob(job1);
-        bonus = new Bonus();
-        bonus.setId("bonus1");
-        bonus.setSalary(salary);
+        bonus = new Bonus(this.incomeSourceManager, jobManager,  "bonus1", "job1", "salary1");
         bonus.setBonusPct(BigDecimal.valueOf(10.0));
         MonthDay foo = MonthDay.of(Month.JANUARY, 2);
         bonus.setBonusDay(MonthDay.of(Month.JUNE, 6));
-        bonus.setJob(job1);
     }
 
     @After
@@ -77,16 +75,18 @@ public class BonusTest {
 
     @Test
     public void deserialize() throws Exception {
-        String bonus1Str = "{\"type\":\"bonus\",\"id\":\"bonus1\",\"source\":null,\"job\":\"job1\",\"salary\":\"is1\",\"bonusPct\":10.0,\"bonusDay\":\"--06-06\"}";
+        String bonus1Str = "{\"type\":\"bonus\",\"id\":\"bonus1a\",\"source\":null,\"job\":\"job1\",\"salary\":\"is1\",\"bonusPct\":10.0,\"bonusDay\":\"--06-06\"}";
 
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        InjectableValues injects = new InjectableValues.Std().addValue("jobManager", jobManager);
+        InjectableValues injects = new InjectableValues.Std().
+                addValue("jobManager", jobManager).
+                addValue("incomeSourceManager", this.incomeSourceManager);
         mapper.setInjectableValues(injects);
         ObjectWriter writer = mapper.writer();
 
 
         IncomeSource incomeSource2a = mapper.readValue(bonus1Str, IncomeSource.class);
-        assertEquals("bonus1", incomeSource2a.getId());
+        assertEquals("bonus1a", incomeSource2a.getId());
     }
 
 }

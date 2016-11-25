@@ -37,11 +37,7 @@ import java.time.YearMonth;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class Salary extends IncomeSource {
-    private String id;
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")
@@ -50,7 +46,12 @@ public class Salary extends IncomeSource {
     private BigDecimal baseAnnualSalary;
     private static BigDecimal monthsPerYear = new BigDecimal(12);
 
-    public Salary() {
+    public Salary(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+                  @JacksonInject("jobManager") EntityManager<Job> jobManager,
+                  @JsonProperty("id") String id,
+                  @JsonProperty("job") String jobId) throws Exception {
+        super(incomeSourceManager, id);
+        this.setJobId(jobManager, jobId);
     }
 
 
@@ -100,7 +101,9 @@ public class Salary extends IncomeSource {
         return job.getName() + " Salary";
     }
 
-    public void setJobId(@JacksonInject("jobManager") EntityManager<Job> jobManager, @JsonProperty(value="job", required=true) String jobId) {
+    @JsonProperty(value = "job")
+    public void setJobId(@JacksonInject("jobManager") EntityManager<Job> jobManager,
+                         @JsonProperty(value="job", required=true) String jobId) {
         this.job = jobManager.getById(jobId);
     }
 
@@ -126,14 +129,6 @@ public class Salary extends IncomeSource {
         this.baseAnnualSalary = baseAnnualSalary;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -141,7 +136,7 @@ public class Salary extends IncomeSource {
 
         Salary salary = (Salary) o;
 
-        if (id != null ? !id.equals(salary.id) : salary.id != null) return false;
+        if (this.getId() != null ? !this.getId().equals(salary.getId()) : salary.getId() != null) return false;
         if (job != null ? !job.equals(salary.job) : salary.job != null) return false;
         return baseAnnualSalary != null ? baseAnnualSalary.equals(salary.baseAnnualSalary) : salary.baseAnnualSalary == null;
 
@@ -149,7 +144,7 @@ public class Salary extends IncomeSource {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = this.getId() != null ? this.getId().hashCode() : 0;
         result = 31 * result + (job != null ? job.hashCode() : 0);
         result = 31 * result + (baseAnnualSalary != null ? baseAnnualSalary.hashCode() : 0);
         return result;

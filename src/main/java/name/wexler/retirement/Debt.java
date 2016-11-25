@@ -53,15 +53,20 @@ public class Debt extends ExpenseSource {
     private BigDecimal paymentAmount;
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
-
-    public Debt() {
-
+    public Debt(@JacksonInject("expenseSourceManager") EntityManager<ExpenseSource> expenseSourceManager,
+                @JacksonInject("entityManager") EntityManager<Entity> entityManager,
+                @JsonProperty("id") String id,
+                @JsonProperty("lender") String lenderId) throws Exception {
+        super(expenseSourceManager, id);
+        setLenderId(entityManager, lenderId);
     }
 
-    public Debt(String id, Entity lender, Entity[] borrowers, Asset security,
+
+    public Debt(EntityManager<ExpenseSource> expenseSourceManager, String id, Entity lender, Entity[] borrowers, Asset security,
          LocalDate startDate, int term, BigDecimal interestRate, BigDecimal startingBalance,
-         BigDecimal paymentAmount, CashFlowSource source) {
-        super(id, source);
+         BigDecimal paymentAmount, CashFlowSource source) throws Exception {
+        super(expenseSourceManager, id);
+        this.setSource(source);
         this.security = security;
         this.lender = lender;
         this.borrowers = borrowers;

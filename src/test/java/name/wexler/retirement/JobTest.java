@@ -64,11 +64,13 @@ public class JobTest {
     Salary job2Salary;
     EntityManager<Entity> entityManager;
     EntityManager<Job> jobManager;
+    EntityManager<IncomeSource> incomeSourceManager;
 
     @Before
     public void setUp() throws Exception {
         entityManager = new EntityManager<Entity>();
         jobManager = new EntityManager<Job>();
+        incomeSourceManager = new EntityManager<>();
         company1 = new Company(entityManager, "comp1");
         company1.setCompanyName("IBM");
         company2 = new Company(entityManager, "comp2");
@@ -95,37 +97,32 @@ public class JobTest {
         MonthDay job1BonusDay = MonthDay.of(Month.MARCH, 15);
         BigDecimal job1BonusPct = new BigDecimal(.30);
         CashFlowSource job1SalarySource = new SemiMonthly("semi-monthly-salary1", 5, 20, job1.getStartDate(), job1.getEndDate());
-        job1Salary = new Salary();
-        job1Salary.setJob(job1);
+        job1Salary = new Salary(incomeSourceManager, jobManager, "job1Salary", "job1");
         job1Salary.setBaseAnnualSalary(new BigDecimal(100000.00));
         job1Salary.setSource(job1SalarySource);
         Annual job1BonusSource = new Annual("annual-bonus1", job1BonusDay,
                 job1.getStartDate().getYear(), job1.getEndDate().getYear());
-        job1Bonus = new Bonus();
-        job1Bonus.setJob(job1);
+        job1Bonus = new Bonus(incomeSourceManager, jobManager, "job1Bonus", "job1", "job1Salary");
         job1Bonus.setSalary(job1Salary);
         job1Bonus.setBonusPct(job1BonusPct);
         job1Bonus.setBonusDay(job1BonusDay);
         job1Bonus.setSource(job1BonusSource);
         IncomeSource[] job1IS = {job1Salary, job1Bonus};
 
-        CashFlowSource job1SalarySource2 = new SemiMonthly("semi-monthly-salary2", 10, 25, job2.getStartDate(), job2.getEndDate());
-        job1Salary2 = new Salary();
-        job1Salary2.setJob(job2);
+        CashFlowSource job1SalarySource2 = new SemiMonthly("semi-monthly-salary2", 10, 25, job1.getStartDate(), job1.getEndDate());
+        job1Salary2 = new Salary(incomeSourceManager, jobManager, "job1Salary2", "job1");
         job1Salary2.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
         job1Salary2.setSource(job1SalarySource2);
         Annual job1BonusSource2 = new Annual("annual-bonus2", job1BonusDay,
                 job1.getStartDate().getYear(), job1.getEndDate().getYear());
-        job1Bonus2 = new Bonus();
-        job1Bonus2.setJob(job2);
-        job1Bonus2.setSalary(job1Salary);
+        job1Bonus2 = new Bonus(incomeSourceManager, jobManager, "job1Bonus2", "job1", "job1Salary");
+        job1Bonus2.setSalary(job1Salary2);
         job1Bonus2.setBonusPct(job1BonusPct);
         job1Bonus2.setBonusDay(job1BonusDay);
         job1Bonus2.setSource(job1BonusSource2);
 
         CashFlowSource job2SalarySource = new Biweekly("biweekly-job2-salary", DayOfWeek.FRIDAY, job2.getStartDate(), job2.getEndDate());
-        job2Salary = new Salary();
-        job2Salary.setJob(job2);
+        job2Salary = new Salary(incomeSourceManager, jobManager, "job2Salary", "job2");
         job2Salary.setBaseAnnualSalary(BigDecimal.valueOf(80000.00));
         job2Salary.setSource(job2SalarySource);
         IncomeSource[] job2IS = {job1Salary2, job1Bonus2, job2Salary};

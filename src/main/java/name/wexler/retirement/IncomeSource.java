@@ -64,7 +64,11 @@ public abstract class IncomeSource {
         return result;
     }
 
-    public IncomeSource() {
+    public IncomeSource(EntityManager<IncomeSource> incomeSourceManager, @JsonProperty("id") String id) throws Exception {
+        this.id = id;
+        if (incomeSourceManager.getById(id) != null)
+            throw new Exception("Key " + id + " already exists");
+        incomeSourceManager.put(id, this);
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {

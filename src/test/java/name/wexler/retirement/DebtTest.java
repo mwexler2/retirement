@@ -21,10 +21,14 @@ import static org.junit.Assert.assertNotEquals;
  */
 public class DebtTest {
     Debt debt;
+    EntityManager<ExpenseSource> expenseSourceManager;
+    EntityManager<Entity> entityManager;
 
     @Before
     public void setUp() throws Exception {
         EntityManager<Entity> entityManager = new EntityManager<Entity>();
+        this.expenseSourceManager = new EntityManager<>();
+        this.entityManager = new EntityManager<>();
         Company lender = new Company(entityManager, "lender1");
         Person borrower = new Person(entityManager, "borrower1");
         String[] streetAddress = {"123 Main Street"};
@@ -33,7 +37,7 @@ public class DebtTest {
                 "Anytown", "Count County", "AS", "01234", "US");
         Person[] borrowers = { borrower };
         CashFlowSource monthly = new Monthly("monthly-debt1", 14, LocalDate.of(2011, Month.MAY, 1), LocalDate.of(2031, Month.APRIL, 1));
-        debt = new Debt("debt1", lender, borrowers, asset,
+        debt = new Debt(expenseSourceManager, "debt1", lender, borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthly);
     }
@@ -67,13 +71,17 @@ public class DebtTest {
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
+        String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1a\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
 
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        InjectableValues injects = new InjectableValues.Std().
+                addValue("expenseSourceManager", this.expenseSourceManager).
+                addValue("entityManager", entityManager);
+        mapper.setInjectableValues(injects);
         ObjectWriter writer = mapper.writer();
 
         ExpenseSource expenseSource1a = mapper.readValue(expenseSource1aStr, ExpenseSource.class);
-        assertEquals("debt1", expenseSource1a.getId());
+        assertEquals("debt1a", expenseSource1a.getId());
     }
 
 }

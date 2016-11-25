@@ -76,12 +76,16 @@ public class Retirement {
         pf = NumberFormat.getPercentInstance();
         EntityManager<Entity> entityManager = new EntityManager<>();
         EntityManager<Job> jobManager = new EntityManager<>();
+        EntityManager<IncomeSource> incomeSourceManager = new EntityManager<>();
+        EntityManager<ExpenseSource> expenseSourceManager = new EntityManager<>();
 
         try {
             ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
             InjectableValues injects = new InjectableValues.Std().
                     addValue("entityManager", entityManager).
-                    addValue("jobManager",    jobManager);
+                    addValue("jobManager",    jobManager).
+                    addValue("incomeSourceManager", incomeSourceManager).
+                    addValue("expenseSourceManager", expenseSourceManager);
             mapper.setInjectableValues(injects);
 
             mapper.setInjectableValues(injects);
@@ -119,6 +123,9 @@ public class Retirement {
             String scenariosPath = resourceDir + "/scenarios.json";
             File scenariosFile = new File(scenariosPath);
             this.scenarios = mapper.readValue(scenariosFile, Scenario[].class);
+            for (Scenario s : scenarios) {
+                s.setAssumptions(this.assumptions);
+            }
         } catch (JsonGenerationException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
