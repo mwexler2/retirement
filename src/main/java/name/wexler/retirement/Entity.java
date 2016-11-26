@@ -53,32 +53,9 @@ public abstract class Entity {
         context.put(Entity.class, id, this);
     }
 
-
     abstract public String getName ();
 
     public String getId() {
         return id;
-    }
-
-    public String toJSON() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String result = writer.writeValueAsString(this);
-        return result;
-    }
-
-    static public Entity fromJSON(Context context,
-                                        String json) throws Exception {
-        ObjectMapper mapper = context.getObjectMapper();
-        ObjectWriter writer = mapper.writer();
-        Entity result = (Entity) mapper.readValue(json, Entity.class);
-        return result;
-    }
-
-    static public Entity[] fromJSONFile(Context context, String filePath) throws IOException {
-        File entityFile = new File(filePath);
-        ObjectMapper incomeSourceMapper = context.getObjectMapper();
-        Entity[] result = incomeSourceMapper.readValue(entityFile, Entity[].class);
-        return result;
     }
 }

@@ -72,6 +72,4 @@ public class Company extends Entity {
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
-
-
 }

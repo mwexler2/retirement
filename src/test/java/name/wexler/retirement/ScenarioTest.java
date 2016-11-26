@@ -57,10 +57,10 @@ public class ScenarioTest {
     public void serialize() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
-        String scenario1Str = scenario1.toJSON();
+        String scenario1Str = context.toJSON(scenario1);
         assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"],\"numYears\":51}", scenario1Str);
 
-        String scenario2Str = scenario2.toJSON();
+        String scenario2Str = context.toJSON(scenario2);
         assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"],\"numYears\":51}", scenario2Str);
     }
 
@@ -70,10 +70,10 @@ public class ScenarioTest {
         String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"numYears\":51}";
         String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"numYears\":51}";
 
-        Scenario scenario1a = Scenario.fromJSON(context, scenario1aStr);
+        Scenario scenario1a = context.<Scenario>fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());
 
-        Scenario sceanrio2a = Scenario.fromJSON(context, scenario2aStr);
+        Scenario sceanrio2a = context.<Scenario>fromJSON(Scenario.class, scenario2aStr);
         assertEquals("scenario2a", sceanrio2a.getName());
     }
 

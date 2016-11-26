@@ -161,26 +161,4 @@ public class Scenario {
     public int getNumYears() {
         return this.years.length;
     }
-
-    public String toJSON() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String result = writer.writeValueAsString(this);
-        return result;
-    }
-
-    static public Scenario fromJSON(Context context,
-                                  String json) throws Exception {
-        ObjectMapper mapper = context.getObjectMapper();
-        ObjectWriter writer = mapper.writer();
-        Scenario result = (Scenario) mapper.readValue(json, Scenario.class);
-        return result;
-    }
-
-    static public Scenario[] fromJSONFile(Context context, String filePath) throws IOException {
-        File entityFile = new File(filePath);
-        ObjectMapper incomeSourceMapper = context.getObjectMapper();
-        Scenario[] result = incomeSourceMapper.readValue(entityFile, Scenario[].class);
-        return result;
-    }
 }

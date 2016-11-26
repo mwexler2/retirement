@@ -1,8 +1,12 @@
 package name.wexler.retirement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +45,34 @@ public class Context {
             result = new EntityManager<T>();
             classEntityManager.put(clazz.getSimpleName(), result);
         }
+        return result;
+    }
+
+    public String toJSON(Object o) throws JsonProcessingException {
+        ObjectMapper mapper = getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(o);
+        return result;
+    }
+
+    public <T> T fromJSON(Class clazz, String json) throws Exception {
+        ObjectMapper mapper = getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        T result = (T) mapper.readValue(json, clazz);
+        return result;
+    }
+
+    public <T> T[] fromJSONFileArray(Class clazz, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper mapper = getObjectMapper();
+        T[] result = (T[]) mapper.readValue(entityFile, clazz);
+        return result;
+    }
+
+    public <T> T fromJSONFile(Class clazz, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper mapper = getObjectMapper();
+        T result = (T) mapper.readValue(entityFile, clazz);
         return result;
     }
 }

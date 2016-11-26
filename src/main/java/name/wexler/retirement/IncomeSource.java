@@ -107,26 +107,4 @@ public abstract class IncomeSource {
     public void setSource(CashFlowSource source) {
         this.source = source;
     }
-
-    public String toJSON() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String result = writer.writeValueAsString(this);
-        return result;
-    }
-
-    static public IncomeSource fromJSON(Context context,
-                                 String json) throws Exception {
-        ObjectMapper mapper = context.getObjectMapper();
-        ObjectWriter writer = mapper.writer();
-        IncomeSource result = (IncomeSource) mapper.readValue(json, IncomeSource.class);
-        return result;
-    }
-
-    static public IncomeSource[] fromJSONFile(Context context, String filePath) throws IOException {
-        File incomeSourcesFile = new File(filePath);
-        ObjectMapper incomeSourceMapper = context.getObjectMapper();
-        IncomeSource[] result = incomeSourceMapper.readValue(incomeSourcesFile, IncomeSource[].class);
-        return result;
-    }
 }

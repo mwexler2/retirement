@@ -98,26 +98,4 @@ public abstract class ExpenseSource {
     public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
         return source.getAnnualCashFlow(annualAmount);
     }
-
-    public String toJSON() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String result = writer.writeValueAsString(this);
-        return result;
-    }
-
-    static public ExpenseSource fromJSON(Context context,
-                                        String json) throws Exception {
-        ObjectMapper mapper = context.getObjectMapper();
-        ObjectWriter writer = mapper.writer();
-        ExpenseSource result = (ExpenseSource) mapper.readValue(json, ExpenseSource.class);
-        return result;
-    }
-
-    static public ExpenseSource[] fromJSONFile(Context context, String filePath) throws IOException {
-        File file = new File(filePath);
-        ObjectMapper mapper = context.getObjectMapper();
-        ExpenseSource[] result = mapper.readValue(file, ExpenseSource[].class);
-        return result;
-    }
 }

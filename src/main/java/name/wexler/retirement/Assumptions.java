@@ -72,25 +72,4 @@ public class Assumptions {
         this.yearsInShortTerm = yearsInShortTerm;
     }
 
-    public String toJSON() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String result = writer.writeValueAsString(this);
-        return result;
-    }
-
-    static public Assumptions fromJSON(Context context,
-                                         String json) throws Exception {
-        ObjectMapper mapper = context.getObjectMapper();
-        ObjectWriter writer = mapper.writer();
-        Assumptions result = (Assumptions) mapper.readValue(json, Assumptions.class);
-        return result;
-    }
-
-    static public Assumptions fromJSONFile(Context context, String filePath) throws IOException {
-        File file = new File(filePath);
-        ObjectMapper mapper = context.getObjectMapper();
-        Assumptions result = mapper.readValue(file, Assumptions.class);
-        return result;
-    }
 }

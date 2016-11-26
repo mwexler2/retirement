@@ -62,7 +62,7 @@ public class BonusTest {
 
     @Test
     public void toJSON() throws Exception {
-        String salary1Str = bonus.toJSON();
+        String salary1Str = context.toJSON(bonus);
         assertEquals("{\"type\":\"bonus\",\"id\":\"bonus1\",\"source\":null,\"job\":\"job1\",\"salary\":\"salary1\",\"bonusPct\":10.0,\"bonusDay\":\"--06-06\"}", salary1Str);
     }
 
@@ -71,7 +71,7 @@ public class BonusTest {
     public void fromJSON() throws Exception {
         String bonus1Str = "{\"type\":\"bonus\",\"id\":\"bonus1a\",\"source\":null,\"job\":\"job1\",\"salary\":\"is1\",\"bonusPct\":10.0,\"bonusDay\":\"--06-06\"}";
 
-        IncomeSource incomeSource2a = Bonus.fromJSON(context, bonus1Str);
+        IncomeSource incomeSource2a = context.fromJSON(Bonus.class, bonus1Str);
         assertEquals("bonus1a", incomeSource2a.getId());
     }
 

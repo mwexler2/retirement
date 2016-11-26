@@ -200,12 +200,10 @@ public class JobTest {
 
     @Test
     public void serialize() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String job1Str = writer.writeValueAsString(job1);
+        String job1Str = context.toJSON(job1);
         assertEquals("{\"id\":\"job1\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}", job1Str);
 
-        String job2Str = writer.writeValueAsString(job2);
+        String job2Str = context.toJSON(job2);
         assertEquals("{\"id\":\"job2\",\"startDate\":\"2001-06-15\",\"endDate\":\"2002-05-07\",\"incomeSources\":[],\"employer\":\"comp2\",\"employee\":\"jane1\"}", job2Str);
     }
 
@@ -215,10 +213,10 @@ public class JobTest {
         String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
         String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
 
-        Job job1a = Job.fromJSON(context, job1aStr);
+        Job job1a = context.<Job>fromJSON(Job.class, job1aStr);
         assertEquals("job1a", job1a.getId());
 
-        Job job2a = job1.fromJSON(context, job2aStr);
+        Job job2a = context.<Job>fromJSON(Job.class, job2aStr);
         assertEquals("job2a", job2a.getId());
     }
 

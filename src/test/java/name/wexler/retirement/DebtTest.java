@@ -21,16 +21,12 @@ import static org.junit.Assert.assertNotEquals;
  */
 public class DebtTest {
     Debt debt;
-    EntityManager<ExpenseSource> expenseSourceManager;
-    EntityManager<Entity> entityManager;
     Context context;
 
     @Before
     public void setUp() throws Exception {
         context = new Context();
         EntityManager<Entity> entityManager = new EntityManager<Entity>();
-        this.expenseSourceManager = new EntityManager<>();
-        this.entityManager = new EntityManager<>();
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
@@ -63,7 +59,7 @@ public class DebtTest {
 
     @Test
     public void toJSON() throws Exception {
-        String expenseSource1Str = debt.toJSON();
+        String expenseSource1Str = context.toJSON(debt);
         assertEquals("{\"type\":\"debt\",\"id\":\"debt1\",\"source\":\"monthly-debt1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0}", expenseSource1Str);
     }
 
@@ -71,7 +67,7 @@ public class DebtTest {
     @Test
     public void deserialize() throws Exception {
         String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1a\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        ExpenseSource expenseSource1a = ExpenseSource.fromJSON(context, expenseSource1aStr);
+        ExpenseSource expenseSource1a = context.fromJSON(ExpenseSource.class, expenseSource1aStr);
         assertEquals("debt1a", expenseSource1a.getId());
     }
 

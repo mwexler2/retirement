@@ -67,12 +67,10 @@ public class CompanyTest {
 
     @Test
     public void serialize() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        ObjectWriter writer = mapper.writer();
-        String company1Str = writer.writeValueAsString(company1);
+        String company1Str = context.toJSON(company1);
         assertEquals("{\"type\":\"company\",\"id\":\"comp1\",\"companyName\":\"IBM\"}", company1Str);
 
-        String company2Str = writer.writeValueAsString(company2);
+        String company2Str = context.toJSON(company2);
         assertEquals("{\"type\":\"company\",\"id\":\"comp2\",\"companyName\":\"Xerox\"}", company2Str);
     }
 
@@ -82,11 +80,11 @@ public class CompanyTest {
         String comp1aStr = "{\"type\":\"company\",\"id\":\"comp1a\",\"companyName\":\"IBM\"}";
         String comp2aStr = "{\"type\":\"company\",\"id\":\"comp2a\",\"companyName\":\"Xerox\"}";
 
-        Company company1a = (Company) Company.fromJSON(context, comp1aStr);
+        Company company1a = (Company) context.<Company>fromJSON(Entity.class, comp1aStr);
         assertEquals("comp1a", company1a.getId());
         assertEquals("IBM", company1a.getCompanyName());
 
-        Company company2a = (Company) Company.fromJSON(context, comp2aStr);
+        Company company2a = (Company) context.<Company>fromJSON(Entity.class, comp2aStr);
         assertEquals("comp2a", company2a.getId());
         assertEquals("Xerox", company2a.getCompanyName());
     }

@@ -55,16 +55,16 @@ public class SalaryTest {
     }
 
     @Test
-    public void serialize() throws Exception {
-        String incomeSource1Str = incomeSource1.toJSON();
+    public void toJSON() throws Exception {
+        String incomeSource1Str = context.toJSON(incomeSource1);
         assertEquals("{\"type\":\"salary\",\"id\":\"salary1\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}", incomeSource1Str);
     }
 
 
     @Test
-    public void deserialize() throws Exception {
+    public void fromJSON() throws Exception {
         String incomeSource1aStr = "{\"type\":\"salary\",\"id\":\"salary1a\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        IncomeSource incomeSource1a = IncomeSource.fromJSON(context, incomeSource1aStr);
+        IncomeSource incomeSource1a = context.<IncomeSource>fromJSON(IncomeSource.class, incomeSource1aStr);
         assertEquals("salary1a", incomeSource1a.getId());
     }
 

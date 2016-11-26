@@ -82,30 +82,30 @@ public class Retirement {
             String resourceDir = userHome + "/.retirement/resources";
             
             String peoplePath = resourceDir + "/people.json";
-            this.people = Person.fromJSONFile(context, peoplePath);
+            this.people = context.fromJSONFileArray(Entity[].class, peoplePath);
 
             String companyPath = resourceDir + "/company.json";
-            this.companies = Company.fromJSONFile(context, companyPath);
+            this.companies = context.fromJSONFile(Entity[].class, companyPath);
 
             String jobsPath = resourceDir + "/jobs.json";
-            this.jobs = Job.fromJSONFile(context, jobsPath);
+            this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
 
             String incomeSourcesPath = resourceDir + "/incomeSources.json";
-            this.incomeSources = IncomeSource.fromJSONFile(context, incomeSourcesPath);
+            this.incomeSources = context.<IncomeSource>fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);
 
             String assetsPath = resourceDir + "/assets.json";
             File assetssFile = new File(assetsPath);
-            this.assets = Asset.fromJSONFile(context, assetsPath);
+            this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
 
             String expenseSourcesPath = resourceDir + "/expenseSources.json";
-            this.expenseSources = ExpenseSource.fromJSONFile(context, expenseSourcesPath);
+            this.expenseSources = context.<ExpenseSource>fromJSONFileArray(ExpenseSource[].class, expenseSourcesPath);
 
             String assumptionsPath = resourceDir + "/assumptions.json";
             File assumptionsFile = new File(assumptionsPath);
-            this.assumptions = Assumptions.fromJSONFile(context, assumptionsPath);
+            this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
 
             String scenariosPath = resourceDir + "/scenarios.json";
-            this.scenarios = Scenario.fromJSONFile(context, scenariosPath);
+            this.scenarios = context.<Scenario>fromJSONFileArray(Scenario[].class, scenariosPath);
             for (Scenario s : scenarios) {
                 s.setAssumptions(this.assumptions);
             }

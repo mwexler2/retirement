@@ -117,10 +117,10 @@ public class PersonTest {
 
     @Test
     public void toJSON() throws Exception {
-        String person1Str = person1.toJSON();
+        String person1Str = context.toJSON(person1);
         assertEquals("{\"type\":\"person\",\"id\":\"john1\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}", person1Str);
 
-        String person2Str = person2.toJSON();
+        String person2Str = context.toJSON(person2);
         assertEquals("{\"type\":\"person\",\"id\":\"jane1\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}", person2Str);
     }
 
@@ -131,10 +131,10 @@ public class PersonTest {
         String person1Str = "{\"type\":\"person\",\"id\":\"john1a\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}";
         String person2Str ="{\"type\":\"person\",\"id\":\"jane1a\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}";
 
-        Person person1a = (Person) Entity.fromJSON(context, person1Str);
+        Person person1a = (Person) context.<Entity>fromJSON(Entity.class, person1Str);
         assertEquals(person1a.getId(), "john1a");
 
-        Person person2a = (Person) Entity.fromJSON(context, person2Str);
+        Person person2a = (Person) context.<Entity>fromJSON(Entity.class, person2Str);
         assertEquals(person2a.getId(), "jane1a");
 
 
