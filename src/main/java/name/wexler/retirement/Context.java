@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +17,27 @@ import java.util.Map;
  * Created by mwexler on 11/24/16.
  */
 public class Context {
+
+    private class EntityManager<T> {
+        private HashMap<String, T> allEntities = new HashMap<>();
+
+        public EntityManager() {
+        }
+
+        public T getById(String id) {
+            return allEntities.get(id);
+        }
+
+        public void put(String id, T entity) {
+            allEntities.put(id, entity);
+        }
+
+        void removeAllEntities() {
+            allEntities.clear();
+        }
+    }
+
+
     private Map<String, EntityManager> classEntityManager;
     private ObjectMapper mapper;
 
@@ -22,6 +46,9 @@ public class Context {
         classEntityManager = new HashMap<>();
         mapper = new ObjectMapper();
         mapper.setInjectableValues(injectableValues);
+
+        DateFormat format = new SimpleDateFormat("YYYY-MM-dd");
+        mapper.setDateFormat(format);
     }
 
     public ObjectMapper getObjectMapper() {

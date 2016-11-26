@@ -131,11 +131,11 @@ public class Debt extends ExpenseSource {
         this.lender = lender;
     }
 
-    public void setBorrowersIds(@JacksonInject("entityManager") EntityManager<Entity> entityManager,
+    public void setBorrowersIds(@JacksonInject("context") Context context,
                                 @JsonProperty(value="borrowers", required=true) String[] borrowerIds) {
         this.borrowers = new Entity[borrowerIds.length];
         for (int i = 0; i < borrowerIds.length; ++i) {
-            borrowers[i] = entityManager.getById(borrowerIds[i]);
+            borrowers[i] = context.getById(Entity.class, borrowerIds[i]);
         }
     }
 

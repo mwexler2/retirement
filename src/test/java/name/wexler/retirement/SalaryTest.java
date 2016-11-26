@@ -21,13 +21,11 @@ import static org.junit.Assert.assertNotEquals;
 public class SalaryTest {
     Salary incomeSource1;
     Bonus incomeSource2;
-    EntityManager<IncomeSource> incomeSourceManager;
     Context context;
 
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        this.incomeSourceManager = new EntityManager<>();
         Company employer = new Company(context, "employer1");
         Person employee = new Person(context, "employee1");
         Job job1 = new Job(context, "job1", employer, employee);

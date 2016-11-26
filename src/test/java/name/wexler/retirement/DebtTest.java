@@ -26,7 +26,6 @@ public class DebtTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        EntityManager<Entity> entityManager = new EntityManager<Entity>();
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
