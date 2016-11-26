@@ -24,9 +24,14 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.ArrayList;
@@ -63,35 +68,34 @@ public class Job {
             generator=ObjectIdGenerators.PropertyGenerator.class,
             property="id")
     @JsonIdentityReference(alwaysAsId = true)
-    private Person employee;
+    private Entity employee;
 
 
     @JsonCreator
-    public Job(@JacksonInject("jobManager") EntityManager<Job> jobManager,
-               @JacksonInject("entityManager") EntityManager<Entity> entityManager,
+    public Job(@JacksonInject("context") Context context,
                @JsonProperty(value = "id", required = true) String id,
                @JsonProperty(value = "employer", required = true) String employer,
                @JsonProperty(value = "employee", required = true) String employee) throws Exception {
         this.id = id;
-        this.employer = entityManager.getById(employer);
-        this.employee = (Person) entityManager.getById(employee);
-        this.init(jobManager);
+        this.employer = context.<Entity>getById(Entity.class, employer);
+        this.employee = context.<Entity>getById(Entity.class, employee);
+        this.init(context);
     }
 
-    public Job(EntityManager<Job> jobManager,
+    public Job(Context context,
                String id,
                Company employer,
                Person employee) throws Exception {
         this.id = id;
         this.employer = employer;
         this.employee = employee;
-        this.init(jobManager);
+        this.init(context);
     }
 
-    private void init(EntityManager<Job> jobManager) throws Exception {
-        if (jobManager.getById(id) != null)
+    private void init(Context context) throws Exception {
+        if (context.getById(Job.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        jobManager.put(id, this);
+        context.put(Job.class, id, this);
         incomeSources = new ArrayList<IncomeSource>();
     }
 
@@ -149,7 +153,7 @@ public class Job {
         return employer;
     }
 
-    public Person getEmployee() {
+    public Entity getEmployee() {
         return employee;
     }
 
@@ -176,5 +180,27 @@ public class Job {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static public Job fromJSON(Context context,
+                                  String json) throws Exception {
+        ObjectMapper mapper = context.getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        Job result = (Job) mapper.readValue(json, Job.class);
+        return result;
+    }
+
+    static public Job[] fromJSONFile(Context context, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper mapper = context.getObjectMapper();
+        Job[] result = mapper.readValue(entityFile, Job[].class);
+        return result;
     }
 }

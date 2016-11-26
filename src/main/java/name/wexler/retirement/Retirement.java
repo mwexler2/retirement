@@ -52,8 +52,8 @@ import name.wexler.retirement.CashFlow.*;
 public class Retirement {
     private Scenario[] scenarios;
     private Job[] jobs;
-    private Company[] companies;
-    private Person[] people;
+    private Entity[] companies;
+    private Entity[] people;
     private IncomeSource[] incomeSources;
     private Asset[] assets;
     private ExpenseSource[] expenseSources;
@@ -74,55 +74,38 @@ public class Retirement {
         Locale enUS = Locale.forLanguageTag("en-US");
         cf = NumberFormat.getCurrencyInstance(enUS);
         pf = NumberFormat.getPercentInstance();
-        EntityManager<Entity> entityManager = new EntityManager<>();
-        EntityManager<Job> jobManager = new EntityManager<>();
-        EntityManager<IncomeSource> incomeSourceManager = new EntityManager<>();
-        EntityManager<ExpenseSource> expenseSourceManager = new EntityManager<>();
+        Context context = new Context();
 
         try {
-            ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-            InjectableValues injects = new InjectableValues.Std().
-                    addValue("entityManager", entityManager).
-                    addValue("jobManager",    jobManager).
-                    addValue("incomeSourceManager", incomeSourceManager).
-                    addValue("expenseSourceManager", expenseSourceManager);
-            mapper.setInjectableValues(injects);
 
-            mapper.setInjectableValues(injects);
             String userHome = System.getProperty("user.home");
             String resourceDir = userHome + "/.retirement/resources";
             
             String peoplePath = resourceDir + "/people.json";
-            File peopleFile = new File(peoplePath);
-            this.people = mapper.readValue(peopleFile, Person[].class);
+            this.people = Person.fromJSONFile(context, peoplePath);
 
             String companyPath = resourceDir + "/company.json";
-            File companyFile = new File(companyPath);
-            this.companies = mapper.readValue(companyFile, Company[].class);
+            this.companies = Company.fromJSONFile(context, companyPath);
 
             String jobsPath = resourceDir + "/jobs.json";
-            File jobsFile = new File(jobsPath);
-            this.jobs = mapper.readValue(jobsFile, Job[].class);
+            this.jobs = Job.fromJSONFile(context, jobsPath);
 
             String incomeSourcesPath = resourceDir + "/incomeSources.json";
-            File incomeSourcesFile = new File(incomeSourcesPath);
-            this.incomeSources = mapper.readValue(incomeSourcesFile, IncomeSource[].class);
+            this.incomeSources = IncomeSource.fromJSONFile(context, incomeSourcesPath);
 
             String assetsPath = resourceDir + "/assets.json";
             File assetssFile = new File(assetsPath);
-            this.assets = mapper.readValue(assetssFile, Asset[].class);
+            this.assets = Asset.fromJSONFile(context, assetsPath);
 
             String expenseSourcesPath = resourceDir + "/expenseSources.json";
-            File expenseSourcesFile = new File(expenseSourcesPath);
-            this.expenseSources = mapper.readValue(expenseSourcesFile, ExpenseSource[].class);
+            this.expenseSources = ExpenseSource.fromJSONFile(context, expenseSourcesPath);
 
             String assumptionsPath = resourceDir + "/assumptions.json";
             File assumptionsFile = new File(assumptionsPath);
-            this.assumptions = mapper.readValue(assumptionsFile, Assumptions.class);
+            this.assumptions = Assumptions.fromJSONFile(context, assumptionsPath);
 
             String scenariosPath = resourceDir + "/scenarios.json";
-            File scenariosFile = new File(scenariosPath);
-            this.scenarios = mapper.readValue(scenariosFile, Scenario[].class);
+            this.scenarios = Scenario.fromJSONFile(context, scenariosPath);
             for (Scenario s : scenarios) {
                 s.setAssumptions(this.assumptions);
             }
@@ -143,7 +126,7 @@ public class Retirement {
         this.scenarios = scenarios;
     }
 
-    public Person[] getPeople() {
+    public Entity[] getPeople() {
         return people;
     }
 

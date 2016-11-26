@@ -46,12 +46,11 @@ public class Salary extends IncomeSource {
     private BigDecimal baseAnnualSalary;
     private static BigDecimal monthsPerYear = new BigDecimal(12);
 
-    public Salary(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
-                  @JacksonInject("jobManager") EntityManager<Job> jobManager,
+    public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
                   @JsonProperty("job") String jobId) throws Exception {
-        super(incomeSourceManager, id);
-        this.setJobId(jobManager, jobId);
+        super(context, id);
+        this.setJobId(context, jobId);
     }
 
 
@@ -102,9 +101,9 @@ public class Salary extends IncomeSource {
     }
 
     @JsonProperty(value = "job")
-    public void setJobId(@JacksonInject("jobManager") EntityManager<Job> jobManager,
+    public void setJobId(@JacksonInject("context") Context context,
                          @JsonProperty(value="job", required=true) String jobId) {
-        this.job = jobManager.getById(jobId);
+        this.job = context.<Job>getById(Job.class, jobId);
     }
 
     @JsonProperty(value = "job")

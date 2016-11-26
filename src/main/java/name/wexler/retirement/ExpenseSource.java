@@ -24,8 +24,13 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.CashFlow.CashFlowSource;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
@@ -53,11 +58,11 @@ public abstract class ExpenseSource {
     }
 
 
-    public ExpenseSource(EntityManager<ExpenseSource> expenseSourceManager, String id) throws Exception {
+    public ExpenseSource(Context context, String id) throws Exception {
         this.id = id;
-        if (expenseSourceManager.getById(id) != null)
+        if (context.<ExpenseSource>getById(ExpenseSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        expenseSourceManager.put(id, this);
+        context.put(ExpenseSource.class, id, this);
     }
 
 
@@ -94,4 +99,25 @@ public abstract class ExpenseSource {
         return source.getAnnualCashFlow(annualAmount);
     }
 
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static public ExpenseSource fromJSON(Context context,
+                                        String json) throws Exception {
+        ObjectMapper mapper = context.getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        ExpenseSource result = (ExpenseSource) mapper.readValue(json, ExpenseSource.class);
+        return result;
+    }
+
+    static public ExpenseSource[] fromJSONFile(Context context, String filePath) throws IOException {
+        File file = new File(filePath);
+        ObjectMapper mapper = context.getObjectMapper();
+        ExpenseSource[] result = mapper.readValue(file, ExpenseSource[].class);
+        return result;
+    }
 }

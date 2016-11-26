@@ -32,8 +32,8 @@ public class Company extends Entity {
     private String companyName;
 
     @JsonCreator
-    public Company(@JacksonInject("entityManager") EntityManager entityManager, @JsonProperty("id") String id) throws Exception {
-        super(entityManager, id);
+    public Company(@JacksonInject("context") Context context, @JsonProperty("id") String id) throws Exception {
+        super(context, id);
     }
 
     @Override

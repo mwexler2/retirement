@@ -25,7 +25,12 @@ package name.wexler.retirement;
 
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
@@ -49,14 +54,13 @@ public class Scenario {
 
 
     @JsonCreator
-    Scenario(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
-             @JacksonInject("expenseSourceManager") EntityManager<ExpenseSource> expenseSourceManager,
+    Scenario(@JacksonInject("context") Context context,
              @JsonProperty("name") String name,
              @JsonProperty("incomeSources") String[] incomeSources,
              @JsonProperty("expenseSources") String[] expenseSources) {
         this.name = name;
-        this.setIncomeSourceIds(incomeSourceManager, incomeSources);
-        this.setExpenseSourceIds(expenseSourceManager, expenseSources);
+        this.setIncomeSourceIds(context, incomeSources);
+        this.setExpenseSourceIds(context, expenseSources);
         int startYear = 2016;
         this.years = new int[51];
         for (int i = 0; i <= 50; ++i) {
@@ -75,11 +79,11 @@ public class Scenario {
     }
 
     @JsonProperty(value = "incomeSources")
-    public void setIncomeSourceIds(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+    public void setIncomeSourceIds(@JacksonInject("context") Context context,
                                 @JsonProperty(value="incomeSources", required=true) String[] incomeSourceIds) {
         this.incomeSources = new IncomeSource[incomeSourceIds.length];
         for (int i = 0; i < incomeSourceIds.length; ++i) {
-            incomeSources[i] = incomeSourceManager.getById(incomeSourceIds[i]);
+            incomeSources[i] = context.<IncomeSource>getById(IncomeSource.class, incomeSourceIds[i]);
         }
     }
 
@@ -92,11 +96,11 @@ public class Scenario {
     }
 
     @JsonProperty(value = "expenseSources")
-    public void setExpenseSourceIds(@JacksonInject("expenseSourceManager") EntityManager<ExpenseSource> expenseSourceManager,
+    public void setExpenseSourceIds(@JacksonInject("context") Context context,
                                    @JsonProperty(value="expenseSources", required=true) String[] expenseSourceIds) {
         this.expenseSources = new ExpenseSource[expenseSourceIds.length];
         for (int i = 0; i < expenseSourceIds.length; ++i) {
-            expenseSources[i] = expenseSourceManager.getById(expenseSourceIds[i]);
+            expenseSources[i] = context.<ExpenseSource>getById(ExpenseSource.class, expenseSourceIds[i]);
         }
     }
 
@@ -156,5 +160,27 @@ public class Scenario {
 
     public int getNumYears() {
         return this.years.length;
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static public Scenario fromJSON(Context context,
+                                  String json) throws Exception {
+        ObjectMapper mapper = context.getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        Scenario result = (Scenario) mapper.readValue(json, Scenario.class);
+        return result;
+    }
+
+    static public Scenario[] fromJSONFile(Context context, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper incomeSourceMapper = context.getObjectMapper();
+        Scenario[] result = incomeSourceMapper.readValue(entityFile, Scenario[].class);
+        return result;
     }
 }

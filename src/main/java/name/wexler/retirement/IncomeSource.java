@@ -24,8 +24,15 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import name.wexler.retirement.CashFlow.CashFlowSource;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -64,11 +71,11 @@ public abstract class IncomeSource {
         return result;
     }
 
-    public IncomeSource(EntityManager<IncomeSource> incomeSourceManager, @JsonProperty("id") String id) throws Exception {
+    public IncomeSource(Context context, @JsonProperty("id") String id) throws Exception {
         this.id = id;
-        if (incomeSourceManager.getById(id) != null)
+        if (context.getById(IncomeSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        incomeSourceManager.put(id, this);
+        context.put(IncomeSource.class, id, this);
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
@@ -99,5 +106,27 @@ public abstract class IncomeSource {
 
     public void setSource(CashFlowSource source) {
         this.source = source;
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static public IncomeSource fromJSON(Context context,
+                                 String json) throws Exception {
+        ObjectMapper mapper = context.getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        IncomeSource result = (IncomeSource) mapper.readValue(json, IncomeSource.class);
+        return result;
+    }
+
+    static public IncomeSource[] fromJSONFile(Context context, String filePath) throws IOException {
+        File incomeSourcesFile = new File(filePath);
+        ObjectMapper incomeSourceMapper = context.getObjectMapper();
+        IncomeSource[] result = incomeSourceMapper.readValue(incomeSourcesFile, IncomeSource[].class);
+        return result;
     }
 }

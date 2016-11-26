@@ -40,8 +40,8 @@ public class Person extends Entity {
     private LocalDate birthDate;
     private int retirementAge;
 
-    public Person(@JacksonInject("entityManager") EntityManager entityManager, @JsonProperty("id") String id) throws Exception {
-        super(entityManager, id);
+    public Person(@JacksonInject("context") Context context, @JsonProperty("id") String id) throws Exception {
+        super(context, id);
     }
 
     @JsonIgnore

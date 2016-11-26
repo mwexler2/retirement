@@ -23,6 +23,13 @@
 
 package name.wexler.retirement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Created by mwexler on 6/28/16.
  */
@@ -63,5 +70,27 @@ public class Assumptions {
 
     public void setYearsInShortTerm(int yearsInShortTerm) {
         this.yearsInShortTerm = yearsInShortTerm;
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static public Assumptions fromJSON(Context context,
+                                         String json) throws Exception {
+        ObjectMapper mapper = context.getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        Assumptions result = (Assumptions) mapper.readValue(json, Assumptions.class);
+        return result;
+    }
+
+    static public Assumptions fromJSONFile(Context context, String filePath) throws IOException {
+        File file = new File(filePath);
+        ObjectMapper mapper = context.getObjectMapper();
+        Assumptions result = mapper.readValue(file, Assumptions.class);
+        return result;
     }
 }

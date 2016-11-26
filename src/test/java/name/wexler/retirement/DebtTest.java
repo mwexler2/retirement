@@ -23,21 +23,23 @@ public class DebtTest {
     Debt debt;
     EntityManager<ExpenseSource> expenseSourceManager;
     EntityManager<Entity> entityManager;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
+        context = new Context();
         EntityManager<Entity> entityManager = new EntityManager<Entity>();
         this.expenseSourceManager = new EntityManager<>();
         this.entityManager = new EntityManager<>();
-        Company lender = new Company(entityManager, "lender1");
-        Person borrower = new Person(entityManager, "borrower1");
+        Company lender = new Company(context, "lender1");
+        Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
         Asset asset = new RealProperty("real-property1", borrower, BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US");
         Person[] borrowers = { borrower };
         CashFlowSource monthly = new Monthly("monthly-debt1", 14, LocalDate.of(2011, Month.MAY, 1), LocalDate.of(2031, Month.APRIL, 1));
-        debt = new Debt(expenseSourceManager, "debt1", lender, borrowers, asset,
+        debt = new Debt(context, "debt1", lender, borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthly);
     }
@@ -60,11 +62,8 @@ public class DebtTest {
     }
 
     @Test
-    public void serialize() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-
-        ObjectWriter writer = mapper.writer();
-        String expenseSource1Str = writer.writeValueAsString(debt);
+    public void toJSON() throws Exception {
+        String expenseSource1Str = debt.toJSON();
         assertEquals("{\"type\":\"debt\",\"id\":\"debt1\",\"source\":\"monthly-debt1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0}", expenseSource1Str);
     }
 
@@ -72,15 +71,7 @@ public class DebtTest {
     @Test
     public void deserialize() throws Exception {
         String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1a\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        InjectableValues injects = new InjectableValues.Std().
-                addValue("expenseSourceManager", this.expenseSourceManager).
-                addValue("entityManager", entityManager);
-        mapper.setInjectableValues(injects);
-        ObjectWriter writer = mapper.writer();
-
-        ExpenseSource expenseSource1a = mapper.readValue(expenseSource1aStr, ExpenseSource.class);
+        ExpenseSource expenseSource1a = ExpenseSource.fromJSON(context, expenseSource1aStr);
         assertEquals("debt1a", expenseSource1a.getId());
     }
 

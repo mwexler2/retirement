@@ -24,6 +24,9 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.CashFlowSource;
@@ -49,14 +52,13 @@ public class Bonus extends IncomeSource {
     @JsonSerialize(using=JSONMonthDaySerialize.class)
     private MonthDay bonusDay;
 
-    public Bonus(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
-                 @JacksonInject("jobManager") EntityManager<Job> jobManager,
+    public Bonus(@JacksonInject("context") Context context,
                  @JsonProperty("id") String id,
                  @JsonProperty("job") String jobId,
                  @JsonProperty(value = "salary", required = true) String salaryId) throws Exception {
-        super(incomeSourceManager, id);
-        this.setJobId(jobManager, jobId);
-        this.setSalaryId(incomeSourceManager, salaryId);
+        super(context, id);
+        this.setJobId(context, jobId);
+        this.setSalaryId(context, salaryId);
     }
 
     @Override
@@ -96,8 +98,8 @@ public class Bonus extends IncomeSource {
     }
 
     @JsonProperty(value = "job")
-    public void setJobId(@JacksonInject("jobManager") EntityManager<Job> jobManager, @JsonProperty(value="job", required=true) String jobId) {
-        this.job = jobManager.getById(jobId);
+    public void setJobId(@JacksonInject("context") Context context, @JsonProperty(value="job", required=true) String jobId) {
+        this.job = context.getById(Job.class, jobId);
     }
 
     public Job getJob() {
@@ -114,9 +116,9 @@ public class Bonus extends IncomeSource {
     }
 
     @JsonProperty(value = "salary")
-    public void setSalaryId(@JacksonInject("incomeSourceManager") EntityManager<IncomeSource> incomeSourceManager,
+    public void setSalaryId(@JacksonInject("context") Context context,
                             @JsonProperty(value="salary", required=true) String salaryId) {
-        this.salary = (Salary) incomeSourceManager.getById(salaryId);
+        this.salary = context.<Salary>getById(IncomeSource.class, salaryId);
     }
 
     @JsonIgnore
@@ -143,4 +145,6 @@ public class Bonus extends IncomeSource {
     public void setBonusDay(MonthDay bonusDay) {
         this.bonusDay = bonusDay;
     }
+
+
 }

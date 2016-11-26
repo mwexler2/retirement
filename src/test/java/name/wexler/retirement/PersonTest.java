@@ -21,17 +21,17 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class PersonTest {
     Person person1;
     Person person2;
-    EntityManager entityManager;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
-        this.entityManager = new EntityManager();
-        person1 = new Person(entityManager, "john1");
+        context = new Context();
+        person1 = new Person(context, "john1");
         person1.setFirstName("John");
         person1.setLastName("Doe");
         person1.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
         person1.setRetirementAge(65);
-        person2 = new Person(entityManager, "jane1");
+        person2 = new Person(context, "jane1");
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
         person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
@@ -40,7 +40,6 @@ public class PersonTest {
 
     @After
     public void tearDown() throws Exception {
-        entityManager.removeAllEntities();
     }
 
     @Test
@@ -107,7 +106,7 @@ public class PersonTest {
 
     @Test
     public void equals() throws Exception {
-        Person person1a = new Person(entityManager, "john1a");
+        Person person1a = new Person(context, "john1a");
         person1a.setFirstName("John");
         person1a.setLastName("Doe");
         person1a.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
@@ -117,31 +116,25 @@ public class PersonTest {
     }
 
     @Test
-    public void serialize() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-
-        ObjectWriter writer = mapper.writer();
-        String person1Str = writer.writeValueAsString(person1);
+    public void toJSON() throws Exception {
+        String person1Str = person1.toJSON();
         assertEquals("{\"type\":\"person\",\"id\":\"john1\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}", person1Str);
 
-        String person2Str = writer.writeValueAsString(person2);
+        String person2Str = person2.toJSON();
         assertEquals("{\"type\":\"person\",\"id\":\"jane1\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}", person2Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
-        mapper.setInjectableValues(injects);
 
         String person1Str = "{\"type\":\"person\",\"id\":\"john1a\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}";
         String person2Str ="{\"type\":\"person\",\"id\":\"jane1a\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}";
 
-        Person person1a = mapper.readValue(person1Str, Person.class);
+        Person person1a = (Person) Entity.fromJSON(context, person1Str);
         assertEquals(person1a.getId(), "john1a");
 
-        Person person2a = mapper.readValue(person2Str, Person.class);
+        Person person2a = (Person) Entity.fromJSON(context, person2Str);
         assertEquals(person2a.getId(), "jane1a");
 
 

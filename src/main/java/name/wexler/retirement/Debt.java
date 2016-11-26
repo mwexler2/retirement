@@ -53,19 +53,18 @@ public class Debt extends ExpenseSource {
     private BigDecimal paymentAmount;
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
-    public Debt(@JacksonInject("expenseSourceManager") EntityManager<ExpenseSource> expenseSourceManager,
-                @JacksonInject("entityManager") EntityManager<Entity> entityManager,
+    public Debt(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
                 @JsonProperty("lender") String lenderId) throws Exception {
-        super(expenseSourceManager, id);
-        setLenderId(entityManager, lenderId);
+        super(context, id);
+        setLenderId(context, lenderId);
     }
 
 
-    public Debt(EntityManager<ExpenseSource> expenseSourceManager, String id, Entity lender, Entity[] borrowers, Asset security,
+    public Debt(Context context, String id, Entity lender, Entity[] borrowers, Asset security,
          LocalDate startDate, int term, BigDecimal interestRate, BigDecimal startingBalance,
          BigDecimal paymentAmount, CashFlowSource source) throws Exception {
-        super(expenseSourceManager, id);
+        super(context, id);
         this.setSource(source);
         this.security = security;
         this.lender = lender;
@@ -114,9 +113,9 @@ public class Debt extends ExpenseSource {
         return this.security.getId();
     }
 
-    public void setLenderId(@JacksonInject("entityManager") EntityManager<Entity> entityManager,
+    public void setLenderId(@JacksonInject("context") Context context,
                             @JsonProperty(value="lender", required=true) String lenderId) {
-        this.lender = entityManager.getById(lenderId);
+        this.lender = context.getById(Entity.class, lenderId);
     }
 
     @JsonProperty(value = "lender")

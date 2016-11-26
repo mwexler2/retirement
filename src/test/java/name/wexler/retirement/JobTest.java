@@ -62,47 +62,43 @@ public class JobTest {
     Salary job1Salary2;
     Bonus job1Bonus2;
     Salary job2Salary;
-    EntityManager<Entity> entityManager;
-    EntityManager<Job> jobManager;
-    EntityManager<IncomeSource> incomeSourceManager;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
-        entityManager = new EntityManager<Entity>();
-        jobManager = new EntityManager<Job>();
-        incomeSourceManager = new EntityManager<>();
-        company1 = new Company(entityManager, "comp1");
+        context = new Context();
+        company1 = new Company(context, "comp1");
         company1.setCompanyName("IBM");
-        company2 = new Company(entityManager, "comp2");
+        company2 = new Company(context, "comp2");
         company2.setCompanyName("Xerox");
 
-        person1 = new Person(entityManager, "john1");
+        person1 = new Person(context, "john1");
         person1.setFirstName("John");
         person1.setLastName("Doe");
         person1.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
         person1.setRetirementAge(65);
-        person2 = new Person(entityManager, "jane1");
+        person2 = new Person(context, "jane1");
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
         person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
         person2.setRetirementAge(40);
 
-        job1 = new Job(jobManager, "job1", company1, person1);
+        job1 = new Job(context, "job1", company1, person1);
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2002, Month.AUGUST, 15));
-        job2 = new Job(jobManager, "job2", company2, person2);
+        job2 = new Job(context, "job2", company2, person2);
         job2.setStartDate(LocalDate.of(2001, Month.JUNE, 15));
         job2.setEndDate(LocalDate.of(2002, Month.MAY, 7));
 
         MonthDay job1BonusDay = MonthDay.of(Month.MARCH, 15);
         BigDecimal job1BonusPct = new BigDecimal(.30);
         CashFlowSource job1SalarySource = new SemiMonthly("semi-monthly-salary1", 5, 20, job1.getStartDate(), job1.getEndDate());
-        job1Salary = new Salary(incomeSourceManager, jobManager, "job1Salary", "job1");
+        job1Salary = new Salary(context, "job1Salary", "job1");
         job1Salary.setBaseAnnualSalary(new BigDecimal(100000.00));
         job1Salary.setSource(job1SalarySource);
         Annual job1BonusSource = new Annual("annual-bonus1", job1BonusDay,
                 job1.getStartDate().getYear(), job1.getEndDate().getYear());
-        job1Bonus = new Bonus(incomeSourceManager, jobManager, "job1Bonus", "job1", "job1Salary");
+        job1Bonus = new Bonus(context, "job1Bonus", "job1", "job1Salary");
         job1Bonus.setSalary(job1Salary);
         job1Bonus.setBonusPct(job1BonusPct);
         job1Bonus.setBonusDay(job1BonusDay);
@@ -110,19 +106,19 @@ public class JobTest {
         IncomeSource[] job1IS = {job1Salary, job1Bonus};
 
         CashFlowSource job1SalarySource2 = new SemiMonthly("semi-monthly-salary2", 10, 25, job1.getStartDate(), job1.getEndDate());
-        job1Salary2 = new Salary(incomeSourceManager, jobManager, "job1Salary2", "job1");
+        job1Salary2 = new Salary(context, "job1Salary2", "job1");
         job1Salary2.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
         job1Salary2.setSource(job1SalarySource2);
         Annual job1BonusSource2 = new Annual("annual-bonus2", job1BonusDay,
                 job1.getStartDate().getYear(), job1.getEndDate().getYear());
-        job1Bonus2 = new Bonus(incomeSourceManager, jobManager, "job1Bonus2", "job1", "job1Salary");
+        job1Bonus2 = new Bonus(context, "job1Bonus2", "job1", "job1Salary");
         job1Bonus2.setSalary(job1Salary2);
         job1Bonus2.setBonusPct(job1BonusPct);
         job1Bonus2.setBonusDay(job1BonusDay);
         job1Bonus2.setSource(job1BonusSource2);
 
         CashFlowSource job2SalarySource = new Biweekly("biweekly-job2-salary", DayOfWeek.FRIDAY, job2.getStartDate(), job2.getEndDate());
-        job2Salary = new Salary(incomeSourceManager, jobManager, "job2Salary", "job2");
+        job2Salary = new Salary(context, "job2Salary", "job2");
         job2Salary.setBaseAnnualSalary(BigDecimal.valueOf(80000.00));
         job2Salary.setSource(job2SalarySource);
         IncomeSource[] job2IS = {job1Salary2, job1Bonus2, job2Salary};
@@ -130,7 +126,6 @@ public class JobTest {
 
     @After
     public void tearDown() throws Exception {
-        entityManager.removeAllEntities();
     }
 
     @Test
@@ -217,20 +212,13 @@ public class JobTest {
 
     @Test
     public void deserialize() throws Exception {
-
-
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        //entitymanager for creating any static data based entities
-        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager).addValue("jobManager", jobManager);
-        mapper.setInjectableValues(injects);
-
         String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
         String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
 
-        Job job1a = mapper.readValue(job1aStr, Job.class);
+        Job job1a = Job.fromJSON(context, job1aStr);
         assertEquals("job1a", job1a.getId());
 
-        Job job2a = mapper.readValue(job2aStr, Job.class);
+        Job job2a = job1.fromJSON(context, job2aStr);
         assertEquals("job2a", job2a.getId());
     }
 

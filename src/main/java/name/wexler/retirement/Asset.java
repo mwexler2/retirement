@@ -25,9 +25,14 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -93,5 +98,31 @@ public abstract class Asset {
 
     public void setOwner(Entity owner) {
         this.owner = owner;
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static private ObjectMapper getObjectMapper(Context context){
+        ObjectMapper mapper = context.getObjectMapper();
+        return mapper;
+    }
+    static public Asset fromJSON(Context context,
+                                         String json) throws Exception {
+        ObjectMapper mapper = getObjectMapper(context);
+        ObjectWriter writer = mapper.writer();
+        Asset result = (Asset) mapper.readValue(json, Asset.class);
+        return result;
+    }
+
+    static public Asset[] fromJSONFile(Context context, String filePath) throws IOException {
+        File file = new File(filePath);
+        ObjectMapper mapper = getObjectMapper(context);
+        Asset[] result = mapper.readValue(file, Asset[].class);
+        return result;
     }
 }

@@ -16,27 +16,21 @@ import static org.junit.Assert.assertNotEquals;
 public class ScenarioTest {
     Scenario scenario1;
     Scenario scenario2;
-    EntityManager<Entity> entityManager;
-    EntityManager<ExpenseSource> expenseSourceManager;
-    EntityManager<IncomeSource> incomeSourceManager;
-    EntityManager<Job> jobManager;
+    Context context;
 
     @Before
     public void setUp() throws Exception {
-        entityManager = new EntityManager<>();
-        incomeSourceManager = new EntityManager<>();
-        expenseSourceManager = new EntityManager<>();
-        jobManager = new EntityManager<>();
-        Person mike = new Person(entityManager, "mike");
-        Company yahoo = new Company(entityManager, "yahoo1");
-        Job job1 = new Job(jobManager, entityManager, "job1", "yahoo", "mike");
-        Salary salary1 = new Salary(incomeSourceManager, jobManager, "salary1", "job1");
-        Company bankOfNowhere = new Company(entityManager, "bon1");
-        Debt debt1 = new Debt(expenseSourceManager, entityManager, "debt1", "bon1");
+        context = new Context();
+        Person mike = new Person(context, "mike");
+        Company yahoo = new Company(context, "yahoo1");
+        Job job1 = new Job(context, "job1", "yahoo", "mike");
+        Salary salary1 = new Salary(context, "salary1", "job1");
+        Company bankOfNowhere = new Company(context, "bon1");
+        Debt debt1 = new Debt(context, "debt1", "bon1");
         String[] is = {"salary1"};
         String[] es = {"debt1"};
-        scenario1 = new Scenario(incomeSourceManager, expenseSourceManager, "scenario1", is, es);
-        scenario2 = new Scenario(incomeSourceManager, expenseSourceManager, "scenario2", is, es);
+        scenario1 = new Scenario(context, "scenario1", is, es);
+        scenario2 = new Scenario(context, "scenario2", is, es);
     }
 
     @After
@@ -63,10 +57,10 @@ public class ScenarioTest {
     public void serialize() throws Exception {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
-        String scenario1Str = writer.writeValueAsString(scenario1);
+        String scenario1Str = scenario1.toJSON();
         assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"],\"numYears\":51}", scenario1Str);
 
-        String scenario2Str = writer.writeValueAsString(scenario2);
+        String scenario2Str = scenario2.toJSON();
         assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"],\"numYears\":51}", scenario2Str);
     }
 
@@ -76,18 +70,10 @@ public class ScenarioTest {
         String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"numYears\":51}";
         String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"numYears\":51}";
 
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        InjectableValues injects = new InjectableValues.Std().
-                addValue("entityManager", entityManager).
-                addValue("incomeSourceManager", incomeSourceManager).
-                addValue("expenseSourceManager", expenseSourceManager);
-        mapper.setInjectableValues(injects);
-        ObjectWriter writer = mapper.writer();
-
-       Scenario scenario1a = mapper.readValue(scenario1aStr, Scenario.class);
+        Scenario scenario1a = Scenario.fromJSON(context, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());
 
-        Scenario sceanrio2a = mapper.readValue(scenario2aStr, Scenario.class);
+        Scenario sceanrio2a = Scenario.fromJSON(context, scenario2aStr);
         assertEquals("scenario2a", sceanrio2a.getName());
     }
 

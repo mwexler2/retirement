@@ -19,23 +19,21 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * Created by mwexler on 8/13/16.
  */
 public class CompanyTest {
+    Context context;
     Company company1;
     Company company2;
-    EntityManager entityManager;
 
     @Before
     public void setUp() throws Exception {
-        this.entityManager = new EntityManager();
-        company1 = new Company(entityManager, "comp1");
+        context = new Context();
+        company1 = new Company(context, "comp1");
         company1.setCompanyName("IBM");
-        company2 = new Company(entityManager, "comp2");
+        company2 = new Company(context, "comp2");
         company2.setCompanyName("Xerox");
     }
 
     @After
     public void tearDown() throws Exception {
-        entityManager.removeAllEntities();
-
     }
 
     @Test
@@ -84,16 +82,11 @@ public class CompanyTest {
         String comp1aStr = "{\"type\":\"company\",\"id\":\"comp1a\",\"companyName\":\"IBM\"}";
         String comp2aStr = "{\"type\":\"company\",\"id\":\"comp2a\",\"companyName\":\"Xerox\"}";
 
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
-        InjectableValues injects = new InjectableValues.Std().addValue("entityManager", entityManager);
-        mapper.setInjectableValues(injects);
-        ObjectWriter writer = mapper.writer();
-
-       Company company1a = mapper.readValue(comp1aStr, Company.class);
+        Company company1a = (Company) Company.fromJSON(context, comp1aStr);
         assertEquals("comp1a", company1a.getId());
         assertEquals("IBM", company1a.getCompanyName());
 
-        Company company2a = mapper.readValue(comp2aStr, Company.class);
+        Company company2a = (Company) Company.fromJSON(context, comp2aStr);
         assertEquals("comp2a", company2a.getId());
         assertEquals("Xerox", company2a.getCompanyName());
     }

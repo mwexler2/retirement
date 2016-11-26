@@ -24,7 +24,12 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 
@@ -41,11 +46,11 @@ import java.util.HashMap;
 public abstract class Entity {
     private String id;
 
-    public Entity(EntityManager entityManager, @JsonProperty("id") String id) throws Exception {
+    public Entity(Context context, @JsonProperty("id") String id) throws Exception {
         this.id = id;
-        if (entityManager.getById(id) != null)
+         if (context.getById(Entity.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        entityManager.put(id, this);
+        context.put(Entity.class, id, this);
     }
 
 
@@ -53,5 +58,27 @@ public abstract class Entity {
 
     public String getId() {
         return id;
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        ObjectWriter writer = mapper.writer();
+        String result = writer.writeValueAsString(this);
+        return result;
+    }
+
+    static public Entity fromJSON(Context context,
+                                        String json) throws Exception {
+        ObjectMapper mapper = context.getObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        Entity result = (Entity) mapper.readValue(json, Entity.class);
+        return result;
+    }
+
+    static public Entity[] fromJSONFile(Context context, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper incomeSourceMapper = context.getObjectMapper();
+        Entity[] result = incomeSourceMapper.readValue(entityFile, Entity[].class);
+        return result;
     }
 }
