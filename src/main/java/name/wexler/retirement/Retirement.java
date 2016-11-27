@@ -58,6 +58,7 @@ public class Retirement {
     private Asset[] assets;
     private ExpenseSource[] expenseSources;
     private Assumptions assumptions;
+    private CashFlowSource[] cashFlows;
 
     public NumberFormat getCf() {
         return cf;
@@ -89,6 +90,9 @@ public class Retirement {
 
             String jobsPath = resourceDir + "/jobs.json";
             this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
+
+            String cashFlowsPath = resourceDir + "/cashFlows.json";
+            this.cashFlows = context.<CashFlowSource>fromJSONFileArray(CashFlowSource[].class, cashFlowsPath);
 
             String incomeSourcesPath = resourceDir + "/incomeSources.json";
             this.incomeSources = context.<IncomeSource>fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);

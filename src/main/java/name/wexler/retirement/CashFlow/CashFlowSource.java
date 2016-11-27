@@ -23,9 +23,13 @@
 
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import name.wexler.retirement.Context;
 import name.wexler.retirement.Debt;
+import name.wexler.retirement.Entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,8 +52,14 @@ import java.time.YearMonth;
 public abstract class CashFlowSource {
     private String id;
 
-    public CashFlowSource(String id) {
+    public CashFlowSource(@JacksonInject("context") Context context,
+                          @JsonProperty(value = "id", required = true) String id)
+    throws Exception
+    {
         this.id = id;
+        if (context.getById(CashFlowSource.class, id) != null)
+            throw new Exception("Key " + id + " already exists");
+        context.put(CashFlowSource.class, id, this);
     }
 
     public String getId() {

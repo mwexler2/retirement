@@ -23,6 +23,14 @@
 */
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.Context;
+import name.wexler.retirement.JSONMonthDayDeserialize;
+import name.wexler.retirement.JSONMonthDaySerialize;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -32,13 +40,21 @@ import java.time.YearMonth;
  * Created by mwexler on 7/9/16.
  */
 public class Annual extends CashFlowSource {
-    private MonthDay flowMonthDay;
+    @JsonDeserialize(using=JSONMonthDayDeserialize.class)
+    @JsonSerialize(using=JSONMonthDaySerialize.class)
+    private MonthDay monthDay;
     private int firstYear;
     private int lastYear;
 
-    public Annual(String id, MonthDay flowMonthDay, int firstYear, int lastYear) {
-        super(id);
-        this.flowMonthDay = flowMonthDay;
+    public Annual(@JacksonInject("context") Context context,
+                  @JsonProperty(value = "id", required = true) String id,
+                  @JsonProperty(value = "monthDay", required = true) MonthDay flowMonthDay,
+                  @JsonProperty(value = "firstYear", required = true) int firstYear,
+                  @JsonProperty(value = "lastYear", required = true) int lastYear)
+    throws Exception
+    {
+        super(context, id);
+        this.monthDay = flowMonthDay;
         this.firstYear = firstYear;
         this.lastYear = lastYear;
     }
@@ -46,7 +62,7 @@ public class Annual extends CashFlowSource {
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
         if (yearMonth.getYear() >= firstYear &&
                 yearMonth.getYear() <= lastYear &&
-                flowMonthDay.getMonth() == yearMonth.getMonth()) {
+                monthDay.getMonth() == yearMonth.getMonth()) {
             return annualAmount;
         }
         return  BigDecimal.ZERO;
@@ -66,5 +82,17 @@ public class Annual extends CashFlowSource {
     public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
 
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
+    }
+
+    public MonthDay getMonthDay() {
+        return monthDay;
+    }
+
+    public int getFirstYear() {
+        return firstYear;
+    }
+
+    public int getLastYear() {
+        return lastYear;
     }
 }

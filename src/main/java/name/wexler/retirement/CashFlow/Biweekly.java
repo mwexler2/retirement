@@ -23,6 +23,14 @@
 
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.Context;
+import name.wexler.retirement.JSONDateDeserialize;
+import name.wexler.retirement.JSONDateSerialize;
+
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -33,14 +41,24 @@ import java.time.YearMonth;
  */
 public class Biweekly extends CashFlowSource {
     private DayOfWeek dayOfWeek;
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate startDate;
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate endDate;
 
-    public Biweekly(String id, DayOfWeek dayOfWeek, LocalDate startDate, LocalDate endDate) {
-        super(id);
+    public Biweekly(@JacksonInject("context") Context context,
+                    @JsonProperty(value = "id", required = true) String id,
+                    @JsonProperty(value = "dayOfWeek", required = true) DayOfWeek dayOfWeek,
+                    @JsonProperty(value = "startDate", required = true) LocalDate startDate,
+                    @JsonProperty(value = "endDate", required = true) LocalDate endDate)
+    throws Exception
+    {
+        super(context, id);
         this.dayOfWeek = dayOfWeek;
-        this.startDate = this.startDate;
-        this.endDate = this.endDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
@@ -59,4 +77,17 @@ public class Biweekly extends CashFlowSource {
 
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
     }
+
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
 }

@@ -33,7 +33,7 @@ public class DebtTest {
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US");
         Person[] borrowers = { borrower };
-        CashFlowSource monthly = new Monthly("monthly-debt1", 14, LocalDate.of(2011, Month.MAY, 1), LocalDate.of(2031, Month.APRIL, 1));
+        CashFlowSource monthly = new Monthly(context, "monthly-debt1", 14, LocalDate.of(2011, Month.MAY, 1), LocalDate.of(2031, Month.APRIL, 1));
         debt = new Debt(context, "debt1", lender, borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthly);

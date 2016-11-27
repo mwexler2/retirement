@@ -41,45 +41,17 @@ import java.time.YearMonth;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "job", "salary", "bonusPct", "bonusDay" })
-public class Bonus extends IncomeSource {
+public abstract class Bonus extends IncomeSource {
     @JsonIgnore
     private Job job;
-    @JsonIdentityReference(alwaysAsId = true)
-    private Salary salary;
-    private BigDecimal bonusPct;
-    @JsonDeserialize(using=JSONMonthDayDeserialize.class)
-    @JsonSerialize(using=JSONMonthDaySerialize.class)
-    private MonthDay bonusDay;
 
     public Bonus(@JacksonInject("context") Context context,
-                 @JsonProperty("id") String id,
-                 @JsonProperty("job") String jobId,
-                 @JsonProperty(value = "salary", required = true) String salaryId) throws Exception {
-        super(context, id);
+                 @JsonProperty(value = "id", required = true) String id,
+                 @JsonProperty(value = "job", required = true) String jobId,
+                 @JsonProperty(value = "source", required = true) String cashFlowId)
+            throws Exception {
+        super(context, id, cashFlowId);
         this.setJobId(context, jobId);
-        this.setSalaryId(context, salaryId);
-    }
-
-    @Override
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        BigDecimal bonusAmount = BigDecimal.ZERO;
-
-        LocalDate bonusDate = yearMonth.atDay(bonusDay.getDayOfMonth());
-        if (bonusDate.compareTo(job.getEndDate()) <= 0 &&
-                yearMonth.getMonth() == bonusDay.getMonth()) {
-            bonusAmount = salary.getAnnualCashFlow(yearMonth.getYear() - 1).multiply(bonusPct);
-        }
-        return bonusAmount;
-    }
-
-    public BigDecimal getAnnualCashFlow(int year) {
-        BigDecimal annualBonusAmount = BigDecimal.ZERO;
-        for (Month month : Month.values()) {
-            YearMonth yearMonth =  YearMonth.of(year, month);
-            annualBonusAmount = annualBonusAmount.add(this.getMonthlyCashFlow(yearMonth, salary.getAnnualCashFlow()));
-        }
-        return annualBonusAmount;
     }
 
     @JsonIgnore
@@ -109,42 +81,4 @@ public class Bonus extends IncomeSource {
     public void setJob(Job job) {
         this.job = job;
     }
-
-    @JsonProperty(value = "salary")
-    public String getSalaryId() {
-        return salary.getId();
-    }
-
-    @JsonProperty(value = "salary")
-    public void setSalaryId(@JacksonInject("context") Context context,
-                            @JsonProperty(value="salary", required=true) String salaryId) {
-        this.salary = context.<Salary>getById(IncomeSource.class, salaryId);
-    }
-
-    @JsonIgnore
-    public Salary getSalary() {
-        return salary;
-    }
-
-    public void setSalary(Salary salary) {
-        this.salary = salary;
-    }
-
-    public BigDecimal getBonusPct() {
-        return bonusPct;
-    }
-
-    public void setBonusPct(BigDecimal bonusPct) {
-        this.bonusPct = bonusPct;
-    }
-
-    public MonthDay getBonusDay() {
-        return bonusDay;
-    }
-
-    public void setBonusDay(MonthDay bonusDay) {
-        this.bonusDay = bonusDay;
-    }
-
-
 }

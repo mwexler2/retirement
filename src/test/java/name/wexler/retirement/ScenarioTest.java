@@ -9,6 +9,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import name.wexler.retirement.CashFlow.Biweekly;
+
+import java.time.DayOfWeek;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -24,7 +27,8 @@ public class ScenarioTest {
         Person mike = new Person(context, "mike");
         Company yahoo = new Company(context, "yahoo1");
         Job job1 = new Job(context, "job1", "yahoo", "mike");
-        Salary salary1 = new Salary(context, "salary1", "job1");
+        Biweekly biweekly = new Biweekly(context, "job1CashFlowSource1", DayOfWeek.TUESDAY, job1.getStartDate(), job1.getEndDate());
+        Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
         Company bankOfNowhere = new Company(context, "bon1");
         Debt debt1 = new Debt(context, "debt1", "bon1");
         String[] is = {"salary1"};

@@ -23,28 +23,42 @@
 
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.CashFlowSource;
+import name.wexler.retirement.Context;
+import name.wexler.retirement.JSONDateDeserialize;
+import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.MonthDay;
-import java.time.YearMonth;
+import java.time.*;
 
 /**
  * Created by mwexler on 7/9/16.
  */
 public class Monthly extends CashFlowSource {
-    private int dayOfMonth;
+    private int firstDayOfMonth;
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate startDate;
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate endDate;
     @JsonIgnore
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
-    public Monthly(String id, int dayOfMonth, LocalDate startDate, LocalDate endDate) {
-        super(id);
-        this.dayOfMonth = dayOfMonth;
+    public Monthly(@JacksonInject("context") Context context,
+                   @JsonProperty(value = "id", required = true) String id,
+                   @JsonProperty(value = "firstDayOfMonth", required = true) int firstDayOfMonth,
+                   @JsonProperty(value = "startDate", required = true) LocalDate startDate,
+                   @JsonProperty(value = "endDate", required = true) LocalDate endDate)
+    throws Exception
+    {
+        super(context, id);
+        this.firstDayOfMonth = firstDayOfMonth;
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -86,5 +100,18 @@ public class Monthly extends CashFlowSource {
 
     public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
+    }
+
+
+    public int getFirstDayOfMonth() {
+        return firstDayOfMonth;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
     }
 }

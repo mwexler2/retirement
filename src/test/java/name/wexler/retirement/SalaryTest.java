@@ -3,6 +3,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +32,8 @@ public class SalaryTest {
         Job job1 = new Job(context, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
-        incomeSource1 = new Salary(context, "salary1", "job1");
+        Monthly job1CashFlow = new Monthly(context, "job1CashFlow1", 17, job1.getStartDate(), job1.getEndDate());
+        incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId());
         incomeSource1.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
     }
 
@@ -55,7 +57,7 @@ public class SalaryTest {
     @Test
     public void toJSON() throws Exception {
         String incomeSource1Str = context.toJSON(incomeSource1);
-        assertEquals("{\"type\":\"salary\",\"id\":\"salary1\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}", incomeSource1Str);
+        assertEquals("{\"type\":\"salary\",\"id\":\"salary1\",\"job\":\"job1\",\"baseAnnualSalary\":100000.0,\"cashFlow\":\"job1CashFlow1\"}", incomeSource1Str);
     }
 
 

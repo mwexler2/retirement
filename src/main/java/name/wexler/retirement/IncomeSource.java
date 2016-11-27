@@ -47,10 +47,20 @@ import java.time.YearMonth;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Salary.class, name = "salary"),
-        @JsonSubTypes.Type(value = Bonus.class, name = "bonus") })
+        @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct") })
 public abstract class IncomeSource {
     private String id;
-    private CashFlowSource source;
+    private CashFlowSource cashFlow;
+
+    public IncomeSource(@JsonProperty(value = "context", required = true) Context context,
+                        @JsonProperty("id") String id,
+                        @JsonProperty(value = "cashFlow", required = true) String cashFlowId) throws Exception {
+        this.id = id;
+        if (context.getById(IncomeSource.class, id) != null)
+            throw new Exception("Key " + id + " already exists");
+        context.put(IncomeSource.class, id, this);
+        this.cashFlow = context.<CashFlowSource>getById(CashFlowSource.class, cashFlowId);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -60,30 +70,25 @@ public abstract class IncomeSource {
         IncomeSource that = (IncomeSource) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        return source != null ? source.equals(that.source) : that.source == null;
+        return cashFlow != null ? cashFlow.equals(that.cashFlow) : that.cashFlow == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + (cashFlow != null ? cashFlow.hashCode() : 0);
         return result;
     }
 
-    public IncomeSource(Context context, @JsonProperty("id") String id) throws Exception {
-        this.id = id;
-        if (context.getById(IncomeSource.class, id) != null)
-            throw new Exception("Key " + id + " already exists");
-        context.put(IncomeSource.class, id, this);
-    }
+
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        return source.getMonthlyCashFlow(yearMonth, annualAmount);
+        return cashFlow.getMonthlyCashFlow(yearMonth, annualAmount);
     }
 
     public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-        return source.getMonthlyCashFlow(annualAmount);
+        return cashFlow.getMonthlyCashFlow(annualAmount);
     }
 
     public abstract BigDecimal getAnnualCashFlow(int year);
@@ -100,11 +105,14 @@ public abstract class IncomeSource {
         this.id = id;
     }
 
-    public CashFlowSource getSource() {
-        return source;
+    @JsonIgnore
+    public CashFlowSource getCashFlow() {
+        return cashFlow;
     }
 
-    public void setSource(CashFlowSource source) {
-        this.source = source;
+    @JsonProperty("cashFlow")
+    public String getGetFlowId() {
+        return cashFlow.getId();
     }
+
 }

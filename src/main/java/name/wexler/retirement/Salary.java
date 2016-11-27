@@ -48,8 +48,9 @@ public class Salary extends IncomeSource {
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
-                  @JsonProperty("job") String jobId) throws Exception {
-        super(context, id);
+                  @JsonProperty("job") String jobId,
+                  @JsonProperty("cashFlow") String cashFlowId) throws Exception {
+        super(context, id, cashFlowId);
         this.setJobId(context, jobId);
     }
 

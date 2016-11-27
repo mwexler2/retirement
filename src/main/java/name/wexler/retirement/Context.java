@@ -84,7 +84,7 @@ public class Context {
 
     public <T> T fromJSON(Class clazz, String json) throws Exception {
         ObjectMapper mapper = getObjectMapper();
-        ObjectWriter writer = mapper.writer();
+
         T result = (T) mapper.readValue(json, clazz);
         return result;
     }

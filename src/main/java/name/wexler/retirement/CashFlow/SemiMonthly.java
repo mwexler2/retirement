@@ -24,18 +24,37 @@
 
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import name.wexler.retirement.Context;
+
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.MonthDay;
 
 /**
  * Created by mwexler on 7/9/16.
  */
+@JsonPropertyOrder({ "type", "id", "startDate", "endDate", "firstDayOfMonth", "secondDayOfMonth" })
 public class SemiMonthly extends Monthly {
-    private int firstDayOfMonth;
     private int secondDayOfMonth;
 
-    public SemiMonthly(String id, int firstDayOfMonth, int secondDayOfMonth, LocalDate startDate, LocalDate endDate) {
-        super(id, firstDayOfMonth, startDate, endDate);
-        this.firstDayOfMonth = firstDayOfMonth;
-        this.secondDayOfMonth = this.secondDayOfMonth;
+    public SemiMonthly(@JacksonInject("context") Context context,
+                       @JsonProperty(value = "id", required = true) String id,
+                       @JsonProperty(value = "firstDayOfMonth", required = true) int firstDayOfMonth,
+                       @JsonProperty(value = "secondDayOfMonth", required = true) int secondDayOfMonth,
+                       @JsonProperty(value = "startDate", required = true) LocalDate startDate,
+                       @JsonProperty(value = "endDate", required = true) LocalDate endDate)
+    throws Exception
+    {
+        super(context, id, firstDayOfMonth, startDate, endDate);
+        this.secondDayOfMonth = secondDayOfMonth;
+    }
+
+
+    public int getSecondDayOfMonth() {
+        return secondDayOfMonth;
     }
 }
