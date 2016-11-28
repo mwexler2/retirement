@@ -27,9 +27,9 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import name.wexler.retirement.Context;
-import name.wexler.retirement.Debt;
-import name.wexler.retirement.Entity;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -52,14 +52,31 @@ import java.time.YearMonth;
 public abstract class CashFlowSource {
     private String id;
 
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
+    private LocalDate accrueStart;
+
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
+    private LocalDate accrueEnd;
+
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
+    private LocalDate firstPaymentDate;
+
     public CashFlowSource(@JacksonInject("context") Context context,
-                          @JsonProperty(value = "id", required = true) String id)
-    throws Exception
-    {
+                          @JsonProperty(value = "id", required = true) String id,
+                          @JsonProperty("accrueStart") LocalDate accrueStart,
+                          @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                          @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
+            throws Exception {
         this.id = id;
         if (context.getById(CashFlowSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
         context.put(CashFlowSource.class, id, this);
+        this.accrueStart = accrueStart;
+        this.accrueEnd = accrueEnd;
+        this.firstPaymentDate = firstPaymentDate;
     }
 
     public String getId() {
@@ -82,5 +99,17 @@ public abstract class CashFlowSource {
 
     public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
+    }
+
+    public LocalDate getAccrueStart() {
+        return accrueStart;
+    }
+
+    public LocalDate getAccrueEnd() {
+        return accrueEnd;
+    }
+
+    public LocalDate getFirstPaymentDate() {
+        return firstPaymentDate;
     }
 }

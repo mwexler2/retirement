@@ -24,6 +24,7 @@
 package name.wexler.retirement.CashFlow;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -40,23 +41,21 @@ import java.time.YearMonth;
  * Created by mwexler on 7/9/16.
  */
 public class Annual extends CashFlowSource {
-    @JsonDeserialize(using=JSONMonthDayDeserialize.class)
-    @JsonSerialize(using=JSONMonthDaySerialize.class)
     private MonthDay monthDay;
     private int firstYear;
     private int lastYear;
 
     public Annual(@JacksonInject("context") Context context,
                   @JsonProperty(value = "id", required = true) String id,
-                  @JsonProperty(value = "monthDay", required = true) MonthDay flowMonthDay,
-                  @JsonProperty(value = "firstYear", required = true) int firstYear,
-                  @JsonProperty(value = "lastYear", required = true) int lastYear)
+                  @JsonProperty("accrueStart") LocalDate accrueStart,
+                  @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                  @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
     throws Exception
     {
-        super(context, id);
-        this.monthDay = flowMonthDay;
-        this.firstYear = firstYear;
-        this.lastYear = lastYear;
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        this.monthDay = MonthDay.of(firstPaymentDate.getMonth(), firstPaymentDate.getDayOfMonth());
+        this.firstYear = firstPaymentDate.getYear();
+        this.lastYear = accrueEnd.getYear();
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
@@ -84,14 +83,17 @@ public class Annual extends CashFlowSource {
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
     }
 
+    @JsonIgnore
     public MonthDay getMonthDay() {
         return monthDay;
     }
 
+    @JsonIgnore
     public int getFirstYear() {
         return firstYear;
     }
 
+    @JsonIgnore
     public int getLastYear() {
         return lastYear;
     }

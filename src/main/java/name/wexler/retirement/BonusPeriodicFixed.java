@@ -42,12 +42,11 @@ import java.time.YearMonth;
 public class BonusPeriodicFixed extends Bonus {
     @JsonIdentityReference(alwaysAsId = true)
     private BigDecimal annualAmount;
-    private CashFlowSource cashFlow;
 
     public BonusPeriodicFixed(@JacksonInject("context") Context context,
                               @JsonProperty(value = "id", required = true) String id,
                               @JsonProperty(value = "job", required = true) String jobId,
-                              @JsonProperty(value = "amount", required = true) BigDecimal annualAmount,
+                              @JsonProperty(value = "annualAmount", required = true) BigDecimal annualAmount,
                               @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
             throws Exception {
         super(context, id, jobId, cashFlowId);

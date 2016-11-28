@@ -24,6 +24,7 @@
 package name.wexler.retirement.CashFlow;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -41,28 +42,35 @@ import java.time.YearMonth;
  */
 public class Biweekly extends CashFlowSource {
     private DayOfWeek dayOfWeek;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate startDate;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate endDate;
+    private static final int twoWeeks = 2 * 7;
 
     public Biweekly(@JacksonInject("context") Context context,
                     @JsonProperty(value = "id", required = true) String id,
-                    @JsonProperty(value = "dayOfWeek", required = true) DayOfWeek dayOfWeek,
-                    @JsonProperty(value = "startDate", required = true) LocalDate startDate,
-                    @JsonProperty(value = "endDate", required = true) LocalDate endDate)
+                    @JsonProperty("accrueStart") LocalDate accrueStart,
+                    @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                    @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
     throws Exception
     {
-        super(context, id);
-        this.dayOfWeek = dayOfWeek;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        this.dayOfWeek = firstPaymentDate.getDayOfWeek();
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        return annualAmount;
+        BigDecimal monthlyAmount = BigDecimal.ZERO;
+        LocalDate monthStart = LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), 1);
+        LocalDate monthEnd = LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), yearMonth.lengthOfMonth());
+        long daysSinceFirstPayment = monthStart.toEpochDay() - getFirstPaymentDate().toEpochDay();
+        if (daysSinceFirstPayment >= 0) {
+            long biweeksSinceLastPayment = daysSinceFirstPayment/twoWeeks;
+            LocalDate recentPaymentDate = getFirstPaymentDate().plusDays(biweeksSinceLastPayment * 14);
+            while (!recentPaymentDate.isAfter(monthEnd)) {
+                if (!recentPaymentDate.isBefore(monthStart)) {
+                    monthlyAmount = annualAmount.divide(BigDecimal.valueOf(26.0), 2, BigDecimal.ROUND_HALF_UP);
+                }
+                recentPaymentDate = recentPaymentDate.plusDays(twoWeeks);
+            }
+        }
+        return monthlyAmount;
     }
 
     public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
@@ -78,16 +86,8 @@ public class Biweekly extends CashFlowSource {
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
     }
 
+    @JsonIgnore
     public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
     }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
 }

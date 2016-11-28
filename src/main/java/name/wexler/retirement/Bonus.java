@@ -48,7 +48,7 @@ public abstract class Bonus extends IncomeSource {
     public Bonus(@JacksonInject("context") Context context,
                  @JsonProperty(value = "id", required = true) String id,
                  @JsonProperty(value = "job", required = true) String jobId,
-                 @JsonProperty(value = "source", required = true) String cashFlowId)
+                 @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
             throws Exception {
         super(context, id, cashFlowId);
         this.setJobId(context, jobId);

@@ -12,6 +12,8 @@ import static org.junit.Assert.assertNotEquals;
 import name.wexler.retirement.CashFlow.Biweekly;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -27,7 +29,8 @@ public class ScenarioTest {
         Person mike = new Person(context, "mike");
         Company yahoo = new Company(context, "yahoo1");
         Job job1 = new Job(context, "job1", "yahoo", "mike");
-        Biweekly biweekly = new Biweekly(context, "job1CashFlowSource1", DayOfWeek.TUESDAY, job1.getStartDate(), job1.getEndDate());
+        LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.APRIL, 2);
+        Biweekly biweekly = new Biweekly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
         Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
         Company bankOfNowhere = new Company(context, "bon1");
         Debt debt1 = new Debt(context, "debt1", "bon1");

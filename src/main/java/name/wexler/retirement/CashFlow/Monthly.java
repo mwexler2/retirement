@@ -40,34 +40,28 @@ import java.time.*;
  * Created by mwexler on 7/9/16.
  */
 public class Monthly extends CashFlowSource {
-    private int firstDayOfMonth;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate startDate;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate endDate;
+
     @JsonIgnore
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
     public Monthly(@JacksonInject("context") Context context,
                    @JsonProperty(value = "id", required = true) String id,
-                   @JsonProperty(value = "firstDayOfMonth", required = true) int firstDayOfMonth,
-                   @JsonProperty(value = "startDate", required = true) LocalDate startDate,
-                   @JsonProperty(value = "endDate", required = true) LocalDate endDate)
+                   @JsonProperty("accrueStart") LocalDate accrueStart,
+                   @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                   @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
     throws Exception
     {
-        super(context, id);
-        this.firstDayOfMonth = firstDayOfMonth;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
+        int firstDayOfMonth = getFirstPaymentDate().getDayOfMonth();
+
         BigDecimal monthlySalary = new BigDecimal(0.00);
 
-        YearMonth startYearMonth = YearMonth.of(startDate.getYear(), startDate.getMonth());
-        YearMonth endYearMonth = YearMonth.of(endDate.getYear(), endDate.getMonth());
+        YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
+        YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
         if (yearMonth.isBefore(startYearMonth) || yearMonth.isAfter(endYearMonth)) {
             monthlySalary = BigDecimal.ZERO;
         } else if (yearMonth.isAfter(startYearMonth) && yearMonth.isBefore(endYearMonth)) {
@@ -76,12 +70,12 @@ public class Monthly extends CashFlowSource {
             LocalDate firstDateInMonth = yearMonth.atDay(1);
             LocalDate lastDateInMonth = yearMonth.atEndOfMonth();
             if (yearMonth == startYearMonth) {
-                firstDateInMonth = yearMonth.atDay(startDate.getDayOfMonth());
+                firstDateInMonth = yearMonth.atDay(getAccrueStart().getDayOfMonth());
             } else if (yearMonth == endYearMonth) {
-                lastDateInMonth = yearMonth.atDay(endDate.getDayOfMonth());
+                lastDateInMonth = yearMonth.atDay(getAccrueEnd().getDayOfMonth());
             }
             int days = firstDateInMonth.until(lastDateInMonth).getDays();
-            monthlySalary = annualAmount.multiply(BigDecimal.valueOf(days).divide(BigDecimal.valueOf(startDate.lengthOfYear())));
+            monthlySalary = annualAmount.multiply(BigDecimal.valueOf(days).divide(BigDecimal.valueOf(getAccrueStart().lengthOfYear())));
         }
         return monthlySalary;
     }
@@ -100,18 +94,5 @@ public class Monthly extends CashFlowSource {
 
     public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
-    }
-
-
-    public int getFirstDayOfMonth() {
-        return firstDayOfMonth;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
     }
 }

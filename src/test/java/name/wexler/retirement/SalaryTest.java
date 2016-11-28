@@ -32,7 +32,8 @@ public class SalaryTest {
         Job job1 = new Job(context, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
-        Monthly job1CashFlow = new Monthly(context, "job1CashFlow1", 17, job1.getStartDate(), job1.getEndDate());
+        LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 17);
+        Monthly job1CashFlow = new Monthly(context, "job1CashFlow1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
         incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId());
         incomeSource1.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
     }

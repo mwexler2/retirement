@@ -37,22 +37,28 @@ import java.time.MonthDay;
 /**
  * Created by mwexler on 7/9/16.
  */
-@JsonPropertyOrder({ "type", "id", "startDate", "endDate", "firstDayOfMonth", "secondDayOfMonth" })
+@JsonPropertyOrder({ "type", "id", "accrueStart", "accrueEnd", "firstPaymentDate", "firstDayOfMonth", "secondDayOfMonth" })
 public class SemiMonthly extends Monthly {
+    private int firstDayOfMonth;
     private int secondDayOfMonth;
 
     public SemiMonthly(@JacksonInject("context") Context context,
                        @JsonProperty(value = "id", required = true) String id,
+                       @JsonProperty("accrueStart") LocalDate accrueStart,
+                       @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                       @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
                        @JsonProperty(value = "firstDayOfMonth", required = true) int firstDayOfMonth,
-                       @JsonProperty(value = "secondDayOfMonth", required = true) int secondDayOfMonth,
-                       @JsonProperty(value = "startDate", required = true) LocalDate startDate,
-                       @JsonProperty(value = "endDate", required = true) LocalDate endDate)
+                       @JsonProperty(value = "secondDayOfMonth", required = true) int secondDayOfMonth)
     throws Exception
     {
-        super(context, id, firstDayOfMonth, startDate, endDate);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        this.firstDayOfMonth = firstDayOfMonth;
         this.secondDayOfMonth = secondDayOfMonth;
     }
 
+    public int getFirstDayOfMonth() {
+        return firstDayOfMonth;
+    }
 
     public int getSecondDayOfMonth() {
         return secondDayOfMonth;

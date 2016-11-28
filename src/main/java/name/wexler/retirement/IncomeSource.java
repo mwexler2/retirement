@@ -47,7 +47,8 @@ import java.time.YearMonth;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Salary.class, name = "salary"),
-        @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct") })
+        @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct"),
+        @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed")})
 public abstract class IncomeSource {
     private String id;
     private CashFlowSource cashFlow;

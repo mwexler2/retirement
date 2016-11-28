@@ -36,15 +36,20 @@ public class BonusTest {
         Job job1 = new Job(context, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
-        Monthly monthly = new Monthly(context, "job1CashFlowSource1", 14, job1.getStartDate(), job1.getEndDate());
+
+        LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 14);
+        Monthly monthly = new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
         salary = new Salary(context, "salary1", "job1", monthly.getId());
         salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
-        Annual annual = new Annual(context, "job1BonusSource1", MonthDay.of(Month.JUNE, 6),
-                job1.getStartDate().getYear(), job1.getEndDate().getYear());
+
+        LocalDate job1FirstBonus = LocalDate.of(2016, Month.JUNE, 6);
+        Annual annual = new Annual(context, "job1BonusSource1",
+                job1.getStartDate(), job1.getEndDate(), job1FirstBonus);
         bonusAnnualPct = new BonusAnnualPct(context,  "bonusAnnualPct1", "job1", "salary1", BigDecimal.valueOf(10.0),
                 annual.getId());
-        CashFlowSource biweeklySource = new Biweekly(context, "biweekly1", DayOfWeek.FRIDAY, LocalDate.of(2010, Month.MAY, 17),
-                LocalDate.of(2017, Month.MARCH, 1));
+
+        CashFlowSource biweeklySource = new Biweekly(context, "biweekly1", LocalDate.of(2010, Month.MAY, 17),
+                LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck);
         bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());
 
@@ -77,7 +82,7 @@ public class BonusTest {
         assertEquals("{\"type\":\"bonusAnnualPct\",\"id\":\"bonusAnnualPct1\",\"job\":\"job1\",\"salary\":\"salary1\",\"bonusPct\":10.0,\"cashFlow\":\"job1BonusSource1\"}",
                 bonusAnnualPctStr);
         String bonusPeriodicFixedStr = context.toJSON(bonusPeriodicFixed);
-        assertEquals("{\"type\":\"BonusPeriodicFixed\",\"id\":\"bonusPeriodicFixed1\",\"job\":\"job1\",\"annualAmount\":17000.0,\"cashFlow\":\"biweekly1\"}",
+        assertEquals("{\"type\":\"bonusPeriodicFixed\",\"id\":\"bonusPeriodicFixed1\",\"job\":\"job1\",\"annualAmount\":17000.0,\"cashFlow\":\"biweekly1\"}",
                 bonusPeriodicFixedStr);
     }
 
@@ -88,6 +93,11 @@ public class BonusTest {
 
         IncomeSource incomeSource2a = context.fromJSON(Bonus.class, bonus1Str);
         assertEquals("bonus1a", incomeSource2a.getId());
+
+        String bonus2Str = "{\"type\":\"bonusPeriodicFixed\",\"id\":\"bonusPeriodicFixed1a\",\"job\":\"job1\",\"annualAmount\":17000.0,\"cashFlow\":\"biweekly1\"}}";
+
+        IncomeSource fixedBonus = context.fromJSON(Bonus.class, bonus2Str);
+        assertEquals("bonusPeriodicFixed1a", fixedBonus.getId());
     }
 
 }
