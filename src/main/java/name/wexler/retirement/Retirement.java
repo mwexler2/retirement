@@ -25,24 +25,12 @@ package name.wexler.retirement;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.MonthDay;
 import java.util.Locale;
 import java.text.NumberFormat;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.CashFlow.*;
 
 
@@ -58,7 +46,7 @@ public class Retirement {
     private Asset[] assets;
     private ExpenseSource[] expenseSources;
     private Assumptions assumptions;
-    private CashFlowSource[] cashFlows;
+    private CashFlowType[] cashFlows;
 
     public NumberFormat getCf() {
         return cf;
@@ -92,7 +80,7 @@ public class Retirement {
             this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
 
             String cashFlowsPath = resourceDir + "/cashFlows.json";
-            this.cashFlows = context.<CashFlowSource>fromJSONFileArray(CashFlowSource[].class, cashFlowsPath);
+            this.cashFlows = context.<CashFlowType>fromJSONFileArray(CashFlowType[].class, cashFlowsPath);
 
             String incomeSourcesPath = resourceDir + "/incomeSources.json";
             this.incomeSources = context.<IncomeSource>fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);

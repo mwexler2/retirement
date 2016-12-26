@@ -26,20 +26,18 @@ package name.wexler.retirement.CashFlow;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.CashFlow.CashFlowSource;
 import name.wexler.retirement.Context;
-import name.wexler.retirement.JSONDateDeserialize;
-import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Monthly extends CashFlowSource {
+public class Monthly extends CashFlowType {
 
     @JsonIgnore
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
@@ -65,7 +63,7 @@ public class Monthly extends CashFlowSource {
         if (yearMonth.isBefore(startYearMonth) || yearMonth.isAfter(endYearMonth)) {
             monthlySalary = BigDecimal.ZERO;
         } else if (yearMonth.isAfter(startYearMonth) && yearMonth.isBefore(endYearMonth)) {
-            monthlySalary = annualAmount.divide(monthsPerYear);
+            monthlySalary = annualAmount.divide(monthsPerYear, 2, BigDecimal.ROUND_HALF_UP);
         } else {
             LocalDate firstDateInMonth = yearMonth.atDay(1);
             LocalDate lastDateInMonth = yearMonth.atEndOfMonth();
@@ -75,24 +73,32 @@ public class Monthly extends CashFlowSource {
                 lastDateInMonth = yearMonth.atDay(getAccrueEnd().getDayOfMonth());
             }
             int days = firstDateInMonth.until(lastDateInMonth).getDays();
-            monthlySalary = annualAmount.multiply(BigDecimal.valueOf(days).divide(BigDecimal.valueOf(getAccrueStart().lengthOfYear())));
+            monthlySalary = annualAmount.multiply(BigDecimal.valueOf(days).divide(BigDecimal.valueOf(getAccrueStart().lengthOfYear()), 2, BigDecimal.ROUND_HALF_UP));
         }
         return monthlySalary;
     }
 
-    public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-        return getMonthlyCashFlow(YearMonth.now(), annualAmount);
-    }
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+        ArrayList<CashFlowInstance> result = new ArrayList<>();
 
-    public BigDecimal getAnnualCashFlow(int year, BigDecimal annualAmount) {
-        BigDecimal result = BigDecimal.ZERO;
+        YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
+        YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
+        YearMonth firstPaymentYearMonth = YearMonth.of(getFirstPaymentDate().getYear(), getFirstPaymentDate().getMonth());
+        BigDecimal monthlyAmount = annualAmount.divide(monthsPerYear, 2, BigDecimal.ROUND_HALF_UP);
+        long paymentMonthOffset = startYearMonth.until(firstPaymentYearMonth, ChronoUnit.MONTHS);
+        for (YearMonth thisYearMonth = startYearMonth; !thisYearMonth.isAfter(endYearMonth); thisYearMonth = thisYearMonth.plusMonths(1)) {
+            LocalDate thisAccrueStart = LocalDate.of(thisYearMonth.getYear(), thisYearMonth.getMonth(), 1);
+            if (thisAccrueStart.isBefore(getAccrueStart()))
+                thisAccrueStart = getAccrueStart();
+            LocalDate thisAccrueEnd = thisAccrueStart.withDayOfMonth(thisAccrueStart.lengthOfMonth());
+            if (thisAccrueEnd.isAfter(getAccrueEnd()))
+                thisAccrueEnd = getAccrueEnd();
+            LocalDate cashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(getFirstPaymentDate().getDayOfMonth());
+            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, cashFlowDate, monthlyAmount));
+        }
 
-        for (Month m : Month.values())
-            result = result.add(getMonthlyCashFlow(YearMonth.of(year, m), annualAmount));
         return result;
-    }
-
-    public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
-        return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
     }
 }

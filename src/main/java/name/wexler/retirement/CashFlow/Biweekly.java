@@ -26,21 +26,19 @@ package name.wexler.retirement.CashFlow;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.Context;
-import name.wexler.retirement.JSONDateDeserialize;
-import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Biweekly extends CashFlowSource {
+public class Biweekly extends CashFlowType {
     private DayOfWeek dayOfWeek;
     private static final int twoWeeks = 2 * 7;
 
@@ -73,21 +71,16 @@ public class Biweekly extends CashFlowSource {
         return monthlyAmount;
     }
 
-    public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-        return getMonthlyCashFlow(YearMonth.now(), annualAmount);
-    }
-
-    public BigDecimal getAnnualCashFlow(int year, BigDecimal annualAmount) {
-            return annualAmount;
-    }
-
-    public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
-
-        return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
-    }
-
     @JsonIgnore
     public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+        ArrayList<CashFlowInstance> result = new ArrayList<>();
+
+        return result;
     }
 }

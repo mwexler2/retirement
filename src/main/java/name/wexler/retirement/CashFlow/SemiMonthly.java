@@ -30,9 +30,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import name.wexler.retirement.Context;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -62,5 +65,13 @@ public class SemiMonthly extends Monthly {
 
     public int getSecondDayOfMonth() {
         return secondDayOfMonth;
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+        ArrayList<CashFlowInstance> result = new ArrayList<>();
+
+        return result;
     }
 }

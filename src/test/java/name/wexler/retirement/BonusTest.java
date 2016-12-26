@@ -2,17 +2,15 @@ package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.Annual;
 import name.wexler.retirement.CashFlow.Biweekly;
-import name.wexler.retirement.CashFlow.CashFlowSource;
+import name.wexler.retirement.CashFlow.CashFlowType;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.MonthDay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -48,7 +46,7 @@ public class BonusTest {
         bonusAnnualPct = new BonusAnnualPct(context,  "bonusAnnualPct1", "job1", "salary1", BigDecimal.valueOf(10.0),
                 annual.getId());
 
-        CashFlowSource biweeklySource = new Biweekly(context, "biweekly1", LocalDate.of(2010, Month.MAY, 17),
+        CashFlowType biweeklySource = new Biweekly(context, "biweekly1", LocalDate.of(2010, Month.MAY, 17),
                 LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck);
         bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());

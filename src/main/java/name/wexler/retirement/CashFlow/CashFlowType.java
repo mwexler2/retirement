@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -49,7 +50,7 @@ import java.time.YearMonth;
         @JsonSubTypes.Type(value = Monthly.class, name = "monthly"),
         @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly")
 })
-public abstract class CashFlowSource {
+public abstract class   CashFlowType {
     private String id;
 
     @JsonDeserialize(using=JSONDateDeserialize.class)
@@ -64,16 +65,16 @@ public abstract class CashFlowSource {
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate firstPaymentDate;
 
-    public CashFlowSource(@JacksonInject("context") Context context,
-                          @JsonProperty(value = "id", required = true) String id,
-                          @JsonProperty("accrueStart") LocalDate accrueStart,
-                          @JsonProperty("accrueEnd") LocalDate accrueEnd,
-                          @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
+    public CashFlowType(@JacksonInject("context") Context context,
+                        @JsonProperty(value = "id", required = true) String id,
+                        @JsonProperty("accrueStart") LocalDate accrueStart,
+                        @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                        @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
             throws Exception {
         this.id = id;
-        if (context.getById(CashFlowSource.class, id) != null)
+        if (context.getById(CashFlowType.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        context.put(CashFlowSource.class, id, this);
+        context.put(CashFlowType.class, id, this);
         this.accrueStart = accrueStart;
         this.accrueEnd = accrueEnd;
         this.firstPaymentDate = firstPaymentDate;
@@ -112,4 +113,7 @@ public abstract class CashFlowSource {
     public LocalDate getFirstPaymentDate() {
         return firstPaymentDate;
     }
+
+    abstract public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount);
+
 }

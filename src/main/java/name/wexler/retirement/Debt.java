@@ -26,7 +26,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.CashFlow.CashFlowSource;
+import name.wexler.retirement.CashFlow.CashFlowType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -63,7 +63,7 @@ public class Debt extends ExpenseSource {
 
     public Debt(Context context, String id, Entity lender, Entity[] borrowers, Asset security,
          LocalDate startDate, int term, BigDecimal interestRate, BigDecimal startingBalance,
-         BigDecimal paymentAmount, CashFlowSource source) throws Exception {
+         BigDecimal paymentAmount, CashFlowType source) throws Exception {
         super(context, id);
         this.setSource(source);
         this.security = security;

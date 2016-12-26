@@ -1,9 +1,6 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import name.wexler.retirement.CashFlow.CashFlowSource;
+import name.wexler.retirement.CashFlow.CashFlowType;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +33,7 @@ public class DebtTest {
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowSource monthly = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowType monthly = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
         debt = new Debt(context, "debt1", lender, borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthly);

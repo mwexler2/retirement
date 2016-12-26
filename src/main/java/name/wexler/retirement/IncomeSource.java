@@ -24,15 +24,8 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import name.wexler.retirement.CashFlow.CashFlowSource;
+import name.wexler.retirement.CashFlow.CashFlowType;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -51,7 +44,7 @@ import java.time.YearMonth;
         @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed")})
 public abstract class IncomeSource {
     private String id;
-    private CashFlowSource cashFlow;
+    private CashFlowType cashFlow;
 
     public IncomeSource(@JsonProperty(value = "context", required = true) Context context,
                         @JsonProperty("id") String id,
@@ -60,7 +53,7 @@ public abstract class IncomeSource {
         if (context.getById(IncomeSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
         context.put(IncomeSource.class, id, this);
-        this.cashFlow = context.<CashFlowSource>getById(CashFlowSource.class, cashFlowId);
+        this.cashFlow = context.<CashFlowType>getById(CashFlowType.class, cashFlowId);
     }
 
     @Override
@@ -107,7 +100,7 @@ public abstract class IncomeSource {
     }
 
     @JsonIgnore
-    public CashFlowSource getCashFlow() {
+    public CashFlowType getCashFlow() {
         return cashFlow;
     }
 

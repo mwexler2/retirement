@@ -26,21 +26,20 @@ package name.wexler.retirement.CashFlow;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.Context;
-import name.wexler.retirement.JSONMonthDayDeserialize;
-import name.wexler.retirement.JSONMonthDaySerialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.MonthDay;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Annual extends CashFlowSource {
+public class Annual extends CashFlowType {
     private MonthDay monthDay;
     private int firstYear;
     private int lastYear;
@@ -67,22 +66,6 @@ public class Annual extends CashFlowSource {
         return  BigDecimal.ZERO;
     }
 
-    public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-        return getMonthlyCashFlow(YearMonth.now(), annualAmount);
-    }
-
-    public BigDecimal getAnnualCashFlow(int year, BigDecimal annualAmount) {
-        if (year >= firstYear && year <= lastYear) {
-            return annualAmount;
-        }
-        return BigDecimal.ZERO;
-    }
-
-    public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
-
-        return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
-    }
-
     @JsonIgnore
     public MonthDay getMonthDay() {
         return monthDay;
@@ -96,5 +79,29 @@ public class Annual extends CashFlowSource {
     @JsonIgnore
     public int getLastYear() {
         return lastYear;
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+        ArrayList<CashFlowInstance> result = new ArrayList<>();
+
+        int accrualStartYear = getAccrueStart().getYear();
+        int accrualEndYear = getAccrueEnd().getYear();
+        int paymentYearOffset = getFirstPaymentDate().getYear() - accrualStartYear;
+        for (int thisYear = getAccrueStart().getYear(); thisYear <= getAccrueEnd().getYear(); ++thisYear) {
+            LocalDate thisAccrualStart = getAccrueStart();
+            if (thisYear > accrualStartYear)
+                thisAccrualStart = LocalDate.of(thisYear, Month.JANUARY, 1);
+
+            LocalDate thisAccrualEnd = getAccrueEnd();
+            if (thisYear < accrualEndYear)
+                thisAccrualEnd = LocalDate.of(thisYear, Month.DECEMBER, 31);
+
+            LocalDate cashFlowDate = LocalDate.of(thisYear + paymentYearOffset, getFirstPaymentDate().getMonth(), getFirstPaymentDate().getDayOfMonth());
+            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, annualAmount));
+        }
+
+        return result;
     }
 }

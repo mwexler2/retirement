@@ -24,13 +24,8 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import name.wexler.retirement.CashFlow.CashFlowSource;
+import name.wexler.retirement.CashFlow.CashFlowType;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
@@ -46,7 +41,7 @@ import java.time.YearMonth;
          })
 public abstract class ExpenseSource {
     @JsonIgnore
-    private CashFlowSource source;
+    private CashFlowType source;
     private String id;
 
     public String getId() {
@@ -66,7 +61,7 @@ public abstract class ExpenseSource {
     }
 
 
-    public void setSource(CashFlowSource source) {
+    public void setSource(CashFlowType source) {
         this.source = source;
     }
 
@@ -87,7 +82,7 @@ public abstract class ExpenseSource {
         return source.getAnnualCashFlow(year, annualAmount);
     }
 
-    public CashFlowSource getSource() {
+    public CashFlowType getSource() {
         return source;
     }
 
