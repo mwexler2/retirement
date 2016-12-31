@@ -39,11 +39,8 @@ public class RealProperty extends Asset {
     private String zipCode;
     private String country;
 
-    public RealProperty() {
 
-    }
-
-    protected RealProperty(String id, Entity owner, BigDecimal initialAssetValue, LocalDate initialAssetValueDate,
+    public RealProperty(String id, Entity owner, BigDecimal initialAssetValue, LocalDate initialAssetValueDate,
                            String[] address, String city, String county, String state, String zipCode, String country) {
         super(id, owner, initialAssetValue, initialAssetValueDate);
         this.address = address;

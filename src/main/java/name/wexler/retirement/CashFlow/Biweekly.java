@@ -26,11 +26,16 @@ package name.wexler.retirement.CashFlow;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.Context;
+import name.wexler.retirement.JSONDateDeserialize;
+import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,16 +46,27 @@ import java.util.List;
 public class Biweekly extends CashFlowType {
     private DayOfWeek dayOfWeek;
     private static final int twoWeeks = 2 * 7;
+    private static final BigDecimal periodsPerYear = BigDecimal.valueOf(26);
+
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
+    private LocalDate firstPeriodStart;
 
     public Biweekly(@JacksonInject("context") Context context,
                     @JsonProperty(value = "id", required = true) String id,
+                    @JsonProperty(value = "firstPeriodStart", required = true) LocalDate firstPeriodStart,
                     @JsonProperty("accrueStart") LocalDate accrueStart,
                     @JsonProperty("accrueEnd") LocalDate accrueEnd,
                     @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
     throws Exception
     {
         super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        this.firstPeriodStart = firstPeriodStart;
         this.dayOfWeek = firstPaymentDate.getDayOfWeek();
+    }
+
+    public LocalDate getFirstPeriodStart() {
+        return this.firstPeriodStart;
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
@@ -80,6 +96,20 @@ public class Biweekly extends CashFlowType {
     @Override
     public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
+
+        int paymentOffset = getFirstPeriodStart().until(getFirstPaymentDate()).getDays();
+        for (LocalDate thisPeriodStart = getFirstPeriodStart(); thisPeriodStart.isBefore(getAccrueEnd());
+                thisPeriodStart = thisPeriodStart.plusWeeks(2)) {
+            LocalDate thisAccrualStart = thisPeriodStart;
+            if (thisAccrualStart.isBefore(getAccrueStart()))
+                thisAccrualStart = getAccrueStart();
+            LocalDate thisAccrualEnd = thisAccrualStart.plusWeeks(2);
+            if (thisAccrualEnd.isAfter(getAccrueEnd()))
+                thisAccrualEnd = getAccrueEnd();
+            LocalDate cashFlowDate = thisPeriodStart.plusDays(paymentOffset);
+            BigDecimal thisAmount = annualAmount.divide(periodsPerYear, 2, BigDecimal.ROUND_HALF_UP);
+            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, thisAmount));
+        }
 
         return result;
     }

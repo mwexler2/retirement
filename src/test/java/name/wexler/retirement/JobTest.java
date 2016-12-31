@@ -102,8 +102,9 @@ public class JobTest {
                 job1.getStartDate(), job1.getEndDate());
         job1Bonus2 = new BonusAnnualPct(context, "job1Bonus2", "job1", "job1Salary", job1BonusPct, job1BonusSource2.getId());
 
-        LocalDate job2FirstPaycheck = LocalDate.of(2001, Month.JUNE, 19);
-        CashFlowType job2SalarySource = new Biweekly(context, "biweekly-job2-salary", job2.getStartDate(), job2.getEndDate(), job2FirstPaycheck);
+        LocalDate job2FirstPaycheck = LocalDate.of(2001, Month.JUNE, 22);
+        LocalDate job2FirstPeriodStart = LocalDate.of(2001, Month.JUNE, 9);
+        CashFlowType job2SalarySource = new Biweekly(context, "biweekly-job2-salary", job2FirstPeriodStart, job2.getStartDate(), job2.getEndDate(), job2FirstPaycheck);
         job2Salary = new Salary(context, "job2Salary", job2.getId(), job2SalarySource.getId());
         job2Salary.setBaseAnnualSalary(BigDecimal.valueOf(80000.00));
         IncomeSource[] job2IS = {job1Salary2, job1Bonus2, job2Salary};

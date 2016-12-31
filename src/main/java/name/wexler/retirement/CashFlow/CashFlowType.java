@@ -102,6 +102,8 @@ public abstract class   CashFlowType {
         return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
     }
 
+    abstract public LocalDate getFirstPeriodStart();
+
     public LocalDate getAccrueStart() {
         return accrueStart;
     }

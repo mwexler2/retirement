@@ -29,8 +29,9 @@ public class ScenarioTest {
         Person mike = new Person(context, "mike");
         Company yahoo = new Company(context, "yahoo1");
         Job job1 = new Job(context, "job1", "yahoo", "mike");
+        LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 1);
         LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.APRIL, 2);
-        Biweekly biweekly = new Biweekly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
+        Biweekly biweekly = new Biweekly(context, "job1CashFlowSource1", job1FirstPeriodStart, job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
         Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
         Company bankOfNowhere = new Company(context, "bon1");
         Debt debt1 = new Debt(context, "debt1", "bon1");

@@ -35,7 +35,7 @@ public class BonusTest {
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
 
-        LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 14);
+        LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 15);
         Monthly monthly = new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
         salary = new Salary(context, "salary1", "job1", monthly.getId());
         salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
@@ -46,7 +46,8 @@ public class BonusTest {
         bonusAnnualPct = new BonusAnnualPct(context,  "bonusAnnualPct1", "job1", "salary1", BigDecimal.valueOf(10.0),
                 annual.getId());
 
-        CashFlowType biweeklySource = new Biweekly(context, "biweekly1", LocalDate.of(2010, Month.MAY, 17),
+        LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 25);
+        CashFlowType biweeklySource = new Biweekly(context, "biweekly1", job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
                 LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck);
         bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());

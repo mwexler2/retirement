@@ -57,6 +57,11 @@ public class Annual extends CashFlowType {
         this.lastYear = accrueEnd.getYear();
     }
 
+    @JsonIgnore
+    public LocalDate getFirstPeriodStart() {
+        return getAccrueStart().withDayOfYear(1);
+    }
+
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
         if (yearMonth.getYear() >= firstYear &&
                 yearMonth.getYear() <= lastYear &&
