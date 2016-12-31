@@ -24,10 +24,12 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -60,8 +62,9 @@ public abstract class ExpenseSource {
         context.put(ExpenseSource.class, id, this);
     }
 
+    public abstract List<CashFlowInstance> getCashFlowInstances();
 
-    public void setSource(CashFlowType source) {
+    public void setCashFlow(CashFlowType source) {
         this.source = source;
     }
 
@@ -82,7 +85,7 @@ public abstract class ExpenseSource {
         return source.getAnnualCashFlow(year, annualAmount);
     }
 
-    public CashFlowType getSource() {
+    public CashFlowType getCashFlow() {
         return source;
     }
 

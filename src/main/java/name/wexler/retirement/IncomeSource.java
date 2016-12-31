@@ -24,11 +24,13 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -87,9 +89,13 @@ public abstract class IncomeSource {
 
     public abstract BigDecimal getAnnualCashFlow(int year);
 
+    public abstract List<CashFlowInstance> getCashFlowInstances();
+
     public BigDecimal getAnnualCashFlow() {
         return getAnnualCashFlow(LocalDate.now().getYear());
     }
+
+    abstract public String getName();
 
     public String getId() {
         return id;

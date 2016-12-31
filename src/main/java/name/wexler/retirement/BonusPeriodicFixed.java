@@ -24,10 +24,12 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -55,6 +57,11 @@ public class BonusPeriodicFixed extends Bonus {
             annualBonusAmount = annualBonusAmount.add(this.getMonthlyCashFlow(yearMonth, this.annualAmount));
         }
         return annualBonusAmount;
+    }
+
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances() {
+        return getCashFlow().getCashFlowInstances(annualAmount);
     }
 
     @Override

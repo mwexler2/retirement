@@ -24,12 +24,14 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -125,6 +127,11 @@ public class Salary extends IncomeSource {
 
     public void setBaseAnnualSalary(BigDecimal baseAnnualSalary) {
         this.baseAnnualSalary = baseAnnualSalary;
+    }
+
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances() {
+        return getCashFlow().getCashFlowInstances(baseAnnualSalary);
     }
 
     @Override

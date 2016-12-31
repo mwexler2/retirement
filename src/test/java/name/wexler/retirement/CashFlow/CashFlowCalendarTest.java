@@ -9,8 +9,10 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
 
 /**
@@ -55,6 +57,7 @@ public class CashFlowCalendarTest {
         BonusPeriodicFixed bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());
         incomeSources.add(bonusPeriodicFixed);
+        calendar.addIncomeSources(incomeSources);
 
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1");
@@ -71,6 +74,7 @@ public class CashFlowCalendarTest {
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthlyPayment);
         expenseSources.add(debt);
+        calendar.addExpenseSources(expenseSources);
 
     }
 
@@ -91,21 +95,27 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getYears() {
-        int[] result = calendar.getYears();
-        assertEquals(0, result.length);
+        Integer[] result = calendar.getYears();
+        assertEquals(21, result.length);
+        assertEquals(2011, result[0].intValue());
+        assertEquals(2031, result[20].intValue());
     }
 
     @Test
-    public void getCashFlowIds() {
-        List<String> result = calendar.getCashFlowIds();
-        assertEquals(0, result.size());
+    public void getIncomeCashFlowIds() {
+        Map<String, String> result = calendar.getIncomeCashFlowNameAndIds();
+        System.out.println("cashFlowIds = " + result);
+        assertEquals(3, result.size());
+        assertThat(result.keySet(), hasItem("job1BonusSource1"));
+        assertThat(result.keySet(), hasItem("biweekly1"));
+        assertThat(result.keySet(), hasItem("job1CashFlowSource1"));
     }
 
     @Test
-    public void getCashFlowName() {
-
-        String result = calendar.getCashFlowName("sam");
-        assertEquals(null, result);
+    public void getExpenseCashFlowIds() {
+        Map<String, String> result = calendar.getExpenseCashFlowNameAndIds();
+        System.out.println("cashFlowIds = " + result);
+        assertEquals(1, result.size());
+        assertThat(result.keySet(), hasItem("monthly-debt1"));
     }
-
 }

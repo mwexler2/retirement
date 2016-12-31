@@ -1,10 +1,11 @@
 package name.wexler.retirement.CashFlow;
 
+import name.wexler.retirement.Context;
 import name.wexler.retirement.ExpenseSource;
 import name.wexler.retirement.IncomeSource;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Created by mwexler on 12/30/16.
@@ -13,13 +14,13 @@ public class CashFlowCalendar {
     private boolean indexed = false;
     private List<IncomeSource> incomeSources;
     private List<ExpenseSource> expenseSources;
-    private List<CashFlowInstance> incomeeCashFlowInstances = null;
+    private List<CashFlowInstance> incomeCashFlowInstances = null;
     private List<CashFlowInstance> expenseCashFlowInstances = null;
+    private Map<Integer, Integer> cashFlowYears = null;
 
     public CashFlowCalendar() {
         incomeSources = new ArrayList<>();
         expenseSources = new ArrayList<>();
-
     }
 
     public void addIncomeSources(List<IncomeSource> incomeSources) {
@@ -32,29 +33,52 @@ public class CashFlowCalendar {
         this.expenseSources.addAll(expenseSources);
     }
 
-    public int[] getYears() {
+    public Integer[] getYears() {
         if (!indexed)
             indexCashFlows();
-        int[] years = new int[1];
+        Set<Integer> yearSet = cashFlowYears.keySet();
+        Integer[] years = yearSet.toArray(new Integer[0]);
+        Arrays.sort(years);
         return years;
     }
 
-    public List<String> getCashFlowIds() {
+    public Map<String, String> getIncomeCashFlowNameAndIds() {
         if (!indexed)
             indexCashFlows();
-        List<String> cashFlowIds = new ArrayList<>();
-        return cashFlowIds;
+        Map<String, String> cashFlowNameAndIds = new HashMap<String, String>();
+        incomeSources.forEach(incomeSource->{
+            cashFlowNameAndIds.put(incomeSource.getCashFlow().getId(), incomeSource.getName());
+        });
+        return cashFlowNameAndIds;
     }
 
-    public String getCashFlowName(String id) {
-        String result = "";
-
-        return result;
+    public Map<String, String> getExpenseCashFlowNameAndIds() {
+        if (!indexed)
+            indexCashFlows();
+        Map<String, String> cashFlowNameAndIds = new HashMap<String, String>();
+        expenseSources.forEach(expenseSource->{
+            cashFlowNameAndIds.put(expenseSource.getCashFlow().getId(), expenseSource.getName());
+        });
+        return cashFlowNameAndIds;
     }
+
 
     private void indexCashFlows() {
-        incomeeCashFlowInstances = new ArrayList<>();
+        incomeCashFlowInstances = new ArrayList<>();
         expenseCashFlowInstances = new ArrayList<>();
+        cashFlowYears = new HashMap<>();
+        incomeSources.forEach(incomeSource->{
+            incomeCashFlowInstances.addAll(incomeSource.getCashFlowInstances());
+        });
+        expenseSources.forEach(expenseSource->{
+            expenseCashFlowInstances.addAll(expenseSource.getCashFlowInstances());
+        });
+        incomeCashFlowInstances.forEach(incomeCashFlowInstance->{
+            cashFlowYears.put(incomeCashFlowInstance.getCashFlowDate().getYear(), 1);
+        });
+        expenseCashFlowInstances.forEach(expenseCashFlowInstance->{
+            cashFlowYears.put(expenseCashFlowInstance.getCashFlowDate().getYear(), 1);
+        });
         indexed = true;
     }
 }

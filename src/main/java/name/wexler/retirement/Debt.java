@@ -26,11 +26,13 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -65,7 +67,7 @@ public class Debt extends ExpenseSource {
          LocalDate startDate, int term, BigDecimal interestRate, BigDecimal startingBalance,
          BigDecimal paymentAmount, CashFlowType source) throws Exception {
         super(context, id);
-        this.setSource(source);
+        this.setCashFlow(source);
         this.security = security;
         this.lender = lender;
         this.borrowers = borrowers;
@@ -74,6 +76,11 @@ public class Debt extends ExpenseSource {
         this.interestRate = interestRate;
         this.startingBalance = startingBalance;
         this.paymentAmount = paymentAmount;
+    }
+
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances() {
+        return getCashFlow().getCashFlowInstances(paymentAmount.multiply(BigDecimal.valueOf(12)));
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {
@@ -105,7 +112,7 @@ public class Debt extends ExpenseSource {
 
     @JsonProperty(value = "source")
     public String getSourceId() {
-        return this.getSource().getId();
+        return this.getCashFlow().getId();
     }
 
     @JsonProperty(value = "security")
