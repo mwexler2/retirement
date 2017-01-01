@@ -5,6 +5,7 @@ import name.wexler.retirement.ExpenseSource;
 import name.wexler.retirement.IncomeSource;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -16,7 +17,8 @@ public class CashFlowCalendar {
     private List<ExpenseSource> expenseSources;
     private List<CashFlowInstance> incomeCashFlowInstances = null;
     private List<CashFlowInstance> expenseCashFlowInstances = null;
-    private Map<Integer, Integer> cashFlowYears = null;
+    private Map<Integer, Map<String, BigDecimal>> incomeCashFlowYears = null;
+    private Map<Integer, Map<String, BigDecimal>> expenseCashFlowYears = null;
 
     public CashFlowCalendar() {
         incomeSources = new ArrayList<>();
@@ -33,13 +35,21 @@ public class CashFlowCalendar {
         this.expenseSources.addAll(expenseSources);
     }
 
-    public Integer[] getYears() {
+    public List<Integer> getYears() {
         if (!indexed)
             indexCashFlows();
-        Set<Integer> yearSet = cashFlowYears.keySet();
-        Integer[] years = yearSet.toArray(new Integer[0]);
-        Arrays.sort(years);
-        return years;
+        Set<Integer> incomeYearSet = incomeCashFlowYears.keySet();
+        Set<Integer> expenseYearSet = expenseCashFlowYears.keySet();
+        Set<Integer> yearSet = new HashSet<Integer>();
+        yearSet.addAll(incomeYearSet);
+        yearSet.addAll(expenseYearSet);
+        List<Integer> yearList = new ArrayList<>(yearSet);
+        yearList.sort(new Comparator<Integer>(){
+            public int compare(Integer i1, Integer i2){
+                return i1.compareTo(i2);
+            }
+        });
+        return yearList;
     }
 
     public Map<String, String> getIncomeCashFlowNameAndIds() {
@@ -47,7 +57,7 @@ public class CashFlowCalendar {
             indexCashFlows();
         Map<String, String> cashFlowNameAndIds = new HashMap<String, String>();
         incomeSources.forEach(incomeSource->{
-            cashFlowNameAndIds.put(incomeSource.getCashFlow().getId(), incomeSource.getName());
+            cashFlowNameAndIds.put(incomeSource.getId(), incomeSource.getName());
         });
         return cashFlowNameAndIds;
     }
@@ -57,28 +67,82 @@ public class CashFlowCalendar {
             indexCashFlows();
         Map<String, String> cashFlowNameAndIds = new HashMap<String, String>();
         expenseSources.forEach(expenseSource->{
-            cashFlowNameAndIds.put(expenseSource.getCashFlow().getId(), expenseSource.getName());
+            cashFlowNameAndIds.put(expenseSource.getId(), expenseSource.getName());
         });
         return cashFlowNameAndIds;
     }
 
+    public BigDecimal getAnnualExpense(String cashFlowId, Integer year) {
+        Map<String, BigDecimal> yearMap = expenseCashFlowYears.get(year);
+        BigDecimal expense = BigDecimal.ZERO;
+        if (yearMap != null) {
+            expense = yearMap.get(cashFlowId);
+        }
+        return expense;
+    }
+
+    public BigDecimal getAnnualIncome(String cashFlowId, Integer year) {
+        Map<String, BigDecimal> yearMap = incomeCashFlowYears.get(year);
+        BigDecimal income = BigDecimal.ZERO;
+        if (yearMap != null) {
+            income = yearMap.get(cashFlowId);
+        }
+        return income;
+    }
 
     private void indexCashFlows() {
-        incomeCashFlowInstances = new ArrayList<>();
+
         expenseCashFlowInstances = new ArrayList<>();
-        cashFlowYears = new HashMap<>();
-        incomeSources.forEach(incomeSource->{
-            incomeCashFlowInstances.addAll(incomeSource.getCashFlowInstances());
-        });
-        expenseSources.forEach(expenseSource->{
-            expenseCashFlowInstances.addAll(expenseSource.getCashFlowInstances());
-        });
-        incomeCashFlowInstances.forEach(incomeCashFlowInstance->{
-            cashFlowYears.put(incomeCashFlowInstance.getCashFlowDate().getYear(), 1);
-        });
-        expenseCashFlowInstances.forEach(expenseCashFlowInstance->{
-            cashFlowYears.put(expenseCashFlowInstance.getCashFlowDate().getYear(), 1);
-        });
+        expenseCashFlowYears = new HashMap<>();
+        indexIncomeCashFlows();
+        indexExpenseCashFlows();
         indexed = true;
     }
+
+    private void indexIncomeCashFlows() {
+        incomeCashFlowInstances = new ArrayList<>();
+        incomeCashFlowYears = new HashMap<>();
+        incomeSources.forEach(incomeSource -> {
+            List<CashFlowInstance> cashFlowInstances = incomeSource.getCashFlowInstances();
+            incomeCashFlowInstances.addAll(cashFlowInstances);
+            cashFlowInstances.forEach(incomeCashFlowInstance -> {
+                int thisYear = incomeCashFlowInstance.getCashFlowDate().getYear();
+                Map<String, BigDecimal> cashFlowAmounts = incomeCashFlowYears.get(thisYear);
+                if (cashFlowAmounts == null) {
+                    cashFlowAmounts = new HashMap<String, BigDecimal>();
+                    incomeCashFlowYears.put(incomeCashFlowInstance.getCashFlowDate().getYear(), cashFlowAmounts);
+                }
+                BigDecimal total = BigDecimal.ZERO;
+                Iterator<CashFlowInstance> cashFlowIterator = cashFlowInstances.iterator();
+                while (cashFlowIterator.hasNext()) {
+                    CashFlowInstance cashFlowInstance = cashFlowIterator.next();
+                    total = total.add(cashFlowInstance.getAmount());
+                }
+                cashFlowAmounts.put(incomeSource.getId(), total);
+            });
+        });
+    }
+
+    private void indexExpenseCashFlows() {
+        expenseCashFlowInstances = new ArrayList<>();
+        expenseCashFlowYears = new HashMap<>();
+        expenseSources.forEach(expenseSource -> {
+            List<CashFlowInstance> cashFlowInstances = expenseSource.getCashFlowInstances();
+            expenseCashFlowInstances.addAll(cashFlowInstances);
+            cashFlowInstances.forEach(expenseCashFlowInstance -> {
+                int thisYear = expenseCashFlowInstance.getCashFlowDate().getYear();
+                Map<String, BigDecimal> cashFlowAmounts = expenseCashFlowYears.get(thisYear);
+                if (cashFlowAmounts == null) {
+                    cashFlowAmounts = new HashMap<String, BigDecimal>();
+                    expenseCashFlowYears.put(thisYear, cashFlowAmounts);
+                }
+                BigDecimal total = cashFlowAmounts.get(expenseSource.getId());
+                if (total == null)
+                    total = BigDecimal.ZERO;
+                total = total.add(expenseCashFlowInstance.getAmount());
+                cashFlowAmounts.put(expenseSource.getId(), total);
+            });
+        });
+    }
+
 }

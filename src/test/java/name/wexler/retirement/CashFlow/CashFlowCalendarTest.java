@@ -95,10 +95,10 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getYears() {
-        Integer[] result = calendar.getYears();
-        assertEquals(21, result.length);
-        assertEquals(2011, result[0].intValue());
-        assertEquals(2031, result[20].intValue());
+        List<Integer> result = calendar.getYears();
+        assertEquals(21, result.size());
+        assertEquals(2011, result.get(0).intValue());
+        assertEquals(2031, result.get(20).intValue());
     }
 
     @Test
@@ -106,9 +106,33 @@ public class CashFlowCalendarTest {
         Map<String, String> result = calendar.getIncomeCashFlowNameAndIds();
         System.out.println("cashFlowIds = " + result);
         assertEquals(3, result.size());
-        assertThat(result.keySet(), hasItem("job1BonusSource1"));
-        assertThat(result.keySet(), hasItem("biweekly1"));
-        assertThat(result.keySet(), hasItem("job1CashFlowSource1"));
+        assertThat(result.keySet(), hasItem("bonusPeriodicFixed1"));
+        assertThat(result.keySet(), hasItem("salary1"));
+        assertThat(result.keySet(), hasItem("bonusAnnualPct1"));
+    }
+
+    @Test
+    public void getAnnualExpense() {
+        calendar.getYears().forEach(year -> {
+            System.out.println(year);
+            calendar.getExpenseCashFlowNameAndIds().forEach((id, name)-> {
+                BigDecimal amount = calendar.getAnnualExpense(id, year);
+                System.out.println("  " + name + "(" + id + ")" + " = " + amount);
+            });
+        });
+
+    }
+
+    @Test
+    public void getAnnualIncome() {
+        calendar.getYears().forEach(year -> {
+            System.out.println(year);
+            calendar.getIncomeCashFlowNameAndIds().forEach((id, name)-> {
+                BigDecimal amount = calendar.getAnnualIncome(id, year);
+                System.out.println("  " + name + "(" + id + ")" + " = " + amount);
+            });
+        });
+
     }
 
     @Test
