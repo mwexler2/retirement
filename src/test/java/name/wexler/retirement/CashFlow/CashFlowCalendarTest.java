@@ -33,6 +33,7 @@ public class CashFlowCalendarTest {
         expenseSources = new ArrayList<>();
 
         Company employer = new Company(context, "employer1");
+        employer.setCompanyName("Employment Co");
         Person employee = new Person(context, "employee1");
         Job job1 = new Job(context, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
@@ -60,6 +61,7 @@ public class CashFlowCalendarTest {
         calendar.addIncomeSources(incomeSources);
 
         Company lender = new Company(context, "lender1");
+        lender.setCompanyName("Lender's Bank");
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
         Asset asset = new RealProperty("real-property1", borrower, BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
@@ -113,26 +115,29 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getAnnualExpense() {
-        calendar.getYears().forEach(year -> {
-            System.out.println(year);
-            calendar.getExpenseCashFlowNameAndIds().forEach((id, name)-> {
-                BigDecimal amount = calendar.getAnnualExpense(id, year);
-                System.out.println("  " + name + "(" + id + ")" + " = " + amount);
-            });
-        });
-
+        assertEquals(0, BigDecimal.valueOf(4000.00).compareTo(calendar.getAnnualExpense("debt1", 2011)));
+        assertEquals(0, BigDecimal.valueOf(6000.00).compareTo(calendar.getAnnualExpense("debt1", 2012)));
+        assertEquals(0, BigDecimal.valueOf(6000.00).compareTo(calendar.getAnnualExpense("debt1", 2030)));
+        assertEquals(0, BigDecimal.valueOf(2000.00).compareTo(calendar.getAnnualExpense("debt1", 2031)));
+        assertEquals(0, BigDecimal.ZERO.compareTo(calendar.getAnnualExpense("debt1", 1999)));
+        assertEquals(0, BigDecimal.ZERO.compareTo(calendar.getAnnualExpense("bad-debt", 2012)));
+        assertEquals(0, BigDecimal.ZERO.compareTo(calendar.getAnnualExpense("bad-debt", 1999)));
     }
 
     @Test
     public void getAnnualIncome() {
-        calendar.getYears().forEach(year -> {
-            System.out.println(year);
-            calendar.getIncomeCashFlowNameAndIds().forEach((id, name)-> {
-                BigDecimal amount = calendar.getAnnualIncome(id, year);
-                System.out.println("  " + name + "(" + id + ")" + " = " + amount);
-            });
-        });
-
+        assertEquals(0, BigDecimal.valueOf(11115.45).  compareTo(calendar.getAnnualIncome("bonusPeriodicFixed1", 2015)));
+        assertEquals(0, BigDecimal.valueOf(66666.64).  compareTo(calendar.getAnnualIncome("salary1",             2015)));
+        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("bonusAnnualPct1",     2012)));
+        assertEquals(0, BigDecimal.valueOf(17000.10).  compareTo(calendar.getAnnualIncome("bonusPeriodicFixed1", 2016)));
+        assertEquals(0, BigDecimal.valueOf(99999.96).  compareTo(calendar.getAnnualIncome("salary1",             2016)));
+        assertEquals(0, BigDecimal.valueOf(1000000.00).compareTo(calendar.getAnnualIncome("bonusAnnualPct1",     2016)));
+        assertEquals(0, BigDecimal.valueOf(3923.10).   compareTo(calendar.getAnnualIncome("bonusPeriodicFixed1", 2017)));
+        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("salary1",             2017)));
+        assertEquals(0, BigDecimal.valueOf(1000000.00).compareTo(calendar.getAnnualIncome("bonusAnnualPct1",     2017)));
+        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("salary1",             1999)));
+        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("bad-salary",          2016)));
+        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("bad-salary",          1999)));
     }
 
     @Test
@@ -140,6 +145,6 @@ public class CashFlowCalendarTest {
         Map<String, String> result = calendar.getExpenseCashFlowNameAndIds();
         System.out.println("cashFlowIds = " + result);
         assertEquals(1, result.size());
-        assertThat(result.keySet(), hasItem("monthly-debt1"));
+        assertThat(result.keySet(), hasItem("debt1"));
     }
 }
