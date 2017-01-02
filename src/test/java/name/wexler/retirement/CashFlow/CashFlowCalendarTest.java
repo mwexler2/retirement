@@ -64,7 +64,7 @@ public class CashFlowCalendarTest {
         lender.setCompanyName("Lender's Bank");
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
-        Asset asset = new RealProperty("real-property1", borrower, BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
+        Asset asset = new RealProperty(context, "real-property1", borrower, BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US");
         Person[] borrowers = { borrower };

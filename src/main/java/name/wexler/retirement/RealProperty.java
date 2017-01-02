@@ -23,7 +23,10 @@
 
 package name.wexler.retirement;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -40,9 +43,20 @@ public class RealProperty extends Asset {
     private String country;
 
 
-    public RealProperty(String id, Entity owner, BigDecimal initialAssetValue, LocalDate initialAssetValueDate,
-                           String[] address, String city, String county, String state, String zipCode, String country) {
-        super(id, owner, initialAssetValue, initialAssetValueDate);
+    @JsonCreator
+    public RealProperty(
+                @JacksonInject("context") Context context,
+                @JsonProperty("id") String id,
+                @JsonProperty("owner") Entity owner,
+                @JsonProperty("initialAssetValue") BigDecimal initialAssetValue,
+                @JsonProperty("initialAssetValueDate") LocalDate initialAssetValueDate,
+                @JsonProperty("address") String[] address,
+                @JsonProperty("city") String city,
+                @JsonProperty("county") String county,
+                @JsonProperty("state") String state,
+                @JsonProperty("zipCode") String zipCode,
+                @JsonProperty("country") String country) {
+        super(context, id, owner, initialAssetValue, initialAssetValueDate);
         this.address = address;
         this.city = city;
         this.county = county;

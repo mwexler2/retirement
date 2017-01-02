@@ -23,8 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -58,11 +57,12 @@ public abstract class Asset {
 
     private String id;
 
-    public Asset() {
-
-    }
-
-    protected Asset(String id, Entity owner, BigDecimal initialAssetValue, LocalDate initialAssetValueDate) {
+    @JsonCreator
+    protected Asset(@JacksonInject("context") Context context,
+                @JsonProperty("id") String id,
+                @JsonProperty("owner") Entity owner,
+                @JsonProperty("initialAssetValue") BigDecimal initialAssetValue,
+                @JsonProperty("initialAssetValueDate") LocalDate initialAssetValueDate) {
         this.id = id;
         this.setInitialAssetValue(initialAssetValue);
         this.setInitialAssetValueDate(initialAssetValueDate);
