@@ -67,9 +67,9 @@ public abstract class   CashFlowType {
 
     public CashFlowType(@JacksonInject("context") Context context,
                         @JsonProperty(value = "id", required = true) String id,
-                        @JsonProperty("accrueStart") LocalDate accrueStart,
-                        @JsonProperty("accrueEnd") LocalDate accrueEnd,
-                        @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
+                        @JsonProperty(value = "accrueStart", required = true) LocalDate accrueStart,
+                        @JsonProperty(value = "accrueEnd", required = true) LocalDate accrueEnd,
+                        @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate)
             throws Exception {
         this.id = id;
         if (context.getById(CashFlowType.class, id) != null)

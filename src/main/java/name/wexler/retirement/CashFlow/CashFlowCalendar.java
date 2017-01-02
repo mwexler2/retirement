@@ -73,25 +73,43 @@ public class CashFlowCalendar {
     }
 
     public BigDecimal getAnnualExpense(String cashFlowId, Integer year) {
-        if (!indexed)
-            indexCashFlows();
-        Map<String, BigDecimal> yearMap = expenseCashFlowYears.get(year);
-        BigDecimal expense = BigDecimal.ZERO;
-        if (yearMap != null  && yearMap.containsKey(cashFlowId)) {
-            expense = yearMap.get(cashFlowId);
-        }
-        return expense;
+        return getAnnualCashFlow(expenseCashFlowYears, cashFlowId, year);
     }
 
     public BigDecimal getAnnualIncome(String cashFlowId, Integer year) {
+        return getAnnualCashFlow(incomeCashFlowYears, cashFlowId, year);
+    }
+
+    public BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, String cashFlowId, Integer year) {
         if (!indexed)
             indexCashFlows();
-        Map<String, BigDecimal> yearMap = incomeCashFlowYears.get(year);
+        Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
         BigDecimal income = BigDecimal.ZERO;
         if (yearMap != null  && yearMap.containsKey(cashFlowId)) {
             income = yearMap.get(cashFlowId);
         }
         return income;
+    }
+
+    public BigDecimal getAnnualExpense(Integer year) {
+        return getAnnualCashFlow(expenseCashFlowYears, year);
+    }
+
+    public BigDecimal getAnnualIncome(Integer year) {
+        return getAnnualCashFlow(incomeCashFlowYears, year);
+    }
+
+    public BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, Integer year) {
+        if (!indexed)
+            indexCashFlows();
+        Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
+        BigDecimal total = BigDecimal.ZERO;
+        Iterator<BigDecimal> cashFlows = yearMap.values().iterator();
+        while (cashFlows.hasNext()) {
+            BigDecimal cashFlow = cashFlows.next();
+            total = total.add(cashFlow);
+        }
+        return total;
     }
 
     private void indexCashFlows() {

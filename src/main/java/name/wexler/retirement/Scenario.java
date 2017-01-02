@@ -28,10 +28,14 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mwexler on 6/28/16.
@@ -44,14 +48,7 @@ public class Scenario {
     private String name;
 
     @JsonIgnore
-    private IncomeSource[] incomeSources;
-
-    @JsonIgnore
-    private ExpenseSource[] expenseSources;
-
-    @JsonIgnore
-    private int[] years;
-
+    private CashFlowCalendar calendar;
 
     @JsonCreator
     Scenario(@JacksonInject("context") Context context,
@@ -59,77 +56,59 @@ public class Scenario {
              @JsonProperty("incomeSources") String[] incomeSources,
              @JsonProperty("expenseSources") String[] expenseSources) {
         this.name = name;
-        this.setIncomeSourceIds(context, incomeSources);
-        this.setExpenseSourceIds(context, expenseSources);
-        int startYear = 2016;
-        this.years = new int[51];
-        for (int i = 0; i <= 50; ++i) {
-            years[i] = startYear + i;
-        }
+        calendar = new CashFlowCalendar();
+        setIncomeSourceIds(context, incomeSources);
+        setExpenseSourceIds(context, expenseSources);
     }
 
     @JsonIgnore
-    public ExpenseSource[] getExpenseSources() {
-        return expenseSources;
-    }
-
-    @JsonIgnore
-    public void setExpenseSources(ExpenseSource[] expenseSources) {
-        this.expenseSources = expenseSources;
+    public CashFlowCalendar getCalendar() {
+        return calendar;
     }
 
     @JsonProperty(value = "incomeSources")
     public void setIncomeSourceIds(@JacksonInject("context") Context context,
-                                @JsonProperty(value="incomeSources", required=true) String[] incomeSourceIds) {
-        this.incomeSources = new IncomeSource[incomeSourceIds.length];
+                                   @JsonProperty(value="incomeSources", required=true) String[] incomeSourceIds) {
+        List<IncomeSource> incomeSources = new ArrayList<>(incomeSourceIds.length);
         for (int i = 0; i < incomeSourceIds.length; ++i) {
-            incomeSources[i] = context.<IncomeSource>getById(IncomeSource.class, incomeSourceIds[i]);
+            incomeSources.add(context.<IncomeSource>getById(IncomeSource.class, incomeSourceIds[i]));
         }
+        calendar.addIncomeSources(incomeSources);
     }
 
     @JsonProperty(value = "incomeSources")
     public String[] getIncomeSourceIds() {
-        String[] result = new String[incomeSources.length];
-        for (int i = 0; i < incomeSources.length; ++i)
-            result[i] = incomeSources[i].getId();
+        Map<String, String> nameAndIds = calendar.getIncomeCashFlowNameAndIds();
+        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
         return result;
     }
 
     @JsonProperty(value = "expenseSources")
     public void setExpenseSourceIds(@JacksonInject("context") Context context,
-                                   @JsonProperty(value="expenseSources", required=true) String[] expenseSourceIds) {
-        this.expenseSources = new ExpenseSource[expenseSourceIds.length];
+                                    @JsonProperty(value="expenseSources", required=true) String[] expenseSourceIds) {
+        List<ExpenseSource> expenseSources = new ArrayList<>(expenseSourceIds.length);
         for (int i = 0; i < expenseSourceIds.length; ++i) {
-            expenseSources[i] = context.<ExpenseSource>getById(ExpenseSource.class, expenseSourceIds[i]);
+            expenseSources.add(context.<ExpenseSource>getById(ExpenseSource.class, expenseSourceIds[i]));
         }
+        calendar.addExpenseSources(expenseSources);
     }
 
     @JsonProperty(value = "expenseSources")
     public String[] getExpenseSourceIds() {
-        String[] result = new String[expenseSources.length];
-        for (int i = 0; i < expenseSources.length; ++i)
-            result[i] = expenseSources[i].getId();
+        Map<String, String> nameAndIds = calendar.getExpenseCashFlowNameAndIds();
+        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
         return result;
     }
 
+
     @JsonIgnore
     public BigDecimal getAnnualIncome(int year) {
-        BigDecimal income = BigDecimal.ZERO;
-
-        for (IncomeSource is : this.incomeSources) {
-            income = income.add(is.getAnnualCashFlow(year));
-        }
-        return income;
+        return calendar.getAnnualIncome(year);
     }
 
     @JsonIgnore
     public BigDecimal getAnnualExpense(int year) {
-        BigDecimal expense = BigDecimal.ZERO;
-
-        for (ExpenseSource es : this.expenseSources) {
-            expense = expense.add(es.getAnnualCashFlow(year));
-        }
-        return expense;
+        return calendar.getAnnualExpense(year);
     }
 
     public Assumptions getAssumptions() {
@@ -140,25 +119,17 @@ public class Scenario {
         this.assumptions = assumptions;
     }
 
-    @JsonIgnore
-    public IncomeSource[] getIncomeSources() {
-        return incomeSources;
-    }
-
-    @JsonIgnore
-    public void setIncomeSources(IncomeSource[] incomeSources) {
-        this.incomeSources = incomeSources;
-    }
-
     public String getName() {
         return name;
     }
 
-    public int[] getYears() {
-        return this.years;
+    @JsonIgnore
+    public List<Integer> getYears() {
+        return calendar.getYears();
     }
 
+    @JsonIgnore
     public int getNumYears() {
-        return this.years.length;
+        return calendar.getYears().size();
     }
 }
