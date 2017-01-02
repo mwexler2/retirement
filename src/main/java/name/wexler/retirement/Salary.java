@@ -129,6 +129,7 @@ public class Salary extends IncomeSource {
         this.baseAnnualSalary = baseAnnualSalary;
     }
 
+    @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
         return getCashFlow().getCashFlowInstances(baseAnnualSalary);

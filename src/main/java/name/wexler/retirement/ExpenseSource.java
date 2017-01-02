@@ -85,8 +85,14 @@ public abstract class ExpenseSource {
         return source.getAnnualCashFlow(year, annualAmount);
     }
 
+    @JsonIgnore
     public CashFlowType getCashFlow() {
         return source;
+    }
+
+    @JsonProperty("cashFlow")
+    public String getGetFlowId() {
+        return source.getId();
     }
 
     @JsonIgnore

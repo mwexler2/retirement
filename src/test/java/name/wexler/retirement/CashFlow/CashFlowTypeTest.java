@@ -145,7 +145,7 @@ public class CashFlowTypeTest {
         assertEquals(BigDecimal.valueOf(34334.22), result);
 
         result = semiMonthly.getAnnualCashFlow(BigDecimal.valueOf(17000.00));
-        assertTrue("result of annual cashflow doesn't match", BigDecimal.valueOf(15526.70).compareTo(result) == 0);
+        assertTrue("result of annual cashflow doesn't match", BigDecimal.valueOf(17000.04).compareTo(result) == 0);
     }
 
     @Test

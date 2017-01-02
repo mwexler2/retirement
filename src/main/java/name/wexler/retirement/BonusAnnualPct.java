@@ -75,6 +75,7 @@ public class BonusAnnualPct extends Bonus {
         return bonusAmount;
     }
 
+    @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
         BigDecimal annualAmount = salary.getBaseAnnualSalary().multiply(bonusPct);

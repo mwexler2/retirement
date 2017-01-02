@@ -59,6 +59,7 @@ public class BonusPeriodicFixed extends Bonus {
         return annualBonusAmount;
     }
 
+    @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
         return getCashFlow().getCashFlowInstances(annualAmount);

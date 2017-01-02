@@ -59,7 +59,7 @@ public class DebtTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(debt);
-        assertEquals("{\"type\":\"debt\",\"id\":\"debt1\",\"source\":\"monthly-debt1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0}", expenseSource1Str);
+        assertEquals("{\"type\":\"debt\",\"id\":\"debt1\",\"source\":\"monthly-debt1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-debt1\"}", expenseSource1Str);
     }
 
 

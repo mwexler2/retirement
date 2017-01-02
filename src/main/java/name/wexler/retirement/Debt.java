@@ -78,6 +78,7 @@ public class Debt extends ExpenseSource {
         this.paymentAmount = paymentAmount;
     }
 
+    @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
         return getCashFlow().getCashFlowInstances(paymentAmount.multiply(BigDecimal.valueOf(12)));
