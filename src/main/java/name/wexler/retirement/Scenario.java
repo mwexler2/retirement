@@ -42,7 +42,7 @@ import java.util.Map;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "assumptions", "name", "incomeSources", "expenseSources", "numYears" })
+@JsonPropertyOrder({ "assumptions", "name", "incomeSources", "expenseSources"})
 public class Scenario {
     private Assumptions assumptions;
     private String name;
@@ -100,6 +100,15 @@ public class Scenario {
         return result;
     }
 
+    @JsonIgnore
+    public List<IncomeSource> getIncomeSources() {
+        return calendar.getIncomeSources();
+    }
+
+    @JsonIgnore
+    public List<ExpenseSource> getExpenseSources() {
+        return calendar.getExpenseSources();
+    }
 
     @JsonIgnore
     public BigDecimal getAnnualIncome(int year) {

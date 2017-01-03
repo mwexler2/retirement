@@ -55,22 +55,24 @@ public class Debt extends ExpenseSource {
     private BigDecimal paymentAmount;
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
+
+    @JsonCreator
     public Debt(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
-                @JsonProperty("lender") String lenderId) throws Exception {
+                @JsonProperty("lender") String lenderId,
+                @JsonProperty("borrowers") String[] borrowersIds,
+                @JsonProperty("asset") Asset security,
+                @JsonProperty("startDate") LocalDate startDate,
+                @JsonProperty("term") int term,
+                @JsonProperty("interestRate") BigDecimal interestRate,
+                @JsonProperty("startingBalance") BigDecimal startingBalance,
+                @JsonProperty("paymentAmount") BigDecimal paymentAmount,
+                @JsonProperty("source") String sourceId) throws Exception {
         super(context, id);
-        setLenderId(context, lenderId);
-    }
-
-
-    public Debt(Context context, String id, Entity lender, Entity[] borrowers, Asset security,
-         LocalDate startDate, int term, BigDecimal interestRate, BigDecimal startingBalance,
-         BigDecimal paymentAmount, CashFlowType source) throws Exception {
-        super(context, id);
-        this.setCashFlow(source);
         this.security = security;
-        this.lender = lender;
-        this.borrowers = borrowers;
+        this.setLenderId(context, lenderId);
+        this.setBorrowersIds(context, borrowersIds);
+        this.setSourceId(context, sourceId);
         this.startDate = startDate;
         this.term = term;
         this.interestRate = interestRate;
@@ -116,19 +118,25 @@ public class Debt extends ExpenseSource {
         return this.getCashFlow().getId();
     }
 
+    public void setSourceId(@JacksonInject("context") Context context,
+                            @JsonProperty(value="source", required=true) String sourceId) {
+        this.setCashFlow(context.getById(CashFlowType.class, sourceId));
+    }
+
     @JsonProperty(value = "security")
     public String getSecurityId() {
         return this.security.getId();
     }
 
-    public void setLenderId(@JacksonInject("context") Context context,
-                            @JsonProperty(value="lender", required=true) String lenderId) {
-        this.lender = context.getById(Entity.class, lenderId);
-    }
 
     @JsonProperty(value = "lender")
     public String getLenderId() {
         return lender.getId();
+    }
+
+    public void setLenderId(@JacksonInject("context") Context context,
+                            @JsonProperty(value="lender", required=true) String lenderId) {
+        this.lender = context.getById(Entity.class, lenderId);
     }
 
     public Entity getLender() {

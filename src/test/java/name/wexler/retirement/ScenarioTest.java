@@ -3,6 +3,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import name.wexler.retirement.CashFlow.CashFlowType;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -40,12 +41,21 @@ public class ScenarioTest {
         Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
         salary1.setBaseAnnualSalary(BigDecimal.valueOf(27000.00));
         Company bankOfNowhere = new Company(context, "bon1");
-        Debt debt1 = new Debt(context, "debt1", "bon1");
-        debt1.setPaymentAmount(BigDecimal.valueOf(273.99));
         Monthly debt1Monthly = new Monthly(context, "debt1CashFlowSource1",
                 LocalDate.of(2015, Month.FEBRUARY, 1),
                 LocalDate.of(2015, Month.FEBRUARY, 14),
                 LocalDate.of(2045, Month.MARCH, 13));
+        String[] address = {"123 Mainstreet"};
+
+        Entity[] mainBorrowers = {mike};
+        RealProperty mainStreet = new RealProperty(context, "main", mike, BigDecimal.valueOf(100000.00), LocalDate.of(2012, Month.JUNE, 10), address,
+                "anyTown", "AnyCount", "AS", "00000", "US");
+        String[] borrowers = {mike.getId()};
+        Debt debt1 = new Debt(context, "debt1", bankOfNowhere.getId(), borrowers, mainStreet,
+                LocalDate.of(2012, Month.JUNE, 20), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
+                BigDecimal.valueOf(200.00), debt1Monthly.getId());
+        debt1.setPaymentAmount(BigDecimal.valueOf(273.99));
+
         debt1.setCashFlow(debt1Monthly);
         String[] is = {"salary1"};
         String[] es = {"debt1"};

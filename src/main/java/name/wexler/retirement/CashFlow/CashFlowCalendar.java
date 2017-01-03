@@ -35,6 +35,14 @@ public class CashFlowCalendar {
         this.expenseSources.addAll(expenseSources);
     }
 
+    public List<IncomeSource> getIncomeSources() {
+        return incomeSources;
+    }
+
+    public List<ExpenseSource> getExpenseSources() {
+        return expenseSources;
+    }
+
     public List<Integer> getYears() {
         if (!indexed)
             indexCashFlows();

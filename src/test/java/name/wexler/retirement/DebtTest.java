@@ -29,14 +29,14 @@ public class DebtTest {
         Asset asset = new RealProperty(context, "real-property1", borrower, BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US");
-        Person[] borrowers = { borrower };
+        String[] borrowers = { borrower.getId() };
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
         CashFlowType monthly = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
-        debt = new Debt(context, "debt1", lender, borrowers, asset,
+        debt = new Debt(context, "debt1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
-                BigDecimal.valueOf(500.00), monthly);
+                BigDecimal.valueOf(500.00), monthly.getId());
     }
 
     @After
@@ -65,7 +65,7 @@ public class DebtTest {
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1a\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
+        String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1a\",\"source\":\"monthly-debt1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
         ExpenseSource expenseSource1a = context.fromJSON(ExpenseSource.class, expenseSource1aStr);
         assertEquals("debt1a", expenseSource1a.getId());
     }
