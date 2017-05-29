@@ -125,9 +125,6 @@ public class CashFlowCalendar {
     }
 
     private void indexCashFlows() {
-
-        expenseCashFlowInstances = new ArrayList<>();
-        expenseCashFlowYears = new HashMap<>();
         indexIncomeCashFlows();
         indexExpenseCashFlows();
         indexed = true;

@@ -39,31 +39,7 @@
     </tr>
 </table>
 
-<table border="1">
-    <caption>Income Sources</caption>
-    <tr>
-        <th>Name</th><th>Annual Income</th>
-    </tr>
-    <c:forEach var="source" items="${scenario.incomeSource}">
-        <tr>
-            <td>${source.name}</td>
-            <td>${command.cf.format(source.annualCashFlow)}</td>
-        </tr>
-    </c:forEach>
-</table>
 
-<table border="1">
-    <caption>Expense Sources</caption>
-    <tr>
-        <th>Name</th><th>Annual Expense</th>
-    </tr>
-    <c:forEach var="source" items="${scenario.expenseSources}">
-        <tr>
-            <td><c:out value="${source.name}"/></td>
-            <td>${command.cf.format(source.annualCashFlow)}</td>
-        </tr>
-    </c:forEach>
-</table>
     <table border="1">
         <caption>Income & Expenses</caption>
         <tr>
@@ -80,7 +56,7 @@
             <tr>
                 <th>${incomeSourceId}</th>
                 <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(scenario.calendar.getAnnualCashFlow(incomeSourceId, year))}</td>
+                    <td align="right">${command.cf.format(scenario.calendar.getAnnualIncome(incomeSourceId, year))}</td>
                 </c:forEach>
             </tr>
         </c:forEach>
@@ -93,11 +69,11 @@
         <th>Expense</th>
             <td colspan="${scenario.numYears}">&nbsp;</td>
         </tr>
-        <c:forEach var="expenseSource" items="${scenario.expenseSources}">
+        <c:forEach var="expenseSourceId" items="${scenario.expenseSourceIds}">
             <tr>
-                <th>${expenseSource.name}</th>
+                <th>${expenseSourceId}</th>
                 <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(expenseSource.getAnnualCashFlow(year))}</td>
+                    <td align="right">${command.cf.format(scenario.calendar.getAnnualExpense(expenseSourceId, year))}</td>
                 </c:forEach>
             </tr>
         </c:forEach>
@@ -105,6 +81,12 @@
             <th>Total Expenses</th>
             <c:forEach var="year" items="${scenario.years}">
                 <td align="right">${command.cf.format(scenario.getAnnualExpense(year))}</td>
+            </c:forEach>
+        </tr>
+        <tr>
+            <th>Net Income</th>
+            <c:forEach var="year" items="${scenario.years}">
+                <td align="right">${command.cf.format(scenario.getNetIncome(year))}</td>
             </c:forEach>
         </tr>
     </table>

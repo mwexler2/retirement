@@ -56,6 +56,9 @@ public abstract class IncomeSource {
             throw new Exception("Key " + id + " already exists");
         context.put(IncomeSource.class, id, this);
         this.cashFlow = context.<CashFlowType>getById(CashFlowType.class, cashFlowId);
+        if (this.cashFlow == null) {
+            throw new Exception("income cashflow " + cashFlowId + " not found");
+        }
     }
 
     @Override

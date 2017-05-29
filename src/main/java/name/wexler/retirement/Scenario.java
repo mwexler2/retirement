@@ -122,6 +122,14 @@ public class Scenario {
         return calendar.getAnnualExpense(year);
     }
 
+    @JsonIgnore
+    public BigDecimal getNetIncome(int year) {
+        BigDecimal grossIncome = calendar.getAnnualIncome(year);
+        BigDecimal expenses = calendar.getAnnualExpense(year);
+        BigDecimal netIncome = grossIncome.subtract(expenses);
+        return netIncome;
+    }
+
     public Assumptions getAssumptions() {
         return assumptions;
     }
