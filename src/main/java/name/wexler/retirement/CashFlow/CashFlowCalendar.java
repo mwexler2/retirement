@@ -114,10 +114,12 @@ public class CashFlowCalendar {
             indexCashFlows();
         Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
         BigDecimal total = BigDecimal.ZERO;
-        Iterator<BigDecimal> cashFlows = yearMap.values().iterator();
-        while (cashFlows.hasNext()) {
-            BigDecimal cashFlow = cashFlows.next();
-            total = total.add(cashFlow);
+        if (yearMap != null) {
+            Iterator<BigDecimal> cashFlows = yearMap.values().iterator();
+            while (cashFlows.hasNext()) {
+                BigDecimal cashFlow = cashFlows.next();
+                total = total.add(cashFlow);
+            }
         }
         return total;
     }

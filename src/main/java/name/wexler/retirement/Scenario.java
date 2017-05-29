@@ -100,6 +100,7 @@ public class Scenario {
         return result;
     }
 
+    /*
     @JsonIgnore
     public List<IncomeSource> getIncomeSources() {
         return calendar.getIncomeSources();
@@ -109,6 +110,7 @@ public class Scenario {
     public List<ExpenseSource> getExpenseSources() {
         return calendar.getExpenseSources();
     }
+    */
 
     @JsonIgnore
     public BigDecimal getAnnualIncome(int year) {
