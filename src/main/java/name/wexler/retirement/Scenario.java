@@ -100,17 +100,25 @@ public class Scenario {
         return result;
     }
 
-    /*
     @JsonIgnore
-    public List<IncomeSource> getIncomeSources() {
-        return calendar.getIncomeSources();
+    public String getIncomeSourceName(String incomeSourceId) {
+        return calendar.getIncomeSourceName(incomeSourceId);
     }
 
     @JsonIgnore
-    public List<ExpenseSource> getExpenseSources() {
-        return calendar.getExpenseSources();
+    public String getExpenseSourceName(String expenseSourceId) {
+        return calendar.getExpenseSourceName(expenseSourceId);
     }
-    */
+
+    @JsonIgnore
+    public BigDecimal getAnnualIncome(String incomeSourceId, int year ) {
+        return calendar.getAnnualIncome(incomeSourceId, year);
+    }
+
+    @JsonIgnore
+    public BigDecimal getAnnualExpense(String expenseSourceId, int year) {
+        return calendar.getAnnualExpense(expenseSourceId, year);
+    }
 
     @JsonIgnore
     public BigDecimal getAnnualIncome(int year) {
