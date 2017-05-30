@@ -51,7 +51,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly")
 })
 public abstract class   CashFlowType {
-    private String id;
+    private final String id;
 
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)

@@ -66,7 +66,8 @@
                     <td align="right">${command.cf.format(scenario.getAnnualIncome(year))}</td>
                 </c:forEach>
             </tr>
-        <th>Expense</th>
+        <tr>
+            <th>Expense</th>
             <td colspan="${scenario.numYears}">&nbsp;</td>
         </tr>
         <c:forEach var="expenseSourceId" items="${scenario.expenseSourceIds}">

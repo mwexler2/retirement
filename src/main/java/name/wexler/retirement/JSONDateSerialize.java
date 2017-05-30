@@ -24,14 +24,11 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -40,10 +37,10 @@ import java.time.format.DateTimeFormatter;
  */
 public class JSONDateSerialize extends JsonSerializer<LocalDate> {
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void serialize(LocalDate value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         jgen.writeString(formatter.format(value));
     }
 }

@@ -56,8 +56,8 @@ public class Retirement {
         return pf;
     }
 
-    private NumberFormat cf;
-    private NumberFormat pf;
+    private final NumberFormat cf;
+    private final NumberFormat pf;
 
     Retirement() {
         Locale enUS = Locale.forLanguageTag("en-US");
@@ -80,30 +80,28 @@ public class Retirement {
             this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
 
             String cashFlowsPath = resourceDir + "/cashFlows.json";
-            this.cashFlows = context.<CashFlowType>fromJSONFileArray(CashFlowType[].class, cashFlowsPath);
+            this.cashFlows = context.fromJSONFileArray(CashFlowType[].class, cashFlowsPath);
 
             String incomeSourcesPath = resourceDir + "/incomeSources.json";
-            this.incomeSources = context.<IncomeSource>fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);
+            this.incomeSources = context.fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);
 
             String assetsPath = resourceDir + "/assets.json";
             File assetssFile = new File(assetsPath);
             this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
 
             String expenseSourcesPath = resourceDir + "/expenseSources.json";
-            this.expenseSources = context.<ExpenseSource>fromJSONFileArray(ExpenseSource[].class, expenseSourcesPath);
+            this.expenseSources = context.fromJSONFileArray(ExpenseSource[].class, expenseSourcesPath);
 
             String assumptionsPath = resourceDir + "/assumptions.json";
             File assumptionsFile = new File(assumptionsPath);
             this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
 
             String scenariosPath = resourceDir + "/scenarios.json";
-            this.scenarios = context.<Scenario>fromJSONFileArray(Scenario[].class, scenariosPath);
+            this.scenarios = context.fromJSONFileArray(Scenario[].class, scenariosPath);
             for (Scenario s : scenarios) {
                 s.setAssumptions(this.assumptions);
             }
-        } catch (JsonGenerationException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
+        } catch (JsonGenerationException | JsonMappingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();

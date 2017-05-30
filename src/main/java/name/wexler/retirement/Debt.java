@@ -94,11 +94,6 @@ public class Debt extends ExpenseSource {
         return paymentAmount.negate().multiply(monthsPerYear);
     }
 
-    @JsonIgnore
-    public BigDecimal getAnnualCashFlow() {
-        return getAnnualCashFlow(LocalDate.now().getYear());
-    }
-
 
     @JsonIgnore
     @Override
@@ -118,8 +113,8 @@ public class Debt extends ExpenseSource {
         return this.getCashFlow().getId();
     }
 
-    public void setSourceId(@JacksonInject("context") Context context,
-                            @JsonProperty(value="source", required=true) String sourceId) {
+    private void setSourceId(@JacksonInject("context") Context context,
+                             @JsonProperty(value = "source", required = true) String sourceId) {
         this.setCashFlow(context.getById(CashFlowType.class, sourceId));
     }
 
@@ -134,8 +129,8 @@ public class Debt extends ExpenseSource {
         return lender.getId();
     }
 
-    public void setLenderId(@JacksonInject("context") Context context,
-                            @JsonProperty(value="lender", required=true) String lenderId) {
+    private void setLenderId(@JacksonInject("context") Context context,
+                             @JsonProperty(value = "lender", required = true) String lenderId) {
         this.lender = context.getById(Entity.class, lenderId);
     }
 
@@ -147,8 +142,8 @@ public class Debt extends ExpenseSource {
         this.lender = lender;
     }
 
-    public void setBorrowersIds(@JacksonInject("context") Context context,
-                                @JsonProperty(value="borrowers", required=true) String[] borrowerIds) {
+    private void setBorrowersIds(@JacksonInject("context") Context context,
+                                 @JsonProperty(value = "borrowers", required = true) String[] borrowerIds) {
         this.borrowers = new Entity[borrowerIds.length];
         for (int i = 0; i < borrowerIds.length; ++i) {
             borrowers[i] = context.getById(Entity.class, borrowerIds[i]);

@@ -50,10 +50,6 @@ public abstract class ExpenseSource {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
 
     public ExpenseSource(Context context, String id) throws Exception {
         this.id = id;
@@ -71,22 +67,8 @@ public abstract class ExpenseSource {
     @JsonIgnore
     abstract public String getName();
 
-    public  BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        return source.getMonthlyCashFlow(yearMonth, annualAmount);
-    }
-
-    public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-
-        return source.getMonthlyCashFlow(annualAmount);
-    }
-
     @JsonIgnore
-    public BigDecimal getAnnualCashFlow(int year, BigDecimal annualAmount) {
-        return source.getAnnualCashFlow(year, annualAmount);
-    }
-
-    @JsonIgnore
-    public CashFlowType getCashFlow() {
+    CashFlowType getCashFlow() {
         return source;
     }
 
@@ -98,8 +80,4 @@ public abstract class ExpenseSource {
     @JsonIgnore
     public abstract BigDecimal getAnnualCashFlow(int year);
 
-    @JsonCreator
-    public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
-        return source.getAnnualCashFlow(annualAmount);
-    }
 }

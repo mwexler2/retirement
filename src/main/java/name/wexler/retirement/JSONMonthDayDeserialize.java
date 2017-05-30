@@ -36,11 +36,11 @@ import java.time.MonthDay;
  *
  * Parse a Month day in "mm-dd" format into a month and a day and return a MonthDay Object
  */
-public class JSONMonthDayDeserialize extends JsonDeserializer<MonthDay> {
+class JSONMonthDayDeserialize extends JsonDeserializer<MonthDay> {
     @Override
     public MonthDay deserialize(JsonParser paramJsonParser,
                             DeserializationContext paramDeserializationContext)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         String str = paramJsonParser.getText().trim();
         return MonthDay.parse(str);
     }

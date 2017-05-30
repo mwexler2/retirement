@@ -24,14 +24,9 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.ArrayList;
@@ -77,8 +72,8 @@ public class Job {
                @JsonProperty(value = "employer", required = true) String employer,
                @JsonProperty(value = "employee", required = true) String employee) throws Exception {
         this.id = id;
-        this.employer = context.<Entity>getById(Entity.class, employer);
-        this.employee = context.<Entity>getById(Entity.class, employee);
+        this.employer = context.getById(Entity.class, employer);
+        this.employee = context.getById(Entity.class, employee);
         this.init(context);
     }
 
@@ -96,7 +91,7 @@ public class Job {
         if (context.getById(Job.class, id) != null)
             throw new Exception("Key " + id + " already exists");
         context.put(Job.class, id, this);
-        incomeSources = new ArrayList<IncomeSource>();
+        incomeSources = new ArrayList<>();
     }
 
     @Override

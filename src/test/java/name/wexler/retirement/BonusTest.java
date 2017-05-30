@@ -19,10 +19,10 @@ import static org.junit.Assert.assertNotEquals;
  * Created by mwexler on 8/13/16.
  */
 public class BonusTest {
-    Salary salary;
-    BonusAnnualPct bonusAnnualPct;
-    BonusPeriodicFixed bonusPeriodicFixed;
-    Context context;
+    private Salary salary;
+    private BonusAnnualPct bonusAnnualPct;
+    private BonusPeriodicFixed bonusPeriodicFixed;
+    private Context context;
 
 
     @Before

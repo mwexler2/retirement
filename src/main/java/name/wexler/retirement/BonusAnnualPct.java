@@ -24,14 +24,10 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.Month;
-import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -68,7 +64,6 @@ public class BonusAnnualPct extends Bonus {
         return annualBonusAmount;
     }
 
-    @Override
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
         BigDecimal bonusAmount = getCashFlow().getMonthlyCashFlow(yearMonth, annualAmount);
 
@@ -87,19 +82,12 @@ public class BonusAnnualPct extends Bonus {
         return salary.getId();
     }
 
-    @JsonProperty(value = "salary")
-    public void setSalaryId(@JacksonInject("context") Context context,
-                            @JsonProperty(value="salary", required=true) String salaryId) {
-        this.salary = context.<Salary>getById(IncomeSource.class, salaryId);
-    }
-
-    @JsonIgnore
-    public Salary getSalary() {
-        return salary;
+    private void setSalaryId(@JacksonInject("context") Context context,
+                             @JsonProperty(value = "salary", required = true) String salaryId) {
+        this.salary = context.getById(IncomeSource.class, salaryId);
     }
 
     public BigDecimal getBonusPct() {
         return bonusPct;
     }
-
 }

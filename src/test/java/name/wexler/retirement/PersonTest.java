@@ -1,6 +1,5 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.databind.InjectableValues;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,18 +9,13 @@ import static org.junit.Assert.assertNotEquals;
 import java.time.LocalDate;
 import java.time.Month;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
 /**
  * Created by mwexler on 8/13/16.
  */
 public class PersonTest {
-    Person person1;
-    Person person2;
-    Context context;
+    private Person person1;
+    private Person person2;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {

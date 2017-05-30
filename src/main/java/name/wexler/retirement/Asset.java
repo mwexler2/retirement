@@ -24,14 +24,9 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -55,7 +50,7 @@ public abstract class Asset {
         return id;
     }
 
-    private String id;
+    private final String id;
 
     @JsonCreator
     protected Asset(@JacksonInject("context") Context context,

@@ -43,18 +43,18 @@ import name.wexler.retirement.CashFlow.*;
  * Created by mwexler on 8/13/16.
  */
 public class JobTest {
-    Job job1;
-    Job job2;
-    Company company1;
-    Company company2;
-    Person person1;
-    Person person2;
-    Salary job1Salary;
-    Bonus job1Bonus;
-    Salary job1Salary2;
-    Bonus job1Bonus2;
-    Salary job2Salary;
-    Context context;
+    private Job job1;
+    private Job job2;
+    private Company company1;
+    private Company company2;
+    private Person person1;
+    private Person person2;
+    private Salary job1Salary;
+    private Bonus job1Bonus;
+    private Salary job1Salary2;
+    private Bonus job1Bonus2;
+    private Salary job2Salary;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -90,7 +90,7 @@ public class JobTest {
         job1Salary = new Salary(context, "job1Salary", job1.getId(), job1SalarySource.getId());
         job1Salary.setBaseAnnualSalary(new BigDecimal(100000.00));
         Annual job1BonusSource = new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay);
-        job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());;
+        job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());
         IncomeSource[] job1IS = {job1Salary, job1Bonus};
 
         LocalDate salary2FirstPaycheck = LocalDate.of(job1.getStartDate().getYear(), job1.getStartDate().getMonth(), 10);
@@ -199,10 +199,10 @@ public class JobTest {
         String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
         String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
 
-        Job job1a = context.<Job>fromJSON(Job.class, job1aStr);
+        Job job1a = context.fromJSON(Job.class, job1aStr);
         assertEquals("job1a", job1a.getId());
 
-        Job job2a = context.<Job>fromJSON(Job.class, job2aStr);
+        Job job2a = context.fromJSON(Job.class, job2aStr);
         assertEquals("job2a", job2a.getId());
     }
 

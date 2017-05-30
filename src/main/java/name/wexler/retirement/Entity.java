@@ -24,14 +24,6 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.HashMap;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -44,7 +36,7 @@ import java.util.HashMap;
         @JsonSubTypes.Type(value = Person.class, name = "person"),
         @JsonSubTypes.Type(value = Company.class, name = "company") })
 public abstract class Entity {
-    private String id;
+    private final String id;
 
     public Entity(Context context, @JsonProperty("id") String id) throws Exception {
         this.id = id;

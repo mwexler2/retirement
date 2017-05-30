@@ -55,7 +55,7 @@ public abstract class IncomeSource {
         if (context.getById(IncomeSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
         context.put(IncomeSource.class, id, this);
-        this.cashFlow = context.<CashFlowType>getById(CashFlowType.class, cashFlowId);
+        this.cashFlow = context.getById(CashFlowType.class, cashFlowId);
         if (this.cashFlow == null) {
             throw new Exception("income cashflow " + cashFlowId + " not found");
         }
@@ -81,16 +81,7 @@ public abstract class IncomeSource {
     }
 
 
-
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        return cashFlow.getMonthlyCashFlow(yearMonth, annualAmount);
-    }
-
-    public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-        return cashFlow.getMonthlyCashFlow(annualAmount);
-    }
-
-    public abstract BigDecimal getAnnualCashFlow(int year);
+    protected abstract BigDecimal getAnnualCashFlow(int year);
 
     public abstract List<CashFlowInstance> getCashFlowInstances();
 
@@ -104,10 +95,6 @@ public abstract class IncomeSource {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @JsonIgnore
     public CashFlowType getCashFlow() {
         return cashFlow;
@@ -117,5 +104,4 @@ public abstract class IncomeSource {
     public String getGetFlowId() {
         return cashFlow.getId();
     }
-
 }

@@ -59,17 +59,8 @@ public abstract class Bonus extends IncomeSource {
     public String getJobId() {
         return job.getId();
     }
-
-    @JsonProperty(value = "job")
-    public void setJobId(@JacksonInject("context") Context context, @JsonProperty(value="job", required=true) String jobId) {
+    private void setJobId(@JacksonInject("context") Context context, @JsonProperty(value = "job", required = true) String jobId) {
         this.job = context.getById(Job.class, jobId);
     }
 
-    public Job getJob() {
-        return job;
-    }
-
-    public void setJob(Job job) {
-        this.job = job;
-    }
 }

@@ -44,7 +44,7 @@ public class Salary extends IncomeSource {
     @JsonIgnore
     private Job job;
     private BigDecimal baseAnnualSalary;
-    private static BigDecimal monthsPerYear = new BigDecimal(12);
+    private static final BigDecimal monthsPerYear = new BigDecimal(12);
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
@@ -55,7 +55,7 @@ public class Salary extends IncomeSource {
     }
 
 
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {
+    private BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {
         BigDecimal monthlySalary = BigDecimal.ZERO;
         LocalDate startDate = job.getStartDate();
         LocalDate endDate = job.getEndDate();
@@ -65,7 +65,7 @@ public class Salary extends IncomeSource {
         if (yearMonth.isBefore(startYearMonth) || yearMonth.isAfter(endYearMonth)) {
             monthlySalary = new BigDecimal(0.0);
         } else if (yearMonth.isAfter(startYearMonth) && yearMonth.isBefore(endYearMonth)) {
-            monthlySalary = baseAnnualSalary.divide(this.monthsPerYear, RoundingMode.HALF_UP);
+            monthlySalary = baseAnnualSalary.divide(monthsPerYear, RoundingMode.HALF_UP);
         } else {
             LocalDate firstDateInMonth = yearMonth.atDay(1);
             LocalDate lastDateInMonth = yearMonth.atEndOfMonth();
@@ -102,9 +102,9 @@ public class Salary extends IncomeSource {
     }
 
     @JsonProperty(value = "job")
-    public void setJobId(@JacksonInject("context") Context context,
-                         @JsonProperty(value="job", required=true) String jobId) {
-        this.job = context.<Job>getById(Job.class, jobId);
+    private void setJobId(@JacksonInject("context") Context context,
+                          @JsonProperty(value = "job", required = true) String jobId) {
+        this.job = context.getById(Job.class, jobId);
     }
 
     @JsonProperty(value = "job")

@@ -55,9 +55,6 @@ public class Company extends Entity {
         return result;
     }
 
-    public String getId() {
-        return super.getId();
-    }
 
     @JsonIgnore
     @Override

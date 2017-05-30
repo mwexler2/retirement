@@ -7,10 +7,10 @@ import java.time.LocalDate;
  * Created by mwexler on 11/29/16.
  */
 public class CashFlowInstance {
-    private LocalDate accrualStart;
-    private LocalDate accrualEnd;
-    private LocalDate cashFlowDate;
-    private BigDecimal amount;
+    private final LocalDate accrualStart;
+    private final LocalDate accrualEnd;
+    private final LocalDate cashFlowDate;
+    private final BigDecimal amount;
 
     public CashFlowInstance(LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount) {
         this.accrualStart = accrualStart;
@@ -20,10 +20,7 @@ public class CashFlowInstance {
     }
 
     public boolean isPaidInDateRange(LocalDate startDate, LocalDate endDate) {
-        if (!cashFlowDate.isAfter(endDate) && !cashFlowDate.isBefore((startDate))) {
-            return true;
-        }
-        return false;
+        return !cashFlowDate.isAfter(endDate) && !cashFlowDate.isBefore((startDate));
     }
 
     public BigDecimal getAmount() {

@@ -29,8 +29,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -39,12 +37,12 @@ import java.time.format.DateTimeFormatter;
  */
 public class JSONDateDeserialize extends JsonDeserializer<LocalDate> {
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     public LocalDate deserialize(JsonParser paramJsonParser,
                             DeserializationContext paramDeserializationContext)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         String str = paramJsonParser.getText().trim();
         return LocalDate.parse(str, formatter);
     }

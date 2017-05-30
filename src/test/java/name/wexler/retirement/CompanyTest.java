@@ -1,27 +1,18 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.databind.InjectableValues;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.time.LocalDate;
-import java.time.Month;
-
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
 /**
  * Created by mwexler on 8/13/16.
  */
 public class CompanyTest {
-    Context context;
-    Company company1;
-    Company company2;
+    private Context context;
+    private Company company1;
+    private Company company2;
 
     @Before
     public void setUp() throws Exception {
@@ -80,11 +71,11 @@ public class CompanyTest {
         String comp1aStr = "{\"type\":\"company\",\"id\":\"comp1a\",\"companyName\":\"IBM\"}";
         String comp2aStr = "{\"type\":\"company\",\"id\":\"comp2a\",\"companyName\":\"Xerox\"}";
 
-        Company company1a = (Company) context.<Company>fromJSON(Entity.class, comp1aStr);
+        Company company1a = context.fromJSON(Entity.class, comp1aStr);
         assertEquals("comp1a", company1a.getId());
         assertEquals("IBM", company1a.getCompanyName());
 
-        Company company2a = (Company) context.<Company>fromJSON(Entity.class, comp2aStr);
+        Company company2a = context.fromJSON(Entity.class, comp2aStr);
         assertEquals("comp2a", company2a.getId());
         assertEquals("Xerox", company2a.getCompanyName());
     }

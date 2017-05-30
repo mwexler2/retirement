@@ -65,7 +65,6 @@ public class BonusPeriodicFixed extends Bonus {
         return getCashFlow().getCashFlowInstances(annualAmount);
     }
 
-    @Override
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
         BigDecimal bonusAmount = this.getCashFlow().getMonthlyCashFlow(yearMonth, annualAmount);
         return bonusAmount;
@@ -79,8 +78,4 @@ public class BonusPeriodicFixed extends Bonus {
         this.annualAmount = annualAmount;
     }
 
-    @JsonProperty(value = "cashFlow")
-    public String getCashFlowId() {
-        return this.getCashFlow().getId();
-    }
 }

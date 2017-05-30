@@ -25,13 +25,8 @@ package name.wexler.retirement;
 
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,10 +40,10 @@ import java.util.Map;
 @JsonPropertyOrder({ "assumptions", "name", "incomeSources", "expenseSources"})
 public class Scenario {
     private Assumptions assumptions;
-    private String name;
+    private final String name;
 
     @JsonIgnore
-    private CashFlowCalendar calendar;
+    private final CashFlowCalendar calendar;
 
     @JsonCreator
     Scenario(@JacksonInject("context") Context context,
@@ -61,17 +56,13 @@ public class Scenario {
         setExpenseSourceIds(context, expenseSources);
     }
 
-    @JsonIgnore
-    public CashFlowCalendar getCalendar() {
-        return calendar;
-    }
 
     @JsonProperty(value = "incomeSources")
-    public void setIncomeSourceIds(@JacksonInject("context") Context context,
-                                   @JsonProperty(value="incomeSources", required=true) String[] incomeSourceIds) {
+    private void setIncomeSourceIds(@JacksonInject("context") Context context,
+                                    @JsonProperty(value = "incomeSources", required = true) String[] incomeSourceIds) {
         List<IncomeSource> incomeSources = new ArrayList<>(incomeSourceIds.length);
-        for (int i = 0; i < incomeSourceIds.length; ++i) {
-            incomeSources.add(context.<IncomeSource>getById(IncomeSource.class, incomeSourceIds[i]));
+        for (String incomeSourceId : incomeSourceIds) {
+            incomeSources.add(context.getById(IncomeSource.class, incomeSourceId));
         }
         calendar.addIncomeSources(incomeSources);
     }
@@ -84,11 +75,11 @@ public class Scenario {
     }
 
     @JsonProperty(value = "expenseSources")
-    public void setExpenseSourceIds(@JacksonInject("context") Context context,
-                                    @JsonProperty(value="expenseSources", required=true) String[] expenseSourceIds) {
+    private void setExpenseSourceIds(@JacksonInject("context") Context context,
+                                     @JsonProperty(value = "expenseSources", required = true) String[] expenseSourceIds) {
         List<ExpenseSource> expenseSources = new ArrayList<>(expenseSourceIds.length);
-        for (int i = 0; i < expenseSourceIds.length; ++i) {
-            expenseSources.add(context.<ExpenseSource>getById(ExpenseSource.class, expenseSourceIds[i]));
+        for (String expenseSourceId : expenseSourceIds) {
+            expenseSources.add(context.getById(ExpenseSource.class, expenseSourceId));
         }
         calendar.addExpenseSources(expenseSources);
     }

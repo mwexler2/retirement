@@ -11,14 +11,13 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by mwexler on 8/13/16.
  */
 public class DebtTest {
-    Debt debt;
-    Context context;
+    private Debt debt;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
 
@@ -20,10 +19,10 @@ import static org.junit.Assert.*;
  */
 
 public class CashFlowCalendarTest {
-    Context context;
-    CashFlowCalendar calendar;
-    List<IncomeSource> incomeSources;
-    List<ExpenseSource> expenseSources;
+    private Context context;
+    private CashFlowCalendar calendar;
+    private List<IncomeSource> incomeSources;
+    private List<ExpenseSource> expenseSources;
 
     @Before
     public void setUp() throws Exception {

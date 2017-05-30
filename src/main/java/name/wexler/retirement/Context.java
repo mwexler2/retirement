@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ import java.util.Map;
 public class Context {
 
     private class EntityManager<T> {
-        private HashMap<String, T> allEntities = new HashMap<>();
+        private final HashMap<String, T> allEntities = new HashMap<>();
 
         public EntityManager() {
         }
@@ -38,8 +37,8 @@ public class Context {
     }
 
 
-    private Map<String, EntityManager> classEntityManager;
-    private ObjectMapper mapper;
+    private final Map<String, EntityManager> classEntityManager;
+    private final ObjectMapper mapper;
 
     public Context() {
         InjectableValues injectableValues = new InjectableValues.Std().addValue("context", this);
@@ -51,13 +50,13 @@ public class Context {
         mapper.setDateFormat(format);
     }
 
-    public ObjectMapper getObjectMapper() {
+    private ObjectMapper getObjectMapper() {
         return mapper;
     }
 
     public <T> T getById(Class clazz, String id) {
         EntityManager<T> entityManager = this.getEntityManager(clazz);
-        T result = (T) entityManager.getById(id);
+        T result = entityManager.getById(id);
         return result;
     }
 
@@ -69,7 +68,7 @@ public class Context {
     private <T> EntityManager<T> getEntityManager(Class clazz) {
         EntityManager<T> result = (EntityManager<T>) classEntityManager.get(clazz.getSimpleName());
         if (result == null) {
-            result = new EntityManager<T>();
+            result = new EntityManager<>();
             classEntityManager.put(clazz.getSimpleName(), result);
         }
         return result;

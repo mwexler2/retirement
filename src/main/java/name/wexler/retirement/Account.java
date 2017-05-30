@@ -30,10 +30,10 @@ import java.time.LocalDate;
  * Created by mwexler on 7/9/16.
  */
 public class Account {
-    private String accountId;
-    private String accountName;
-    private String institutionName;
-    private Asset[] assets;
+    private final String accountId;
+    private final String accountName;
+    private final String institutionName;
+    private final Asset[] assets;
 
     public Account(String accountId, String accountName, String institutionName, Asset[] assets) {
         this.accountId = accountId;
@@ -59,7 +59,7 @@ public class Account {
     }
 
     public BigDecimal getAccountValue(LocalDate date) {
-        BigDecimal result = BigDecimal.ONE.ZERO;
+        BigDecimal result = BigDecimal.ZERO;
 
         for (Asset asset : this.assets) {
             result = result.add(asset.getAssetValue(date));

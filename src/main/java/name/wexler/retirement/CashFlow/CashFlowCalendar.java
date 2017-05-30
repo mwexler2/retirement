@@ -1,10 +1,8 @@
 package name.wexler.retirement.CashFlow;
 
-import name.wexler.retirement.Context;
 import name.wexler.retirement.ExpenseSource;
 import name.wexler.retirement.IncomeSource;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -13,8 +11,8 @@ import java.util.*;
  */
 public class CashFlowCalendar {
     private boolean indexed = false;
-    private Map<String, IncomeSource> _incomeSources;
-    private Map<String, ExpenseSource> _expenseSources;
+    private final Map<String, IncomeSource> _incomeSources;
+    private final Map<String, ExpenseSource> _expenseSources;
     private List<CashFlowInstance> incomeCashFlowInstances = null;
     private List<CashFlowInstance> expenseCashFlowInstances = null;
     private Map<Integer, Map<String, BigDecimal>> incomeCashFlowYears = null;
@@ -27,16 +25,12 @@ public class CashFlowCalendar {
 
     public void addIncomeSources(List<IncomeSource> incomeSources) {
         indexed = false;
-        incomeSources.forEach(item->{
-            _incomeSources.put(item.getId(), item);
-        });
+        incomeSources.forEach(item-> _incomeSources.put(item.getId(), item));
     }
 
     public void addExpenseSources(List<ExpenseSource> expenseSources) {
         indexed = false;
-        expenseSources.forEach(item->{
-            _expenseSources.put(item.getId(), item);
-        });
+        expenseSources.forEach(item-> _expenseSources.put(item.getId(), item));
     }
 
     public String getIncomeSourceName(String incomeSourceId) {
@@ -52,35 +46,27 @@ public class CashFlowCalendar {
             indexCashFlows();
         Set<Integer> incomeYearSet = incomeCashFlowYears.keySet();
         Set<Integer> expenseYearSet = expenseCashFlowYears.keySet();
-        Set<Integer> yearSet = new HashSet<Integer>();
+        Set<Integer> yearSet = new HashSet<>();
         yearSet.addAll(incomeYearSet);
         yearSet.addAll(expenseYearSet);
         List<Integer> yearList = new ArrayList<>(yearSet);
-        yearList.sort(new Comparator<Integer>(){
-            public int compare(Integer i1, Integer i2){
-                return i1.compareTo(i2);
-            }
-        });
+        yearList.sort(Comparator.naturalOrder());
         return yearList;
     }
 
     public Map<String, String> getIncomeCashFlowNameAndIds() {
         if (!indexed)
             indexCashFlows();
-        Map<String, String> cashFlowNameAndIds = new HashMap<String, String>();
-        _incomeSources.values().forEach(incomeSource->{
-            cashFlowNameAndIds.put(incomeSource.getId(), incomeSource.getName());
-        });
+        Map<String, String> cashFlowNameAndIds = new HashMap<>();
+        _incomeSources.values().forEach(incomeSource-> cashFlowNameAndIds.put(incomeSource.getId(), incomeSource.getName()));
         return cashFlowNameAndIds;
     }
 
     public Map<String, String> getExpenseCashFlowNameAndIds() {
         if (!indexed)
             indexCashFlows();
-        Map<String, String> cashFlowNameAndIds = new HashMap<String, String>();
-        _expenseSources.values().forEach(expenseSource->{
-            cashFlowNameAndIds.put(expenseSource.getId(), expenseSource.getName());
-        });
+        Map<String, String> cashFlowNameAndIds = new HashMap<>();
+        _expenseSources.values().forEach(expenseSource-> cashFlowNameAndIds.put(expenseSource.getId(), expenseSource.getName()));
         return cashFlowNameAndIds;
     }
 
@@ -96,7 +82,7 @@ public class CashFlowCalendar {
         return getAnnualCashFlow(incomeCashFlowYears, cashFlowId, year);
     }
 
-    public BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, String cashFlowId, Integer year) {
+    private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, String cashFlowId, Integer year) {
         Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
         BigDecimal income = BigDecimal.ZERO;
         if (yearMap != null  && yearMap.containsKey(cashFlowId)) {
@@ -113,15 +99,13 @@ public class CashFlowCalendar {
         return getAnnualCashFlow(incomeCashFlowYears, year);
     }
 
-    public BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, Integer year) {
+    private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, Integer year) {
         if (!indexed)
             indexCashFlows();
         Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
         BigDecimal total = BigDecimal.ZERO;
         if (yearMap != null) {
-            Iterator<BigDecimal> cashFlows = yearMap.values().iterator();
-            while (cashFlows.hasNext()) {
-                BigDecimal cashFlow = cashFlows.next();
+            for (BigDecimal cashFlow : yearMap.values()) {
                 total = total.add(cashFlow);
             }
         }
@@ -161,7 +145,7 @@ public class CashFlowCalendar {
             int thisYear = cashFlowInstance.getCashFlowDate().getYear();
             Map<String, BigDecimal> cashFlowAmounts = cashFlowYears.get(thisYear);
             if (cashFlowAmounts == null) {
-                cashFlowAmounts = new HashMap<String, BigDecimal>();
+                cashFlowAmounts = new HashMap<>();
                 cashFlowYears.put(thisYear, cashFlowAmounts);
             }
             BigDecimal total = cashFlowAmounts.get(id);

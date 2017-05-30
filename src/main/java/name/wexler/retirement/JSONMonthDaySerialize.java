@@ -35,12 +35,12 @@ import java.time.format.DateTimeFormatter;
 /**
  * Created by mwexler on 8/8/16.
  */
-public class JSONMonthDaySerialize extends JsonSerializer<MonthDay> {
+class JSONMonthDaySerialize extends JsonSerializer<MonthDay> {
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("--MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("--MM-dd");
 
     public void serialize(MonthDay value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         jgen.writeString(formatter.format(value));
     }
 }

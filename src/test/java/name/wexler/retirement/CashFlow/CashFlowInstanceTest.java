@@ -13,8 +13,8 @@ import static org.junit.Assert.*;
  * Created by mwexler on 11/29/16.
  */
 public class CashFlowInstanceTest {
-    CashFlowInstance cfi;
-    BigDecimal thousand = BigDecimal.valueOf(1000.00);
+    private CashFlowInstance cfi;
+    private final BigDecimal thousand = BigDecimal.valueOf(1000.00);
 
     @Before
     public void setUp() throws Exception {
@@ -29,9 +29,9 @@ public class CashFlowInstanceTest {
     }
 
     private class RangeResult {
-        LocalDate startDate;
-        LocalDate endDate;
-        boolean inRange;
+        final LocalDate startDate;
+        final LocalDate endDate;
+        final boolean inRange;
 
         RangeResult(LocalDate startDate, LocalDate endDate, boolean inRange) {
             this.startDate = startDate;

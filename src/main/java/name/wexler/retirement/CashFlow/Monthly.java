@@ -40,7 +40,8 @@ import java.util.List;
 public class Monthly extends CashFlowType {
 
     @JsonIgnore
-    public BigDecimal monthsPerYear = BigDecimal.valueOf(12);
+    final
+    BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
     public Monthly(@JacksonInject("context") Context context,
                    @JsonProperty(value = "id", required = true) String id,

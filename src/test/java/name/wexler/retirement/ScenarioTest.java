@@ -1,10 +1,7 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import name.wexler.retirement.CashFlow.CashFlowType;
-import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +12,6 @@ import name.wexler.retirement.CashFlow.Biweekly;
 import name.wexler.retirement.CashFlow.Monthly;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -23,9 +19,9 @@ import java.time.Month;
  * Created by mwexler on 8/13/16.
  */
 public class ScenarioTest {
-    Scenario scenario1;
-    Scenario scenario2;
-    Context context;
+    private Scenario scenario1;
+    private Scenario scenario2;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -100,10 +96,10 @@ public class ScenarioTest {
         String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[]}";
         String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[]}";
 
-        Scenario scenario1a = context.<Scenario>fromJSON(Scenario.class, scenario1aStr);
+        Scenario scenario1a = context.fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());
 
-        Scenario sceanrio2a = context.<Scenario>fromJSON(Scenario.class, scenario2aStr);
+        Scenario sceanrio2a = context.fromJSON(Scenario.class, scenario2aStr);
         assertEquals("scenario2a", sceanrio2a.getName());
     }
 

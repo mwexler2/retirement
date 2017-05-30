@@ -1,8 +1,5 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +8,6 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.MonthDay;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -20,9 +16,8 @@ import static org.junit.Assert.assertNotEquals;
  * Created by mwexler on 8/13/16.
  */
 public class SalaryTest {
-    Salary incomeSource1;
-    Bonus incomeSource2;
-    Context context;
+    private Salary incomeSource1;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -51,11 +46,6 @@ public class SalaryTest {
 
 
     @Test
-    public void equals() throws Exception {
-        assertNotEquals(incomeSource1, incomeSource2);
-    }
-
-    @Test
     public void toJSON() throws Exception {
         String incomeSource1Str = context.toJSON(incomeSource1);
         assertEquals("{\"type\":\"salary\",\"id\":\"salary1\",\"job\":\"job1\",\"baseAnnualSalary\":100000.0,\"cashFlow\":\"job1CashFlow1\"}", incomeSource1Str);
@@ -64,8 +54,8 @@ public class SalaryTest {
 
     @Test
     public void fromJSON() throws Exception {
-        String incomeSource1aStr = "{\"type\":\"salary\",\"id\":\"salary1a\",\"source\":null,\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        IncomeSource incomeSource1a = context.<IncomeSource>fromJSON(IncomeSource.class, incomeSource1aStr);
+        String incomeSource1aStr = "{\"type\":\"salary\",\"id\":\"salary1a\",\"cashFlow\":\"job1CashFlow1\",\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
+        IncomeSource incomeSource1a = context.fromJSON(IncomeSource.class, incomeSource1aStr);
         assertEquals("salary1a", incomeSource1a.getId());
     }
 

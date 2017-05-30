@@ -1,6 +1,5 @@
 package name.wexler.retirement.CashFlow;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import name.wexler.retirement.CashFlow.*;
 import name.wexler.retirement.Context;
 import org.junit.After;
@@ -12,18 +11,17 @@ import java.time.*;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.*;
 
 /**
  * Created by mwexler on 8/13/16.
  */
 public class CashFlowTypeTest {
-    Annual annual;
-    Biweekly biweekly;
-    Monthly monthly;
-    SemiMonthly semiMonthly;
-    Context context;
+    private Annual annual;
+    private Biweekly biweekly;
+    private Monthly monthly;
+    private SemiMonthly semiMonthly;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
@@ -214,16 +212,16 @@ public class CashFlowTypeTest {
         String monthlyStr = "{\"type\":\"monthly\",\"id\":\"monthly1a\",\"firstPaymentDate\":\"1999-04-07\",\"accrueStart\":\"1999-04-02\",\"accrueEnd\":\"2019-04-03\"}";
         String semiMonthlyStr = "{\"type\":\"semimonthly\",\"id\":\"semiMonthly1a\",\"firstPaymentDate\":\"2016-02-19\",\"accrueStart\":\"2016-02-14\",\"accrueEnd\":\"2018-02-14\",\"firstDayOfMonth\":7,\"secondDayOfMonth\":19}";
 
-        Annual annual1a = context.<Annual>fromJSON(Annual.class, annualStr);
+        Annual annual1a = context.fromJSON(Annual.class, annualStr);
         assertEquals(annual1a.getId(), "annual1a");
 
-        Biweekly biweekly1a = context.<Biweekly>fromJSON(Biweekly.class, biweeklyStr);
+        Biweekly biweekly1a = context.fromJSON(Biweekly.class, biweeklyStr);
         assertEquals(biweekly1a.getId(), "biweekly1a");
 
-        Monthly monthly1a = context.<Monthly>fromJSON(Monthly.class, monthlyStr);
+        Monthly monthly1a = context.fromJSON(Monthly.class, monthlyStr);
         assertEquals(monthly1a.getId(), "monthly1a");
 
-        SemiMonthly semiMonthly1a = context.<SemiMonthly>fromJSON(SemiMonthly.class, semiMonthlyStr);
+        SemiMonthly semiMonthly1a = context.fromJSON(SemiMonthly.class, semiMonthlyStr);
         assertEquals(semiMonthly1a.getId(), "semiMonthly1a");
 
     }
