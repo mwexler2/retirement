@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import name.wexler.retirement.CashFlow.AssetValue;
+
 /**
  * Created by mwexler on 7/9/16.
  */
@@ -65,10 +67,10 @@ public abstract class Asset {
 
     abstract public String getName();
 
-    public BigDecimal getAssetValue(LocalDate valueDate) {
+    public AssetValue getAssetValue(LocalDate valueDate) {
         BigDecimal gains = BigDecimal.ZERO;
-        BigDecimal assetValue = initialAssetValue.add(gains);
-        return assetValue;
+        BigDecimal value = initialAssetValue.add(gains);
+        return new AssetValue(valueDate, value);
     }
 
     public BigDecimal getInitialAssetValue() {

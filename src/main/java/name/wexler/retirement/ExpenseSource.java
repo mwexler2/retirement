@@ -39,7 +39,7 @@ import java.util.List;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Debt.class, name = "debt")
+        @JsonSubTypes.Type(value = Liability.class, name = "liability")
          })
 public abstract class ExpenseSource {
     @JsonIgnore

@@ -41,7 +41,7 @@
 
 
     <table border="1">
-        <caption>Income & Expenses</caption>
+        <caption>Assets and Liabilities</caption>
         <tr>
             <th>&nbsp;</th>
     <c:forEach var="year" items="${scenario.years}">
@@ -49,7 +49,59 @@
     </c:forEach>
         </tr>
         <tr>
-        <th>Income</th>
+        <th>Assets</th>
+            <td colspan="${scenario.numYears}">&nbsp;</td>
+        </tr>
+        <c:forEach var="assetId" items="${scenario.assetIds}">
+            <tr>
+                <th>${scenario.getAssetName(assetId)}</th>
+                <c:forEach var="year" items="${scenario.years}">
+                    <td align="right">${command.cf.format(scenario.getAssetValue(assetId, year))}</td>
+                </c:forEach>
+            </tr>
+        </c:forEach>
+            <tr>
+                <th>Total Assets</th>
+                <c:forEach var="year" items="${scenario.years}">
+                    <td align="right">${command.cf.format(scenario.getAssetValue(year))}</td>
+                </c:forEach>
+            </tr>
+        <tr>
+            <th>Liabilities</th>
+            <td colspan="${scenario.numYears}">&nbsp;</td>
+        </tr>
+        <c:forEach var="liabilityId" items="${scenario.liabilityIds}">
+            <tr>
+                <th>${scenario.getLiabilityName(liabilityId)}</th>
+                <c:forEach var="year" items="${scenario.years}">
+                    <td align="right">${command.cf.format(scenario.getLiabilityAmount(liabilityId, year))}</td>
+                </c:forEach>
+            </tr>
+        </c:forEach>
+        <tr>
+            <th>Total Liabilities</th>
+            <c:forEach var="year" items="${scenario.years}">
+                <td align="right">${command.cf.format(scenario.getLiabilityAmount(year))}</td>
+            </c:forEach>
+        </tr>
+        <tr>
+            <th>Net Worth</th>
+            <c:forEach var="year" items="${scenario.years}">
+                <td align="right">${command.cf.format(scenario.getNetWorth(year))}</td>
+            </c:forEach>
+        </tr>
+    </table>
+
+    <table border="1">
+        <caption>Income & Expenses</caption>
+        <tr>
+            <th>&nbsp;</th>
+            <c:forEach var="year" items="${scenario.years}">
+                <th>${year}</th>
+            </c:forEach>
+        </tr>
+        <tr>
+            <th>Income</th>
             <td colspan="${scenario.numYears}">&nbsp;</td>
         </tr>
         <c:forEach var="incomeSourceId" items="${scenario.incomeSourceIds}">
@@ -60,12 +112,12 @@
                 </c:forEach>
             </tr>
         </c:forEach>
-            <tr>
-                <th>Total Income</th>
-                <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(scenario.getAnnualIncome(year))}</td>
-                </c:forEach>
-            </tr>
+        <tr>
+            <th>Total Income</th>
+            <c:forEach var="year" items="${scenario.years}">
+                <td align="right">${command.cf.format(scenario.getAnnualIncome(year))}</td>
+            </c:forEach>
+        </tr>
         <tr>
             <th>Expense</th>
             <td colspan="${scenario.numYears}">&nbsp;</td>

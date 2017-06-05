@@ -39,7 +39,7 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "term", "interestRate", "startingBalance", "paymentAmount" })
-public class Debt extends ExpenseSource {
+public class Liability extends ExpenseSource {
     @JsonIgnore
     private Entity lender;
     @JsonIgnore
@@ -57,7 +57,7 @@ public class Debt extends ExpenseSource {
 
 
     @JsonCreator
-    public Debt(@JacksonInject("context") Context context,
+    public Liability(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
                 @JsonProperty("lender") String lenderId,
                 @JsonProperty("borrowers") String[] borrowersIds,

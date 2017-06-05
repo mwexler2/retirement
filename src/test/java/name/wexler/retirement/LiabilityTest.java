@@ -15,8 +15,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by mwexler on 8/13/16.
  */
-public class DebtTest {
-    private Debt debt;
+public class LiabilityTest {
+    private Liability liability;
     private Context context;
 
     @Before
@@ -32,8 +32,8 @@ public class DebtTest {
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowType monthly = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
-        debt = new Debt(context, "debt1", lender.getId(), borrowers, asset,
+        CashFlowType monthly = new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate);
+        liability = new Liability(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthly.getId());
     }
@@ -45,28 +45,28 @@ public class DebtTest {
 
     @Test
     public void getId() throws Exception {
-        String name1 = debt.getId();
-        assertEquals(name1, "debt1");
+        String name1 = liability.getId();
+        assertEquals(name1, "liability1");
     }
 
 
     @Test
     public void equals() throws Exception {
-        assertEquals(debt, debt);
+        assertEquals(liability, liability);
     }
 
     @Test
     public void toJSON() throws Exception {
-        String expenseSource1Str = context.toJSON(debt);
-        assertEquals("{\"type\":\"debt\",\"id\":\"debt1\",\"source\":\"monthly-debt1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-debt1\"}", expenseSource1Str);
+        String expenseSource1Str = context.toJSON(liability);
+        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"debt\",\"id\":\"debt1a\",\"source\":\"monthly-debt1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
+        String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-liability1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
         ExpenseSource expenseSource1a = context.fromJSON(ExpenseSource.class, expenseSource1aStr);
-        assertEquals("debt1a", expenseSource1a.getId());
+        assertEquals("liability1a", expenseSource1a.getId());
     }
 
 }

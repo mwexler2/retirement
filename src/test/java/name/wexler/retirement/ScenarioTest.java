@@ -37,7 +37,7 @@ public class ScenarioTest {
         Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
         salary1.setBaseAnnualSalary(BigDecimal.valueOf(27000.00));
         Company bankOfNowhere = new Company(context, "bon1");
-        Monthly debt1Monthly = new Monthly(context, "debt1CashFlowSource1",
+        Monthly liability1Monthly = new Monthly(context, "liability1CashFlowSource1",
                 LocalDate.of(2015, Month.FEBRUARY, 1),
                 LocalDate.of(2015, Month.FEBRUARY, 14),
                 LocalDate.of(2045, Month.MARCH, 13));
@@ -47,14 +47,14 @@ public class ScenarioTest {
         RealProperty mainStreet = new RealProperty(context, "main", mike, BigDecimal.valueOf(100000.00), LocalDate.of(2012, Month.JUNE, 10), address,
                 "anyTown", "AnyCount", "AS", "00000", "US");
         String[] borrowers = {mike.getId()};
-        Debt debt1 = new Debt(context, "debt1", bankOfNowhere.getId(), borrowers, mainStreet,
+        Liability liability1 = new Liability(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
-                BigDecimal.valueOf(200.00), debt1Monthly.getId());
-        debt1.setPaymentAmount(BigDecimal.valueOf(273.99));
+                BigDecimal.valueOf(200.00), liability1Monthly.getId());
+        liability1.setPaymentAmount(BigDecimal.valueOf(273.99));
 
-        debt1.setCashFlow(debt1Monthly);
+        liability1.setCashFlow(liability1Monthly);
         String[] is = {"salary1"};
-        String[] es = {"debt1"};
+        String[] es = {"liability1"};
         scenario1 = new Scenario(context, "scenario1", is, es);
         scenario2 = new Scenario(context, "scenario2", is, es);
     }
@@ -84,10 +84,10 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"]}", scenario1Str);
+        assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"]}", scenario1Str);
 
         String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"debt1\"]}", scenario2Str);
+        assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"]}", scenario2Str);
     }
 
 

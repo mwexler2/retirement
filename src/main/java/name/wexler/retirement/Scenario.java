@@ -29,6 +29,7 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -101,9 +102,43 @@ public class Scenario {
         return calendar.getExpenseSourceName(expenseSourceId);
     }
 
+
+    @JsonProperty(value = "assets")
+    private void setAssetIds(@JacksonInject("context") Context context,
+                             @JsonProperty(value = "assets", required = true) String[] assetIds) {
+        List<Asset> assets = new ArrayList<>(assetIds.length);
+        for (String assetId : assetIds) {
+            assets.add(context.getById(IncomeSource.class, assetId));
+        }
+        calendar.addAssets(assets);
+    }
+
+    @JsonProperty(value = "assets")
+    public String[] getAssetIds() {
+        Map<String, String> nameAndIds = calendar.getAssetNameAndIds();
+        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
+        return result;
+    }
+
+    @JsonProperty(value = "liabilities")
+    public String[] getLiabilityIds() {
+        String[] liabilityIds = new String[0];
+        return liabilityIds;
+    }
+
+    @JsonIgnore
+    public String getAssetName(String assetId) {
+        return calendar.getAssetName(assetId);
+    }
+
     @JsonIgnore
     public BigDecimal getAnnualIncome(String incomeSourceId, int year ) {
         return calendar.getAnnualIncome(incomeSourceId, year);
+    }
+
+    @JsonIgnore
+    public BigDecimal getAssetValue(String assetId, int year ) {
+        return calendar.getAssetValue(assetId, year);
     }
 
     @JsonIgnore
@@ -114,6 +149,21 @@ public class Scenario {
     @JsonIgnore
     public BigDecimal getAnnualIncome(int year) {
         return calendar.getAnnualIncome(year);
+    }
+
+    @JsonIgnore
+    public BigDecimal getLiabilityAmount(int year) {
+        return BigDecimal.ZERO;
+    }
+
+    @JsonIgnore
+    public BigDecimal getNetWorth(int year) {
+        return getAssetValue(year).subtract(getLiabilityAmount(year));
+    }
+
+    @JsonIgnore
+    public BigDecimal getAssetValue(int year) {
+        return calendar.getAssetValue(year);
     }
 
     @JsonIgnore
