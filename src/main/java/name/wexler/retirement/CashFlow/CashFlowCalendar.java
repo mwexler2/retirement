@@ -107,7 +107,7 @@ public class CashFlowCalendar {
     }
 
     public BigDecimal getAssetValue(String assetId, Integer year) {
-        if (!_cashFlowsIndexed)
+        if (!_assetsIndexed)
             indexAssets();
         return getAssetValue(assetValueYears, assetId, year);
     }

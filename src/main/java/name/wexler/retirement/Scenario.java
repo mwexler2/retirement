@@ -50,11 +50,13 @@ public class Scenario {
     Scenario(@JacksonInject("context") Context context,
              @JsonProperty("name") String name,
              @JsonProperty("incomeSources") String[] incomeSources,
-             @JsonProperty("expenseSources") String[] expenseSources) {
+             @JsonProperty("expenseSources") String[] expenseSources,
+             @JsonProperty("assets") String[] assets) {
         this.name = name;
         calendar = new CashFlowCalendar();
         setIncomeSourceIds(context, incomeSources);
         setExpenseSourceIds(context, expenseSources);
+        setAssetIds(context, assets);
     }
 
 
@@ -108,7 +110,7 @@ public class Scenario {
                              @JsonProperty(value = "assets", required = true) String[] assetIds) {
         List<Asset> assets = new ArrayList<>(assetIds.length);
         for (String assetId : assetIds) {
-            assets.add(context.getById(IncomeSource.class, assetId));
+            assets.add(context.getById(Asset.class, assetId));
         }
         calendar.addAssets(assets);
     }

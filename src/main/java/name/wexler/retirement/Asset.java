@@ -63,6 +63,7 @@ public abstract class Asset {
         this.id = id;
         this.setInitialAssetValue(initialAssetValue);
         this.setInitialAssetValueDate(initialAssetValueDate);
+        context.put(Asset.class, id, this);
     }
 
     abstract public String getName();
