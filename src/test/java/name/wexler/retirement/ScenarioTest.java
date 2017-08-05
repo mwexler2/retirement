@@ -56,8 +56,9 @@ public class ScenarioTest {
         String[] is = {"salary1"};
         String[] es = {"liability1"};
         String[] assets = {"main"};
-        scenario1 = new Scenario(context, "scenario1", is, es, assets);
-        scenario2 = new Scenario(context, "scenario2", is, es, assets);
+        String[] liabilities = {"liability1"};
+        scenario1 = new Scenario(context, "scenario1", is, es, assets, liabilities);
+        scenario2 = new Scenario(context, "scenario2", is, es, assets, liabilities);
     }
 
     @After

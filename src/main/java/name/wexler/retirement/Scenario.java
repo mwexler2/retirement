@@ -51,12 +51,14 @@ public class Scenario {
              @JsonProperty("name") String name,
              @JsonProperty("incomeSources") String[] incomeSources,
              @JsonProperty("expenseSources") String[] expenseSources,
-             @JsonProperty("assets") String[] assets) {
+             @JsonProperty("assets") String[] assets,
+             @JsonProperty("liabilities") String[] liabilities) {
         this.name = name;
         calendar = new CashFlowCalendar();
         setIncomeSourceIds(context, incomeSources);
         setExpenseSourceIds(context, expenseSources);
         setAssetIds(context, assets);
+        setLiabilityIds(context, liabilities);
     }
 
 
@@ -115,6 +117,16 @@ public class Scenario {
         calendar.addAssets(assets);
     }
 
+    @JsonProperty(value = "liabilities")
+    private void setLiabilityIds(@JacksonInject("context") Context context,
+                             @JsonProperty(value = "liabilities", required = true) String[] liabilityIds) {
+        List<Liability> liabilities = new ArrayList<>(liabilityIds.length);
+        for (String id : liabilityIds) {
+            liabilities.add(context.getById(Liability.class, id));
+        }
+        calendar.addLiabilities(liabilities);
+    }
+
     @JsonProperty(value = "assets")
     public String[] getAssetIds() {
         Map<String, String> nameAndIds = calendar.getAssetNameAndIds();
@@ -124,8 +136,14 @@ public class Scenario {
 
     @JsonProperty(value = "liabilities")
     public String[] getLiabilityIds() {
-        String[] liabilityIds = new String[0];
-        return liabilityIds;
+        Map<String, String> nameAndIds = calendar.getLiabilityNameAndIds();
+        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
+        return result;
+    }
+
+    @JsonIgnore
+    public String getLiabilityName(String id) {
+        return calendar.getLiabilityName(id);
     }
 
     @JsonIgnore
@@ -144,6 +162,11 @@ public class Scenario {
     }
 
     @JsonIgnore
+    public BigDecimal getLiabilityAmount(String id, int year ) {
+        return calendar.getLiabilityAmount(id, year);
+    }
+
+    @JsonIgnore
     public BigDecimal getAnnualExpense(String expenseSourceId, int year) {
         return calendar.getAnnualExpense(expenseSourceId, year);
     }
@@ -155,7 +178,7 @@ public class Scenario {
 
     @JsonIgnore
     public BigDecimal getLiabilityAmount(int year) {
-        return BigDecimal.ZERO;
+        return calendar.getLiabilityAmount(year);
     }
 
     @JsonIgnore

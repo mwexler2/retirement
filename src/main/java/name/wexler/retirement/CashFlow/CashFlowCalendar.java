@@ -1,6 +1,7 @@
 package name.wexler.retirement.CashFlow;
 
 import name.wexler.retirement.Asset;
+import name.wexler.retirement.Liability;
 import name.wexler.retirement.ExpenseSource;
 import name.wexler.retirement.IncomeSource;
 
@@ -14,20 +15,24 @@ import java.util.*;
  */
 public class CashFlowCalendar {
     private boolean _assetsIndexed = false;
+    private boolean _liabilitiesIndexed = false;
     private boolean _cashFlowsIndexed = false;
     private final Map<String, IncomeSource> _incomeSources;
     private final Map<String, ExpenseSource> _expenseSources;
     private final Map<String, Asset> _assets;
+    private final Map<String, Liability> _liabilities;
     private List<CashFlowInstance> incomeCashFlowInstances = null;
     private List<CashFlowInstance> expenseCashFlowInstances = null;
     private Map<Integer, Map<String, BigDecimal>> incomeCashFlowYears = null;
     private Map<Integer, Map<String, BigDecimal>> expenseCashFlowYears = null;
     private Map<Integer, Map<String, BigDecimal>> assetValueYears = null;
+    private Map<Integer, Map<String, BigDecimal>> liabilityValueYears = null;
 
     public CashFlowCalendar() {
         _incomeSources = new HashMap<>();
         _expenseSources = new HashMap<>();
         _assets = new HashMap<>();
+        _liabilities = new HashMap<>();
     }
 
     public void addIncomeSources(List<IncomeSource> incomeSources) {
@@ -38,6 +43,11 @@ public class CashFlowCalendar {
     public void addAssets(List<Asset> assets) {
         _assetsIndexed = false;
         assets.forEach(item-> _assets.put(item.getId(), item));
+    }
+
+    public void addLiabilities(List<Liability> liabilities) {
+        _liabilitiesIndexed = false;
+        liabilities.forEach(item-> _liabilities.put(item.getId(), item));
     }
 
     public void addExpenseSources(List<ExpenseSource> expenseSources) {
@@ -51,6 +61,10 @@ public class CashFlowCalendar {
 
     public String getAssetName(String assetId) {
         return _assets.get(assetId).getName();
+    }
+
+    public String getLiabilityName(String id) {
+        return _liabilities.get(id).getName();
     }
 
     public String getExpenseSourceName(String expenseSourceId) {
@@ -79,11 +93,19 @@ public class CashFlowCalendar {
     }
 
     public Map<String, String> getAssetNameAndIds() {
-        if (!_cashFlowsIndexed)
+        if (!_assetsIndexed)
             indexAssets();
         Map<String, String> assetNameAndIds = new HashMap<>();
         _assets.values().forEach(asset-> assetNameAndIds.put(asset.getId(), asset.getName()));
         return assetNameAndIds;
+    }
+
+    public Map<String, String> getLiabilityNameAndIds() {
+        if (!_liabilitiesIndexed)
+            indexLiabilities();
+        Map<String, String> liabilityNameAndIds = new HashMap<>();
+        _liabilities.values().forEach(liability-> liabilityNameAndIds.put(liability.getId(), liability.getName()));
+        return liabilityNameAndIds;
     }
 
     public Map<String, String> getExpenseCashFlowNameAndIds() {
@@ -106,10 +128,16 @@ public class CashFlowCalendar {
         return getAnnualCashFlow(incomeCashFlowYears, cashFlowId, year);
     }
 
-    public BigDecimal getAssetValue(String assetId, Integer year) {
+    public BigDecimal getAssetValue(String id, Integer year) {
         if (!_assetsIndexed)
             indexAssets();
-        return getAssetValue(assetValueYears, assetId, year);
+        return getBalance(assetValueYears, id, year);
+    }
+
+    public BigDecimal getLiabilityAmount(String id, Integer year) {
+        if (!_liabilitiesIndexed)
+            indexLiabilities();
+        return getBalance(liabilityValueYears, id, year);
     }
 
     private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, String cashFlowId, Integer year) {
@@ -121,13 +149,13 @@ public class CashFlowCalendar {
         return income;
     }
 
-    private BigDecimal getAssetValue(Map<Integer, Map<String, BigDecimal>> assetYears, String assetId, Integer year) {
-        Map<String, BigDecimal> yearMap = assetYears.get(year);
-        BigDecimal assetValue = BigDecimal.ZERO;
-        if (yearMap != null  && yearMap.containsKey(assetId)) {
-            assetValue = yearMap.get(assetId);
+    private BigDecimal getBalance(Map<Integer, Map<String, BigDecimal>> years, String id, Integer year) {
+        Map<String, BigDecimal> yearMap = years.get(year);
+        BigDecimal balance = BigDecimal.ZERO;
+        if (yearMap != null  && yearMap.containsKey(id)) {
+            balance = yearMap.get(id);
         }
-        return assetValue;
+        return balance;
     }
 
     public BigDecimal getAnnualExpense(Integer year) {
@@ -139,7 +167,15 @@ public class CashFlowCalendar {
     }
 
     public BigDecimal getAssetValue(Integer year) {
-        return getAssetValue(assetValueYears, year);
+        if (!_assetsIndexed)
+            indexAssets();
+        return getBalance(assetValueYears, year);
+    }
+
+    public BigDecimal getLiabilityAmount(Integer year) {
+        if (!_liabilitiesIndexed)
+            indexLiabilities();
+        return getBalance(liabilityValueYears, year);
     }
 
     private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, Integer year) {
@@ -155,14 +191,12 @@ public class CashFlowCalendar {
         return total;
     }
 
-    private BigDecimal getAssetValue(Map<Integer, Map<String, BigDecimal>> assetYears, Integer year) {
-        if (!_assetsIndexed)
-            indexAssets();
-        Map<String, BigDecimal> yearMap = assetValueYears.get(year);
+    private BigDecimal getBalance(Map<Integer, Map<String, BigDecimal>> years, Integer year) {
+        Map<String, BigDecimal> yearMap = years.get(year);
         BigDecimal total = BigDecimal.ZERO;
         if (yearMap != null) {
-            for (BigDecimal assetValue : yearMap.values()) {
-                total = total.add(assetValue);
+            for (BigDecimal balance : yearMap.values()) {
+                total = total.add(balance);
             }
         }
         return total;
@@ -189,6 +223,19 @@ public class CashFlowCalendar {
             _assets.values().forEach(asset -> {
                 AssetValue assetValue = asset.getAssetValue(LocalDate.of(year, Month.JANUARY, 1));
                 indexValues(assetValue, asset.getId(), assetValueYears);
+            });
+        }
+    }
+
+    private void indexLiabilities() {
+        liabilityValueYears = new HashMap<>();
+        for (int year : getYears()) {
+            _expenseSources.values().forEach(expenseSource -> {
+                if (expenseSource instanceof Liability) {
+                    Liability liability = (Liability) expenseSource;
+                    LiabilityValue liabilityValue = liability.getLiabilityValue(LocalDate.of(year, Month.JANUARY, 1));
+                    indexValues(liabilityValue, liability.getId(), liabilityValueYears);
+                }
             });
         }
     }
@@ -237,5 +284,22 @@ public class CashFlowCalendar {
         total = total.add(assetValue.getValue());
         assetValues.put(id, total);
         _assetsIndexed = true;
+    }
+
+    private void indexValues(LiabilityValue liabilityValue,
+                             String id,
+                             Map<Integer, Map<String, BigDecimal>> liabilityYears) {
+        int thisYear = liabilityValue.getLiabilityValueDate().getYear();
+        Map<String, BigDecimal>liabilityValues = liabilityYears.get(thisYear);
+        if (liabilityValues == null) {
+            liabilityValues = new HashMap<>();
+            liabilityYears.put(thisYear, liabilityValues);
+        }
+        BigDecimal total = liabilityValues.get(id);
+        if (total == null)
+            total = BigDecimal.ZERO;
+        total = total.add(liabilityValue.getValue());
+        liabilityValues.put(id, total);
+        _liabilitiesIndexed = true;
     }
 }
