@@ -3,6 +3,7 @@ package name.wexler.retirement.CashFlow;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Created by mwexler on 11/29/16.
@@ -32,9 +33,13 @@ public class Balance {
     }
 
     public BigDecimal getBalanceAtDate(LocalDate endDate, double annualReturn) {
-        Period elapsed = balanceDate.until(endDate);
-        double elapsedYears = elapsed.getDays()/365.25;
-        double totalReturn = Math.pow(annualReturn, elapsedYears);
-        return _value.multiply(BigDecimal.valueOf(totalReturn));
+        BigDecimal balance = BigDecimal.ZERO;
+        if (!balanceDate.isAfter(endDate)) {
+            long days = ChronoUnit.DAYS.between(balanceDate, endDate);
+            double elapsedYears = days / 365.25;
+            double totalReturn = Math.pow(annualReturn, elapsedYears);
+            balance = _value.multiply(BigDecimal.valueOf(totalReturn));
+        }
+        return balance;
     }
 }

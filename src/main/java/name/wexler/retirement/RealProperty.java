@@ -121,7 +121,8 @@ public class RealProperty extends Asset {
         this.country = country;
     }
 
-    public Balance getBalance(LocalDate valueDate) {
+    @Override
+    public Balance getBalanceAtDate(LocalDate valueDate) {
         double annualRateOfReturn = 1.07;
         Balance initialBalance = getInitialBalance();
         return new Balance(valueDate, initialBalance.getBalanceAtDate(valueDate, annualRateOfReturn));
