@@ -26,10 +26,9 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.CashFlow.AssetValue;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
-import name.wexler.retirement.CashFlow.LiabilityValue;
+import name.wexler.retirement.CashFlow.Balance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -111,10 +110,10 @@ public class Liability extends ExpenseSource {
         return result;
     }
 
-    public LiabilityValue getLiabilityValue(LocalDate valueDate) {
+    public Balance getBalance(LocalDate valueDate) {
         BigDecimal principalPayments = BigDecimal.ZERO;
         BigDecimal value = startingBalance.add(principalPayments);
-        return new LiabilityValue(valueDate, value);
+        return new Balance(valueDate, value);
     }
 
     @JsonProperty(value = "source")

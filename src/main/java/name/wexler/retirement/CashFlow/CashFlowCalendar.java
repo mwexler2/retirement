@@ -221,8 +221,8 @@ public class CashFlowCalendar {
         assetValueYears = new HashMap<>();
         for (int year : getYears()) {
             _assets.values().forEach(asset -> {
-                AssetValue assetValue = asset.getAssetValue(LocalDate.of(year, Month.JANUARY, 1));
-                indexValues(assetValue, asset.getId(), assetValueYears);
+                Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
+                indexBalances(balance, asset.getId(), assetValueYears);
             });
         }
     }
@@ -233,11 +233,12 @@ public class CashFlowCalendar {
             _expenseSources.values().forEach(expenseSource -> {
                 if (expenseSource instanceof Liability) {
                     Liability liability = (Liability) expenseSource;
-                    LiabilityValue liabilityValue = liability.getLiabilityValue(LocalDate.of(year, Month.JANUARY, 1));
-                    indexValues(liabilityValue, liability.getId(), liabilityValueYears);
+                    Balance balance = liability.getBalance(LocalDate.of(year, Month.JANUARY, 1));
+                    indexBalances(balance, liability.getId(), liabilityValueYears);
                 }
             });
         }
+        _liabilitiesIndexed = true;
     }
 
     private void indexExpenseCashFlows() {
@@ -269,37 +270,20 @@ public class CashFlowCalendar {
         });
     }
 
-    private void indexValues(AssetValue assetValue,
-                                        String id,
-                                        Map<Integer, Map<String, BigDecimal>> assetYears) {
-        int thisYear = assetValue.getAssetValueDate().getYear();
-        Map<String, BigDecimal> assetValues = assetYears.get(thisYear);
-        if (assetValues == null) {
-            assetValues = new HashMap<>();
-            assetYears.put(thisYear, assetValues);
-        }
-        BigDecimal total = assetValues.get(id);
-        if (total == null)
-            total = BigDecimal.ZERO;
-        total = total.add(assetValue.getValue());
-        assetValues.put(id, total);
-        _assetsIndexed = true;
-    }
 
-    private void indexValues(LiabilityValue liabilityValue,
+    private void indexBalances(Balance balance,
                              String id,
-                             Map<Integer, Map<String, BigDecimal>> liabilityYears) {
-        int thisYear = liabilityValue.getLiabilityValueDate().getYear();
-        Map<String, BigDecimal>liabilityValues = liabilityYears.get(thisYear);
-        if (liabilityValues == null) {
-            liabilityValues = new HashMap<>();
-            liabilityYears.put(thisYear, liabilityValues);
+                             Map<Integer, Map<String, BigDecimal>> years) {
+        int thisYear = balance.getBalanceDate().getYear();
+        Map<String, BigDecimal> balances = years.get(thisYear);
+        if (balances == null) {
+            balances = new HashMap<>();
+            years.put(thisYear, balances);
         }
-        BigDecimal total = liabilityValues.get(id);
+        BigDecimal total = balances.get(id);
         if (total == null)
             total = BigDecimal.ZERO;
-        total = total.add(liabilityValue.getValue());
-        liabilityValues.put(id, total);
-        _liabilitiesIndexed = true;
+        total = total.add(balance.getValue());
+        balances.put(id, total);
     }
 }

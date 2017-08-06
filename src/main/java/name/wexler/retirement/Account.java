@@ -62,7 +62,7 @@ public class Account {
         BigDecimal result = BigDecimal.ZERO;
 
         for (Asset asset : this.assets) {
-            result = result.add(asset.getAssetValue(date).getValue());
+            result = result.add(asset.getBalanceAtDate(date).getValue());
         }
         return result;
     }

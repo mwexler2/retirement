@@ -44,7 +44,7 @@ public class ScenarioTest {
         String[] address = {"123 Mainstreet"};
 
         Entity[] mainBorrowers = {mike};
-        RealProperty mainStreet = new RealProperty(context, "main", mike, BigDecimal.valueOf(100000.00), LocalDate.of(2012, Month.JUNE, 10), address,
+        RealProperty mainStreet = new RealProperty(context, "main", mike.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2012, Month.JUNE, 10), address,
                 "anyTown", "AnyCount", "AS", "00000", "US");
         String[] borrowers = {mike.getId()};
         Liability liability1 = new Liability(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
@@ -86,17 +86,17 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[]}", scenario1Str);
+        assertEquals("{\"assumptions\":null,\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
 
         String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[]}", scenario2Str);
+        assertEquals("{\"assumptions\":null,\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[]}";
-        String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[]}";
+        String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
+        String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
 
         Scenario scenario1a = context.fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());

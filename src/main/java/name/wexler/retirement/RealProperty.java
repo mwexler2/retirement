@@ -27,9 +27,12 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import name.wexler.retirement.CashFlow.Balance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Period;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -47,16 +50,16 @@ public class RealProperty extends Asset {
     public RealProperty(
                 @JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
-                @JsonProperty("owner") Entity owner,
-                @JsonProperty("initialAssetValue") BigDecimal initialAssetValue,
-                @JsonProperty("initialAssetValueDate") LocalDate initialAssetValueDate,
+                @JsonProperty("owner") String ownerId,
+                @JsonProperty("initialBalance") BigDecimal initialBalance,
+                @JsonDeserialize(using=JSONDateDeserialize.class)  @JsonProperty("initialBalanceDate") LocalDate initialBalanceDate,
                 @JsonProperty("address") String[] address,
                 @JsonProperty("city") String city,
                 @JsonProperty("county") String county,
                 @JsonProperty("state") String state,
                 @JsonProperty("zipCode") String zipCode,
                 @JsonProperty("country") String country) {
-        super(context, id, owner, initialAssetValue, initialAssetValueDate);
+        super(context, id, ownerId, initialBalance, initialBalanceDate);
         this.address = address;
         this.city = city;
         this.county = county;
@@ -116,5 +119,11 @@ public class RealProperty extends Asset {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public Balance getBalance(LocalDate valueDate) {
+        double annualRateOfReturn = 1.07;
+        Balance initialBalance = getInitialBalance();
+        return new Balance(valueDate, initialBalance.getBalanceAtDate(valueDate, annualRateOfReturn));
     }
 }

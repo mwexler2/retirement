@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import name.wexler.retirement.CashFlow.AssetValue;
+import name.wexler.retirement.CashFlow.Balance;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -42,59 +42,60 @@ import name.wexler.retirement.CashFlow.AssetValue;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RealProperty.class, name = "real-property") })
 public abstract class Asset {
-    private BigDecimal initialAssetValue;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate initialAssetValueDate;
-    private Entity owner;
+    private final Balance _initialBalance;
+
+
+    private Entity _owner;
 
     public String getId() {
-        return id;
+        return _id;
     }
 
-    private final String id;
+    private final String _id;
 
     @JsonCreator
     protected Asset(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
-                @JsonProperty("owner") Entity owner,
-                @JsonProperty("initialAssetValue") BigDecimal initialAssetValue,
-                @JsonProperty("initialAssetValueDate") LocalDate initialAssetValueDate) {
-        this.id = id;
-        this.setInitialAssetValue(initialAssetValue);
-        this.setInitialAssetValueDate(initialAssetValueDate);
+                @JsonProperty("owner") String ownerId,
+                    @JsonProperty("initialBalance") BigDecimal initialBalance,
+                    @JsonDeserialize(using=JSONDateDeserialize.class)  @JsonProperty("initialBalanceDate") LocalDate initialBalanceDate) {
+        this._id = id;
+        this._owner = context.getById(Entity.class, ownerId);
+        this._initialBalance = new Balance(initialBalanceDate, initialBalance);
         context.put(Asset.class, id, this);
     }
 
     abstract public String getName();
 
-    public AssetValue getAssetValue(LocalDate valueDate) {
-        BigDecimal gains = BigDecimal.ZERO;
-        BigDecimal value = initialAssetValue.add(gains);
-        return new AssetValue(valueDate, value);
+    public Balance getBalanceAtDate(LocalDate valueDate) {
+        return _initialBalance;
     }
 
-    public BigDecimal getInitialAssetValue() {
-        return initialAssetValue;
+
+    public Balance getInitialBalance() {
+        return _initialBalance;
     }
 
-    public void setInitialAssetValue(BigDecimal initialAssetValue) {
-        this.initialAssetValue = initialAssetValue;
+    @JsonProperty("initialBalance")
+    public BigDecimal getInitialBalanceAmount() {
+        return _initialBalance.getValue();
     }
 
-    public LocalDate getInitialAssetValueDate() {
-        return initialAssetValueDate;
-    }
 
-    public void setInitialAssetValueDate(LocalDate initialAssetValueDate) {
-        this.initialAssetValueDate = initialAssetValueDate;
+    @JsonProperty("initialBalanceDate")
+    @JsonSerialize(using=JSONDateSerialize.class)
+    public LocalDate getStartDate() {
+        return _initialBalance.getBalanceDate();
     }
 
     public Entity getOwner() {
-        return owner;
+        return _owner;
     }
 
-    public void setOwner(Entity owner) {
-        this.owner = owner;
+    @JsonProperty(value = "owner")
+    public String getOwnerId() {
+
+        String result = _owner.getId();
+        return result;
     }
 }
