@@ -34,7 +34,9 @@ public class LiabilityTest {
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
         CashFlowType monthly = new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate);
         liability = new Liability(context, "liability1", lender.getId(), borrowers, asset,
-                LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
+                LocalDate.of(2014, Month.OCTOBER, 10),
+                LocalDate.of(2030, Month.JUNE, 1),
+                30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthly.getId());
     }
 

@@ -50,6 +50,9 @@ public class Liability extends ExpenseSource {
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate startDate;
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
+    private LocalDate endDate;
     private int term;
     private BigDecimal interestRate;
     private BigDecimal startingBalance;
@@ -64,6 +67,7 @@ public class Liability extends ExpenseSource {
                 @JsonProperty("borrowers") String[] borrowersIds,
                 @JsonProperty("asset") Asset security,
                 @JsonProperty("startDate") LocalDate startDate,
+                @JsonProperty("endDate") LocalDate endDate,
                 @JsonProperty("term") int term,
                 @JsonProperty("interestRate") BigDecimal interestRate,
                 @JsonProperty("startingBalance") BigDecimal startingBalance,
@@ -75,6 +79,7 @@ public class Liability extends ExpenseSource {
         this.setBorrowersIds(context, borrowersIds);
         this.setSourceId(context, sourceId);
         this.startDate = startDate;
+        this.endDate = endDate;
         this.term = term;
         this.interestRate = interestRate;
         this.startingBalance = startingBalance;
@@ -111,9 +116,12 @@ public class Liability extends ExpenseSource {
     }
 
     public Balance getBalance(LocalDate valueDate) {
-        BigDecimal principalPayments = BigDecimal.ZERO;
-        BigDecimal value = startingBalance.add(principalPayments);
-        return new Balance(valueDate, value);
+        BigDecimal balance = BigDecimal.ZERO;
+        if (!valueDate.isBefore(startDate) && !valueDate.isAfter(endDate)) {
+            BigDecimal principalPayments = BigDecimal.ZERO;
+            balance = startingBalance.add(principalPayments);
+        }
+        return new Balance(valueDate, balance);
     }
 
     @JsonProperty(value = "source")
@@ -186,6 +194,8 @@ public class Liability extends ExpenseSource {
     public LocalDate getStartDate() {
         return startDate;
     }
+
+    public LocalDate getEndDate() { return endDate; }
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;

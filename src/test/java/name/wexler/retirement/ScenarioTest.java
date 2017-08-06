@@ -48,7 +48,8 @@ public class ScenarioTest {
                 "anyTown", "AnyCount", "AS", "00000", "US");
         String[] borrowers = {mike.getId()};
         Liability liability1 = new Liability(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
-                LocalDate.of(2012, Month.JUNE, 20), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
+                LocalDate.of(2012, Month.JUNE, 20),
+                LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
                 BigDecimal.valueOf(200.00), liability1Monthly.getId());
         liability1.setPaymentAmount(BigDecimal.valueOf(273.99));
 

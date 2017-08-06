@@ -72,7 +72,9 @@ public class CashFlowCalendarTest {
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
         CashFlowType monthlyPayment = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
         Liability debt = new Liability(context, "debt1", lender.getId(), borrowers, asset,
-                LocalDate.of(2014, Month.OCTOBER, 10), 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
+                LocalDate.of(2014, Month.OCTOBER, 10),
+                LocalDate.of(2020, Month.APRIL, 27),
+                30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthlyPayment.getId());
         expenseSources.add(debt);
         calendar.addExpenseSources(expenseSources);

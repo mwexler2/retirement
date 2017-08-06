@@ -219,12 +219,13 @@ public class CashFlowCalendar {
 
     private void indexAssets() {
         assetValueYears = new HashMap<>();
-        for (int year : getYears()) {
-            _assets.values().forEach(asset -> {
+        _assets.values().forEach(asset -> {
+            Balance prevBalance = asset.getInitialBalance();
+            for (int year : getYears()) {
                 Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
                 indexBalances(balance, asset.getId(), assetValueYears);
-            });
-        }
+            }
+        });
     }
 
     private void indexLiabilities() {
