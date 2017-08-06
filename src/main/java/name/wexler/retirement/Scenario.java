@@ -40,8 +40,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "assumptions", "name", "incomeSources", "expenseSources"})
 public class Scenario {
-    private Assumptions assumptions;
     private final String name;
+    private Assumptions _assumptions;
 
     @JsonIgnore
     private final CashFlowCalendar calendar;
@@ -52,9 +52,11 @@ public class Scenario {
              @JsonProperty("incomeSources") String[] incomeSources,
              @JsonProperty("expenseSources") String[] expenseSources,
              @JsonProperty("assets") String[] assets,
-             @JsonProperty("liabilities") String[] liabilities) {
+             @JsonProperty("liabilities") String[] liabilities,
+             @JsonProperty("assumptions") Assumptions assumptions) {
         this.name = name;
-        calendar = new CashFlowCalendar();
+        this._assumptions = assumptions;
+        calendar = new CashFlowCalendar(assumptions);
         setIncomeSourceIds(context, incomeSources);
         setExpenseSourceIds(context, expenseSources);
         setAssetIds(context, assets);
@@ -141,6 +143,11 @@ public class Scenario {
         return result;
     }
 
+    @JsonProperty(value = "assumptions")
+    public Assumptions getAssumptions() {
+        return _assumptions;
+    }
+
     @JsonIgnore
     public String getLiabilityName(String id) {
         return calendar.getLiabilityName(id);
@@ -202,14 +209,6 @@ public class Scenario {
         BigDecimal expenses = calendar.getAnnualExpense(year);
         BigDecimal netIncome = grossIncome.subtract(expenses);
         return netIncome;
-    }
-
-    public Assumptions getAssumptions() {
-        return assumptions;
-    }
-
-    public void setAssumptions(Assumptions assumptions) {
-        this.assumptions = assumptions;
     }
 
     public String getName() {

@@ -27,7 +27,8 @@ public class CashFlowCalendarTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        calendar = new CashFlowCalendar();
+        Assumptions assumptions = new Assumptions();
+        calendar = new CashFlowCalendar(assumptions);
         incomeSources = new ArrayList<>();
         expenseSources = new ArrayList<>();
 

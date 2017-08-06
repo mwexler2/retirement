@@ -98,9 +98,6 @@ public class Retirement {
 
             String scenariosPath = resourceDir + "/scenarios.json";
             this.scenarios = context.fromJSONFileArray(Scenario[].class, scenariosPath);
-            for (Scenario s : scenarios) {
-                s.setAssumptions(this.assumptions);
-            }
         } catch (JsonGenerationException | JsonMappingException e) {
             e.printStackTrace();
         } catch (IOException e) {

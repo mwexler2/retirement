@@ -122,8 +122,8 @@ public class RealProperty extends Asset {
     }
 
     @Override
-    public Balance getBalanceAtDate(LocalDate valueDate) {
-        double annualRateOfReturn = 1.07;
+    public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
+        double annualRateOfReturn = assumptions.getLongTermInvestmentReturn()+1.0;
         Balance initialBalance = getInitialBalance();
         return new Balance(valueDate, initialBalance.getBalanceAtDate(valueDate, annualRateOfReturn));
     }

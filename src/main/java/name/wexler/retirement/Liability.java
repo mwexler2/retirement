@@ -39,7 +39,7 @@ import java.util.List;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "term", "interestRate", "startingBalance", "paymentAmount" })
+@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
 public class Liability extends ExpenseSource {
     @JsonIgnore
     private Entity lender;

@@ -60,7 +60,7 @@ public class LiabilityTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(liability);
-        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
     }
 
 

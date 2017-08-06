@@ -1,9 +1,6 @@
 package name.wexler.retirement.CashFlow;
 
-import name.wexler.retirement.Asset;
-import name.wexler.retirement.Liability;
-import name.wexler.retirement.ExpenseSource;
-import name.wexler.retirement.IncomeSource;
+import name.wexler.retirement.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,8 +24,10 @@ public class CashFlowCalendar {
     private Map<Integer, Map<String, BigDecimal>> expenseCashFlowYears = null;
     private Map<Integer, Map<String, BigDecimal>> assetValueYears = null;
     private Map<Integer, Map<String, BigDecimal>> liabilityValueYears = null;
+    private Assumptions _assumptions;
 
-    public CashFlowCalendar() {
+    public CashFlowCalendar(Assumptions assumptions) {
+        _assumptions = assumptions;
         _incomeSources = new HashMap<>();
         _expenseSources = new HashMap<>();
         _assets = new HashMap<>();
@@ -222,7 +221,8 @@ public class CashFlowCalendar {
         _assets.values().forEach(asset -> {
             Balance prevBalance = asset.getInitialBalance();
             for (int year : getYears()) {
-                Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
+                Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1),
+                        _assumptions);
                 indexBalances(balance, asset.getId(), assetValueYears);
             }
         });

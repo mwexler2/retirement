@@ -58,11 +58,11 @@ public class Account {
         return assets;
     }
 
-    public BigDecimal getAccountValue(LocalDate date) {
+    public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {
         BigDecimal result = BigDecimal.ZERO;
 
         for (Asset asset : this.assets) {
-            result = result.add(asset.getBalanceAtDate(date).getValue());
+            result = result.add(asset.getBalanceAtDate(date, assumptions).getValue());
         }
         return result;
     }

@@ -67,7 +67,7 @@ public abstract class Asset {
 
     abstract public String getName();
 
-    public Balance getBalanceAtDate(LocalDate valueDate) {
+    public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
         return _initialBalance;
     }
 
