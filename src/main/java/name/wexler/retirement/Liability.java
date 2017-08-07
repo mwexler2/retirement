@@ -55,7 +55,7 @@ public class Liability extends ExpenseSource {
     private LocalDate endDate;
     private int term;
     private BigDecimal interestRate;
-    private BigDecimal startingBalance;
+    private Balance _startingBalance;
     private BigDecimal paymentAmount;
     private BigDecimal monthsPerYear = BigDecimal.valueOf(12);
 
@@ -74,6 +74,7 @@ public class Liability extends ExpenseSource {
                 @JsonProperty("paymentAmount") BigDecimal paymentAmount,
                 @JsonProperty("source") String sourceId) throws Exception {
         super(context, id);
+        this._startingBalance = new Balance(startDate, startingBalance);
         this.security = security;
         this.setLenderId(context, lenderId);
         this.setBorrowersIds(context, borrowersIds);
@@ -82,7 +83,6 @@ public class Liability extends ExpenseSource {
         this.endDate = endDate;
         this.term = term;
         this.interestRate = interestRate;
-        this.startingBalance = startingBalance;
         this.paymentAmount = paymentAmount;
         context.put(Liability.class, id, this);
     }
@@ -115,11 +115,11 @@ public class Liability extends ExpenseSource {
         return result;
     }
 
-    public Balance getBalance(LocalDate valueDate) {
+    public Balance getBalance(Balance prevBalance, LocalDate valueDate) {
         BigDecimal balance = BigDecimal.ZERO;
         if (!valueDate.isBefore(startDate) && !valueDate.isAfter(endDate)) {
             BigDecimal principalPayments = BigDecimal.ZERO;
-            balance = startingBalance.add(principalPayments);
+            balance = _startingBalance.getValue().add(principalPayments);
         }
         return new Balance(valueDate, balance);
     }
@@ -217,12 +217,8 @@ public class Liability extends ExpenseSource {
         this.interestRate = interestRate;
     }
 
-    public BigDecimal getStartingBalance() {
-        return startingBalance;
-    }
-
-    public void setStartingBalance(BigDecimal startingBalance) {
-        this.startingBalance = startingBalance;
+    public Balance getStartingBalance() {
+        return _startingBalance;
     }
 
     public BigDecimal getPaymentAmount() {

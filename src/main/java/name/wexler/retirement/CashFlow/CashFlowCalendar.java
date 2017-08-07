@@ -230,15 +230,18 @@ public class CashFlowCalendar {
 
     private void indexLiabilities() {
         liabilityValueYears = new HashMap<>();
-        for (int year : getYears()) {
+
             _expenseSources.values().forEach(expenseSource -> {
                 if (expenseSource instanceof Liability) {
                     Liability liability = (Liability) expenseSource;
-                    Balance balance = liability.getBalance(LocalDate.of(year, Month.JANUARY, 1));
-                    indexBalances(balance, liability.getId(), liabilityValueYears);
+                    Balance prevBalance = liability.getStartingBalance();
+                    for (int year : getYears()) {
+                        Balance balance = liability.getBalance(prevBalance, LocalDate.of(year, Month.JANUARY, 1));
+                        indexBalances(balance, liability.getId(), liabilityValueYears);
+                        prevBalance = balance;
+                    }
                 }
             });
-        }
         _liabilitiesIndexed = true;
     }
 
