@@ -2,6 +2,7 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import name.wexler.retirement.CashFlow.Balance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import name.wexler.retirement.CashFlow.Monthly;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -44,9 +47,11 @@ public class ScenarioTest {
         String[] address = {"123 Mainstreet"};
 
         Entity[] mainBorrowers = {mike};
+        List<Balance> interimBalances = Arrays.asList();
         RealProperty mainStreet = new RealProperty(context, "main", mike.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2012, Month.JUNE, 10), address,
-                "anyTown", "AnyCount", "AS", "00000", "US");
+                "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
         String[] borrowers = {mike.getId()};
+
         Liability liability1 = new Liability(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20),
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,

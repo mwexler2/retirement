@@ -1,5 +1,9 @@
 package name.wexler.retirement.CashFlow;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import name.wexler.retirement.JSONDateDeserialize;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
@@ -12,7 +16,8 @@ public class Balance {
     private final LocalDate balanceDate;
     private final BigDecimal _value;
 
-    public Balance(LocalDate balanceDate, BigDecimal amount) {
+    public Balance(@JsonDeserialize(using=JSONDateDeserialize.class) @JsonProperty("date") LocalDate balanceDate,
+                   @JsonProperty("amount") BigDecimal amount) {
         this.balanceDate = balanceDate;
         this._value = amount;
     }

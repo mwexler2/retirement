@@ -1,5 +1,6 @@
 package name.wexler.retirement;
 
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
@@ -9,6 +10,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,9 +27,11 @@ public class AssetTest {
         context = new Context();
         Person owner = new Person(context, "owner1");
         String[] streetAddress = {"123 Main Street"};
+        List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));
         asset = new RealProperty(context, "real-property1", owner.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
                 streetAddress,
-                "Anytown", "Count County", "AS", "01234", "US");
+                "Anytown", "Count County", "AS", "01234", "US",
+                interimBalances);
     }
 
     @After

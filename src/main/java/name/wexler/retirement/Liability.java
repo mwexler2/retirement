@@ -33,6 +33,7 @@ import name.wexler.retirement.CashFlow.Balance;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -106,6 +107,7 @@ public class Liability extends ExpenseSource {
     @Override
     public String getName() {
         String result;
+        List<Balance> interimBalances = new ArrayList<Balance>();
 
         if (security != null) {
             result = security.getName() + "(" + lender.getName() + ")";
@@ -115,7 +117,7 @@ public class Liability extends ExpenseSource {
         return result;
     }
 
-    public Balance getBalance(Balance prevBalance, LocalDate valueDate) {
+    public Balance getBalanceAtDate(Balance prevBalance, LocalDate valueDate) {
         BigDecimal balance = BigDecimal.ZERO;
         if (!valueDate.isBefore(startDate) && !valueDate.isAfter(endDate)) {
             BigDecimal principalPayments = BigDecimal.ZERO;

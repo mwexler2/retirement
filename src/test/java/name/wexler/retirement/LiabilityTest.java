@@ -1,5 +1,6 @@
 package name.wexler.retirement;
 
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
@@ -9,6 +10,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,9 +28,11 @@ public class LiabilityTest {
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
+        List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
         Asset asset = new RealProperty(context, "real-property1", borrower.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
                 streetAddress,
-                "Anytown", "Count County", "AS", "01234", "US");
+                "Anytown", "Count County", "AS", "01234", "US",
+                interimBalances);
         String[] borrowers = { borrower.getId() };
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);

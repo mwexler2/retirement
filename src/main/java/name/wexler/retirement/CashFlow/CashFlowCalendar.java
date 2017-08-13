@@ -236,7 +236,7 @@ public class CashFlowCalendar {
                     Liability liability = (Liability) expenseSource;
                     Balance prevBalance = liability.getStartingBalance();
                     for (int year : getYears()) {
-                        Balance balance = liability.getBalance(prevBalance, LocalDate.of(year, Month.JANUARY, 1));
+                        Balance balance = liability.getBalanceAtDate(prevBalance, LocalDate.of(year, Month.JANUARY, 1));
                         indexBalances(balance, liability.getId(), liabilityValueYears);
                         prevBalance = balance;
                     }

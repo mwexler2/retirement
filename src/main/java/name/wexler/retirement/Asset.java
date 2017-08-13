@@ -29,6 +29,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import name.wexler.retirement.CashFlow.Balance;
 
@@ -43,6 +47,7 @@ import name.wexler.retirement.CashFlow.Balance;
         @JsonSubTypes.Type(value = RealProperty.class, name = "real-property") })
 public abstract class Asset {
     private final Balance _initialBalance;
+    private final List<Balance> _interimBalances;
 
 
     private Entity _owner;
@@ -58,17 +63,27 @@ public abstract class Asset {
                 @JsonProperty("id") String id,
                 @JsonProperty("owner") String ownerId,
                     @JsonProperty("initialBalance") BigDecimal initialBalance,
-                    @JsonDeserialize(using=JSONDateDeserialize.class)  @JsonProperty("initialBalanceDate") LocalDate initialBalanceDate) {
+                    @JsonDeserialize(using=JSONDateDeserialize.class)  @JsonProperty("initialBalanceDate") LocalDate initialBalanceDate,
+                    @JsonProperty("interimBalances") List<Balance> interimBalances) {
         this._id = id;
         this._owner = context.getById(Entity.class, ownerId);
         this._initialBalance = new Balance(initialBalanceDate, initialBalance);
+        interimBalances.sort(Comparator.comparing(Balance::getBalanceDate));
+        _interimBalances = interimBalances;
         context.put(Asset.class, id, this);
     }
 
     abstract public String getName();
 
     public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
-        return _initialBalance;
+        Balance recentBalance = _initialBalance;
+        int i =  Collections.binarySearch(_interimBalances, new Balance(valueDate, BigDecimal.ZERO), Comparator.comparing(Balance::getBalanceDate));
+        if (i >= 0) {
+            recentBalance = _interimBalances.get(i);
+        } else if (i < -1) {
+            recentBalance = _interimBalances.get(-i - 2);
+        }
+        return recentBalance;
     }
 
 

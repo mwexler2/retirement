@@ -33,6 +33,9 @@ import name.wexler.retirement.CashFlow.Balance;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -58,8 +61,9 @@ public class RealProperty extends Asset {
                 @JsonProperty("county") String county,
                 @JsonProperty("state") String state,
                 @JsonProperty("zipCode") String zipCode,
-                @JsonProperty("country") String country) {
-        super(context, id, ownerId, initialBalance, initialBalanceDate);
+                @JsonProperty("country") String country,
+                @JsonProperty("interimBalances") List<Balance> interimBalances) {
+        super(context, id, ownerId, initialBalance, initialBalanceDate, interimBalances);
         this.address = address;
         this.city = city;
         this.county = county;
@@ -124,7 +128,7 @@ public class RealProperty extends Asset {
     @Override
     public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
         double annualRateOfReturn = assumptions.getLongTermInvestmentReturn()+1.0;
-        Balance initialBalance = getInitialBalance();
+        Balance initialBalance = super.getBalanceAtDate(valueDate, assumptions);
         return new Balance(valueDate, initialBalance.getBalanceAtDate(valueDate, annualRateOfReturn));
     }
 }

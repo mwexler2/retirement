@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -64,9 +65,10 @@ public class CashFlowCalendarTest {
         lender.setCompanyName("Lender's Bank");
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
+        List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2017, 7, 4), BigDecimal.valueOf(42000.42)));
         Asset asset = new RealProperty(context, "real-property1", borrower.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
                 streetAddress,
-                "Anytown", "Count County", "AS", "01234", "US");
+                "Anytown", "Count County", "AS", "01234", "US", interimBalances);
         String[] borrowers = { borrower.getId() };
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
