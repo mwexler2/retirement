@@ -48,7 +48,8 @@ public class ScenarioTest {
 
         Entity[] mainBorrowers = {mike};
         List<Balance> interimBalances = Arrays.asList();
-        RealProperty mainStreet = new RealProperty(context, "main", mike.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2012, Month.JUNE, 10), address,
+        Balance initialBalance = new Balance(LocalDate.of(2012, Month.JUNE, 10), BigDecimal.valueOf(100000.00));
+        RealProperty mainStreet = new RealProperty(context, "main", mike.getId(), initialBalance, address,
                 "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
         String[] borrowers = {mike.getId()};
 

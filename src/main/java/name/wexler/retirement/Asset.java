@@ -62,12 +62,11 @@ public abstract class Asset {
     protected Asset(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
                 @JsonProperty("owner") String ownerId,
-                    @JsonProperty("initialBalance") BigDecimal initialBalance,
-                    @JsonDeserialize(using=JSONDateDeserialize.class)  @JsonProperty("initialBalanceDate") LocalDate initialBalanceDate,
+                    @JsonProperty("initialBalance") Balance initialBalance,
                     @JsonProperty("interimBalances") List<Balance> interimBalances) {
         this._id = id;
         this._owner = context.getById(Entity.class, ownerId);
-        this._initialBalance = new Balance(initialBalanceDate, initialBalance);
+        this._initialBalance = initialBalance;
         interimBalances.sort(Comparator.comparing(Balance::getBalanceDate));
         _interimBalances = interimBalances;
         context.put(Asset.class, id, this);
@@ -91,14 +90,12 @@ public abstract class Asset {
         return _initialBalance;
     }
 
-    @JsonProperty("initialBalance")
+    @JsonIgnore
     public BigDecimal getInitialBalanceAmount() {
         return _initialBalance.getValue();
     }
 
-
-    @JsonProperty("initialBalanceDate")
-    @JsonSerialize(using=JSONDateSerialize.class)
+    @JsonIgnore
     public LocalDate getStartDate() {
         return _initialBalance.getBalanceDate();
     }

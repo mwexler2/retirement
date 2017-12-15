@@ -29,7 +29,8 @@ public class LiabilityTest {
         Person borrower = new Person(context, "borrower1");
         String[] streetAddress = {"123 Main Street"};
         List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
-        Asset asset = new RealProperty(context, "real-property1", borrower.getId(), BigDecimal.valueOf(100000.00), LocalDate.of(2010, Month.APRIL, 15),
+        Balance initialBalance = new Balance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
+        Asset asset = new RealProperty(context, "real-property1", borrower.getId(), initialBalance,
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US",
                 interimBalances);
@@ -65,7 +66,7 @@ public class LiabilityTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(liability);
-        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":50000.0,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":{\"balanceDate\":\"2014-10-10\",\"value\":50000.0},\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
     }
 
 

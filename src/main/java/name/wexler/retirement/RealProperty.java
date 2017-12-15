@@ -23,10 +23,7 @@
 
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import name.wexler.retirement.CashFlow.Balance;
 
@@ -40,6 +37,8 @@ import java.util.List;
 /**
  * Created by mwexler on 7/9/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonPropertyOrder({ "type", "id", "owner", "initialBalance", "address", "city", "county", "state", "zipCode", "country" })
 public class RealProperty extends Asset {
     private String[] address;
     private String city;
@@ -54,8 +53,7 @@ public class RealProperty extends Asset {
                 @JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
                 @JsonProperty("owner") String ownerId,
-                @JsonProperty("initialBalance") BigDecimal initialBalance,
-                @JsonDeserialize(using=JSONDateDeserialize.class)  @JsonProperty("initialBalanceDate") LocalDate initialBalanceDate,
+                @JsonProperty("initialBalance") Balance initialBalance,
                 @JsonProperty("address") String[] address,
                 @JsonProperty("city") String city,
                 @JsonProperty("county") String county,
@@ -63,7 +61,7 @@ public class RealProperty extends Asset {
                 @JsonProperty("zipCode") String zipCode,
                 @JsonProperty("country") String country,
                 @JsonProperty("interimBalances") List<Balance> interimBalances) {
-        super(context, id, ownerId, initialBalance, initialBalanceDate, interimBalances);
+        super(context, id, ownerId, initialBalance, interimBalances);
         this.address = address;
         this.city = city;
         this.county = county;

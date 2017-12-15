@@ -2,7 +2,9 @@ package name.wexler.retirement.CashFlow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.JSONDateDeserialize;
+import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,17 +15,19 @@ import java.time.temporal.ChronoUnit;
  * Created by mwexler on 11/29/16.
  */
 public class Balance {
+    @JsonDeserialize(using=JSONDateDeserialize.class)
+    @JsonSerialize(using=JSONDateSerialize.class)
     private final LocalDate balanceDate;
-    private final BigDecimal _value;
+    private final BigDecimal value;
 
     public Balance(@JsonDeserialize(using=JSONDateDeserialize.class) @JsonProperty("date") LocalDate balanceDate,
                    @JsonProperty("amount") BigDecimal amount) {
         this.balanceDate = balanceDate;
-        this._value = amount;
+        this.value = amount;
     }
 
     public BigDecimal getValue() {
-        return _value;
+        return value;
     }
 
     public LocalDate getBalanceDate() {
@@ -43,7 +47,7 @@ public class Balance {
             long days = ChronoUnit.DAYS.between(balanceDate, endDate);
             double elapsedYears = days / 365.25;
             double totalReturn = Math.pow(annualReturn, elapsedYears);
-            balance = _value.multiply(BigDecimal.valueOf(totalReturn));
+            balance = value.multiply(BigDecimal.valueOf(totalReturn));
         }
         return balance;
     }
