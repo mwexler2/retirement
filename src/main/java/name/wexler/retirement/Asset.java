@@ -29,10 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import name.wexler.retirement.CashFlow.Balance;
 
@@ -50,7 +47,7 @@ public abstract class Asset {
     private final List<Balance> _interimBalances;
 
 
-    private Entity _owner;
+    private List<Entity> _owners;
 
     public String getId() {
         return _id;
@@ -61,11 +58,11 @@ public abstract class Asset {
     @JsonCreator
     protected Asset(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
-                @JsonProperty("owner") String ownerId,
+                @JsonProperty("owners") List<String> ownerIds,
                     @JsonProperty("initialBalance") Balance initialBalance,
                     @JsonProperty("interimBalances") List<Balance> interimBalances) {
         this._id = id;
-        this._owner = context.getById(Entity.class, ownerId);
+        this._owners = context.getByIds(Entity.class, ownerIds);
         this._initialBalance = initialBalance;
         interimBalances.sort(Comparator.comparing(Balance::getBalanceDate));
         _interimBalances = interimBalances;
@@ -100,14 +97,17 @@ public abstract class Asset {
         return _initialBalance.getBalanceDate();
     }
 
-    public Entity getOwner() {
-        return _owner;
+    public List<Entity> getOwners() {
+        return _owners;
     }
 
-    @JsonProperty(value = "owner")
-    public String getOwnerId() {
-
-        String result = _owner.getId();
+    @JsonProperty(value = "owners")
+    public List<String> getOwnerIds() {
+        List<String> result = new ArrayList<>(_owners.size());
+        for (Entity owner : _owners) {
+            String id = owner.getId();
+            result.add(id);
+        }
         return result;
     }
 }

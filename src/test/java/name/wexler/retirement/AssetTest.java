@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,10 +27,11 @@ public class AssetTest {
     public void setUp() throws Exception {
         context = new Context();
         Person owner = new Person(context, "owner1");
+        List<String> ownerIds = Arrays.asList(owner.getId());
         String[] streetAddress = {"123 Main Street"};
         List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));
         Balance initialBalance = new Balance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
-        asset = new RealProperty(context, "real-property1", owner.getId(), initialBalance,
+        asset = new RealProperty(context, "real-property1", ownerIds, initialBalance,
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US",
                 interimBalances);

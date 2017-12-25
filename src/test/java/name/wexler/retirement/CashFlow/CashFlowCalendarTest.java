@@ -64,10 +64,11 @@ public class CashFlowCalendarTest {
         Company lender = new Company(context, "lender1");
         lender.setCompanyName("Lender's Bank");
         Person borrower = new Person(context, "borrower1");
+        List<String> borrowerIds = Arrays.asList(borrower.getId());
         String[] streetAddress = {"123 Main Street"};
         List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2017, 7, 4), BigDecimal.valueOf(42000.42)));
         Balance initialBalance = new Balance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.0));
-        Asset asset = new RealProperty(context, "real-property1", borrower.getId(), initialBalance,
+        Asset asset = new RealProperty(context, "real-property1", borrowerIds, initialBalance,
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US", interimBalances);
         String[] borrowers = { borrower.getId() };

@@ -52,7 +52,7 @@ public class RealProperty extends Asset {
     public RealProperty(
                 @JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
-                @JsonProperty("owner") String ownerId,
+                @JsonProperty("owners") List<String> ownerIds,
                 @JsonProperty("initialBalance") Balance initialBalance,
                 @JsonProperty("address") String[] address,
                 @JsonProperty("city") String city,
@@ -61,7 +61,7 @@ public class RealProperty extends Asset {
                 @JsonProperty("zipCode") String zipCode,
                 @JsonProperty("country") String country,
                 @JsonProperty("interimBalances") List<Balance> interimBalances) {
-        super(context, id, ownerId, initialBalance, interimBalances);
+        super(context, id, ownerIds, initialBalance, interimBalances);
         this.address = address;
         this.city = city;
         this.county = county;

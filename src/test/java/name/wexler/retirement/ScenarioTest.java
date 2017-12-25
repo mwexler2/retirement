@@ -15,6 +15,7 @@ import name.wexler.retirement.CashFlow.Monthly;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,7 +50,8 @@ public class ScenarioTest {
         Entity[] mainBorrowers = {mike};
         List<Balance> interimBalances = Arrays.asList();
         Balance initialBalance = new Balance(LocalDate.of(2012, Month.JUNE, 10), BigDecimal.valueOf(100000.00));
-        RealProperty mainStreet = new RealProperty(context, "main", mike.getId(), initialBalance, address,
+        List<String> ownerIds = Arrays.asList(mike.getId());
+        RealProperty mainStreet = new RealProperty(context, "main", ownerIds, initialBalance, address,
                 "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
         String[] borrowers = {mike.getId()};
 

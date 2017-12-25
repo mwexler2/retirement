@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,6 +59,16 @@ public class Context {
     public <T> T getById(Class clazz, String id) {
         EntityManager<T> entityManager = this.getEntityManager(clazz);
         T result = entityManager.getById(id);
+        return result;
+    }
+
+    public <T> List<T> getByIds(Class clazz, List<String> ids) {
+        List<T> result = new ArrayList<>(ids.size());
+        for (String id : ids) {
+            EntityManager<T> entityManager = this.getEntityManager(clazz);
+            T entity = entityManager.getById(id);
+            result.add(entity);
+        }
         return result;
     }
 

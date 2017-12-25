@@ -17,10 +17,10 @@ public class Security extends Asset {
     @JsonCreator
     public Security(@JacksonInject("context") Context context,
                     @JsonProperty("id") String id,
-                    @JsonProperty("owner") String ownerId,
+                    @JsonProperty("owner") List<String> ownerIds,
                     @JsonProperty("initialAssetValue") Balance initialAssetValue,
                     @JsonProperty("interimBalances") List<Balance> interimBalances) {
-        super(context, id, ownerId, initialAssetValue, interimBalances);
+        super(context, id, ownerIds, initialAssetValue, interimBalances);
     }
 
     public String getName() {
