@@ -45,7 +45,6 @@ import java.util.List;
 public class Biweekly extends CashFlowType {
     private DayOfWeek dayOfWeek;
     private static final int twoWeeks = 2 * 7;
-    private static final BigDecimal periodsPerYear = BigDecimal.valueOf(26);
 
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
@@ -64,26 +63,13 @@ public class Biweekly extends CashFlowType {
         this.dayOfWeek = firstPaymentDate.getDayOfWeek();
     }
 
+    private final BigDecimal periodsPerYear = BigDecimal.valueOf(26);
+    @JsonIgnore
+    @Override
+    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
+
     public LocalDate getFirstPeriodStart() {
         return this.firstPeriodStart;
-    }
-
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        BigDecimal monthlyAmount = BigDecimal.ZERO;
-        LocalDate monthStart = LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), 1);
-        LocalDate monthEnd = LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), yearMonth.lengthOfMonth());
-        long daysSinceFirstPayment = monthStart.toEpochDay() - getFirstPaymentDate().toEpochDay();
-        if (daysSinceFirstPayment >= 0) {
-            long biweeksSinceLastPayment = daysSinceFirstPayment/twoWeeks;
-            LocalDate recentPaymentDate = getFirstPaymentDate().plusDays(biweeksSinceLastPayment * 14);
-            while (!recentPaymentDate.isAfter(monthEnd)) {
-                if (!recentPaymentDate.isBefore(monthStart)) {
-                    monthlyAmount = annualAmount.divide(BigDecimal.valueOf(26.0), 2, BigDecimal.ROUND_HALF_UP);
-                }
-                recentPaymentDate = recentPaymentDate.plusDays(twoWeeks);
-            }
-        }
-        return monthlyAmount;
     }
 
     @JsonIgnore
@@ -93,7 +79,7 @@ public class Biweekly extends CashFlowType {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         int paymentOffset = getFirstPeriodStart().until(getFirstPaymentDate()).getDays();
@@ -106,8 +92,7 @@ public class Biweekly extends CashFlowType {
             if (thisAccrualEnd.isAfter(getAccrueEnd()))
                 thisAccrualEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisPeriodStart.plusDays(paymentOffset);
-            BigDecimal thisAmount = annualAmount.divide(periodsPerYear, 2, BigDecimal.ROUND_HALF_UP);
-            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, thisAmount));
+            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;

@@ -83,8 +83,6 @@ public abstract class   CashFlowType {
     }
 
 
-
-
     abstract public LocalDate getFirstPeriodStart();
 
     public LocalDate getAccrueStart() {
@@ -99,6 +97,7 @@ public abstract class   CashFlowType {
         return firstPaymentDate;
     }
 
-    abstract public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount);
+    abstract public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount);
 
+    abstract public BigDecimal getPeriodsPerYear();
 }

@@ -121,29 +121,29 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getAnnualExpense() {
-        assertEquals(0, BigDecimal.valueOf(4000.00).compareTo(calendar.getAnnualExpense("debt1", 2011)));
-        assertEquals(0, BigDecimal.valueOf(6000.00).compareTo(calendar.getAnnualExpense("debt1", 2012)));
-        assertEquals(0, BigDecimal.valueOf(6000.00).compareTo(calendar.getAnnualExpense("debt1", 2030)));
-        assertEquals(0, BigDecimal.valueOf(2000.00).compareTo(calendar.getAnnualExpense("debt1", 2031)));
-        assertEquals(0, BigDecimal.ZERO.compareTo(calendar.getAnnualExpense("debt1", 1999)));
-        assertEquals(0, BigDecimal.ZERO.compareTo(calendar.getAnnualExpense("bad-debt", 2012)));
-        assertEquals(0, BigDecimal.ZERO.compareTo(calendar.getAnnualExpense("bad-debt", 1999)));
+        assertEquals(BigDecimal.valueOf(4000.00), calendar.getAnnualExpense("debt1", 2011));
+        assertEquals(BigDecimal.valueOf(6000.00), calendar.getAnnualExpense("debt1", 2012));
+        assertEquals(BigDecimal.valueOf(6000.00), calendar.getAnnualExpense("debt1", 2030));
+        assertEquals(BigDecimal.valueOf(2000.00), calendar.getAnnualExpense("debt1", 2031));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualExpense("debt1", 1999));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualExpense("bad-debt", 2012));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualExpense("bad-debt", 1999));
     }
 
     @Test
     public void getAnnualIncome() {
-        assertEquals(0, BigDecimal.valueOf(11115.45).  compareTo(calendar.getAnnualIncome("bonusPeriodicFixed1", 2015)));
-        assertEquals(0, BigDecimal.valueOf(66666.64).  compareTo(calendar.getAnnualIncome("salary1",             2015)));
-        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("bonusAnnualPct1",     2012)));
-        assertEquals(0, BigDecimal.valueOf(17000.10).  compareTo(calendar.getAnnualIncome("bonusPeriodicFixed1", 2016)));
-        assertEquals(0, BigDecimal.valueOf(99999.96).  compareTo(calendar.getAnnualIncome("salary1",             2016)));
-        assertEquals(0, BigDecimal.valueOf(1000000.00).compareTo(calendar.getAnnualIncome("bonusAnnualPct1",     2016)));
-        assertEquals(0, BigDecimal.valueOf(3923.10).   compareTo(calendar.getAnnualIncome("bonusPeriodicFixed1", 2017)));
-        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("salary1",             2017)));
-        assertEquals(0, BigDecimal.valueOf(1000000.00).compareTo(calendar.getAnnualIncome("bonusAnnualPct1",     2017)));
-        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("salary1",             1999)));
-        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("bad-salary",          2016)));
-        assertEquals(0, BigDecimal.ZERO.               compareTo(calendar.getAnnualIncome("bad-salary",          1999)));
+        assertEquals(BigDecimal.valueOf(11115.45), calendar.getAnnualIncome("bonusPeriodicFixed1", 2015));
+        assertEquals(BigDecimal.valueOf(66666.64), calendar.getAnnualIncome("salary1",             2015));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bonusAnnualPct1",     2012));
+        assertEquals(BigDecimal.valueOf(17000.10),calendar.getAnnualIncome("bonusPeriodicFixed1", 2016));
+        assertEquals(BigDecimal.valueOf(99999.96), calendar.getAnnualIncome("salary1",             2016));
+        assertEquals(BigDecimal.valueOf(1000000.00), calendar.getAnnualIncome("bonusAnnualPct1",     2016));
+        assertEquals(BigDecimal.valueOf(3923.10),calendar.getAnnualIncome("bonusPeriodicFixed1", 201));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("salary1",             2017));
+        assertEquals(BigDecimal.valueOf(1000000.00), calendar.getAnnualIncome("bonusAnnualPct1",     2017));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("salary1",             1999));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bad-salary",          2016));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bad-salary",          1999));
     }
 
     @Test

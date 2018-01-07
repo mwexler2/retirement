@@ -58,6 +58,10 @@ public class SemiMonthly extends Monthly {
         this.secondDayOfMonth = secondDayOfMonth;
     }
 
+    private final BigDecimal periodsPerYear = BigDecimal.valueOf(2 * 12);
+    @JsonIgnore
+    @Override
+    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
     public int getFirstDayOfMonth() {
         return firstDayOfMonth;
     }
@@ -68,12 +72,11 @@ public class SemiMonthly extends Monthly {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
         YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
         YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
         YearMonth firstPaymentYearMonth = YearMonth.of(getFirstPaymentDate().getYear(), getFirstPaymentDate().getMonth());
-        BigDecimal periodicAmount = annualAmount.divide(monthsPerYear.multiply(BigDecimal.valueOf(2)), 2, BigDecimal.ROUND_HALF_UP);
         long paymentMonthOffset = startYearMonth.until(firstPaymentYearMonth, ChronoUnit.MONTHS);
         for (YearMonth thisYearMonth = startYearMonth; !thisYearMonth.isAfter(endYearMonth); thisYearMonth = thisYearMonth.plusMonths(1)) {
             LocalDate thisAccrueStart = LocalDate.of(thisYearMonth.getYear(), thisYearMonth.getMonth(), 1);
@@ -84,9 +87,9 @@ public class SemiMonthly extends Monthly {
                 thisAccrueEnd = getAccrueEnd();
             LocalDate firstCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(firstDayOfMonth);
             if (!firstCashFlowDate.isBefore(getFirstPaymentDate()))
-                result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, firstCashFlowDate, periodicAmount));
+                result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, firstCashFlowDate, singleFlowAmount));
             LocalDate secondCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(secondDayOfMonth);
-            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, secondCashFlowDate, periodicAmount));
+            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, secondCashFlowDate, singleFlowAmount));
         }
 
         return result;

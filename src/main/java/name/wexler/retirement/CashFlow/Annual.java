@@ -57,19 +57,16 @@ public class Annual extends CashFlowType {
         this.lastYear = accrueEnd.getYear();
     }
 
+    private final BigDecimal periodsPerYear = BigDecimal.ONE;
+    @JsonIgnore
+    @Override
+    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
+
     @JsonIgnore
     public LocalDate getFirstPeriodStart() {
         return getAccrueStart().withDayOfYear(1);
     }
 
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        if (yearMonth.getYear() >= firstYear &&
-                yearMonth.getYear() <= lastYear &&
-                monthDay.getMonth() == yearMonth.getMonth()) {
-            return annualAmount;
-        }
-        return  BigDecimal.ZERO;
-    }
 
     @JsonIgnore
     public MonthDay getMonthDay() {
@@ -88,7 +85,7 @@ public class Annual extends CashFlowType {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         int accrualStartYear = getAccrueStart().getYear();
@@ -104,7 +101,7 @@ public class Annual extends CashFlowType {
                 thisAccrualEnd = LocalDate.of(thisYear, Month.DECEMBER, 31);
 
             LocalDate cashFlowDate = LocalDate.of(thisYear + paymentYearOffset, getFirstPaymentDate().getMonth(), getFirstPaymentDate().getDayOfMonth());
-            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, annualAmount));
+            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;

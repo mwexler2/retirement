@@ -54,45 +54,25 @@ public class Monthly extends CashFlowType {
 
     }
 
+    private final BigDecimal periodsPerYear = BigDecimal.valueOf(12);
+    @JsonIgnore
+    @Override
+    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
+
     @JsonIgnore
     public LocalDate getFirstPeriodStart() {
         return getAccrueStart().withDayOfMonth(1);
     }
 
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        int firstDayOfMonth = getFirstPaymentDate().getDayOfMonth();
-
-        BigDecimal monthlySalary = new BigDecimal(0.00);
-
-        YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
-        YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
-        if (yearMonth.isBefore(startYearMonth) || yearMonth.isAfter(endYearMonth)) {
-            monthlySalary = BigDecimal.ZERO;
-        } else if (yearMonth.isAfter(startYearMonth) && yearMonth.isBefore(endYearMonth)) {
-            monthlySalary = annualAmount.divide(monthsPerYear, 2, BigDecimal.ROUND_HALF_UP);
-        } else {
-            LocalDate firstDateInMonth = yearMonth.atDay(1);
-            LocalDate lastDateInMonth = yearMonth.atEndOfMonth();
-            if (yearMonth == startYearMonth) {
-                firstDateInMonth = yearMonth.atDay(getAccrueStart().getDayOfMonth());
-            } else if (yearMonth == endYearMonth) {
-                lastDateInMonth = yearMonth.atDay(getAccrueEnd().getDayOfMonth());
-            }
-            int days = firstDateInMonth.until(lastDateInMonth).getDays();
-            monthlySalary = annualAmount.multiply(BigDecimal.valueOf(days).divide(BigDecimal.valueOf(getAccrueStart().lengthOfYear()), 2, BigDecimal.ROUND_HALF_UP));
-        }
-        return monthlySalary;
-    }
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(BigDecimal annualAmount) {
+    public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
         YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
         YearMonth firstPaymentYearMonth = YearMonth.of(getFirstPaymentDate().getYear(), getFirstPaymentDate().getMonth());
-        BigDecimal monthlyAmount = annualAmount.divide(monthsPerYear, 2, BigDecimal.ROUND_HALF_UP);
         long paymentMonthOffset = startYearMonth.until(firstPaymentYearMonth, ChronoUnit.MONTHS);
         for (YearMonth thisYearMonth = startYearMonth; !thisYearMonth.isAfter(endYearMonth); thisYearMonth = thisYearMonth.plusMonths(1)) {
             LocalDate thisAccrueStart = LocalDate.of(thisYearMonth.getYear(), thisYearMonth.getMonth(), 1);
@@ -102,7 +82,7 @@ public class Monthly extends CashFlowType {
             if (thisAccrueEnd.isAfter(getAccrueEnd()))
                 thisAccrueEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(getFirstPaymentDate().getDayOfMonth());
-            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, cashFlowDate, monthlyAmount));
+            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;
