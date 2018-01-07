@@ -50,14 +50,6 @@ public class BonusPeriodicFixed extends Bonus {
         this.annualAmount = annualAmount;
     }
 
-    public BigDecimal getAnnualCashFlow(int year) {
-        BigDecimal annualBonusAmount = BigDecimal.ZERO;
-        for (Month month : Month.values()) {
-            YearMonth yearMonth =  YearMonth.of(year, month);
-            annualBonusAmount = annualBonusAmount.add(this.getMonthlyCashFlow(yearMonth, this.annualAmount));
-        }
-        return annualBonusAmount;
-    }
 
     @JsonIgnore
     @Override
@@ -65,10 +57,6 @@ public class BonusPeriodicFixed extends Bonus {
         return getCashFlow().getCashFlowInstances(annualAmount);
     }
 
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        BigDecimal bonusAmount = this.getCashFlow().getMonthlyCashFlow(yearMonth, annualAmount);
-        return bonusAmount;
-    }
 
     public BigDecimal getAnnualAmount() {
         return annualAmount;

@@ -81,13 +81,8 @@ public abstract class IncomeSource {
     }
 
 
-    protected abstract BigDecimal getAnnualCashFlow(int year);
-
     public abstract List<CashFlowInstance> getCashFlowInstances();
 
-    public BigDecimal getAnnualCashFlow() {
-        return getAnnualCashFlow(LocalDate.now().getYear());
-    }
 
     abstract public String getName();
 

@@ -23,10 +23,7 @@
 
 package name.wexler.retirement.CashFlow;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.*;
@@ -48,7 +45,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = Annual.class, name = "annual"),
         @JsonSubTypes.Type(value = Biweekly.class, name = "biweekly"),
         @JsonSubTypes.Type(value = Monthly.class, name = "monthly"),
-        @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly")
+        @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly"),
+        @JsonSubTypes.Type(value = Quarterly.class, name = "quarterly")
 })
 public abstract class   CashFlowType {
     private final String id;
@@ -84,23 +82,8 @@ public abstract class   CashFlowType {
         return this.id;
     }
 
-    public abstract BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount);
 
-    public BigDecimal getMonthlyCashFlow(BigDecimal annualAmount) {
-        return getMonthlyCashFlow(YearMonth.now(), annualAmount);
-    }
 
-    public BigDecimal getAnnualCashFlow(int year, BigDecimal annualAmount) {
-        BigDecimal result = new BigDecimal(0.00);
-
-        for (Month m : Month.values())
-            result = result.add(getMonthlyCashFlow(YearMonth.of(year, m), annualAmount));
-        return result;
-    }
-
-    public BigDecimal getAnnualCashFlow(BigDecimal annualAmount) {
-        return getAnnualCashFlow(LocalDate.now().getYear(), annualAmount);
-    }
 
     abstract public LocalDate getFirstPeriodStart();
 

@@ -43,6 +43,8 @@ import java.util.List;
 @JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
 public class Liability extends ExpenseSource {
     @JsonIgnore
+    private CashFlowType source;
+    @JsonIgnore
     private Entity lender;
     @JsonIgnore
     private Entity[] borrowers;
@@ -86,6 +88,20 @@ public class Liability extends ExpenseSource {
         this.interestRate = interestRate;
         this.paymentAmount = paymentAmount;
         context.put(Liability.class, id, this);
+    }
+
+    public void setCashFlow(CashFlowType source) {
+        this.source = source;
+    }
+
+    @JsonIgnore
+    CashFlowType getCashFlow() {
+        return source;
+    }
+
+    @JsonProperty("cashFlow")
+    public String getGetFlowId() {
+        return source.getId();
     }
 
     @JsonIgnore

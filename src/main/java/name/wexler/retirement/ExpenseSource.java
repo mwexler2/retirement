@@ -39,11 +39,11 @@ import java.util.List;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Liability.class, name = "liability")
+        @JsonSubTypes.Type(value = Liability.class, name = "liability"),
+        @JsonSubTypes.Type(value = Alimony.class, name = "alimony")
          })
 public abstract class ExpenseSource {
-    @JsonIgnore
-    private CashFlowType source;
+
     private String id;
 
     public String getId() {
@@ -60,24 +60,6 @@ public abstract class ExpenseSource {
 
     public abstract List<CashFlowInstance> getCashFlowInstances();
 
-    public void setCashFlow(CashFlowType source) {
-        this.source = source;
-    }
-
     @JsonIgnore
     abstract public String getName();
-
-    @JsonIgnore
-    CashFlowType getCashFlow() {
-        return source;
-    }
-
-    @JsonProperty("cashFlow")
-    public String getGetFlowId() {
-        return source.getId();
-    }
-
-    @JsonIgnore
-    public abstract BigDecimal getAnnualCashFlow(int year);
-
 }

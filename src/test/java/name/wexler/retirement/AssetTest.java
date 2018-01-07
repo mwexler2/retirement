@@ -57,13 +57,13 @@ public class AssetTest {
     @Test
     public void toJSON() throws Exception {
         String asset1Str = context.toJSON(asset);
-        assertEquals("{\"type\":\"real-property\",\"id\":\"real-property1\",\"owner\":\"owner1\",\"initialBalance\":{\"balanceDate\":\"2010-04-15\",\"value\":100000.0},\"address\":[\"123 Main Street\"],\"city\":\"Anytown\",\"county\":\"Count County\",\"state\":\"AS\",\"zipCode\":\"01234\",\"country\":\"US\"}", asset1Str);
+        assertEquals("{\"type\":\"real-property\",\"id\":\"real-property1\",\"owners\":[\"owner1\"],\"initialBalance\":{\"balanceDate\":\"2010-04-15\",\"value\":100000.0},\"address\":[\"123 Main Street\"],\"city\":\"Anytown\",\"county\":\"Count County\",\"state\":\"AS\",\"zipCode\":\"01234\",\"country\":\"US\"}", asset1Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String asset1aStr = "{\"type\":\"real-property\",\"id\":\"real-property1a\",\"owner\":\"owner1\",\"initialBalance\":{\"balanceDate\":\"2014-04-15\",\"value\":100000.0},\"interimBalances\":[],\"address\":[\"123 Main Street\"],\"city\":\"Anytown\",\"county\":\"Count County\",\"state\":\"AS\",\"zipCode\":\"01234\",\"country\":\"US\"}";
+        String asset1aStr = "{\"type\":\"real-property\",\"id\":\"real-property1a\",\"owners\":[\"owner1\"],\"initialBalance\":{\"balanceDate\":\"2014-04-15\",\"value\":100000.0},\"interimBalances\":[],\"address\":[\"123 Main Street\"],\"city\":\"Anytown\",\"county\":\"Count County\",\"state\":\"AS\",\"zipCode\":\"01234\",\"country\":\"US\"}";
         Asset asset1a = context.fromJSON(Asset.class, asset1aStr);
         assertEquals("real-property1a", asset1a.getId());
     }

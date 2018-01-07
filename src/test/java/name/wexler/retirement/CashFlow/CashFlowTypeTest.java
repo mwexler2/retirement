@@ -21,6 +21,7 @@ public class CashFlowTypeTest {
     private Biweekly biweekly;
     private Monthly monthly;
     private SemiMonthly semiMonthly;
+    private Quarterly quarterly;
     private Context context;
 
     @Before
@@ -48,6 +49,14 @@ public class CashFlowTypeTest {
                 monthlyAccrueStart,
                 monthlyAccrueEnd,
                 monthlyFirstPayment);
+
+        LocalDate quarterlyAccrueStart = LocalDate.of(1999, Month.APRIL, 2);
+        LocalDate quarterlyAccrueEnd = LocalDate.of(2019, Month.APRIL, 3);
+        LocalDate quarterlyFirstPayment = LocalDate.of(1999, Month.MAY, 5);
+        quarterly = new Quarterly(context, "quarterly1",
+                quarterlyAccrueStart,
+                quarterlyAccrueEnd,
+                quarterlyFirstPayment);
 
         LocalDate semimonthlyAccrueStart = LocalDate.of(2016, Month.FEBRUARY, 14);
         LocalDate semimonthlyAccrueEnd = LocalDate.of(2018, Month.FEBRUARY, 14);
@@ -82,22 +91,9 @@ public class CashFlowTypeTest {
         assertEquals(LocalDate.of(1999, Month.APRIL, 2), monthly.getAccrueStart());
         assertEquals(LocalDate.of(2016, Month.FEBRUARY, 14), semiMonthly.getAccrueStart());
         assertEquals(LocalDate.of(2014, Month.AUGUST, 17), annual.getAccrueStart());
+        assertEquals(LocalDate.of(1999, Month.APRIL, 2), quarterly.getAccrueStart());
     }
 
-    @Test()
-    public void getMonthlyCashFlow()  {
-        BigDecimal result = biweekly.getMonthlyCashFlow(YearMonth.of(2015, Month.JANUARY), BigDecimal.valueOf(50000.00));
-  //      assertEquals(BigDecimal.valueOf(1923.08), result);
-
-        result = annual.getMonthlyCashFlow(YearMonth.of(2015, Month.JANUARY), BigDecimal.valueOf(50000.00));
-        assertEquals(BigDecimal.ZERO, result);
-
-        result = semiMonthly.getMonthlyCashFlow(YearMonth.of(2015, Month.JANUARY), BigDecimal.valueOf(50000.00));
-        assertEquals(BigDecimal.ZERO, result);
-
-        result = monthly.getMonthlyCashFlow(YearMonth.of(2015, Month.JUNE), BigDecimal.valueOf(3523.00));
-        assertEquals(BigDecimal.valueOf(293.58), result);
-    }
 
     @Test()
     public void getFlowInstances()  {
@@ -135,27 +131,32 @@ public class CashFlowTypeTest {
         assertEquals(LocalDate.of(2015, Month.MARCH, 15), annualCashFlows.get(0).getCashFlowDate());
         assertEquals(annualAmount, annualCashFlows.get(1).getAmount());
         assertEquals(LocalDate.of(2016, Month.MARCH, 15), annualCashFlows.get(1).getCashFlowDate());
+
+        List<CashFlowInstance> quarterlyCashFlows = annual.getCashFlowInstances(annualAmount);
+        assertEquals(2, annualCashFlows.size());
+        assertEquals(annualAmount, annualCashFlows.get(0).getAmount());
+        assertEquals(LocalDate.of(2015, Month.MARCH, 15), annualCashFlows.get(0).getCashFlowDate());
+        assertEquals(annualAmount, annualCashFlows.get(1).getAmount());
+        assertEquals(LocalDate.of(2016, Month.MARCH, 15), annualCashFlows.get(1).getCashFlowDate());
     }
 
-    @Test
-    public void getAnnualCashFlow() {
-        BigDecimal result = annual.getAnnualCashFlow(2015, BigDecimal.valueOf(34334.22));
-        assertEquals(BigDecimal.valueOf(34334.22), result);
-
-        result = semiMonthly.getAnnualCashFlow(BigDecimal.valueOf(17000.00));
-        assertTrue("result of annual cashflow doesn't match", BigDecimal.valueOf(17000.04).compareTo(result) == 0);
-    }
 
     @Test
     public void getAccrueEnd() {
         LocalDate result = biweekly.getAccrueEnd();
         assertEquals(LocalDate.of(2016, Month.JANUARY, 2), result);
+
+        result = quarterly.getAccrueEnd();
+        assertEquals("quarterly getAccrueEnd failed", LocalDate.of(2019, Month.APRIL, 3), result);
     }
 
     @Test
     public void getFirstPaymentDate() {
         LocalDate result = monthly.getFirstPaymentDate();
         assertEquals(LocalDate.of(1999, Month.MAY, 5), result);
+
+         result = quarterly.getFirstPaymentDate();
+        assertEquals("quartly first payment date", LocalDate.of(1999, Month.MAY, 5), result);
     }
 
     @Test
@@ -201,6 +202,10 @@ public class CashFlowTypeTest {
         String semiMonthlyStr = context.toJSON(semiMonthly);
         assertEquals("{\"type\":\"semimonthly\",\"id\":\"semiMonthly1\",\"accrueStart\":\"2016-02-14\",\"accrueEnd\":\"2018-02-14\",\"firstPaymentDate\":\"2016-02-19\",\"firstDayOfMonth\":7,\"secondDayOfMonth\":19}",
                 semiMonthlyStr);
+
+        String quarterlyStr = context.toJSON(quarterly);
+        assertEquals("{\"type\":\"quarterly\",\"id\":\"quarterly1\",\"accrueStart\":\"1999-04-02\",\"accrueEnd\":\"2019-04-03\",\"firstPaymentDate\":\"1999-05-05\"}",
+                quarterlyStr);
     }
 
 
@@ -208,6 +213,7 @@ public class CashFlowTypeTest {
     public void fromJSON() throws Exception {
 
         String annualStr = "{\"type\":\"annual\",\"id\":\"annual1a\",\"firstPaymentDate\":\"2015-07-04\",\"accrueStart\":\"2014-04-15\",\"accrueEnd\":\"2015-10-31\"}";
+        String quarterlyStr = "{\"type\":\"quarterly\",\"id\":\"quarterly\",\"firstPaymentDate\":\"2015-07-04\",\"accrueStart\":\"2014-04-15\",\"accrueEnd\":\"2015-10-31\"}";
         String biweeklyStr = "{\"type\":\"biweekly\",\"id\":\"biweekly1a\",\"firstPeriodStart\":\"2014-12-20\",\"firstPaymentDate\":\"2014-12-26\",\"accrueStart\":\"2014-12-23\",\"accrueEnd\":\"2016-01-02\"}";
         String monthlyStr = "{\"type\":\"monthly\",\"id\":\"monthly1a\",\"firstPaymentDate\":\"1999-04-07\",\"accrueStart\":\"1999-04-02\",\"accrueEnd\":\"2019-04-03\"}";
         String semiMonthlyStr = "{\"type\":\"semimonthly\",\"id\":\"semiMonthly1a\",\"firstPaymentDate\":\"2016-02-19\",\"accrueStart\":\"2016-02-14\",\"accrueEnd\":\"2018-02-14\",\"firstDayOfMonth\":7,\"secondDayOfMonth\":19}";

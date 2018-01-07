@@ -53,23 +53,6 @@ public class BonusAnnualPct extends Bonus {
         this.bonusPct = bonusPCT;
     }
 
-    public BigDecimal getAnnualCashFlow(int year) {
-        BigDecimal annualBonusAmount = BigDecimal.ZERO;
-        BigDecimal annualSalary = salary.getAnnualCashFlow();
-        BigDecimal normalBonusAmount = annualSalary.multiply(bonusPct);
-        for (Month month : Month.values()) {
-            YearMonth yearMonth =  YearMonth.of(year, month);
-            annualBonusAmount = annualBonusAmount.add(this.getMonthlyCashFlow(yearMonth, normalBonusAmount));
-        }
-        return annualBonusAmount;
-    }
-
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth, BigDecimal annualAmount) {
-        BigDecimal bonusAmount = getCashFlow().getMonthlyCashFlow(yearMonth, annualAmount);
-
-        return bonusAmount;
-    }
-
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {

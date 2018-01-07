@@ -45,10 +45,6 @@ public abstract class Bonus extends IncomeSource {
         this.setJobId(context, jobId);
     }
 
-    @JsonIgnore
-    public BigDecimal getAnnualCashFlow() {
-        return getAnnualCashFlow(LocalDate.now().getYear());
-    }
 
     @JsonIgnore
     public String getName() {
