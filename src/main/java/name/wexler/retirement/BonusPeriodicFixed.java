@@ -54,7 +54,8 @@ public class BonusPeriodicFixed extends Bonus {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
-        return getCashFlow().getCashFlowInstances(annualAmount.divide(getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
+        return getCashFlow().getCashFlowInstances((accrualStart, accrualEnd) ->
+                annualAmount.divide(getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
     }
 
     public BigDecimal getAnnualAmount() {

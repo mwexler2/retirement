@@ -79,7 +79,7 @@ public class Biweekly extends CashFlowType {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount) {
+    public List<CashFlowInstance> getCashFlowInstances(SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         int paymentOffset = getFirstPeriodStart().until(getFirstPaymentDate()).getDays();
@@ -92,6 +92,7 @@ public class Biweekly extends CashFlowType {
             if (thisAccrualEnd.isAfter(getAccrueEnd()))
                 thisAccrualEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisPeriodStart.plusDays(paymentOffset);
+            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(thisAccrualStart, thisAccrualEnd);
             result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
         }
 

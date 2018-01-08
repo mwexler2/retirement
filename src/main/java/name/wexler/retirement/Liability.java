@@ -107,7 +107,7 @@ public class Liability extends ExpenseSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
-        return getCashFlow().getCashFlowInstances(paymentAmount);
+        return getCashFlow().getCashFlowInstances((accrualStart, accrualEnd) -> paymentAmount);
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {

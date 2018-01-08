@@ -91,7 +91,8 @@ public class Salary extends IncomeSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
-        return getCashFlow().getCashFlowInstances(baseAnnualSalary.divide(this.getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
+        return getCashFlow().getCashFlowInstances((accrualStart, accrualEnd) ->
+                baseAnnualSalary.divide(this.getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
     }
 
     @Override

@@ -49,6 +49,10 @@ import java.util.List;
         @JsonSubTypes.Type(value = Quarterly.class, name = "quarterly")
 })
 public abstract class   CashFlowType {
+    public interface SingleCashFlowGenerator {
+        public BigDecimal getSingleCashFlowAmount(LocalDate startAccrual, LocalDate endAccrual);
+    }
+
     private final String id;
 
     @JsonDeserialize(using=JSONDateDeserialize.class)
@@ -97,7 +101,7 @@ public abstract class   CashFlowType {
         return firstPaymentDate;
     }
 
-    abstract public List<CashFlowInstance> getCashFlowInstances(BigDecimal singleFlowAmount);
+    abstract public List<CashFlowInstance> getCashFlowInstances(SingleCashFlowGenerator generator);
 
     abstract public BigDecimal getPeriodsPerYear();
 }

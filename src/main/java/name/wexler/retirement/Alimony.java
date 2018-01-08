@@ -91,8 +91,8 @@ public class Alimony extends ExpenseSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
-        List<CashFlowInstance> baseCashFlows = baseCashFlow.getCashFlowInstances(baseAlimony);
-        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(BigDecimal.ZERO);
+        List<CashFlowInstance> baseCashFlows = baseCashFlow.getCashFlowInstances((accrualStart, accrualEnd) -> baseAlimony);
+        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances((accrualStart, accrualEnd) -> BigDecimal.ZERO);
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
         allAlimonyCashFlows.addAll(smithOstlerCashFlows);
