@@ -44,7 +44,6 @@ public class Salary extends IncomeSource {
     @JsonIgnore
     private Job job;
     private BigDecimal baseAnnualSalary;
-    private static final BigDecimal monthsPerYear = new BigDecimal(12);
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
@@ -52,46 +51,6 @@ public class Salary extends IncomeSource {
                   @JsonProperty("cashFlow") String cashFlowId) throws Exception {
         super(context, id, cashFlowId);
         this.setJobId(context, jobId);
-    }
-
-
-    private BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {
-        BigDecimal monthlySalary = BigDecimal.ZERO;
-        LocalDate startDate = job.getStartDate();
-        LocalDate endDate = job.getEndDate();
-
-        YearMonth startYearMonth = YearMonth.of(startDate.getYear(), startDate.getMonth());
-        YearMonth endYearMonth = YearMonth.of(endDate.getYear(), endDate.getMonth());
-        if (yearMonth.isBefore(startYearMonth) || yearMonth.isAfter(endYearMonth)) {
-            monthlySalary = new BigDecimal(0.0);
-        } else if (yearMonth.isAfter(startYearMonth) && yearMonth.isBefore(endYearMonth)) {
-            monthlySalary = baseAnnualSalary.divide(monthsPerYear, RoundingMode.HALF_UP);
-        } else {
-            LocalDate firstDateInMonth = yearMonth.atDay(1);
-            LocalDate lastDateInMonth = yearMonth.atEndOfMonth();
-            if (yearMonth == startYearMonth) {
-                firstDateInMonth = yearMonth.atDay(startDate.getDayOfMonth());
-            } else if (yearMonth == endYearMonth) {
-                lastDateInMonth = yearMonth.atDay(endDate.getDayOfMonth());
-            }
-            BigDecimal days = new BigDecimal(firstDateInMonth.until(lastDateInMonth).getDays());
-            monthlySalary = baseAnnualSalary.multiply(days).divide(new BigDecimal(startDate.lengthOfYear()), RoundingMode.HALF_UP);
-        }
-        return monthlySalary;
-    }
-
-    public BigDecimal getAnnualCashFlow(int year) {
-        BigDecimal annualSalaryAmount = BigDecimal.ZERO;
-        for (Month month : Month.values()) {
-            YearMonth yearMonth = YearMonth.of(year, month);
-            annualSalaryAmount = annualSalaryAmount.add(this.getMonthlyCashFlow(yearMonth));
-        }
-        return annualSalaryAmount;
-    }
-
-    @JsonIgnore
-    public BigDecimal getAnnualCashFlow() {
-        return getAnnualCashFlow(LocalDate.now().getYear());
     }
 
     @JsonIgnore
@@ -132,7 +91,7 @@ public class Salary extends IncomeSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances() {
-        return getCashFlow().getCashFlowInstances(baseAnnualSalary);
+        return getCashFlow().getCashFlowInstances(baseAnnualSalary.divide(this.getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
     }
 
     @Override

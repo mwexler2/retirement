@@ -132,15 +132,15 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getAnnualIncome() {
-        assertEquals(BigDecimal.valueOf(11115.45), calendar.getAnnualIncome("bonusPeriodicFixed1", 2015));
-        assertEquals(BigDecimal.valueOf(66666.64), calendar.getAnnualIncome("salary1",             2015));
+        assertEquals(BigDecimal.valueOf(11115.45).setScale(2), calendar.getAnnualIncome("bonusPeriodicFixed1", 2015));
+        assertEquals(BigDecimal.valueOf(66666.64).setScale(2), calendar.getAnnualIncome("salary1",             2015));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bonusAnnualPct1",     2012));
-        assertEquals(BigDecimal.valueOf(17000.10),calendar.getAnnualIncome("bonusPeriodicFixed1", 2016));
+        assertEquals(BigDecimal.valueOf(17000.10).setScale(2),calendar.getAnnualIncome("bonusPeriodicFixed1", 2016));
         assertEquals(BigDecimal.valueOf(99999.96), calendar.getAnnualIncome("salary1",             2016));
-        assertEquals(BigDecimal.valueOf(1000000.00), calendar.getAnnualIncome("bonusAnnualPct1",     2016));
-        assertEquals(BigDecimal.valueOf(3923.10),calendar.getAnnualIncome("bonusPeriodicFixed1", 201));
+        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualIncome("bonusAnnualPct1",     2016));
+        assertEquals(BigDecimal.valueOf(3923.10).setScale(2),calendar.getAnnualIncome("bonusPeriodicFixed1", 2017));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("salary1",             2017));
-        assertEquals(BigDecimal.valueOf(1000000.00), calendar.getAnnualIncome("bonusAnnualPct1",     2017));
+        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualIncome("bonusAnnualPct1",     2017));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("salary1",             1999));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bad-salary",          2016));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bad-salary",          1999));
