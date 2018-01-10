@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 
@@ -58,7 +59,7 @@ public abstract class ExpenseSource {
         context.put(ExpenseSource.class, id, this);
     }
 
-    public abstract List<CashFlowInstance> getCashFlowInstances();
+    public abstract List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar);
 
     @JsonIgnore
     abstract public String getName();

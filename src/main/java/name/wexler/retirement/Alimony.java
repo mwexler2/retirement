@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 
@@ -90,9 +91,11 @@ public class Alimony extends ExpenseSource {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances() {
-        List<CashFlowInstance> baseCashFlows = baseCashFlow.getCashFlowInstances((accrualStart, accrualEnd) -> baseAlimony);
-        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances((accrualStart, accrualEnd) -> BigDecimal.ZERO);
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+        List<CashFlowInstance> baseCashFlows = baseCashFlow.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) -> baseAlimony);
+        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) -> BigDecimal.ZERO);
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
         allAlimonyCashFlows.addAll(smithOstlerCashFlows);

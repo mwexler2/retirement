@@ -85,7 +85,7 @@ public class Annual extends CashFlowType {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         int accrualStartYear = getAccrueStart().getYear();
@@ -101,7 +101,7 @@ public class Annual extends CashFlowType {
                 thisAccrualEnd = LocalDate.of(thisYear, Month.DECEMBER, 31);
 
             LocalDate cashFlowDate = LocalDate.of(thisYear + paymentYearOffset, getFirstPaymentDate().getMonth(), getFirstPaymentDate().getDayOfMonth());
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(thisAccrualStart, thisAccrualEnd);
+            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrualStart, thisAccrualEnd);
             result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
         }
 

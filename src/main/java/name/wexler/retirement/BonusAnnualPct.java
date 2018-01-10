@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
@@ -55,9 +56,10 @@ public class BonusAnnualPct extends Bonus {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances() {
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         BigDecimal annualAmount = salary.getBaseAnnualSalary().multiply(bonusPct);
-        return getCashFlow().getCashFlowInstances((accrualStart, accrualEnd) -> annualAmount);
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) -> annualAmount);
     }
 
     @JsonProperty(value = "salary")

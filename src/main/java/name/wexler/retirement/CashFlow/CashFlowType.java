@@ -50,7 +50,7 @@ import java.util.List;
 })
 public abstract class   CashFlowType {
     public interface SingleCashFlowGenerator {
-        public BigDecimal getSingleCashFlowAmount(LocalDate startAccrual, LocalDate endAccrual);
+        public BigDecimal getSingleCashFlowAmount(CashFlowCalendar calendar, LocalDate startAccrual, LocalDate endAccrual);
     }
 
     private final String id;
@@ -101,7 +101,7 @@ public abstract class   CashFlowType {
         return firstPaymentDate;
     }
 
-    abstract public List<CashFlowInstance> getCashFlowInstances(SingleCashFlowGenerator generator);
+    abstract public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator);
 
     abstract public BigDecimal getPeriodsPerYear();
 }

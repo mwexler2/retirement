@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
@@ -90,8 +91,8 @@ public class Salary extends IncomeSource {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances() {
-        return getCashFlow().getCashFlowInstances((accrualStart, accrualEnd) ->
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) ->
                 baseAnnualSalary.divide(this.getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
     }
 

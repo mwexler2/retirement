@@ -211,7 +211,7 @@ public class CashFlowCalendar {
         incomeCashFlowInstances = new ArrayList<>();
         incomeCashFlowYears = new HashMap<>();
         _incomeSources.values().forEach(incomeSource -> {
-            List<CashFlowInstance> cashFlowInstances = incomeSource.getCashFlowInstances();
+            List<CashFlowInstance> cashFlowInstances = incomeSource.getCashFlowInstances(this);
             indexCashFlowInstances(cashFlowInstances, incomeSource.getId(), incomeCashFlowInstances, incomeCashFlowYears);
         });
     }
@@ -249,7 +249,7 @@ public class CashFlowCalendar {
         expenseCashFlowInstances = new ArrayList<>();
         expenseCashFlowYears = new HashMap<>();
         _expenseSources.values().forEach(expenseSource -> {
-            List<CashFlowInstance> cashFlowInstances = expenseSource.getCashFlowInstances();
+            List<CashFlowInstance> cashFlowInstances = expenseSource.getCashFlowInstances(this);
             indexCashFlowInstances(cashFlowInstances, expenseSource.getId(), expenseCashFlowInstances, expenseCashFlowYears);
         });
     }

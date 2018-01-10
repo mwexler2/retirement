@@ -1,5 +1,6 @@
 package name.wexler.retirement.CashFlow;
 
+import name.wexler.retirement.Assumptions;
 import name.wexler.retirement.CashFlow.*;
 import name.wexler.retirement.Context;
 import org.junit.After;
@@ -97,9 +98,12 @@ public class CashFlowTypeTest {
 
     @Test()
     public void getFlowInstances()  {
+        Assumptions assumptions = new Assumptions();
+        CashFlowCalendar cashFlowCalendar = new CashFlowCalendar(assumptions);
         BigDecimal annualAmount = BigDecimal.valueOf(1000.00);
 
-        List<CashFlowInstance> biweeklyCashFlows = biweekly.getCashFlowInstances((accrualStart, accrualEnd) ->
+        List<CashFlowInstance> biweeklyCashFlows = biweekly.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) ->
                 annualAmount.divide(biweekly.getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
         assertEquals(LocalDate.of(2015, Month.JANUARY, 9), biweeklyCashFlows.get(0).getCashFlowDate());
         assertEquals(LocalDate.of(2016, Month.JANUARY, 8), biweeklyCashFlows.get(biweeklyCashFlows.size() - 1).getCashFlowDate());
@@ -108,7 +112,8 @@ public class CashFlowTypeTest {
         assertEquals(27, biweeklyCashFlows.size());
 
 
-        List<CashFlowInstance> monthlyCashFlows = monthly.getCashFlowInstances((accrualStart, accrualEnd) ->
+        List<CashFlowInstance> monthlyCashFlows = monthly.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) ->
                 annualAmount.divide(monthly.getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
         assertEquals(LocalDate.of(1999, Month.MAY, 5), monthlyCashFlows.get(0).getCashFlowDate());
         assertEquals(LocalDate.of(2019, Month.MAY, 5), monthlyCashFlows.get(monthlyCashFlows.size() - 1).getCashFlowDate());
@@ -116,8 +121,8 @@ public class CashFlowTypeTest {
         assertEquals(BigDecimal.valueOf(83.33), monthlyCashFlows.get(monthlyCashFlows.size() - 1).getAmount());
         assertEquals(241, monthlyCashFlows.size());
 
-        List<CashFlowInstance> semiMonthlyCashFlows = semiMonthly.getCashFlowInstances(
-                (accrualStart, accrualEnd) -> annualAmount.divide(semiMonthly.getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
+        List<CashFlowInstance> semiMonthlyCashFlows = semiMonthly.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) -> annualAmount.divide(semiMonthly.getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
         assertEquals(LocalDate.of(2016, Month.FEBRUARY, 19), semiMonthlyCashFlows.get(0).getCashFlowDate());
         assertEquals(LocalDate.of(2016, Month.MARCH, 7), semiMonthlyCashFlows.get(1).getCashFlowDate());
         assertEquals(LocalDate.of(2018, Month.FEBRUARY, 19), semiMonthlyCashFlows.get(semiMonthlyCashFlows.size() - 1).getCashFlowDate());
@@ -128,14 +133,16 @@ public class CashFlowTypeTest {
         System.out.println(semiMonthlyCashFlows);
         System.out.println("");
 
-        List<CashFlowInstance> annualCashFlows = annual.getCashFlowInstances((accrualStart, accrualEnd) -> annualAmount);
+        List<CashFlowInstance> annualCashFlows = annual.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) -> annualAmount);
         assertEquals(2, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());
         assertEquals(LocalDate.of(2015, Month.MARCH, 15), annualCashFlows.get(0).getCashFlowDate());
         assertEquals(annualAmount, annualCashFlows.get(1).getAmount());
         assertEquals(LocalDate.of(2016, Month.MARCH, 15), annualCashFlows.get(1).getCashFlowDate());
 
-        List<CashFlowInstance> quarterlyCashFlows = annual.getCashFlowInstances((accrualStart, accrualEnd) ->
+        List<CashFlowInstance> quarterlyCashFlows = annual.getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd) ->
                 annualAmount.divide(quarterly.getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
         assertEquals(2, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());

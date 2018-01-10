@@ -72,7 +72,7 @@ public class SemiMonthly extends Monthly {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
         YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
         YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
@@ -86,11 +86,11 @@ public class SemiMonthly extends Monthly {
             if (thisAccrueEnd.isAfter(getAccrueEnd()))
                 thisAccrueEnd = getAccrueEnd();
             LocalDate firstCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(firstDayOfMonth);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(thisAccrueStart, thisAccrueEnd);
+            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd);
             if (!firstCashFlowDate.isBefore(getFirstPaymentDate()))
                 result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, firstCashFlowDate, singleFlowAmount));
             LocalDate secondCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(secondDayOfMonth);
-            singleFlowAmount = generator.getSingleCashFlowAmount(thisAccrueEnd, secondCashFlowDate);
+            singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueEnd, secondCashFlowDate);
             result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, secondCashFlowDate, singleFlowAmount));
         }
 

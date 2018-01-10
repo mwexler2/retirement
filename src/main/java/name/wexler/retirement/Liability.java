@@ -26,6 +26,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowType;
 import name.wexler.retirement.CashFlow.Balance;
@@ -106,8 +107,8 @@ public class Liability extends ExpenseSource {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances() {
-        return getCashFlow().getCashFlowInstances((accrualStart, accrualEnd) -> paymentAmount);
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) -> paymentAmount);
     }
 
     public BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {
