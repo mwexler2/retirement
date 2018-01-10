@@ -104,7 +104,7 @@
             <th>Income</th>
             <td colspan="${scenario.numYears}">&nbsp;</td>
         </tr>
-        <c:forEach var="incomeSourceId" items="${scenario.incomeSourceIds}">
+        <c:forEach var="incomeSourceId" items="${scenario.cashFlowSourceIds}">
             <tr>
                 <th>${scenario.getIncomeSourceName(incomeSourceId)}</th>
                 <c:forEach var="year" items="${scenario.years}">

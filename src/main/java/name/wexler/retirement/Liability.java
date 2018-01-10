@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Balance;
 
 import java.math.BigDecimal;
@@ -42,9 +42,7 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
-public class Liability extends ExpenseSource {
-    @JsonIgnore
-    private CashFlowType source;
+public class Liability extends CashFlowSource {
     @JsonIgnore
     private Entity lender;
     @JsonIgnore
@@ -77,12 +75,11 @@ public class Liability extends ExpenseSource {
                 @JsonProperty("startingBalance") BigDecimal startingBalance,
                 @JsonProperty("paymentAmount") BigDecimal paymentAmount,
                 @JsonProperty("source") String sourceId) throws Exception {
-        super(context, id);
+        super(context, id, sourceId);
         this._startingBalance = new Balance(startDate, startingBalance);
         this.security = security;
         this.setLenderId(context, lenderId);
         this.setBorrowersIds(context, borrowersIds);
-        this.setSourceId(context, sourceId);
         this.startDate = startDate;
         this.endDate = endDate;
         this.term = term;
@@ -91,34 +88,12 @@ public class Liability extends ExpenseSource {
         context.put(Liability.class, id, this);
     }
 
-    public void setCashFlow(CashFlowType source) {
-        this.source = source;
-    }
-
-    @JsonIgnore
-    CashFlowType getCashFlow() {
-        return source;
-    }
-
-    @JsonProperty("cashFlow")
-    public String getGetFlowId() {
-        return source.getId();
-    }
 
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) -> paymentAmount);
     }
-
-    public BigDecimal getMonthlyCashFlow(YearMonth yearMonth) {
-        return paymentAmount.negate();
-    }
-
-    public BigDecimal getAnnualCashFlow(int year) {
-        return paymentAmount.negate().multiply(monthsPerYear);
-    }
-
 
     @JsonIgnore
     @Override
@@ -148,10 +123,6 @@ public class Liability extends ExpenseSource {
         return this.getCashFlow().getId();
     }
 
-    private void setSourceId(@JacksonInject("context") Context context,
-                             @JsonProperty(value = "source", required = true) String sourceId) {
-        this.setCashFlow(context.getById(CashFlowType.class, sourceId));
-    }
 
     @JsonProperty(value = "security")
     public String getSecurityId() {

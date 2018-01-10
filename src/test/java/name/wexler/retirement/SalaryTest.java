@@ -55,7 +55,7 @@ public class SalaryTest {
     @Test
     public void fromJSON() throws Exception {
         String incomeSource1aStr = "{\"type\":\"salary\",\"id\":\"salary1a\",\"cashFlow\":\"job1CashFlow1\",\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        IncomeSource incomeSource1a = context.fromJSON(IncomeSource.class, incomeSource1aStr);
+        CashFlowSource incomeSource1a = context.fromJSON(CashFlowSource.class, incomeSource1aStr);
         assertEquals("salary1a", incomeSource1a.getId());
     }
 

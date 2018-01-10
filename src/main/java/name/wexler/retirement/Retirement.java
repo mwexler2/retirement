@@ -42,11 +42,10 @@ public class Retirement {
     private Job[] jobs;
     private Entity[] companies;
     private Entity[] people;
-    private IncomeSource[] incomeSources;
+    private CashFlowSource[] cashFlowSources;
     private Asset[] assets;
-    private ExpenseSource[] expenseSources;
     private Assumptions assumptions;
-    private CashFlowType[] cashFlows;
+    private CashFlowFrequency[] cashFlows;
 
     public NumberFormat getCf() {
         return cf;
@@ -80,17 +79,15 @@ public class Retirement {
             this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
 
             String cashFlowsPath = resourceDir + "/cashFlows.json";
-            this.cashFlows = context.fromJSONFileArray(CashFlowType[].class, cashFlowsPath);
+            this.cashFlows = context.fromJSONFileArray(CashFlowFrequency[].class, cashFlowsPath);
 
-            String incomeSourcesPath = resourceDir + "/incomeSources.json";
-            this.incomeSources = context.fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);
+            String cashFlowSourcesPath = resourceDir + "/cashFlowSources.json";
+            this.cashFlowSources = context.fromJSONFileArray(CashFlowSource[].class, cashFlowSourcesPath);
 
             String assetsPath = resourceDir + "/assets.json";
             File assetssFile = new File(assetsPath);
             this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
 
-            String expenseSourcesPath = resourceDir + "/expenseSources.json";
-            this.expenseSources = context.fromJSONFileArray(ExpenseSource[].class, expenseSourcesPath);
 
             String assumptionsPath = resourceDir + "/assumptions.json";
             File assumptionsFile = new File(assumptionsPath);

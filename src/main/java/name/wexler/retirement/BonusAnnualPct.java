@@ -28,8 +28,6 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
-import java.time.Month;
-import java.time.YearMonth;
 import java.util.List;
 
 /**
@@ -69,7 +67,7 @@ public class BonusAnnualPct extends Bonus {
 
     private void setSalaryId(@JacksonInject("context") Context context,
                              @JsonProperty(value = "salary", required = true) String salaryId) {
-        this.salary = context.getById(IncomeSource.class, salaryId);
+        this.salary = context.getById(CashFlowSource.class, salaryId);
     }
 
     public BigDecimal getBonusPct() {

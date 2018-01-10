@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Monthly extends CashFlowType {
+public class Monthly extends CashFlowFrequency {
 
     @JsonIgnore
     final

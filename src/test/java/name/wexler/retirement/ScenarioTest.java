@@ -61,14 +61,12 @@ public class ScenarioTest {
                 BigDecimal.valueOf(200.00), liability1Monthly.getId());
         liability1.setPaymentAmount(BigDecimal.valueOf(273.99));
 
-        liability1.setCashFlow(liability1Monthly);
-        String[] is = {"salary1"};
-        String[] es = {"liability1"};
+        String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};
         Assumptions assumptions = new Assumptions();
-        scenario1 = new Scenario(context, "scenario1", is, es, assets, liabilities, assumptions);
-        scenario2 = new Scenario(context, "scenario2", is, es, assets, liabilities, assumptions);
+        scenario1 = new Scenario(context, "scenario1", is, assets, liabilities, assumptions);
+        scenario2 = new Scenario(context, "scenario2", is, assets, liabilities, assumptions);
     }
 
     @After
@@ -96,10 +94,10 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario1\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
+        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario1\",\"incomeSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
 
         String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario2\",\"incomeSources\":[\"salary1\"],\"expenseSources\":[\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
+        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario2\",\"incomeSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
     }
 
 

@@ -22,16 +22,14 @@ import static org.junit.Assert.*;
 public class CashFlowCalendarTest {
     private Context context;
     private CashFlowCalendar calendar;
-    private List<IncomeSource> incomeSources;
-    private List<ExpenseSource> expenseSources;
+    private List<CashFlowSource> cashFlowSources;
 
     @Before
     public void setUp() throws Exception {
         context = new Context();
         Assumptions assumptions = new Assumptions();
         calendar = new CashFlowCalendar(assumptions);
-        incomeSources = new ArrayList<>();
-        expenseSources = new ArrayList<>();
+        cashFlowSources = new ArrayList<>();
 
         Company employer = new Company(context, "employer1");
         employer.setCompanyName("Employment Co");
@@ -44,22 +42,21 @@ public class CashFlowCalendarTest {
         Monthly monthly = new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
         Salary salary = new Salary(context, "salary1", "job1", monthly.getId());
         salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
-        incomeSources.add(salary);
+        cashFlowSources.add(salary);
 
         LocalDate job1FirstBonus = LocalDate.of(2016, Month.JUNE, 6);
         Annual annual = new Annual(context, "job1BonusSource1",
                 job1.getStartDate(), job1.getEndDate(), job1FirstBonus);
         BonusAnnualPct bonusAnnualPct = new BonusAnnualPct(context,  "bonusAnnualPct1", "job1", "salary1", BigDecimal.valueOf(10.0),
                 annual.getId());
-        incomeSources.add(bonusAnnualPct);
+        cashFlowSources.add(bonusAnnualPct);
 
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 25);
-        CashFlowType biweeklySource = new Biweekly(context, "biweekly1", job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
+        CashFlowFrequency biweeklySource = new Biweekly(context, "biweekly1", job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
                 LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck);
         BonusPeriodicFixed bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());
-        incomeSources.add(bonusPeriodicFixed);
-        calendar.addIncomeSources(incomeSources);
+        cashFlowSources.add(bonusPeriodicFixed);
 
         Company lender = new Company(context, "lender1");
         lender.setCompanyName("Lender's Bank");
@@ -75,14 +72,14 @@ public class CashFlowCalendarTest {
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowType monthlyPayment = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency monthlyPayment = new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate);
         Liability debt = new Liability(context, "debt1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2020, Month.APRIL, 27),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), monthlyPayment.getId());
-        expenseSources.add(debt);
-        calendar.addExpenseSources(expenseSources);
+        cashFlowSources.add(debt);
+        calendar.addCashFlowSources(cashFlowSources);
 
     }
 
@@ -93,13 +90,9 @@ public class CashFlowCalendarTest {
 
     @Test
     public void addIncomeSources() {
-        calendar.addIncomeSources(incomeSources);
+        calendar.addCashFlowSources(cashFlowSources);
     }
 
-    @Test
-    public void addExpenseSources() {
-        calendar.addExpenseSources(expenseSources);
-    }
 
     @Test
     public void getYears() {
@@ -111,9 +104,9 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getIncomeCashFlowIds() {
-        Map<String, String> result = calendar.getIncomeCashFlowNameAndIds();
+        Map<String, String> result = calendar.getCashFlowNameAndIds();
         System.out.println("cashFlowIds = " + result);
-        assertEquals(3, result.size());
+        assertEquals(4, result.size());
         assertThat(result.keySet(), hasItem("bonusPeriodicFixed1"));
         assertThat(result.keySet(), hasItem("salary1"));
         assertThat(result.keySet(), hasItem("bonusAnnualPct1"));
@@ -121,36 +114,28 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getAnnualExpense() {
-        assertEquals(BigDecimal.valueOf(4000.00), calendar.getAnnualExpense("debt1", 2011));
-        assertEquals(BigDecimal.valueOf(6000.00), calendar.getAnnualExpense("debt1", 2012));
-        assertEquals(BigDecimal.valueOf(6000.00), calendar.getAnnualExpense("debt1", 2030));
-        assertEquals(BigDecimal.valueOf(2000.00), calendar.getAnnualExpense("debt1", 2031));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualExpense("debt1", 1999));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualExpense("bad-debt", 2012));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualExpense("bad-debt", 1999));
+        assertEquals(BigDecimal.valueOf(4000.00), calendar.getAnnualCashFlow("debt1", 2011));
+        assertEquals(BigDecimal.valueOf(6000.00), calendar.getAnnualCashFlow("debt1", 2012));
+        assertEquals(BigDecimal.valueOf(6000.00), calendar.getAnnualCashFlow("debt1", 2030));
+        assertEquals(BigDecimal.valueOf(2000.00), calendar.getAnnualCashFlow("debt1", 2031));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("debt1", 1999));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bad-debt", 2012));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bad-debt", 1999));
     }
 
     @Test
     public void getAnnualIncome() {
-        assertEquals(BigDecimal.valueOf(11115.45).setScale(2), calendar.getAnnualIncome("bonusPeriodicFixed1", 2015));
-        assertEquals(BigDecimal.valueOf(66666.64).setScale(2), calendar.getAnnualIncome("salary1",             2015));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bonusAnnualPct1",     2012));
-        assertEquals(BigDecimal.valueOf(17000.10).setScale(2),calendar.getAnnualIncome("bonusPeriodicFixed1", 2016));
-        assertEquals(BigDecimal.valueOf(99999.96), calendar.getAnnualIncome("salary1",             2016));
-        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualIncome("bonusAnnualPct1",     2016));
-        assertEquals(BigDecimal.valueOf(3923.10).setScale(2),calendar.getAnnualIncome("bonusPeriodicFixed1", 2017));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("salary1",             2017));
-        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualIncome("bonusAnnualPct1",     2017));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("salary1",             1999));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bad-salary",          2016));
-        assertEquals(BigDecimal.ZERO, calendar.getAnnualIncome("bad-salary",          1999));
-    }
-
-    @Test
-    public void getExpenseCashFlowIds() {
-        Map<String, String> result = calendar.getExpenseCashFlowNameAndIds();
-        System.out.println("cashFlowIds = " + result);
-        assertEquals(1, result.size());
-        assertThat(result.keySet(), hasItem("debt1"));
+        assertEquals(BigDecimal.valueOf(11115.45).setScale(2), calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2015));
+        assertEquals(BigDecimal.valueOf(66666.64).setScale(2), calendar.getAnnualCashFlow("salary1",             2015));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bonusAnnualPct1",     2012));
+        assertEquals(BigDecimal.valueOf(17000.10).setScale(2),calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2016));
+        assertEquals(BigDecimal.valueOf(99999.96), calendar.getAnnualCashFlow("salary1",             2016));
+        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualCashFlow("bonusAnnualPct1",     2016));
+        assertEquals(BigDecimal.valueOf(3923.10).setScale(2),calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2017));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("salary1",             2017));
+        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualCashFlow("bonusAnnualPct1",     2017));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("salary1",             1999));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bad-salary",          2016));
+        assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bad-salary",          1999));
     }
 }

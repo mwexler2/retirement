@@ -2,7 +2,7 @@ package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.Annual;
 import name.wexler.retirement.CashFlow.Biweekly;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class BonusTest {
                 annual.getId());
 
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 25);
-        CashFlowType biweeklySource = new Biweekly(context, "biweekly1", job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
+        CashFlowFrequency biweeklySource = new Biweekly(context, "biweekly1", job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
                 LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck);
         bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());
@@ -90,12 +90,12 @@ public class BonusTest {
     public void fromJSON() throws Exception {
         String bonus1Str = "{\"type\":\"bonusAnnualPct\",\"id\":\"bonus1a\",\"source\":null,\"job\":\"job1\",\"salary\":\"is1\",\"bonusPct\":10.0,\"cashFlow\":\"job1BonusSource1\"}";
 
-        IncomeSource incomeSource2a = context.fromJSON(Bonus.class, bonus1Str);
+        CashFlowSource incomeSource2a = context.fromJSON(Bonus.class, bonus1Str);
         assertEquals("bonus1a", incomeSource2a.getId());
 
         String bonus2Str = "{\"type\":\"bonusPeriodicFixed\",\"id\":\"bonusPeriodicFixed1a\",\"job\":\"job1\",\"annualAmount\":17000.0,\"cashFlow\":\"biweekly1\"}}";
 
-        IncomeSource fixedBonus = context.fromJSON(Bonus.class, bonus2Str);
+        CashFlowSource fixedBonus = context.fromJSON(Bonus.class, bonus2Str);
         assertEquals("bonusPeriodicFixed1a", fixedBonus.getId());
     }
 

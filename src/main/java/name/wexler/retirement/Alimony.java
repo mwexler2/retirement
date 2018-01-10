@@ -29,11 +29,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +40,8 @@ import java.util.List;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
-public class Alimony extends ExpenseSource {
+@JsonPropertyOrder({ "type", "id", "startDate", "endDate", "payee", "payor", "cashFlow", "smithOstlerCashFlowType" })
+public class Alimony extends CashFlowSource {
     @JsonIgnore
     private Entity payee;
     @JsonIgnore
@@ -57,8 +56,8 @@ public class Alimony extends ExpenseSource {
     private BigDecimal baseAlimony;
     private BigDecimal smithOstlerRate;
     private BigDecimal maxAlimony;
-    private CashFlowType baseCashFlow;
-    private CashFlowType smithOstlerCashFlow;
+    private CashFlowFrequency baseCashFlow;
+    private CashFlowFrequency smithOstlerCashFlow;
     private final BigDecimal quartersPerYear = BigDecimal.valueOf(4);
 
     @JsonCreator
@@ -75,7 +74,7 @@ public class Alimony extends ExpenseSource {
                    @JsonProperty("baseCashFlow") String baseCashFlowId,
                    @JsonProperty("smithOstlerCashFlow") String smithOstlerCashFlowId
     ) throws Exception {
-        super(context, id);
+        super(context, id, baseCashFlowId);
         this.setPayeeId(context, payeeId);
         this.setPayorId(context, payorId);
         this.startDate = startDate;
@@ -84,7 +83,6 @@ public class Alimony extends ExpenseSource {
         this.baseAlimony = baseAlimony;
         this.smithOstlerRate = smithOstlerRate;
         this.maxAlimony = maxAlimony;
-        setBaseCashFlowId(context, baseCashFlowId);
         setSmithOstlerCashFlowId(context, smithOstlerCashFlowId);
         context.put(Alimony.class, id, this);
     }
@@ -111,15 +109,6 @@ public class Alimony extends ExpenseSource {
         return result;
     }
 
-    @JsonProperty(value = "baseCashFlowType")
-    public String getBaseCashFlowTypeId() {
-        return baseCashFlow.getId();
-    }
-
-    private void setBaseCashFlowId(@JacksonInject("context") Context context,
-                             @JsonProperty(value = "baseCashFlow", required = true) String baseCashFlowId) {
-        baseCashFlow = context.getById(CashFlowType.class, baseCashFlowId);
-    }
 
     @JsonProperty(value = "smithOstlerCashFlowType")
     public String getSmithOstlerCashFlowTypeId() {
@@ -128,7 +117,7 @@ public class Alimony extends ExpenseSource {
 
     private void setSmithOstlerCashFlowId(@JacksonInject("context") Context context,
                                      @JsonProperty(value = "smithOstlerCashFlow", required = true) String smithOstlerCashFlowId) {
-        smithOstlerCashFlow = context.getById(CashFlowType.class, smithOstlerCashFlowId);
+        smithOstlerCashFlow = context.getById(CashFlowFrequency.class, smithOstlerCashFlowId);
     }
 
 

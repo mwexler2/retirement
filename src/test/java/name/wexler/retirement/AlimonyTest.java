@@ -1,7 +1,6 @@
 package name.wexler.retirement;
 
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import name.wexler.retirement.CashFlow.Quarterly;
 import org.junit.After;
@@ -11,8 +10,6 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,9 +28,9 @@ public class AlimonyTest {
           LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowType monthly = new Monthly(context, "monthly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency monthly = new Monthly(context, "monthly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
         firstPaymentDate = LocalDate.of(2011, Month.JULY, 12);
-        CashFlowType quarterly = new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency quarterly = new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),
@@ -61,14 +58,14 @@ public class AlimonyTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(alimony);
-        assertEquals("{\"type\":\"alimony\",\"id\":\"alimony1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"baseCashFlowType\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"alimony\",\"id\":\"alimony1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}", expenseSource1Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-liability1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        ExpenseSource expenseSource1a = context.fromJSON(ExpenseSource.class, expenseSource1aStr);
+        String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-alimony1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
+        CashFlowSource expenseSource1a = context.fromJSON(CashFlowSource.class, expenseSource1aStr);
         assertEquals("liability1a", expenseSource1a.getId());
     }
 

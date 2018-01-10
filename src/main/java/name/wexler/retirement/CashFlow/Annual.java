@@ -32,14 +32,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.MonthDay;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Annual extends CashFlowType {
+public class Annual extends CashFlowFrequency {
     private MonthDay monthDay;
     private int firstYear;
     private int lastYear;

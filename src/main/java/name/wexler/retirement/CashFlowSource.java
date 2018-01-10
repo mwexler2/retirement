@@ -26,11 +26,8 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 
 /**
@@ -44,19 +41,21 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Salary.class, name = "salary"),
         @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct"),
-        @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed")})
-public abstract class IncomeSource {
+        @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed"),
+        @JsonSubTypes.Type(value = Liability.class, name = "liability"),
+        @JsonSubTypes.Type(value = Alimony.class, name = "alimony")})
+public abstract class CashFlowSource {
     private String id;
-    private CashFlowType cashFlow;
+    private CashFlowFrequency cashFlow;
 
-    public IncomeSource(@JsonProperty(value = "context", required = true) Context context,
-                        @JsonProperty("id") String id,
-                        @JsonProperty(value = "cashFlow", required = true) String cashFlowId) throws Exception {
+    public CashFlowSource(@JsonProperty(value = "context", required = true) Context context,
+                          @JsonProperty("id") String id,
+                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId) throws Exception {
         this.id = id;
-        if (context.getById(IncomeSource.class, id) != null)
+        if (context.getById(CashFlowSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        context.put(IncomeSource.class, id, this);
-        this.cashFlow = context.getById(CashFlowType.class, cashFlowId);
+        context.put(CashFlowSource.class, id, this);
+        this.cashFlow = context.getById(CashFlowFrequency.class, cashFlowId);
         if (this.cashFlow == null) {
             throw new Exception("income cashflow " + cashFlowId + " not found");
         }
@@ -67,7 +66,7 @@ public abstract class IncomeSource {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        IncomeSource that = (IncomeSource) o;
+        CashFlowSource that = (CashFlowSource) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         return cashFlow != null ? cashFlow.equals(that.cashFlow) : that.cashFlow == null;
@@ -92,7 +91,7 @@ public abstract class IncomeSource {
     }
 
     @JsonIgnore
-    public CashFlowType getCashFlow() {
+    public CashFlowFrequency getCashFlow() {
         return cashFlow;
     }
 

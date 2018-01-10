@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Quarterly extends CashFlowType {
+public class Quarterly extends CashFlowFrequency {
 
     public Quarterly(@JacksonInject("context") Context context,
                      @JsonProperty(value = "id", required = true) String id,

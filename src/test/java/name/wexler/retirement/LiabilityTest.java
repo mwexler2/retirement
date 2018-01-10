@@ -1,7 +1,7 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class LiabilityTest {
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowType monthly = new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency monthly = new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate);
         liability = new Liability(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),
@@ -74,7 +74,7 @@ public class LiabilityTest {
     @Test
     public void deserialize() throws Exception {
         String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-liability1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        ExpenseSource expenseSource1a = context.fromJSON(ExpenseSource.class, expenseSource1aStr);
+        CashFlowSource expenseSource1a = context.fromJSON(CashFlowSource.class, expenseSource1aStr);
         assertEquals("liability1a", expenseSource1a.getId());
     }
 

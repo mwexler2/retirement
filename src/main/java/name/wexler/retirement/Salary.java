@@ -28,17 +28,13 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.YearMonth;
 import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Salary extends IncomeSource {
+public class Salary extends CashFlowSource {
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")

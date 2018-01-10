@@ -25,14 +25,11 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Bonus extends IncomeSource {
+public abstract class Bonus extends CashFlowSource {
     @JsonIgnore
     private Job job;
 

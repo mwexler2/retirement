@@ -14,29 +14,25 @@ public class CashFlowCalendar {
     private boolean _assetsIndexed = false;
     private boolean _liabilitiesIndexed = false;
     private boolean _cashFlowsIndexed = false;
-    private final Map<String, IncomeSource> _incomeSources;
-    private final Map<String, ExpenseSource> _expenseSources;
+    private final Map<String, CashFlowSource> _cashFlowSources;
     private final Map<String, Asset> _assets;
     private final Map<String, Liability> _liabilities;
-    private List<CashFlowInstance> incomeCashFlowInstances = null;
-    private List<CashFlowInstance> expenseCashFlowInstances = null;
-    private Map<Integer, Map<String, BigDecimal>> incomeCashFlowYears = null;
-    private Map<Integer, Map<String, BigDecimal>> expenseCashFlowYears = null;
+    private List<CashFlowInstance> cashFlowInstances = null;
+    private Map<Integer, Map<String, BigDecimal>> cashFlowYears = null;
     private Map<Integer, Map<String, BigDecimal>> assetValueYears = null;
     private Map<Integer, Map<String, BigDecimal>> liabilityValueYears = null;
     private Assumptions _assumptions;
 
     public CashFlowCalendar(Assumptions assumptions) {
         _assumptions = assumptions;
-        _incomeSources = new HashMap<>();
-        _expenseSources = new HashMap<>();
+        _cashFlowSources = new HashMap<>();
         _assets = new HashMap<>();
         _liabilities = new HashMap<>();
     }
 
-    public void addIncomeSources(List<IncomeSource> incomeSources) {
+    public void addCashFlowSources(List<CashFlowSource> cashFlowSources) {
         _cashFlowsIndexed = false;
-        incomeSources.forEach(item-> _incomeSources.put(item.getId(), item));
+        cashFlowSources.forEach(item-> _cashFlowSources.put(item.getId(), item));
     }
 
     public void addAssets(List<Asset> assets) {
@@ -49,13 +45,9 @@ public class CashFlowCalendar {
         liabilities.forEach(item-> _liabilities.put(item.getId(), item));
     }
 
-    public void addExpenseSources(List<ExpenseSource> expenseSources) {
-        _cashFlowsIndexed = false;
-        expenseSources.forEach(item-> _expenseSources.put(item.getId(), item));
-    }
 
-    public String getIncomeSourceName(String incomeSourceId) {
-        return _incomeSources.get(incomeSourceId).getName();
+    public String getCashFlowSourceName(String cashFlowSourceId) {
+        return _cashFlowSources.get(cashFlowSourceId).getName();
     }
 
     public String getAssetName(String assetId) {
@@ -66,28 +58,20 @@ public class CashFlowCalendar {
         return _liabilities.get(id).getName();
     }
 
-    public String getExpenseSourceName(String expenseSourceId) {
-        return _expenseSources.get(expenseSourceId).getName();
-    }
-
     public List<Integer> getYears() {
         if (!_cashFlowsIndexed)
             indexCashFlows();
-        Set<Integer> incomeYearSet = incomeCashFlowYears.keySet();
-        Set<Integer> expenseYearSet = expenseCashFlowYears.keySet();
-        Set<Integer> yearSet = new HashSet<>();
-        yearSet.addAll(incomeYearSet);
-        yearSet.addAll(expenseYearSet);
+        Set<Integer> yearSet = cashFlowYears.keySet();
         List<Integer> yearList = new ArrayList<>(yearSet);
         yearList.sort(Comparator.naturalOrder());
         return yearList;
     }
 
-    public Map<String, String> getIncomeCashFlowNameAndIds() {
+    public Map<String, String> getCashFlowNameAndIds() {
         if (!_cashFlowsIndexed)
             indexCashFlows();
         Map<String, String> cashFlowNameAndIds = new HashMap<>();
-        _incomeSources.values().forEach(incomeSource-> cashFlowNameAndIds.put(incomeSource.getId(), incomeSource.getName()));
+        _cashFlowSources.values().forEach(cashFlowSource-> cashFlowNameAndIds.put(cashFlowSource.getId(), cashFlowSource.getName()));
         return cashFlowNameAndIds;
     }
 
@@ -107,24 +91,10 @@ public class CashFlowCalendar {
         return liabilityNameAndIds;
     }
 
-    public Map<String, String> getExpenseCashFlowNameAndIds() {
+    public BigDecimal getAnnualCashFlow(String cashFlowId, Integer year) {
         if (!_cashFlowsIndexed)
             indexCashFlows();
-        Map<String, String> cashFlowNameAndIds = new HashMap<>();
-        _expenseSources.values().forEach(expenseSource-> cashFlowNameAndIds.put(expenseSource.getId(), expenseSource.getName()));
-        return cashFlowNameAndIds;
-    }
-
-    public BigDecimal getAnnualExpense(String cashFlowId, Integer year) {
-        if (!_cashFlowsIndexed)
-            indexCashFlows();
-        return getAnnualCashFlow(expenseCashFlowYears, cashFlowId, year);
-    }
-
-    public BigDecimal getAnnualIncome(String cashFlowId, Integer year) {
-        if (!_cashFlowsIndexed)
-            indexCashFlows();
-        return getAnnualCashFlow(incomeCashFlowYears, cashFlowId, year);
+        return getAnnualCashFlow(cashFlowYears, cashFlowId, year);
     }
 
     public BigDecimal getAssetValue(String id, Integer year) {
@@ -141,11 +111,11 @@ public class CashFlowCalendar {
 
     private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, String cashFlowId, Integer year) {
         Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
-        BigDecimal income = BigDecimal.ZERO;
+        BigDecimal cashFlow = BigDecimal.ZERO;
         if (yearMap != null  && yearMap.containsKey(cashFlowId)) {
-            income = yearMap.get(cashFlowId);
+            cashFlow = yearMap.get(cashFlowId);
         }
-        return income;
+        return cashFlow;
     }
 
     private BigDecimal getBalance(Map<Integer, Map<String, BigDecimal>> years, String id, Integer year) {
@@ -157,12 +127,9 @@ public class CashFlowCalendar {
         return balance;
     }
 
-    public BigDecimal getAnnualExpense(Integer year) {
-        return getAnnualCashFlow(expenseCashFlowYears, year);
-    }
 
-    public BigDecimal getAnnualIncome(Integer year) {
-        return getAnnualCashFlow(incomeCashFlowYears, year);
+    public BigDecimal getAnnualCashFlow(Integer year) {
+        return getAnnualCashFlow(cashFlowYears, year);
     }
 
     public BigDecimal getAssetValue(Integer year) {
@@ -202,19 +169,15 @@ public class CashFlowCalendar {
     }
 
     private void indexCashFlows() {
-        indexIncomeCashFlows();
-        indexExpenseCashFlows();
+        cashFlowInstances = new ArrayList<>();
+        cashFlowYears = new HashMap<>();
+        _cashFlowSources.values().forEach(cashFlowSource -> {
+            List<CashFlowInstance> cashFlowInstances = cashFlowSource.getCashFlowInstances(this);
+            indexCashFlowInstances(cashFlowInstances, cashFlowSource.getId(), this.cashFlowInstances, cashFlowYears);
+        });
         _cashFlowsIndexed = true;
     }
 
-    private void indexIncomeCashFlows() {
-        incomeCashFlowInstances = new ArrayList<>();
-        incomeCashFlowYears = new HashMap<>();
-        _incomeSources.values().forEach(incomeSource -> {
-            List<CashFlowInstance> cashFlowInstances = incomeSource.getCashFlowInstances(this);
-            indexCashFlowInstances(cashFlowInstances, incomeSource.getId(), incomeCashFlowInstances, incomeCashFlowYears);
-        });
-    }
 
     private void indexAssets() {
         assetValueYears = new HashMap<>();
@@ -231,9 +194,9 @@ public class CashFlowCalendar {
     private void indexLiabilities() {
         liabilityValueYears = new HashMap<>();
 
-            _expenseSources.values().forEach(expenseSource -> {
-                if (expenseSource instanceof Liability) {
-                    Liability liability = (Liability) expenseSource;
+            _cashFlowSources.values().forEach(cashFlowSource -> {
+                if (cashFlowSource instanceof Liability) {
+                    Liability liability = (Liability) cashFlowSource;
                     Balance prevBalance = liability.getStartingBalance();
                     for (int year : getYears()) {
                         Balance balance = liability.getBalanceAtDate(prevBalance, LocalDate.of(year, Month.JANUARY, 1));
@@ -245,14 +208,6 @@ public class CashFlowCalendar {
         _liabilitiesIndexed = true;
     }
 
-    private void indexExpenseCashFlows() {
-        expenseCashFlowInstances = new ArrayList<>();
-        expenseCashFlowYears = new HashMap<>();
-        _expenseSources.values().forEach(expenseSource -> {
-            List<CashFlowInstance> cashFlowInstances = expenseSource.getCashFlowInstances(this);
-            indexCashFlowInstances(cashFlowInstances, expenseSource.getId(), expenseCashFlowInstances, expenseCashFlowYears);
-        });
-    }
 
     private void indexCashFlowInstances(List<CashFlowInstance> cashFlowInstances,
                                         String id,

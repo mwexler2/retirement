@@ -1,7 +1,6 @@
 package name.wexler.retirement.CashFlow;
 
 import name.wexler.retirement.Assumptions;
-import name.wexler.retirement.CashFlow.*;
 import name.wexler.retirement.Context;
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +79,7 @@ public class CashFlowTypeTest {
         LocalDate annualAccrueEnd = LocalDate.of(2015, Month.SEPTEMBER, 20);
         LocalDate annualFirstPayment = LocalDate.of(2015, Month.MARCH, 15);
         try {
-            CashFlowType duplicate = new Annual(context, "annual1", annualAccrueStart, annualAccrueEnd, annualFirstPayment);
+            CashFlowFrequency duplicate = new Annual(context, "annual1", annualAccrueStart, annualAccrueEnd, annualFirstPayment);
         } catch (Exception e) {
             assertThat(e, isA(Exception.class));
         }

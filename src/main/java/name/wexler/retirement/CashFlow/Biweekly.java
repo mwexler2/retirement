@@ -35,14 +35,13 @@ import name.wexler.retirement.JSONDateSerialize;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Biweekly extends CashFlowType {
+public class Biweekly extends CashFlowFrequency {
     private DayOfWeek dayOfWeek;
     private static final int twoWeeks = 2 * 7;
 

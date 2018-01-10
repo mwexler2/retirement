@@ -30,8 +30,6 @@ import name.wexler.retirement.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Month;
-import java.time.YearMonth;
 import java.util.List;
 
 /**
@@ -48,7 +46,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly"),
         @JsonSubTypes.Type(value = Quarterly.class, name = "quarterly")
 })
-public abstract class   CashFlowType {
+public abstract class CashFlowFrequency {
     public interface SingleCashFlowGenerator {
         public BigDecimal getSingleCashFlowAmount(CashFlowCalendar calendar, LocalDate startAccrual, LocalDate endAccrual);
     }
@@ -67,16 +65,16 @@ public abstract class   CashFlowType {
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate firstPaymentDate;
 
-    public CashFlowType(@JacksonInject("context") Context context,
-                        @JsonProperty(value = "id", required = true) String id,
-                        @JsonProperty(value = "accrueStart", required = true) LocalDate accrueStart,
-                        @JsonProperty(value = "accrueEnd", required = true) LocalDate accrueEnd,
-                        @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate)
+    public CashFlowFrequency(@JacksonInject("context") Context context,
+                             @JsonProperty(value = "id", required = true) String id,
+                             @JsonProperty(value = "accrueStart", required = true) LocalDate accrueStart,
+                             @JsonProperty(value = "accrueEnd", required = true) LocalDate accrueEnd,
+                             @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate)
             throws Exception {
         this.id = id;
-        if (context.getById(CashFlowType.class, id) != null)
+        if (context.getById(CashFlowFrequency.class, id) != null)
             throw new Exception("Key " + id + " already exists");
-        context.put(CashFlowType.class, id, this);
+        context.put(CashFlowFrequency.class, id, this);
         this.accrueStart = accrueStart;
         this.accrueEnd = accrueEnd;
         this.firstPaymentDate = firstPaymentDate;
