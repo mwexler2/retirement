@@ -144,9 +144,6 @@ public class Liability extends CashFlowSource {
         return lender;
     }
 
-    public void setLender(Entity lender) {
-        this.lender = lender;
-    }
 
     private void setBorrowersIds(@JacksonInject("context") Context context,
                                  @JsonProperty(value = "borrowers", required = true) String[] borrowerIds) {
@@ -169,42 +166,16 @@ public class Liability extends CashFlowSource {
         return borrowers;
     }
 
-    public void setBorrowers(Entity[] borrowers) {
-        this.borrowers = borrowers;
-    }
-
-    public Asset getSecurity() {
-        return security;
-    }
-
-    public void setSecurity(Asset security) {
-        this.security = security;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
     public LocalDate getEndDate() { return endDate; }
 
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
 
     public int getTerm() {
         return term;
     }
 
-    public void setTerm(int term) {
-        this.term = term;
-    }
 
     public BigDecimal getInterestRate() {
         return interestRate;
-    }
-
-    public void setInterestRate(BigDecimal interestRate) {
-        this.interestRate = interestRate;
     }
 
     public Balance getStartingBalance() {
@@ -219,12 +190,4 @@ public class Liability extends CashFlowSource {
         this.paymentAmount = paymentAmount;
     }
 
-    @JsonIgnore
-    public BigDecimal getMonthsPerYear() {
-        return monthsPerYear;
-    }
-
-    public void setMonthsPerYear(BigDecimal monthsPerYear) {
-        this.monthsPerYear = monthsPerYear;
-    }
 }

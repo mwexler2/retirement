@@ -56,7 +56,6 @@ public class Alimony extends CashFlowSource {
     private BigDecimal baseAlimony;
     private BigDecimal smithOstlerRate;
     private BigDecimal maxAlimony;
-    private CashFlowFrequency baseCashFlow;
     private CashFlowFrequency smithOstlerCashFlow;
     private final BigDecimal quartersPerYear = BigDecimal.valueOf(4);
 
@@ -90,7 +89,7 @@ public class Alimony extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        List<CashFlowInstance> baseCashFlows = baseCashFlow.getCashFlowInstances(cashFlowCalendar,
+        List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar,
                 (calendar, accrualStart, accrualEnd) -> baseAlimony);
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar,
                 (calendar, accrualStart, accrualEnd) -> BigDecimal.ZERO);
