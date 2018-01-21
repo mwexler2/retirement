@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,11 +44,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
 public class Liability extends CashFlowSource {
-    @JsonIgnore
-    private Entity lender;
-    @JsonIgnore
-    private Entity[] borrowers;
-    @JsonIgnore
     private Asset security;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
@@ -75,11 +71,11 @@ public class Liability extends CashFlowSource {
                 @JsonProperty("startingBalance") BigDecimal startingBalance,
                 @JsonProperty("paymentAmount") BigDecimal paymentAmount,
                 @JsonProperty("source") String sourceId) throws Exception {
-        super(context, id, sourceId);
+        super(context, id, sourceId,
+                context.getListById(Entity.class, lenderId),
+                context.getByIds(Entity.class, Arrays.asList(borrowersIds)));
         this._startingBalance = new Balance(startDate, startingBalance);
         this.security = security;
-        this.setLenderId(context, lenderId);
-        this.setBorrowersIds(context, borrowersIds);
         this.startDate = startDate;
         this.endDate = endDate;
         this.term = term;
@@ -102,9 +98,9 @@ public class Liability extends CashFlowSource {
         List<Balance> interimBalances = new ArrayList<Balance>();
 
         if (security != null) {
-            result = security.getName() + "(" + lender.getName() + ")";
+            result = security.getName() + "(" + getLender().getName() + ")";
         } else {
-            result = lender.getName();
+            result = getLender().getName();
         }
         return result;
     }
@@ -132,38 +128,27 @@ public class Liability extends CashFlowSource {
 
     @JsonProperty(value = "lender")
     public String getLenderId() {
-        return lender.getId();
+        return getLender().getId();
     }
 
-    private void setLenderId(@JacksonInject("context") Context context,
-                             @JsonProperty(value = "lender", required = true) String lenderId) {
-        this.lender = context.getById(Entity.class, lenderId);
-    }
 
     public Entity getLender() {
-        return lender;
+        return getPayees().get(0);
     }
 
-
-    private void setBorrowersIds(@JacksonInject("context") Context context,
-                                 @JsonProperty(value = "borrowers", required = true) String[] borrowerIds) {
-        this.borrowers = new Entity[borrowerIds.length];
-        for (int i = 0; i < borrowerIds.length; ++i) {
-            borrowers[i] = context.getById(Entity.class, borrowerIds[i]);
-        }
-    }
 
     @JsonProperty(value = "borrowers")
-    public String[] getBorrowerIds() {
+    public List<String> getBorrowerIds() {
 
-        String[] result = new String[borrowers.length];
-        for (int i = 0; i < borrowers.length; ++i)
-            result[i] = borrowers[i].getId();
+        List<Entity> borrowers = getBorrowers();
+        List<String> result = new ArrayList<>(borrowers.size());
+        for (int i = 0; i < borrowers.size(); ++i)
+            result.add(borrowers.get(i).getId());
         return result;
     }
 
-    public Entity[] getBorrowers() {
-        return borrowers;
+    public List<Entity> getBorrowers() {
+        return getPayers();
     }
 
     public LocalDate getEndDate() { return endDate; }

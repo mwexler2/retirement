@@ -25,6 +25,8 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
 
+import java.util.Arrays;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -38,7 +40,9 @@ public abstract class Bonus extends CashFlowSource {
                  @JsonProperty(value = "job", required = true) String jobId,
                  @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
             throws Exception {
-        super(context, id, cashFlowId);
+        super(context, id, cashFlowId,
+                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
+                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
     }
 

@@ -28,6 +28,7 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,7 +47,9 @@ public class Salary extends CashFlowSource {
                   @JsonProperty("id") String id,
                   @JsonProperty("job") String jobId,
                   @JsonProperty("cashFlow") String cashFlowId) throws Exception {
-        super(context, id, cashFlowId);
+        super(context, id, cashFlowId,
+                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
+                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
     }
 

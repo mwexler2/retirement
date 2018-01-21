@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mwexler on 11/24/16.
@@ -59,6 +56,12 @@ public class Context {
     public <T> T getById(Class clazz, String id) {
         EntityManager<T> entityManager = this.getEntityManager(clazz);
         T result = entityManager.getById(id);
+        return result;
+    }
+
+    public <T> List<T> getListById(Class clazz, String id) {
+        EntityManager<T> entityManager = this.getEntityManager(clazz);
+        List<T> result = Arrays.asList(entityManager.getById(id));
         return result;
     }
 

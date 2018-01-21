@@ -34,6 +34,7 @@ import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -73,7 +74,9 @@ public class Alimony extends CashFlowSource {
                    @JsonProperty("baseCashFlow") String baseCashFlowId,
                    @JsonProperty("smithOstlerCashFlow") String smithOstlerCashFlowId
     ) throws Exception {
-        super(context, id, baseCashFlowId);
+        super(context, id, baseCashFlowId,
+                context.getListById(Entity.class, payeeId),
+                context.getListById(Entity.class, payorId));
         this.setPayeeId(context, payeeId);
         this.setPayorId(context, payorId);
         this.startDate = startDate;
@@ -92,7 +95,17 @@ public class Alimony extends CashFlowSource {
         List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar,
                 (calendar, accrualStart, accrualEnd) -> baseAlimony);
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar,
-                (calendar, accrualStart, accrualEnd) -> BigDecimal.ZERO);
+                (calendar, accrualStart, accrualEnd) -> {
+                    BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
+                            (source) -> {
+                                if (source.isPayee(this.payor)) {
+                                    return true;
+                                }
+                                return false;
+                            });
+                    BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate);
+                    return alimony;
+                });
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
         allAlimonyCashFlows.addAll(smithOstlerCashFlows);

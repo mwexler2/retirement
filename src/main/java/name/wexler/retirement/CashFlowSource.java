@@ -46,12 +46,17 @@ import java.util.List;
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony")})
 public abstract class CashFlowSource {
     private String id;
+    private List<Entity> payers;
+    private List<Entity> payees;
     private CashFlowFrequency cashFlow;
 
     public CashFlowSource(@JsonProperty(value = "context", required = true) Context context,
                           @JsonProperty("id") String id,
-                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId) throws Exception {
+                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
+                          List<Entity> payees, List<Entity> payers) throws Exception {
         this.id = id;
+        this.payees = payees;
+        this.payers = payers;
         if (context.getById(CashFlowSource.class, id) != null)
             throw new Exception("Key " + id + " already exists");
         context.put(CashFlowSource.class, id, this);
@@ -61,7 +66,24 @@ public abstract class CashFlowSource {
         }
     }
 
-    @Override
+    public boolean isPayer(Entity payer) {
+        return payers.contains(payer);
+    }
+
+    public boolean isPayee(Entity payee) {
+        return payees.contains(payee);
+    }
+
+    @JsonIgnore
+    public List<Entity> getPayers() {
+        return payers;
+    }
+
+    @JsonIgnore
+    public List<Entity> getPayees() {
+        return payees;
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
