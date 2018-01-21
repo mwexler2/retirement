@@ -83,7 +83,7 @@ public class Monthly extends CashFlowFrequency {
                 thisAccrueEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(getFirstPaymentDate().getDayOfMonth());
             BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd);
-            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
+            result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;

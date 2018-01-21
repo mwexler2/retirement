@@ -70,16 +70,17 @@ public class Quarterly extends CashFlowFrequency {
         YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
         YearMonth firstPaymentYearMonth = YearMonth.of(getFirstPaymentDate().getYear(), getFirstPaymentDate().getMonth());
         long paymentMonthOffset = startYearMonth.until(firstPaymentYearMonth, ChronoUnit.MONTHS);
-        for (YearMonth thisYearMonth = startYearMonth; !thisYearMonth.isAfter(endYearMonth); thisYearMonth = thisYearMonth.plusMonths(1)) {
+        for (YearMonth thisYearMonth = startYearMonth; !thisYearMonth.isAfter(endYearMonth); thisYearMonth = thisYearMonth.plusMonths(3)) {
             LocalDate thisAccrueStart = LocalDate.of(thisYearMonth.getYear(), thisYearMonth.getMonth(), 1);
             if (thisAccrueStart.isBefore(getAccrueStart()))
                 thisAccrueStart = getAccrueStart();
-            LocalDate thisAccrueEnd = thisAccrueStart.withDayOfMonth(thisAccrueStart.lengthOfMonth());
+            YearMonth thisAccrueEndMonth = thisYearMonth.plusMonths(2);
+            LocalDate thisAccrueEnd = LocalDate.of(thisAccrueEndMonth.getYear(), thisAccrueEndMonth.getMonth(), thisAccrueEndMonth.lengthOfMonth());
             if (thisAccrueEnd.isAfter(getAccrueEnd()))
                 thisAccrueEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(getFirstPaymentDate().getDayOfMonth());
             BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd);
-            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
+            result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;

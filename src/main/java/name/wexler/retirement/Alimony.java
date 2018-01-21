@@ -47,12 +47,6 @@ public class Alimony extends CashFlowSource {
     private Entity payee;
     @JsonIgnore
     private Entity payor;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate startDate;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate endDate;
     private BigDecimal baseIncome;
     private BigDecimal baseAlimony;
     private BigDecimal smithOstlerRate;
@@ -65,8 +59,6 @@ public class Alimony extends CashFlowSource {
                    @JsonProperty("id") String id,
                    @JsonProperty("payee") String payeeId,
                    @JsonProperty("payor") String payorId,
-                   @JsonProperty("startDate") LocalDate startDate,
-                   @JsonProperty("endDate") LocalDate endDate,
                    @JsonProperty("baseIncome") BigDecimal baseIncome,
                    @JsonProperty("baseAlimony") BigDecimal baseAlimony,
                    @JsonProperty("smithOstlerRate") BigDecimal smithOstlerRate,
@@ -79,8 +71,6 @@ public class Alimony extends CashFlowSource {
                 context.getListById(Entity.class, payorId));
         this.setPayeeId(context, payeeId);
         this.setPayorId(context, payorId);
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.baseIncome = baseIncome;
         this.baseAlimony = baseAlimony;
         this.smithOstlerRate = smithOstlerRate;
@@ -89,11 +79,14 @@ public class Alimony extends CashFlowSource {
         context.put(Alimony.class, id, this);
     }
 
+
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar,
-                (calendar, accrualStart, accrualEnd) -> baseAlimony);
+                (calendar, accrualStart, accrualEnd) -> {
+            return baseAlimony;
+                });
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar,
                 (calendar, accrualStart, accrualEnd) -> {
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
@@ -109,7 +102,29 @@ public class Alimony extends CashFlowSource {
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
         allAlimonyCashFlows.addAll(smithOstlerCashFlows);
-        return allAlimonyCashFlows;
+        allAlimonyCashFlows.sort((final CashFlowInstance instance1, final CashFlowInstance instance2) ->
+            instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
+        List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
+        BigDecimal remainingBalance = maxAlimony;
+        int prevYear = -1;
+        for (CashFlowInstance instance : allAlimonyCashFlows) {
+            if (instance.getAccrualEnd().getYear() != prevYear)
+                remainingBalance = maxAlimony;
+            BigDecimal amount = instance.getAmount();
+            if (amount.compareTo(remainingBalance) > 0) {
+                amount = remainingBalance;
+                instance = new CashFlowInstance(instance.getCashFlowId(),
+                        instance.getAccrualStart(),
+                        instance.getAccrualEnd(),
+                        instance.getCashFlowDate(),
+                        remainingBalance);
+                result.add(instance);
+            }
+            result.add(instance);
+            prevYear = instance.getAccrualEnd().getYear();
+            remainingBalance = remainingBalance.subtract(amount);
+        }
+        return result;
     }
 
     @JsonIgnore
@@ -167,16 +182,5 @@ public class Alimony extends CashFlowSource {
 
     public void setPayor(Entity payee) {
         this.payor = payor;
-    }
-
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() { return endDate; }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
     }
 }

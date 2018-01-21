@@ -92,7 +92,7 @@ public class Biweekly extends CashFlowFrequency {
                 thisAccrualEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisPeriodStart.plusDays(paymentOffset);
             BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(cashFlowCalendar, thisAccrualStart, thisAccrualEnd);
-            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
+            result.add(new CashFlowInstance(this.getId(), thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;

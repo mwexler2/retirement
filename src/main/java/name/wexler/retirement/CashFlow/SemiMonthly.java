@@ -88,10 +88,10 @@ public class SemiMonthly extends Monthly {
             LocalDate firstCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(firstDayOfMonth);
             BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd);
             if (!firstCashFlowDate.isBefore(getFirstPaymentDate()))
-                result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, firstCashFlowDate, singleFlowAmount));
+                result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, firstCashFlowDate, singleFlowAmount));
             LocalDate secondCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(secondDayOfMonth);
             singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueEnd, secondCashFlowDate);
-            result.add(new CashFlowInstance(thisAccrueStart, thisAccrueEnd, secondCashFlowDate, singleFlowAmount));
+            result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, secondCashFlowDate, singleFlowAmount));
         }
 
         return result;

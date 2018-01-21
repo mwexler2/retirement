@@ -20,6 +20,7 @@ public class CashFlowInstanceTest {
     public void setUp() throws Exception {
         BigDecimal thousand = BigDecimal.valueOf(1000.00);
         cfi = new CashFlowInstance(
+                "cashFlowInstance1",
                 LocalDate.of(2014, Month.MAY, 1),
                 LocalDate.of(2014, Month.MAY, 15),
                 LocalDate.of(2014, Month.MAY, 25),

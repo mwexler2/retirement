@@ -28,6 +28,7 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowFrequency;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -64,6 +65,16 @@ public abstract class CashFlowSource {
         if (this.cashFlow == null) {
             throw new Exception("income cashflow " + cashFlowId + " not found");
         }
+    }
+
+    @JsonIgnore
+    public LocalDate getStartDate() {
+        return cashFlow.getAccrueStart();
+    }
+
+    @JsonIgnore
+    public LocalDate getEndDate() {
+        return cashFlow.getAccrueEnd();
     }
 
     public boolean isPayer(Entity payer) {

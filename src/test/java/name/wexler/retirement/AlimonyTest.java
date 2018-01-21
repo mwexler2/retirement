@@ -32,8 +32,6 @@ public class AlimonyTest {
         firstPaymentDate = LocalDate.of(2011, Month.JULY, 12);
         CashFlowFrequency quarterly = new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),
-                LocalDate.of(2014, Month.OCTOBER, 10),
-                LocalDate.of(2030, Month.JUNE, 1),
                 BigDecimal.valueOf(50000.00), BigDecimal.valueOf(1200.00), BigDecimal.valueOf(0.33), BigDecimal.valueOf(102500.00), monthly.getId(),
                 quarterly.getId());
     }
@@ -58,7 +56,7 @@ public class AlimonyTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(alimony);
-        assertEquals("{\"type\":\"alimony\",\"id\":\"alimony1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"alimony\",\"id\":\"alimony1\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}", expenseSource1Str);
     }
 
 

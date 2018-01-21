@@ -101,7 +101,7 @@ public class Annual extends CashFlowFrequency {
 
             LocalDate cashFlowDate = LocalDate.of(thisYear + paymentYearOffset, getFirstPaymentDate().getMonth(), getFirstPaymentDate().getDayOfMonth());
             BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrualStart, thisAccrualEnd);
-            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
+            result.add(new CashFlowInstance(this.getId(), thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
         }
 
         return result;
