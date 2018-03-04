@@ -44,7 +44,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct"),
         @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed"),
         @JsonSubTypes.Type(value = Liability.class, name = "liability"),
-        @JsonSubTypes.Type(value = Alimony.class, name = "alimony")})
+        @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
+        @JsonSubTypes.Type(value = RSU.class, name="RSU")})
 public abstract class CashFlowSource {
     private String id;
     private List<Entity> payers;
@@ -63,7 +64,7 @@ public abstract class CashFlowSource {
         context.put(CashFlowSource.class, id, this);
         this.cashFlow = context.getById(CashFlowFrequency.class, cashFlowId);
         if (this.cashFlow == null) {
-            throw new Exception("income cashflow " + cashFlowId + " not found");
+            throw new Exception("CashFlowSource " + cashFlowId + " not found");
         }
     }
 

@@ -44,7 +44,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = Biweekly.class, name = "biweekly"),
         @JsonSubTypes.Type(value = Monthly.class, name = "monthly"),
         @JsonSubTypes.Type(value = SemiMonthly.class, name = "semimonthly"),
-        @JsonSubTypes.Type(value = Quarterly.class, name = "quarterly")
+        @JsonSubTypes.Type(value = Quarterly.class, name = "quarterly"),
+        @JsonSubTypes.Type(value = VestingSchedule.class, name="vestingSchedule")
 })
 public abstract class CashFlowFrequency {
     public interface SingleCashFlowGenerator {
