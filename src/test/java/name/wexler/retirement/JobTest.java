@@ -85,26 +85,37 @@ public class JobTest {
         LocalDate job1FirstBonusDay = LocalDate.of(2001, Month.MARCH, 15);
         BigDecimal job1BonusPct = new BigDecimal(.30);
         LocalDate job1FirstPaycheckDate = LocalDate.of(job1.getStartDate().getYear(), job1.getStartDate().getMonth(), 5);
-        CashFlowFrequency job1SalarySource = new SemiMonthly(context, "semi-monthly-salary1",
-                job1.getStartDate(), job1.getEndDate(), job1FirstPaycheckDate, 5, 20);
+        CashFlowFrequency job1SalarySource =
+                new SemiMonthly(context, "semi-monthly-salary1",
+                job1.getStartDate(), job1.getEndDate(), job1FirstPaycheckDate, 5, 20,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         job1Salary = new Salary(context, "job1Salary", job1.getId(), job1SalarySource.getId());
         job1Salary.setBaseAnnualSalary(new BigDecimal(100000.00));
-        Annual job1BonusSource = new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay);
+        Annual job1BonusSource =
+                new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());
         CashFlowSource[] job1IS = {job1Salary, job1Bonus};
 
         LocalDate salary2FirstPaycheck = LocalDate.of(job1.getStartDate().getYear(), job1.getStartDate().getMonth(), 10);
-        CashFlowFrequency job1SalarySource2 = new SemiMonthly(context, "semi-monthly-salary2",
-                job1.getStartDate(), job1.getEndDate(), salary2FirstPaycheck, 10, 25);
+        CashFlowFrequency job1SalarySource2 =
+                new SemiMonthly(context, "semi-monthly-salary2",
+                job1.getStartDate(), job1.getEndDate(), salary2FirstPaycheck, 10, 25,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         job1Salary2 = new Salary(context, "job1Salary2", "job1", job1SalarySource2.getId());
         job1Salary2.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
-        Annual job1BonusSource2 = new Annual(context, "annual-bonus2", job1FirstBonusDay,
-                job1.getStartDate(), job1.getEndDate());
+        Annual job1BonusSource2 =
+                new Annual(context, "annual-bonus2", job1FirstBonusDay,
+                job1.getStartDate(), job1.getEndDate(),
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         job1Bonus2 = new BonusAnnualPct(context, "job1Bonus2", "job1", "job1Salary", job1BonusPct, job1BonusSource2.getId());
 
         LocalDate job2FirstPaycheck = LocalDate.of(2001, Month.JUNE, 22);
         LocalDate job2FirstPeriodStart = LocalDate.of(2001, Month.JUNE, 9);
-        CashFlowFrequency job2SalarySource = new Biweekly(context, "biweekly-job2-salary", job2FirstPeriodStart, job2.getStartDate(), job2.getEndDate(), job2FirstPaycheck);
+        CashFlowFrequency job2SalarySource =
+                new Biweekly(context, "biweekly-job2-salary", job2FirstPeriodStart, job2.getStartDate(),
+                        job2.getEndDate(), job2FirstPaycheck,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         job2Salary = new Salary(context, "job2Salary", job2.getId(), job2SalarySource.getId());
         job2Salary.setBaseAnnualSalary(BigDecimal.valueOf(80000.00));
         CashFlowSource[] job2IS = {job1Salary2, job1Bonus2, job2Salary};

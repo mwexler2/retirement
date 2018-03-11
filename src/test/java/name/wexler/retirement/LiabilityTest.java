@@ -39,7 +39,9 @@ public class LiabilityTest {
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowFrequency monthly = new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency monthly =
+                new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         liability = new Liability(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),

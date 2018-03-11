@@ -50,17 +50,13 @@ public class VestingSchedule extends CashFlowFrequency {
                            @JsonProperty("accrueStart") LocalDate accrueStart,
                            @JsonProperty("accrueEnd") LocalDate accrueEnd,
                            @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
-                           @JsonProperty("vesting") List<Vesting> vestingSchedule)
+                           @JsonProperty("vesting") List<Vesting> vestingSchedule,
+                           @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
-        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
         vestings = vestingSchedule;
     }
-
-    private final BigDecimal periodsPerYear = BigDecimal.valueOf(12);
-    @JsonIgnore
-    @Override
-    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
 
     @JsonIgnore
     public LocalDate getFirstPeriodStart() {
@@ -77,8 +73,23 @@ public class VestingSchedule extends CashFlowFrequency {
         for (Vesting vesting : vestings) {
             LocalDate thisAccrueEnd = this.getAccrueStart().plusMonths(vesting.getMonths());
             LocalDate cashFlowDate = thisAccrueEnd.plusDays(1);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd);
+            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd, vesting.getPercent());
             result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
+            thisAccrueStart = thisAccrueEnd.plusDays(1);
+        }
+        return result;
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowPeriod> getCashFlowPeriods() {
+        ArrayList<CashFlowPeriod> result = new ArrayList<>(vestings.size());
+
+        LocalDate thisAccrueStart = this.getAccrueStart();
+        for (Vesting vesting : vestings) {
+            LocalDate thisAccrueEnd = this.getAccrueStart().plusMonths(vesting.getMonths());
+            LocalDate cashFlowDate = thisAccrueEnd.plusDays(1);
+            result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, cashFlowDate));
             thisAccrueStart = thisAccrueEnd.plusDays(1);
         }
         return result;

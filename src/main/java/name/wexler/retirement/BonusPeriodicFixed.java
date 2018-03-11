@@ -28,6 +28,9 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
@@ -40,6 +43,7 @@ import java.util.List;
 public class BonusPeriodicFixed extends Bonus {
     @JsonIdentityReference(alwaysAsId = true)
     private BigDecimal annualAmount;
+
 
     public BonusPeriodicFixed(@JacksonInject("context") Context context,
                               @JsonProperty(value = "id", required = true) String id,
@@ -55,8 +59,10 @@ public class BonusPeriodicFixed extends Bonus {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) ->
-                annualAmount.divide(getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd, percent) ->
+                apportionCashFlow(accrualStart, accrualEnd, annualAmount)
+        );
     }
 
     public BigDecimal getAnnualAmount() {

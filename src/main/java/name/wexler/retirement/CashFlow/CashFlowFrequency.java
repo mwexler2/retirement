@@ -29,7 +29,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,10 +53,24 @@ import java.util.List;
 })
 public abstract class CashFlowFrequency {
     public interface SingleCashFlowGenerator {
-        public BigDecimal getSingleCashFlowAmount(CashFlowCalendar calendar, LocalDate startAccrual, LocalDate endAccrual);
+        public BigDecimal getSingleCashFlowAmount(CashFlowCalendar calendar, LocalDate startAccrual, LocalDate endAccrual, BigDecimal percent);
+    }
+
+    public class CashFlowPeriod {
+        LocalDate accrualStart;
+        LocalDate accrualEnd;
+        LocalDate cashFlowDate;
+
+        public CashFlowPeriod(LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate) {
+            this.accrualStart = accrualStart;
+            this.accrualEnd = accrualEnd;
+            this.cashFlowDate = cashFlowDate;
+        }
     }
 
     private final String id;
+    public enum ApportionmentPeriod { WHOLE_TERM, ANNUAL, EQUAL_MONTHLY };
+    private  ApportionmentPeriod apportionmentPeriod;
 
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
@@ -70,7 +88,8 @@ public abstract class CashFlowFrequency {
                              @JsonProperty(value = "id", required = true) String id,
                              @JsonProperty(value = "accrueStart", required = true) LocalDate accrueStart,
                              @JsonProperty(value = "accrueEnd", required = true) LocalDate accrueEnd,
-                             @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate)
+                             @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate,
+                             @JsonProperty(value = "apportionmentPeriod", required = true) ApportionmentPeriod apportionmentPeriod)
             throws Exception {
         this.id = id;
         if (context.getById(CashFlowFrequency.class, id) != null)
@@ -79,12 +98,12 @@ public abstract class CashFlowFrequency {
         this.accrueStart = accrueStart;
         this.accrueEnd = accrueEnd;
         this.firstPaymentDate = firstPaymentDate;
+        this.apportionmentPeriod = apportionmentPeriod;
     }
 
     public String getId() {
         return this.id;
     }
-
 
     abstract public LocalDate getFirstPeriodStart();
 
@@ -100,7 +119,24 @@ public abstract class CashFlowFrequency {
         return firstPaymentDate;
     }
 
-    abstract public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator);
+    abstract public List<CashFlowPeriod> getCashFlowPeriods();
 
-    abstract public BigDecimal getPeriodsPerYear();
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator) {
+        ArrayList<CashFlowInstance> result = new ArrayList<>();
+
+        BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
+        List<CashFlowPeriod> cashFlowPeriods = getCashFlowPeriods();
+        for (CashFlowPeriod period : cashFlowPeriods) {
+            BigDecimal thisAccrualDays = BigDecimal.valueOf(period.accrualStart.until(period.accrualEnd, ChronoUnit.DAYS));
+            BigDecimal percent = thisAccrualDays.divide(totalDays, 8, RoundingMode.HALF_UP);
+            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, period.accrualStart, period.accrualEnd, percent);
+            result.add(new CashFlowInstance(this.getId(), period.accrualStart, period.accrualEnd, period.cashFlowDate, singleFlowAmount));
+        }
+
+        return result;
+    }
+
+    public ApportionmentPeriod getApportionmentPeriod() {
+        return apportionmentPeriod;
+    }
 }

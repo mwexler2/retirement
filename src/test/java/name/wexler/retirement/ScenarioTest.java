@@ -3,6 +3,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,14 +38,18 @@ public class ScenarioTest {
         job1.setEndDate(LocalDate.of(2015, Month.DECEMBER, 15));
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 1);
         LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.APRIL, 2);
-        Biweekly biweekly = new Biweekly(context, "job1CashFlowSource1", job1FirstPeriodStart, job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
+        Biweekly biweekly =
+                new Biweekly(context, "job1CashFlowSource1", job1FirstPeriodStart, job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
         salary1.setBaseAnnualSalary(BigDecimal.valueOf(27000.00));
         Company bankOfNowhere = new Company(context, "bon1");
-        Monthly liability1Monthly = new Monthly(context, "liability1CashFlowSource1",
+        Monthly liability1Monthly =
+                new Monthly(context, "liability1CashFlowSource1",
                 LocalDate.of(2015, Month.FEBRUARY, 1),
                 LocalDate.of(2015, Month.FEBRUARY, 14),
-                LocalDate.of(2045, Month.MARCH, 13));
+                LocalDate.of(2045, Month.MARCH, 13),
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         String[] address = {"123 Mainstreet"};
 
         Entity[] mainBorrowers = {mike};
@@ -94,17 +99,17 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario1\",\"incomeSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
+        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
 
         String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario2\",\"incomeSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
+        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario2\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String scenario1aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
-        String scenario2aStr = "{\"assumptions\":null,\"incomeSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
+        String scenario1aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
+        String scenario2aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
 
         Scenario scenario1a = context.fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());

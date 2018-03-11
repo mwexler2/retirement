@@ -28,7 +28,10 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowFrequency;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 /**
@@ -132,5 +135,38 @@ public abstract class CashFlowSource {
     @JsonProperty("cashFlow")
     public String getGetFlowId() {
         return cashFlow.getId();
+    }
+
+    private BigDecimal annualPercent(LocalDate accrualStart, LocalDate accrualEnd, BigDecimal annualAmount) {
+        BigDecimal accrualDays = BigDecimal.valueOf(accrualStart.until(accrualEnd).getDays());
+        BigDecimal percent = accrualDays.divide(BigDecimal.valueOf(accrualEnd.lengthOfYear()), 8, RoundingMode.HALF_UP);
+        BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
+        return amount;
+    }
+
+    private BigDecimal equalMonthly(LocalDate accrualStart, LocalDate accrualEnd, BigDecimal annualAmount) {
+        Period accrualPeriod = accrualStart.until(accrualEnd.plusDays(1));  // We add 1 day because the LocalDate.until method is exclusive
+        int accrualMonths = accrualPeriod.getMonths();
+        Period partialMonth = accrualPeriod.minusMonths(accrualMonths);
+        int accrualDays = accrualPeriod.getDays();
+        BigDecimal monthsPerYear = BigDecimal.valueOf(12);
+        BigDecimal wholeMonthsPercent = BigDecimal.valueOf(accrualMonths);
+        BigDecimal partialMonthPercent = BigDecimal.valueOf(accrualDays).divide(BigDecimal.valueOf(accrualEnd.lengthOfMonth()), 8, RoundingMode.HALF_UP);
+        BigDecimal percent = wholeMonthsPercent.add(partialMonthPercent).divide(monthsPerYear, 8, RoundingMode.HALF_UP);
+        BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
+        return amount;
+    }
+
+
+    public BigDecimal apportionCashFlow(LocalDate accrualStart, LocalDate accrualEnd, BigDecimal amount) {
+        switch(getCashFlow().getApportionmentPeriod()) {
+            case WHOLE_TERM:
+                return annualPercent(accrualStart, accrualEnd, amount);
+            case ANNUAL:
+                return annualPercent(accrualStart, accrualEnd, amount);
+            case EQUAL_MONTHLY:
+                return equalMonthly(accrualStart, accrualEnd, amount);
+        }
+        return BigDecimal.ZERO;
     }
 }

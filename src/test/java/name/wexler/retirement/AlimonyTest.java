@@ -28,9 +28,13 @@ public class AlimonyTest {
           LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowFrequency monthly = new Monthly(context, "monthly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency monthly =
+                new Monthly(context, "monthly-alimony1", accrueStart, accrueEnd, firstPaymentDate,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         firstPaymentDate = LocalDate.of(2011, Month.JULY, 12);
-        CashFlowFrequency quarterly = new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency quarterly =
+                new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),
                 BigDecimal.valueOf(50000.00), BigDecimal.valueOf(1200.00), BigDecimal.valueOf(0.33), BigDecimal.valueOf(102500.00), monthly.getId(),
                 quarterly.getId());

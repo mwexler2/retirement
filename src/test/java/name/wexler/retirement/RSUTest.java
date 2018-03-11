@@ -36,14 +36,18 @@ public class RSUTest {
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
 
         LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 15);
-        Monthly monthly = new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
+        Monthly monthly =
+                new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         salary = new Salary(context, "salary1", "job1", monthly.getId());
         salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
 
-        Annual job1AnnualVesting = new Annual(context, "job1AnnualVesting",
+        Annual job1AnnualVesting = new Annual(
+                context, "job1AnnualVesting",
                 LocalDate.of(2014, Month.APRIL, 28),
                 LocalDate.of(2018, Month.APRIL, 28),
-                LocalDate.of(2015, Month.APRIL, 28));
+                LocalDate.of(2015, Month.APRIL, 28),
+                CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
 
         LocalDate job1FirstRSU = LocalDate.of(2016, Month.JUNE, 6);
         Security aapl = new Security(context, "AAPL", Arrays.asList("employee1"),
@@ -62,13 +66,15 @@ public class RSUTest {
                         job1FirstRSU,
                         job1FirstRSU.plusMonths(48),
                         job1FirstRSU.plusMonths(12),
-                        vestings);
+                        vestings,
+                        CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
         rsu1 = new RSU(context,  "rsu1", "job1", "vestingSchedule1", "AAPL");
 
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 25);
         CashFlowFrequency biweeklySource = new Biweekly(context, "biweekly1",
                 job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
-                LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck);
+                LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck,
+                CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
         rsu2 = new RSU(context, "rsu2", "job1", "biweekly1", "MGTX");
 
     }

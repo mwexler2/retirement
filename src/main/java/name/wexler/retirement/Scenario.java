@@ -37,7 +37,7 @@ import java.util.Map;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "assumptions", "name", "incomeSources"})
+@JsonPropertyOrder({ "assumptions", "name", "cashFlowSources"})
 public class Scenario {
     private final String name;
     private Assumptions _assumptions;
@@ -48,7 +48,7 @@ public class Scenario {
     @JsonCreator
     Scenario(@JacksonInject("context") Context context,
              @JsonProperty("name") String name,
-             @JsonProperty("incomeSources") String[] cashFlowSources,
+             @JsonProperty("cashFlowSources") String[] cashFlowSources,
              @JsonProperty("assets") String[] assets,
              @JsonProperty("liabilities") String[] liabilities,
              @JsonProperty("assumptions") Assumptions assumptions) {
@@ -61,9 +61,9 @@ public class Scenario {
     }
 
 
-    @JsonProperty(value = "incomeSources")
+    @JsonProperty(value = "cashFlowSources")
     private void setCashFlowSourceIds(@JacksonInject("context") Context context,
-                                      @JsonProperty(value = "incomeSources", required = true) String[] cashFlowSourceIds) {
+                                      @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowSourceIds) {
         List<CashFlowSource> cashFlowSources = new ArrayList<>(cashFlowSourceIds.length);
         for (String cashFlowSourceId : cashFlowSourceIds) {
             cashFlowSources.add(context.getById(CashFlowSource.class, cashFlowSourceId));
@@ -71,7 +71,7 @@ public class Scenario {
         calendar.addCashFlowSources(cashFlowSources);
     }
 
-    @JsonProperty(value = "incomeSources")
+    @JsonProperty(value = "cashFlowSources")
     public String[] getCashFlowSourceIds() {
         Map<String, String> nameAndIds = calendar.getCashFlowNameAndIds();
         String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
@@ -81,8 +81,8 @@ public class Scenario {
 
 
     @JsonIgnore
-    public String getIncomeSourceName(String incomeSourceId) {
-        return calendar.getCashFlowSourceName(incomeSourceId);
+    public String getCashFlowSourceName(String cashFlowSourceId) {
+        return calendar.getCashFlowSourceName(cashFlowSourceId);
     }
 
 

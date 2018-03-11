@@ -91,8 +91,10 @@ public class Salary extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) ->
-                baseAnnualSalary.divide(this.getCashFlow().getPeriodsPerYear(), 2, BigDecimal.ROUND_HALF_UP));
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar,
+                (calendar, accrualStart, accrualEnd, percent) ->
+                        apportionCashFlow(accrualStart, accrualEnd, baseAnnualSalary)
+        );
     }
 
     @Override

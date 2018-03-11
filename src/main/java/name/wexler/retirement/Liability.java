@@ -88,7 +88,7 @@ public class Liability extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) -> paymentAmount);
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd, percent) -> paymentAmount);
     }
 
     @JsonIgnore

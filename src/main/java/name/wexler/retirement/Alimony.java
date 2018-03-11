@@ -84,11 +84,11 @@ public class Alimony extends CashFlowSource {
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar,
-                (calendar, accrualStart, accrualEnd) -> {
+                (calendar, accrualStart, accrualEnd, percent) -> {
             return baseAlimony;
                 });
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar,
-                (calendar, accrualStart, accrualEnd) -> {
+                (calendar, accrualStart, accrualEnd, percent) -> {
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (source) -> {
                                 if (source.isPayee(this.payor)) {

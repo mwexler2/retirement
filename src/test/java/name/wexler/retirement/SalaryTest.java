@@ -1,5 +1,6 @@
 package name.wexler.retirement;
 
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +29,9 @@ public class SalaryTest {
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
         LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 17);
-        Monthly job1CashFlow = new Monthly(context, "job1CashFlow1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
+        Monthly job1CashFlow =
+                new Monthly(context, "job1CashFlow1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId());
         incomeSource1.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
     }

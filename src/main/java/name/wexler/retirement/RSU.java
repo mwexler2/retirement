@@ -60,7 +60,7 @@ public class RSU extends CashFlowSource {
 
     @JsonIgnore
     public String getName() {
-        return job.getName() + " Bonus";
+        return job.getName() + " RSU";
     }
 
     @JsonProperty(value = "job")
@@ -83,7 +83,7 @@ public class RSU extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd) ->
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd, percent) ->
                 BigDecimal.ZERO);
     }
 

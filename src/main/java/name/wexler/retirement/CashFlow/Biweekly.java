@@ -33,8 +33,10 @@ import name.wexler.retirement.JSONDateDeserialize;
 import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,18 +56,14 @@ public class Biweekly extends CashFlowFrequency {
                     @JsonProperty(value = "firstPeriodStart", required = true) LocalDate firstPeriodStart,
                     @JsonProperty(value = "accrueStart", required = true) LocalDate accrueStart,
                     @JsonProperty(value = "accrueEnd", required = true) LocalDate accrueEnd,
-                    @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate)
+                    @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate,
+                    @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
-        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
         this.firstPeriodStart = firstPeriodStart;
         this.dayOfWeek = firstPaymentDate.getDayOfWeek();
     }
-
-    private final BigDecimal periodsPerYear = BigDecimal.valueOf(26);
-    @JsonIgnore
-    @Override
-    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
 
     public LocalDate getFirstPeriodStart() {
         return this.firstPeriodStart;
@@ -78,10 +76,11 @@ public class Biweekly extends CashFlowFrequency {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar, SingleCashFlowGenerator generator) {
-        ArrayList<CashFlowInstance> result = new ArrayList<>();
+    public List<CashFlowPeriod> getCashFlowPeriods() {
+        ArrayList<CashFlowPeriod> result = new ArrayList<>();
 
         int paymentOffset = getFirstPeriodStart().until(getFirstPaymentDate()).getDays();
+        BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
         for (LocalDate thisPeriodStart = getFirstPeriodStart(); thisPeriodStart.isBefore(getAccrueEnd());
                 thisPeriodStart = thisPeriodStart.plusWeeks(2)) {
             LocalDate thisAccrualStart = thisPeriodStart;
@@ -91,8 +90,7 @@ public class Biweekly extends CashFlowFrequency {
             if (thisAccrualEnd.isAfter(getAccrueEnd()))
                 thisAccrualEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisPeriodStart.plusDays(paymentOffset);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(cashFlowCalendar, thisAccrualStart, thisAccrualEnd);
-            result.add(new CashFlowInstance(this.getId(), thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
+            result.add(new CashFlowPeriod(thisAccrualStart, thisAccrualEnd, cashFlowDate));
         }
 
         return result;

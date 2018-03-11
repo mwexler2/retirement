@@ -29,9 +29,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.MonthDay;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,19 +49,15 @@ public class Annual extends CashFlowFrequency {
                   @JsonProperty(value = "id", required = true) String id,
                   @JsonProperty("accrueStart") LocalDate accrueStart,
                   @JsonProperty("accrueEnd") LocalDate accrueEnd,
-                  @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate)
+                  @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
+                  @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
-        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
         this.monthDay = MonthDay.of(firstPaymentDate.getMonth(), firstPaymentDate.getDayOfMonth());
         this.firstYear = firstPaymentDate.getYear();
         this.lastYear = accrueEnd.getYear();
     }
-
-    private final BigDecimal periodsPerYear = BigDecimal.ONE;
-    @JsonIgnore
-    @Override
-    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
 
     @JsonIgnore
     public LocalDate getFirstPeriodStart() {
@@ -84,12 +82,13 @@ public class Annual extends CashFlowFrequency {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator) {
-        ArrayList<CashFlowInstance> result = new ArrayList<>();
+    public List<CashFlowPeriod> getCashFlowPeriods() {
+        ArrayList<CashFlowPeriod> result = new ArrayList<>();
 
         int accrualStartYear = getAccrueStart().getYear();
         int accrualEndYear = getAccrueEnd().getYear();
         int paymentYearOffset = getFirstPaymentDate().getYear() - accrualStartYear;
+        BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
         for (int thisYear = getAccrueStart().getYear(); thisYear <= getAccrueEnd().getYear(); ++thisYear) {
             LocalDate thisAccrualStart = getAccrueStart();
             if (thisYear > accrualStartYear)
@@ -100,8 +99,7 @@ public class Annual extends CashFlowFrequency {
                 thisAccrualEnd = LocalDate.of(thisYear, Month.DECEMBER, 31);
 
             LocalDate cashFlowDate = LocalDate.of(thisYear + paymentYearOffset, getFirstPaymentDate().getMonth(), getFirstPaymentDate().getDayOfMonth());
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrualStart, thisAccrualEnd);
-            result.add(new CashFlowInstance(this.getId(), thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
+            result.add(new CashFlowPeriod(thisAccrualStart, thisAccrualEnd, cashFlowDate));
         }
 
         return result;

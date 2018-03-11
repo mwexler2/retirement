@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -50,21 +51,16 @@ public class SemiMonthly extends Monthly {
                        @JsonProperty("accrueEnd") LocalDate accrueEnd,
                        @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
                        @JsonProperty(value = "firstDayOfMonth", required = true) int firstDayOfMonth,
-                       @JsonProperty(value = "secondDayOfMonth", required = true) int secondDayOfMonth)
+                       @JsonProperty(value = "secondDayOfMonth", required = true) int secondDayOfMonth,
+                       @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
-        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
         this.firstDayOfMonth = firstDayOfMonth;
         this.secondDayOfMonth = secondDayOfMonth;
     }
 
-    private final BigDecimal periodsPerYear = BigDecimal.valueOf(2 * 12);
-    @JsonIgnore
-    @Override
-    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
-    public int getFirstDayOfMonth() {
-        return firstDayOfMonth;
-    }
+    public int getFirstDayOfMonth() { return firstDayOfMonth; }
 
     public int getSecondDayOfMonth() {
         return secondDayOfMonth;
@@ -72,8 +68,8 @@ public class SemiMonthly extends Monthly {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator) {
-        ArrayList<CashFlowInstance> result = new ArrayList<>();
+    public List<CashFlowPeriod> getCashFlowPeriods() {
+        ArrayList<CashFlowPeriod> result = new ArrayList<>();
         YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
         YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
         YearMonth firstPaymentYearMonth = YearMonth.of(getFirstPaymentDate().getYear(), getFirstPaymentDate().getMonth());
@@ -86,12 +82,10 @@ public class SemiMonthly extends Monthly {
             if (thisAccrueEnd.isAfter(getAccrueEnd()))
                 thisAccrueEnd = getAccrueEnd();
             LocalDate firstCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(firstDayOfMonth);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd);
             if (!firstCashFlowDate.isBefore(getFirstPaymentDate()))
-                result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, firstCashFlowDate, singleFlowAmount));
+                result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, firstCashFlowDate));
             LocalDate secondCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(secondDayOfMonth);
-            singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueEnd, secondCashFlowDate);
-            result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, secondCashFlowDate, singleFlowAmount));
+            result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, secondCashFlowDate));
         }
 
         return result;

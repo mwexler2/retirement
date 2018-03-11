@@ -106,7 +106,7 @@
         </tr>
         <c:forEach var="incomeSourceId" items="${scenario.cashFlowSourceIds}">
             <tr>
-                <th>${scenario.getIncomeSourceName(incomeSourceId)}</th>
+                <th>${scenario.getCashFlowSourceName(incomeSourceId)}</th>
                 <c:forEach var="year" items="${scenario.years}">
                     <td align="right">${command.cf.format(scenario.getAnnualIncome(incomeSourceId, year))}</td>
                 </c:forEach>
