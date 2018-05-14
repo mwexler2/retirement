@@ -39,8 +39,8 @@ public class BonusTest {
         Monthly monthly =
                 new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        salary = new Salary(context, "salary1", "job1", monthly.getId());
-        salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
+        salary = new Salary(context, "salary1", "job1", monthly.getId(),
+                BigDecimal.valueOf(100000.00));
 
         LocalDate job1FirstBonus = LocalDate.of(2016, Month.JUNE, 6);
         Annual annual =

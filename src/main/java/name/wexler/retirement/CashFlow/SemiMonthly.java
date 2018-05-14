@@ -31,39 +31,42 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 /**
  * Created by mwexler on 7/9/16.
  */
-@JsonPropertyOrder({ "type", "id", "accrueStart", "accrueEnd", "firstPaymentDate", "firstDayOfMonth", "secondDayOfMonth" })
+@JsonPropertyOrder({ "type", "id", "accrueStart", "accrueEnd", "firstPaymentDate", "firstPaymentDayOfMonth", "secondPaymentDayOfMonth" })
 public class SemiMonthly extends Monthly {
-    private int firstDayOfMonth;
-    private int secondDayOfMonth;
+    private int firstPaymentDayOfMonth;
+    private int secondPaymentDayOfMonth;
+    private static final int middleOfMonth = 15;
+    private static final int periodsPerYear = 24;
 
     public SemiMonthly(@JacksonInject("context") Context context,
                        @JsonProperty(value = "id", required = true) String id,
                        @JsonProperty("accrueStart") LocalDate accrueStart,
                        @JsonProperty("accrueEnd") LocalDate accrueEnd,
                        @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
-                       @JsonProperty(value = "firstDayOfMonth", required = true) int firstDayOfMonth,
-                       @JsonProperty(value = "secondDayOfMonth", required = true) int secondDayOfMonth,
+                       @JsonProperty(value = "firstPaymentDayOfMonth", required = true) int firstDayOfMonth,
+                       @JsonProperty(value = "secondPaymentDayOfMonth", required = true) int secondDayOfMonth,
                        @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
         super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
-        this.firstDayOfMonth = firstDayOfMonth;
-        this.secondDayOfMonth = secondDayOfMonth;
+        this.firstPaymentDayOfMonth = firstDayOfMonth;
+        this.secondPaymentDayOfMonth = secondDayOfMonth;
     }
 
-    public int getFirstDayOfMonth() { return firstDayOfMonth; }
+    public int getFirstPaymentDayOfMonth() { return firstPaymentDayOfMonth; }
 
-    public int getSecondDayOfMonth() {
-        return secondDayOfMonth;
+    public int getSecondPaymentDayOfMonth() {
+        return secondPaymentDayOfMonth;
     }
 
     @JsonIgnore
@@ -73,7 +76,6 @@ public class SemiMonthly extends Monthly {
         YearMonth startYearMonth = YearMonth.of(getAccrueStart().getYear(), getAccrueStart().getMonth());
         YearMonth endYearMonth = YearMonth.of(getAccrueEnd().getYear(), getAccrueEnd().getMonth());
         YearMonth firstPaymentYearMonth = YearMonth.of(getFirstPaymentDate().getYear(), getFirstPaymentDate().getMonth());
-        long paymentMonthOffset = startYearMonth.until(firstPaymentYearMonth, ChronoUnit.MONTHS);
         for (YearMonth thisYearMonth = startYearMonth; !thisYearMonth.isAfter(endYearMonth); thisYearMonth = thisYearMonth.plusMonths(1)) {
             LocalDate thisAccrueStart = LocalDate.of(thisYearMonth.getYear(), thisYearMonth.getMonth(), 1);
             if (thisAccrueStart.isBefore(getAccrueStart()))
@@ -81,13 +83,52 @@ public class SemiMonthly extends Monthly {
             LocalDate thisAccrueEnd = thisAccrueStart.withDayOfMonth(thisAccrueStart.lengthOfMonth());
             if (thisAccrueEnd.isAfter(getAccrueEnd()))
                 thisAccrueEnd = getAccrueEnd();
-            LocalDate firstCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(firstDayOfMonth);
-            if (!firstCashFlowDate.isBefore(getFirstPaymentDate()))
-                result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, firstCashFlowDate));
-            LocalDate secondCashFlowDate = thisAccrueStart.plusMonths(paymentMonthOffset).withDayOfMonth(secondDayOfMonth);
-            result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, secondCashFlowDate));
+            LocalDate firstCashFlowDate = thisAccrueStart.withDayOfMonth(firstPaymentDayOfMonth);
+
+            LocalDate firstAccrueStart = thisAccrueStart;
+            LocalDate firstAccrueEnd = thisAccrueEnd;
+            if (firstAccrueEnd.getDayOfMonth() > this.middleOfMonth)
+                firstAccrueEnd = firstAccrueEnd.withDayOfMonth(this.middleOfMonth);
+            if (firstCashFlowDate.isBefore(firstAccrueEnd))
+                firstCashFlowDate = firstCashFlowDate.plusMonths(1);
+            if (!firstAccrueEnd.isBefore(this.getAccrueStart())) {
+                BigDecimal daysInPeriod = BigDecimal.valueOf(this.middleOfMonth);
+                // Add 1 day to make it inclusive
+                BigDecimal accrualDays = BigDecimal.valueOf(firstAccrueStart.until(firstAccrueEnd.plusDays(1), DAYS));
+                BigDecimal portion = accrualDays.divide(daysInPeriod, 4, BigDecimal.ROUND_HALF_UP);
+                portion = portion.divide(BigDecimal.valueOf(periodsPerYear), 10, BigDecimal.ROUND_HALF_UP);
+                result.add(new CashFlowPeriod(firstAccrueStart, firstAccrueEnd, firstCashFlowDate, portion));
+            }
+
+            LocalDate secondAccrueStart = thisAccrueStart.withDayOfMonth(this.middleOfMonth + 1);
+            LocalDate secondAccrueEnd = thisAccrueEnd;
+            LocalDate secondCashFlowDate = thisAccrueStart.withDayOfMonth(secondPaymentDayOfMonth);
+            if (secondCashFlowDate.isBefore(secondAccrueEnd))
+                secondCashFlowDate = secondCashFlowDate.plusMonths(1);
+            if (secondAccrueStart.isBefore(this.getAccrueEnd())) {
+                BigDecimal daysInPeriod = BigDecimal.valueOf(secondAccrueEnd.lengthOfMonth() - this.middleOfMonth);
+                BigDecimal accrualDays = BigDecimal.valueOf(secondAccrueStart.until(secondAccrueEnd.plusDays(1), DAYS));
+                BigDecimal portion = accrualDays.divide(daysInPeriod, 4, BigDecimal.ROUND_HALF_UP);
+                portion = portion.divide(BigDecimal.valueOf(periodsPerYear), 10, BigDecimal.ROUND_HALF_UP);
+                result.add(new CashFlowPeriod(secondAccrueStart, secondAccrueEnd, secondCashFlowDate, portion));
+            }
         }
 
         return result;
+    }
+
+    @JsonIgnore
+    public ChronoUnit getChronoUnit() {
+        return ChronoUnit.MONTHS;
+    }
+
+    @JsonIgnore
+    public BigDecimal getUnitMultiplier() {
+        return BigDecimal.valueOf(0.5);
+    }
+
+    @JsonIgnore
+    public BigDecimal unitsPerYear() {
+        return BigDecimal.valueOf(24);
     }
 }

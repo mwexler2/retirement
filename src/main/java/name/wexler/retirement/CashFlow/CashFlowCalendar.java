@@ -133,11 +133,10 @@ public class CashFlowCalendar {
 
     public BigDecimal sumMatchingCashFlowForPeriod(LocalDate accrualStart, LocalDate accrualEnd, CashFlowChecker checker) {
         BigDecimal sum = BigDecimal.ZERO;
-        cashFlowInstances = new ArrayList<>();
         for (CashFlowSource cashFlowSource : _cashFlowSources.values()) {
-            if (checker.check(cashFlowSource)) {
-                List<CashFlowInstance> cashFlowInstances = cashFlowSource.getCashFlowInstances(this);
-                for (CashFlowInstance cashFlowInstance : cashFlowInstances) {
+            for (CashFlowInstance cashFlowInstance : this.cashFlowInstances) {
+                cashFlowInstance.getCashFlowSource();
+                if (checker.check(cashFlowSource)) {
                     if (cashFlowInstance.isPaidInDateRange(accrualStart, accrualEnd)) {
                         sum = sum.add(cashFlowInstance.getAmount());
                     }
@@ -161,6 +160,10 @@ public class CashFlowCalendar {
         if (!_liabilitiesIndexed)
             indexLiabilities();
         return getBalance(liabilityValueYears, year);
+    }
+
+    public Assumptions getAssumptions() {
+        return _assumptions;
     }
 
     private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, Integer year) {
@@ -264,5 +267,19 @@ public class CashFlowCalendar {
             total = BigDecimal.ZERO;
         total = total.add(balance.getValue());
         balances.put(id, total);
+    }
+
+    public List<CashFlowInstance> getCashFlows(String cashFlowId) {
+        if (!_cashFlowsIndexed)
+            indexCashFlows();
+
+        List<CashFlowInstance> cashFlows = new ArrayList<>();
+
+        for (CashFlowInstance cashFlow: this.cashFlowInstances) {
+            if (cashFlow.getCashFlowId().equals(cashFlowId)) {
+                cashFlows.add(cashFlow);
+            }
+        }
+        return cashFlows;
     }
 }

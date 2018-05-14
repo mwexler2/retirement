@@ -1,5 +1,7 @@
 package name.wexler.retirement.CashFlow;
 
+import name.wexler.retirement.CashFlowSource;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -7,22 +9,26 @@ import java.time.LocalDate;
  * Created by mwexler on 11/29/16.
  */
 public class CashFlowInstance {
-    private final String cashFlowId;
+    private final CashFlowSource cashFlowSource;
     private final LocalDate accrualStart;
     private final LocalDate accrualEnd;
     private final LocalDate cashFlowDate;
     private final BigDecimal amount;
 
-    public CashFlowInstance(String cashFlowId, LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount) {
-        this.cashFlowId = cashFlowId;
+    public CashFlowInstance(CashFlowSource cashFlowSource, LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount) {
         this.accrualStart = accrualStart;
         this.accrualEnd = accrualEnd;
         this.cashFlowDate = cashFlowDate;
         this.amount = amount;
+        this.cashFlowSource = cashFlowSource;
     }
 
     public String getCashFlowId() {
-        return cashFlowId;
+        return cashFlowSource.getId();
+    }
+
+    public CashFlowSource getCashFlowSource() {
+        return cashFlowSource;
     }
 
     public LocalDate getAccrualStart() {

@@ -1,5 +1,6 @@
 package name.wexler.retirement.CashFlow;
 
+import name.wexler.retirement.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,8 +20,13 @@ public class CashFlowInstanceTest {
     @Before
     public void setUp() throws Exception {
         BigDecimal thousand = BigDecimal.valueOf(1000.00);
+        Context context = new Context();
+        Person employee1 = new Person(context, "employee1");
+        Company company1 = new Company(context, "company1");
+        Job job1 = new Job(context, "job1", "employer1", "employee1");
+        CashFlowSource salary1 = new Salary(context, "salary1", "job1", "salary1CashFlow", BigDecimal.valueOf(42000.42));
         cfi = new CashFlowInstance(
-                "cashFlowInstance1",
+                salary1,
                 LocalDate.of(2014, Month.MAY, 1),
                 LocalDate.of(2014, Month.MAY, 15),
                 LocalDate.of(2014, Month.MAY, 25),

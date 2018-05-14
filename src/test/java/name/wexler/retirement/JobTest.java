@@ -89,8 +89,8 @@ public class JobTest {
                 new SemiMonthly(context, "semi-monthly-salary1",
                 job1.getStartDate(), job1.getEndDate(), job1FirstPaycheckDate, 5, 20,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        job1Salary = new Salary(context, "job1Salary", job1.getId(), job1SalarySource.getId());
-        job1Salary.setBaseAnnualSalary(new BigDecimal(100000.00));
+        job1Salary = new Salary(context, "job1Salary", job1.getId(), job1SalarySource.getId(),
+                BigDecimal.valueOf(100000.00));
         Annual job1BonusSource =
                 new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
@@ -102,8 +102,8 @@ public class JobTest {
                 new SemiMonthly(context, "semi-monthly-salary2",
                 job1.getStartDate(), job1.getEndDate(), salary2FirstPaycheck, 10, 25,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        job1Salary2 = new Salary(context, "job1Salary2", "job1", job1SalarySource2.getId());
-        job1Salary2.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
+        job1Salary2 = new Salary(context, "job1Salary2", "job1", job1SalarySource2.getId(),
+                BigDecimal.valueOf(100000.00));
         Annual job1BonusSource2 =
                 new Annual(context, "annual-bonus2", job1FirstBonusDay,
                 job1.getStartDate(), job1.getEndDate(),
@@ -116,8 +116,8 @@ public class JobTest {
                 new Biweekly(context, "biweekly-job2-salary", job2FirstPeriodStart, job2.getStartDate(),
                         job2.getEndDate(), job2FirstPaycheck,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        job2Salary = new Salary(context, "job2Salary", job2.getId(), job2SalarySource.getId());
-        job2Salary.setBaseAnnualSalary(BigDecimal.valueOf(80000.00));
+        job2Salary = new Salary(context, "job2Salary", job2.getId(), job2SalarySource.getId(),
+                BigDecimal.valueOf(80000.00));
         CashFlowSource[] job2IS = {job1Salary2, job1Bonus2, job2Salary};
     }
 

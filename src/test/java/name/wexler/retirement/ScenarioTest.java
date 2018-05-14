@@ -41,8 +41,9 @@ public class ScenarioTest {
         Biweekly biweekly =
                 new Biweekly(context, "job1CashFlowSource1", job1FirstPeriodStart, job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId());
-        salary1.setBaseAnnualSalary(BigDecimal.valueOf(27000.00));
+        Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId(),
+                BigDecimal.valueOf(27000.00));
+
         Company bankOfNowhere = new Company(context, "bon1");
         Monthly liability1Monthly =
                 new Monthly(context, "liability1CashFlowSource1",
@@ -70,8 +71,8 @@ public class ScenarioTest {
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};
         Assumptions assumptions = new Assumptions();
-        scenario1 = new Scenario(context, "scenario1", is, assets, liabilities, assumptions);
-        scenario2 = new Scenario(context, "scenario2", is, assets, liabilities, assumptions);
+        scenario1 = new Scenario(context, "scenario1", "Scenario 1", is, assets, liabilities, assumptions);
+        scenario2 = new Scenario(context, "scenario2", "Scenario 2", is, assets, liabilities, assumptions);
     }
 
     @After
@@ -83,9 +84,9 @@ public class ScenarioTest {
     @Test
     public void getName() throws Exception {
         String name1 = scenario1.getName();
-        assertEquals(name1, "scenario1");
+        assertEquals(name1, "Scenario 1");
         String name2 = scenario2.getName();
-        assertEquals(name2, "scenario2");
+        assertEquals(name2, "Scenario 2");
     }
 
 
@@ -99,10 +100,10 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
+        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
 
         String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"scenario2\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
+        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 2\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
     }
 
 

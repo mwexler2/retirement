@@ -26,6 +26,7 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
+import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "assumptions", "name", "cashFlowSources"})
 public class Scenario {
+    private final String id;
     private final String name;
     private Assumptions _assumptions;
 
@@ -47,17 +49,20 @@ public class Scenario {
 
     @JsonCreator
     Scenario(@JacksonInject("context") Context context,
+             @JsonProperty("id") String id,
              @JsonProperty("name") String name,
              @JsonProperty("cashFlowSources") String[] cashFlowSources,
              @JsonProperty("assets") String[] assets,
              @JsonProperty("liabilities") String[] liabilities,
              @JsonProperty("assumptions") Assumptions assumptions) {
+        this.id = id;
         this.name = name;
         this._assumptions = assumptions;
         calendar = new CashFlowCalendar(assumptions);
         setCashFlowSourceIds(context, cashFlowSources);
         setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);
+        context.put(Scenario.class, id, this);
     }
 
 
@@ -191,5 +196,10 @@ public class Scenario {
     @JsonIgnore
     public int getNumYears() {
         return calendar.getYears().size();
+    }
+
+    @JsonIgnore
+    public List<CashFlowInstance> getCashFlows(String cashFlowId) {
+        return calendar.getCashFlows(cashFlowId);
     }
 }

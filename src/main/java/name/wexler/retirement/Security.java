@@ -7,6 +7,8 @@ import name.wexler.retirement.CashFlow.Balance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -17,7 +19,7 @@ public class Security extends Asset {
     @JsonCreator
     public Security(@JacksonInject("context") Context context,
                     @JsonProperty("id") String id,
-                    @JsonProperty("owner") List<String> ownerIds,
+                    @JsonProperty("owners") List<String> ownerIds,
                     @JsonProperty("initialAssetValue") Balance initialAssetValue,
                     @JsonProperty("interimBalances") List<Balance> interimBalances) {
         super(context, id, ownerIds, initialAssetValue, interimBalances);
@@ -25,5 +27,9 @@ public class Security extends Asset {
 
     public String getName() {
         return getId();
+    }
+
+    public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
+        return new Balance(valueDate, BigDecimal.valueOf(1500.00));
     }
 }

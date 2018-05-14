@@ -43,18 +43,21 @@ public class RSU extends CashFlowSource {
     @JsonIgnore
     private Job job;
     private Security security;
+    private int totalShares;
 
     public RSU(@JacksonInject("context") Context context,
                @JsonProperty(value = "id", required = true) String id,
                @JsonProperty(value = "job", required = true) String jobId,
                @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
-               @JsonProperty(value = "security", required = true) String securityId)
+               @JsonProperty(value = "security", required = true) String securityId,
+               @JsonProperty(value = "totalShares", required = true) int totalShares)
             throws Exception {
         super(context, id, cashFlowId,
                 Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
                 Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
         this.setSecurityId(context, securityId);
+        this.totalShares = totalShares;
     }
 
 
@@ -67,6 +70,11 @@ public class RSU extends CashFlowSource {
     public String getJobId() {
         return job.getId();
     }
+
+    public int getTotalShares() {
+        return this.totalShares;
+    }
+
     private void setJobId(@JacksonInject("context") Context context, @JsonProperty(value = "job", required = true) String jobId) {
         this.job = context.getById(Job.class, jobId);
     }
@@ -83,8 +91,12 @@ public class RSU extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, (calendar, accrualStart, accrualEnd, percent) ->
-                BigDecimal.ZERO);
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this, (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
+            BigDecimal sharePrice = this.security.getBalanceAtDate(accrualEnd, calendar.getAssumptions()).getValue();
+            BigDecimal shares = apportionCashFlow(accrualStart, accrualEnd, BigDecimal.valueOf(totalShares));
+            BigDecimal amount = sharePrice.multiply(shares);
+            return amount;
+        });
     }
 
 }

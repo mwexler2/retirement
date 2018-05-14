@@ -41,7 +41,9 @@ import name.wexler.retirement.CashFlow.Balance;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = RealProperty.class, name = "real-property") })
+        @JsonSubTypes.Type(value = RealProperty.class, name = "real-property"),
+        @JsonSubTypes.Type(value = Security.class, name = "Security")
+})
 public abstract class Asset {
     private final Balance _initialBalance;
     private final List<Balance> _interimBalances;

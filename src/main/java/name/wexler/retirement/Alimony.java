@@ -83,12 +83,12 @@ public class Alimony extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar,
-                (calendar, accrualStart, accrualEnd, percent) -> {
+        List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
             return baseAlimony;
                 });
-        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar,
-                (calendar, accrualStart, accrualEnd, percent) -> {
+        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar, this,
+                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (source) -> {
                                 if (source.isPayee(this.payor)) {
@@ -113,12 +113,11 @@ public class Alimony extends CashFlowSource {
             BigDecimal amount = instance.getAmount();
             if (amount.compareTo(remainingBalance) > 0) {
                 amount = remainingBalance;
-                instance = new CashFlowInstance(instance.getCashFlowId(),
+                instance = new CashFlowInstance(this,
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
                         remainingBalance);
-                result.add(instance);
             }
             result.add(instance);
             prevYear = instance.getAccrualEnd().getYear();

@@ -29,12 +29,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.MonthDay;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,21 +42,24 @@ import static java.time.temporal.ChronoUnit.DAYS;
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Annual extends CashFlowFrequency {
+public class SemiAnnual extends CashFlowFrequency {
     private MonthDay monthDay;
     private int firstYear;
     private int lastYear;
-    private static final int periodsPerYear = 1;
+    private static final int periodsPerYear = 2;
+    private LocalDate firstAccrualEnd;
 
-    public Annual(@JacksonInject("context") Context context,
-                  @JsonProperty(value = "id", required = true) String id,
-                  @JsonProperty("accrueStart") LocalDate accrueStart,
-                  @JsonProperty("accrueEnd") LocalDate accrueEnd,
-                  @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
-                  @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
+    public SemiAnnual(@JacksonInject("context") Context context,
+                      @JsonProperty(value = "id", required = true) String id,
+                      @JsonProperty("accrueStart") LocalDate accrueStart,
+                      @JsonProperty("accrueEnd") LocalDate accrueEnd,
+                      @JsonProperty("firstAccrualEnd") LocalDate firstAccrualEnd,
+                      @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
+                      @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
         super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
+        this.firstAccrualEnd = firstAccrualEnd;
         this.monthDay = MonthDay.of(firstPaymentDate.getMonth(), firstPaymentDate.getDayOfMonth());
         this.firstYear = firstPaymentDate.getYear();
         this.lastYear = accrueEnd.getYear();
@@ -92,39 +94,35 @@ public class Annual extends CashFlowFrequency {
         int accrualStartYear = getAccrueStart().getYear();
         int accrualEndYear = getAccrueEnd().getYear();
         int paymentYearOffset = getFirstPaymentDate().getYear() - accrualStartYear;
-        BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), DAYS));
-        for (int thisYear = getAccrueStart().getYear(); thisYear <= getAccrueEnd().getYear(); ++thisYear) {
-            LocalDate thisAccrualStart = getAccrueStart();
-            if (thisYear > accrualStartYear)
-                thisAccrualStart = LocalDate.of(thisYear, Month.JANUARY, 1);
 
-            LocalDate thisAccrualEnd = getAccrueEnd();
-            if (thisYear < accrualEndYear)
-                thisAccrualEnd = LocalDate.of(thisYear, Month.DECEMBER, 31);
-
-            LocalDate cashFlowDate = LocalDate.of(thisYear + paymentYearOffset, getFirstPaymentDate().getMonth(), getFirstPaymentDate().getDayOfMonth());
-
-            BigDecimal daysInPeriod = BigDecimal.valueOf(thisAccrualEnd.lengthOfYear());
+        LocalDate thisAccrualStart = getAccrueStart();
+        LocalDate thisAccrualEnd = this.firstAccrualEnd;
+        LocalDate cashFlowDate = this.getFirstPaymentDate();
+        while (thisAccrualEnd.isBefore(getAccrueEnd())) {
+            YearMonth thisStartYearMonth = YearMonth.of(thisAccrualStart.getYear(), thisAccrualStart.getMonth());
+            YearMonth thisEndYearMonth = YearMonth.of(thisAccrualEnd.getYear(), thisAccrualEnd.getMonth());
+            BigDecimal daysInPeriod = BigDecimal.valueOf(thisStartYearMonth.until(thisEndYearMonth, DAYS));
             BigDecimal accrualDays = BigDecimal.valueOf(thisAccrualStart.until(thisAccrualEnd, DAYS));
-            BigDecimal portion = accrualDays.divide(daysInPeriod, 2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal portion = accrualDays.divide(daysInPeriod, 4, BigDecimal.ROUND_HALF_UP);
+            portion = portion.divide(BigDecimal.valueOf(periodsPerYear), 10, BigDecimal.ROUND_HALF_UP);
             result.add(new CashFlowPeriod(thisAccrualStart, thisAccrualEnd, cashFlowDate, portion));
+            thisAccrualStart = thisAccrualEnd.plusDays(1);
+            thisAccrualEnd = thisAccrualStart.plusMonths(6);
+            cashFlowDate = cashFlowDate.plusMonths(6);
         }
 
         return result;
     }
 
-    @JsonIgnore
     public ChronoUnit getChronoUnit() {
-        return ChronoUnit.YEARS;
+        return ChronoUnit.MONTHS;
     }
 
-    @JsonIgnore
     public BigDecimal getUnitMultiplier() {
-        return BigDecimal.valueOf(1);
+        return BigDecimal.valueOf(6);
     }
 
-    @JsonIgnore
     public BigDecimal unitsPerYear() {
-        return BigDecimal.valueOf(1);
+        return BigDecimal.valueOf(2);
     }
 }

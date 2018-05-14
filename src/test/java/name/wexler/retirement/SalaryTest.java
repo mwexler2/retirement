@@ -32,8 +32,8 @@ public class SalaryTest {
         Monthly job1CashFlow =
                 new Monthly(context, "job1CashFlow1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId());
-        incomeSource1.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
+        incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId(),
+                BigDecimal.valueOf(100000.00));
     }
 
     @After

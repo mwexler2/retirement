@@ -26,6 +26,7 @@ package name.wexler.retirement.CashFlow;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.CashFlowSource;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
@@ -50,11 +51,10 @@ public class VestingSchedule extends CashFlowFrequency {
                            @JsonProperty("accrueStart") LocalDate accrueStart,
                            @JsonProperty("accrueEnd") LocalDate accrueEnd,
                            @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
-                           @JsonProperty("vesting") List<Vesting> vestingSchedule,
-                           @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
+                           @JsonProperty("vesting") List<Vesting> vestingSchedule)
     throws Exception
     {
-        super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate, ApportionmentPeriod.WHOLE_TERM);
         vestings = vestingSchedule;
     }
 
@@ -66,15 +66,15 @@ public class VestingSchedule extends CashFlowFrequency {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowSource cashFlowSource, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>(vestings.size());
 
         LocalDate thisAccrueStart = this.getAccrueStart();
         for (Vesting vesting : vestings) {
             LocalDate thisAccrueEnd = this.getAccrueStart().plusMonths(vesting.getMonths());
             LocalDate cashFlowDate = thisAccrueEnd.plusDays(1);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, thisAccrueStart, thisAccrueEnd, vesting.getPercent());
-            result.add(new CashFlowInstance(this.getId(), thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
+            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(), thisAccrueStart, thisAccrueEnd, vesting.getPercent());
+            result.add(new CashFlowInstance(cashFlowSource, thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
             thisAccrueStart = thisAccrueEnd.plusDays(1);
         }
         return result;
@@ -89,9 +89,22 @@ public class VestingSchedule extends CashFlowFrequency {
         for (Vesting vesting : vestings) {
             LocalDate thisAccrueEnd = this.getAccrueStart().plusMonths(vesting.getMonths());
             LocalDate cashFlowDate = thisAccrueEnd.plusDays(1);
-            result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, cashFlowDate));
+            BigDecimal portion = BigDecimal.ONE;
+            result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, cashFlowDate, vesting.getPercent()));
             thisAccrueStart = thisAccrueEnd.plusDays(1);
         }
         return result;
+    }
+
+    public ChronoUnit getChronoUnit() {
+        return ChronoUnit.ERAS;
+    }
+
+    public BigDecimal getUnitMultiplier() {
+        return BigDecimal.valueOf(1);
+    }
+
+    public BigDecimal unitsPerYear() {
+        return BigDecimal.valueOf(0);
     }
 }

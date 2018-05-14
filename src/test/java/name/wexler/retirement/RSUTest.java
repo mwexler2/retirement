@@ -39,8 +39,8 @@ public class RSUTest {
         Monthly monthly =
                 new Monthly(context, "job1CashFlowSource1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        salary = new Salary(context, "salary1", "job1", monthly.getId());
-        salary.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
+        salary = new Salary(context, "salary1", "job1", monthly.getId(),
+                BigDecimal.valueOf(100000.00));
 
         Annual job1AnnualVesting = new Annual(
                 context, "job1AnnualVesting",
@@ -66,16 +66,15 @@ public class RSUTest {
                         job1FirstRSU,
                         job1FirstRSU.plusMonths(48),
                         job1FirstRSU.plusMonths(12),
-                        vestings,
-                        CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
-        rsu1 = new RSU(context,  "rsu1", "job1", "vestingSchedule1", "AAPL");
+                        vestings);
+        rsu1 = new RSU(context,  "rsu1", "job1", "vestingSchedule1", "AAPL", 1000);
 
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 25);
         CashFlowFrequency biweeklySource = new Biweekly(context, "biweekly1",
                 job1FirstPeriodStart, LocalDate.of(2010, Month.MAY, 17),
                 LocalDate.of(2017, Month.MARCH, 1), job1FirstPaycheck,
                 CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
-        rsu2 = new RSU(context, "rsu2", "job1", "biweekly1", "MGTX");
+        rsu2 = new RSU(context, "rsu2", "job1", "biweekly1", "MGTX", 1500);
 
     }
 
@@ -104,7 +103,7 @@ public class RSUTest {
     public void toJSON() throws Exception {
         String rsuVestingScheduleStr = context.toJSON(rsu1);
         assertEquals("{\"type\":\"RSU\",\"id\":\"rsu1\",\"job\":\"job1\",\"cashFlow\":\"vestingSchedule1\"," +
-                        "\"security\":\"AAPL\"}",
+                        "\"security\":\"AAPL\",\"totalShares\":1000}",
                 rsuVestingScheduleStr);
 
     }
@@ -113,12 +112,12 @@ public class RSUTest {
     @Test
     public void fromJSON() throws Exception {
         String rsu1Str = "{\"type\":\"RSU\",\"id\":\"rsu1a\",\"job\":\"job1\",\"cashFlow\":\"vestingSchedule1" +
-                "\", \"security\":\"AAPL\"}";
+                "\", \"security\":\"AAPL\",\"totalShares\":1500}";
 
         CashFlowSource incomeSource2a = context.fromJSON(RSU.class, rsu1Str);
         assertEquals("rsu1a", incomeSource2a.getId());
 
-        String rsu2Str = "{\"type\":\"RSU\",\"id\":\"rsu2a\",\"job\":\"job1\",\"cashFlow\":\"job1AnnualVesting\",\"security\":\"MGTX\"}}";
+        String rsu2Str = "{\"type\":\"RSU\",\"id\":\"rsu2a\",\"job\":\"job1\",\"cashFlow\":\"job1AnnualVesting\",\"security\":\"MGTX\",\"totalShares\":700}}";
 
         CashFlowSource fixedRSU = context.fromJSON(RSU.class, rsu2Str);
         assertEquals("rsu2a", fixedRSU.getId());

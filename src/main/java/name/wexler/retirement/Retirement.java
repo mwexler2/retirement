@@ -25,6 +25,7 @@ package name.wexler.retirement;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.text.NumberFormat;
 
@@ -46,6 +47,7 @@ public class Retirement {
     private Asset[] assets;
     private Assumptions assumptions;
     private CashFlowFrequency[] cashFlows;
+    private String cashFlowId;
 
     public NumberFormat getCf() {
         return cf;
@@ -81,16 +83,13 @@ public class Retirement {
             String cashFlowsPath = resourceDir + "/cashFlows.json";
             this.cashFlows = context.fromJSONFileArray(CashFlowFrequency[].class, cashFlowsPath);
 
+            String assetsPath = resourceDir + "/assets.json";
+            this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
+
             String cashFlowSourcesPath = resourceDir + "/cashFlowSources.json";
             this.cashFlowSources = context.fromJSONFileArray(CashFlowSource[].class, cashFlowSourcesPath);
 
-            String assetsPath = resourceDir + "/assets.json";
-            File assetssFile = new File(assetsPath);
-            this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
-
-
             String assumptionsPath = resourceDir + "/assumptions.json";
-            File assumptionsFile = new File(assumptionsPath);
             this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
 
             String scenariosPath = resourceDir + "/scenarios.json";
@@ -106,6 +105,12 @@ public class Retirement {
         return scenarios;
     }
 
+    public List<CashFlowInstance> getCashFlows() {
+        Scenario[] scenarios = getScenarios();
+        List<CashFlowInstance> cashFlows = scenarios[0].getCashFlows(cashFlowId);
+        return cashFlows;
+    }
+
     public void setScenarios(Scenario[] scenarios) {
         this.scenarios = scenarios;
     }
@@ -116,6 +121,14 @@ public class Retirement {
 
     public void setPeople(Person[] people) {
         this.people = people;
+    }
+
+    public String getCashFlowId() {
+        return cashFlowId;
+    }
+
+    public void setCashFlowId(String cashFlowId) {
+        this.cashFlowId = cashFlowId;
     }
 }
 
