@@ -32,6 +32,7 @@ import java.text.NumberFormat;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
+import javafx.scene.SceneAntialiasing;
 import name.wexler.retirement.CashFlow.*;
 
 
@@ -48,6 +49,7 @@ public class Retirement {
     private Assumptions assumptions;
     private CashFlowFrequency[] cashFlows;
     private String cashFlowId;
+    private String scenarioId;
 
     public NumberFormat getCf() {
         return cf;
@@ -105,8 +107,16 @@ public class Retirement {
         return scenarios;
     }
 
+    public Scenario getScenario(String id) {
+        for (Scenario scenario : scenarios) {
+            if (scenario.getId().equals(id))
+            return scenario;
+        }
+        return null;
+    }
+
     public List<CashFlowInstance> getCashFlows() {
-        Scenario[] scenarios = getScenarios();
+        Scenario scenario = getScenario(scenarioId);
         List<CashFlowInstance> cashFlows = scenarios[0].getCashFlows(cashFlowId);
         return cashFlows;
     }
@@ -129,6 +139,14 @@ public class Retirement {
 
     public void setCashFlowId(String cashFlowId) {
         this.cashFlowId = cashFlowId;
+    }
+
+    public void setScenarioId(String scenarioId) {
+        this.scenarioId = scenarioId;
+    }
+
+    public String getScenarioId() {
+        return this.scenarioId;
     }
 }
 

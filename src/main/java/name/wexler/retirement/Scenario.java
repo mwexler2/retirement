@@ -66,6 +66,11 @@ public class Scenario {
     }
 
 
+    @JsonProperty(value = "id")
+    public String getId() {
+        return this.id;
+    }
+
     @JsonProperty(value = "cashFlowSources")
     private void setCashFlowSourceIds(@JacksonInject("context") Context context,
                                       @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowSourceIds) {

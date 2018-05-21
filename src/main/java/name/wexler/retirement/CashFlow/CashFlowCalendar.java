@@ -133,13 +133,11 @@ public class CashFlowCalendar {
 
     public BigDecimal sumMatchingCashFlowForPeriod(LocalDate accrualStart, LocalDate accrualEnd, CashFlowChecker checker) {
         BigDecimal sum = BigDecimal.ZERO;
-        for (CashFlowSource cashFlowSource : _cashFlowSources.values()) {
-            for (CashFlowInstance cashFlowInstance : this.cashFlowInstances) {
-                cashFlowInstance.getCashFlowSource();
-                if (checker.check(cashFlowSource)) {
-                    if (cashFlowInstance.isPaidInDateRange(accrualStart, accrualEnd)) {
-                        sum = sum.add(cashFlowInstance.getAmount());
-                    }
+        for (CashFlowInstance cashFlowInstance : this.cashFlowInstances) {
+            cashFlowInstance.getCashFlowSource();
+            if (checker.check(cashFlowInstance.getCashFlowSource())) {
+                if (cashFlowInstance.isPaidInDateRange(accrualStart, accrualEnd)) {
+                    sum = sum.add(cashFlowInstance.getAmount());
                 }
             }
         }

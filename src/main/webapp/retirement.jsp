@@ -107,7 +107,7 @@
         <c:forEach var="cashFlowSourceId" items="${scenario.cashFlowSourceIds}">
             <tr>
                 <th>
-                    <a href="cashflow/${cashFlowSourceId}">
+                    <a href="scenario/${scenario.getId()}/cashflow/${cashFlowSourceId}">
                         ${scenario.getCashFlowSourceName(cashFlowSourceId)}
                     </a>
                 </th>
@@ -117,15 +117,9 @@
             </tr>
         </c:forEach>
         <tr>
-            <th>Total Income</th>
+            <th>Total Cash Flow</th>
             <c:forEach var="year" items="${scenario.years}">
                 <td align="right">${command.cf.format(scenario.getAnnualIncome(year))}</td>
-            </c:forEach>
-        </tr>
-        <tr>
-            <th>Net Income</th>
-            <c:forEach var="year" items="${scenario.years}">
-                <td align="right">${command.cf.format(scenario.getNetIncome(year))}</td>
             </c:forEach>
         </tr>
     </table>

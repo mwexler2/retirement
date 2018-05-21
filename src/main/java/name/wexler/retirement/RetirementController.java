@@ -40,10 +40,11 @@ public class RetirementController {
     private static final String VIEW_INDEX = "index";
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RetirementController.class);
 
-    @RequestMapping(value = "/retirement/cashflow/{cashFlowId}", method = RequestMethod.GET)
-    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId, ModelMap model) {
+    @RequestMapping(value = "/retirement/scenario/{scenarioId}/cashflow/{cashFlowId}", method = RequestMethod.GET)
+    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId, @PathVariable String scenarioId, ModelMap model) {
         Retirement retirement = new Retirement();
         retirement.setCashFlowId(cashFlowId);
+        retirement.setScenarioId(scenarioId);
         return new ModelAndView("cashFlows", "command",  retirement);
     }
     @RequestMapping(value = "/retirement", method = RequestMethod.GET)

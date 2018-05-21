@@ -32,10 +32,9 @@ import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowFrequency;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -96,7 +95,7 @@ public class Alimony extends CashFlowSource {
                                 }
                                 return false;
                             });
-                    BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate);
+                    BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
                     return alimony;
                 });
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
@@ -105,23 +104,23 @@ public class Alimony extends CashFlowSource {
         allAlimonyCashFlows.sort((final CashFlowInstance instance1, final CashFlowInstance instance2) ->
             instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
         List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
-        BigDecimal remainingBalance = maxAlimony;
-        int prevYear = -1;
+        Map<Integer, BigDecimal> remainingBalance = new HashMap<>();
         for (CashFlowInstance instance : allAlimonyCashFlows) {
-            if (instance.getAccrualEnd().getYear() != prevYear)
-                remainingBalance = maxAlimony;
+            Integer year = instance.getAccrualEnd().getYear();
+            if (remainingBalance.get(year) == null) {
+                remainingBalance.put(year, maxAlimony);
+            }
             BigDecimal amount = instance.getAmount();
-            if (amount.compareTo(remainingBalance) > 0) {
-                amount = remainingBalance;
+            if (amount.compareTo(remainingBalance.get(year)) < 0) {
+                amount = remainingBalance.get(year);
                 instance = new CashFlowInstance(this,
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
-                        remainingBalance);
+                        amount);
             }
             result.add(instance);
-            prevYear = instance.getAccrualEnd().getYear();
-            remainingBalance = remainingBalance.subtract(amount);
+            remainingBalance.put(year, remainingBalance.get(year).subtract(amount));
         }
         return result;
     }

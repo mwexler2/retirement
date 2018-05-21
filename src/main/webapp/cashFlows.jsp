@@ -2,7 +2,7 @@
 <%@ page isELIgnored="false" %>
 <html>
 <body>
-<h1>Cash Flows for ${cashFlowId}</h1>
+<h1>Cash Flows for ${command.scenarioId}/${command.cashFlowId}</h1>
 
 
 
