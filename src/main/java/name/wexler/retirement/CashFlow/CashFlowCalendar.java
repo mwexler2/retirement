@@ -280,4 +280,18 @@ public class CashFlowCalendar {
         }
         return cashFlows;
     }
+
+    public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
+        if (!_cashFlowsIndexed)
+            indexCashFlows();
+
+        List<CashFlowInstance> cashFlows = new ArrayList<>();
+
+        for (CashFlowInstance cashFlow: this.cashFlowInstances) {
+            if (cashFlow.getCashFlowId().equals(cashFlowId)  && cashFlow.getCashFlowDate().getYear() == year.intValue()) {
+                cashFlows.add(cashFlow);
+            }
+        }
+        return cashFlows;
+    }
 }

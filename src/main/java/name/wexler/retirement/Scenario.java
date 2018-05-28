@@ -207,4 +207,9 @@ public class Scenario {
     public List<CashFlowInstance> getCashFlows(String cashFlowId) {
         return calendar.getCashFlows(cashFlowId);
     }
+
+    @JsonIgnore
+    public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
+        return calendar.getCashFlows(cashFlowId, year);
+    }
 }

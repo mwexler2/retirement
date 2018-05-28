@@ -27,12 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.text.NumberFormat;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
-import javafx.scene.SceneAntialiasing;
 import name.wexler.retirement.CashFlow.*;
 
 
@@ -51,21 +49,9 @@ public class Retirement {
     private String cashFlowId;
     private String scenarioId;
 
-    public NumberFormat getCf() {
-        return cf;
-    }
-
-    public NumberFormat getPf() {
-        return pf;
-    }
-
-    private final NumberFormat cf;
-    private final NumberFormat pf;
 
     Retirement() {
         Locale enUS = Locale.forLanguageTag("en-US");
-        cf = NumberFormat.getCurrencyInstance(enUS);
-        pf = NumberFormat.getPercentInstance();
         Context context = new Context();
 
         try {
@@ -115,9 +101,15 @@ public class Retirement {
         return null;
     }
 
-    public List<CashFlowInstance> getCashFlows() {
+    public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId) {
         Scenario scenario = getScenario(scenarioId);
-        List<CashFlowInstance> cashFlows = scenarios[0].getCashFlows(cashFlowId);
+        List<CashFlowInstance> cashFlows = scenario.getCashFlows(cashFlowId);
+        return cashFlows;
+    }
+
+    public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId, int year) {
+        Scenario scenario = getScenario(scenarioId);
+        List<CashFlowInstance> cashFlows = scenario.getCashFlows(cashFlowId, year);
         return cashFlows;
     }
 
@@ -131,22 +123,6 @@ public class Retirement {
 
     public void setPeople(Person[] people) {
         this.people = people;
-    }
-
-    public String getCashFlowId() {
-        return cashFlowId;
-    }
-
-    public void setCashFlowId(String cashFlowId) {
-        this.cashFlowId = cashFlowId;
-    }
-
-    public void setScenarioId(String scenarioId) {
-        this.scenarioId = scenarioId;
-    }
-
-    public String getScenarioId() {
-        return this.scenarioId;
     }
 }
 

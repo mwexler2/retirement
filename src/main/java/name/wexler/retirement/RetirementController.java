@@ -32,7 +32,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class RetirementController {
@@ -40,13 +42,30 @@ public class RetirementController {
     private static final String VIEW_INDEX = "index";
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RetirementController.class);
 
+    @RequestMapping(value = "/retirement/scenario/{scenarioId}/cashflow/{cashFlowId}/year/{year}", method = RequestMethod.GET)
+    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId,
+                                           @PathVariable String scenarioId,
+                                           @PathVariable int year,
+                                           ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("cashFlowId", cashFlowId);
+        model.put("scenarioId", scenarioId);
+        model.put("year", year);
+        List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId, year);
+        model.put("cashFlows", cashFlows);
+        return new ModelAndView("yearCashFlows", model);
+    }
+
     @RequestMapping(value = "/retirement/scenario/{scenarioId}/cashflow/{cashFlowId}", method = RequestMethod.GET)
     public ModelAndView retirementCashFlow(@PathVariable String cashFlowId, @PathVariable String scenarioId, ModelMap model) {
         Retirement retirement = new Retirement();
-        retirement.setCashFlowId(cashFlowId);
-        retirement.setScenarioId(scenarioId);
-        return new ModelAndView("cashFlows", "command",  retirement);
+        model.put("cashFlowId", cashFlowId);
+        model.put("scenarioId", scenarioId);
+        List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId);
+        model.put("cashFlows", cashFlows);
+        return new ModelAndView("cashFlows", model);
     }
+
     @RequestMapping(value = "/retirement", method = RequestMethod.GET)
     public ModelAndView retirement(ModelMap model) {
         return new ModelAndView("retirement", "command", new Retirement());

@@ -1,6 +1,21 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="f"   uri="http://retirement.wexler.name/functions" %>
+
+<p>Date is: </p>
 <%@ page isELIgnored="false" %>
 <html>
+<head>
+    <title>Retirement Calculator</title>
+    <style>
+        td a {
+            text-decoration-line: none;
+        }
+        th a {
+            text-decoration-line: none;
+        }
+    </style>
+</head>
 <body>
 <h1>Retirement Calculator</h1>
 
@@ -17,8 +32,8 @@
         <tr>
             <td><c:out value="${person.firstName}"/></td>
             <td><c:out value="${person.lastName}"/></td>
-            <td><c:out value="${person.birthDate}"/></td>
-            <td><c:out value="${person.retirementAge}"/></td>
+            <td>${f:formatLocalDate(person.birthDate, 'dd.MM.yyyy')}</td>
+            <td>${person.retirementAge}</td>
         </tr>
     </c:forEach>
 </table>
@@ -29,11 +44,23 @@
 <table border="1">
     <caption>Assumptions</caption>
     <tr>
-        <th>Long Term Investment Return</th><td>${command.pf.format(scenario.assumptions.longTermInvestmentReturn)}</td>
+        <th>Long Term Investment Return</th>
+        <td>
+            <fmt:formatNumber value="${scenario.assumptions.longTermInvestmentReturn}" type="percent"
+                              minFractionDigits="2" maxFractionDigits="2" />
+        </td>
     </tr><tr>
-        <th>Short Term Investment Return</th><td>${command.pf.format(scenario.assumptions.shortTermInvestmentReturn)}</td>
+        <th>Short Term Investment Return</th>
+        <td>
+            <fmt:formatNumber value="${scenario.assumptions.shortTermInvestmentReturn}" type="percent"
+                              minFractionDigits="2" maxFractionDigits="2" />
+        </td>
     </tr><tr>
-        <th>Inflation</th><td>${command.pf.format(scenario.assumptions.inflation)}</td>
+        <th>Inflation</th>
+        <td>
+            <fmt:formatNumber value="${scenario.assumptions.inflation}" type="percent"
+                              minFractionDigits="2" maxFractionDigits="2" />
+        </td>
     </tr><tr>
         <th>Years in short term</th><td>${scenario.assumptions.yearsInShortTerm}
     </tr>
@@ -56,14 +83,18 @@
             <tr>
                 <th>${scenario.getAssetName(assetId)}</th>
                 <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(scenario.getAssetValue(assetId, year))}</td>
+                    <td align="right">
+                        <fmt:formatNumber value="${scenario.getAssetValue(assetId, year)}" type="currency" />
+                    </td>
                 </c:forEach>
             </tr>
         </c:forEach>
             <tr>
                 <th>Total Assets</th>
                 <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(scenario.getAssetValue(year))}</td>
+                    <td align="right">
+                        <fmt:formatNumber value="${scenario.getAssetValue(year)}" type="currency" />
+                    </td>
                 </c:forEach>
             </tr>
         <tr>
@@ -74,20 +105,26 @@
             <tr>
                 <th>${scenario.getLiabilityName(liabilityId)}</th>
                 <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(scenario.getLiabilityAmount(liabilityId, year))}</td>
+                    <td align="right">
+                        <fmt:formatNumber value="${scenario.getLiabilityAmount(liabilityId, year)}" type="currency" />
+                    </td>
                 </c:forEach>
             </tr>
         </c:forEach>
         <tr>
             <th>Total Liabilities</th>
             <c:forEach var="year" items="${scenario.years}">
-                <td align="right">${command.cf.format(scenario.getLiabilityAmount(year))}</td>
+                <td align="right">
+                    <fmt:formatNumber value="${scenario.getLiabilityAmount(year)}" type="currency" />
+                </td>
             </c:forEach>
         </tr>
         <tr>
             <th>Net Worth</th>
             <c:forEach var="year" items="${scenario.years}">
-                <td align="right">${command.cf.format(scenario.getNetWorth(year))}</td>
+                <td align="right">
+                    <fmt:formatNumber value="${scenario.getNetWorth(year)}" type="currency" />
+                </td>
             </c:forEach>
         </tr>
     </table>
@@ -112,14 +149,20 @@
                     </a>
                 </th>
                 <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">${command.cf.format(scenario.getAnnualIncome(cashFlowSourceId, year))}</td>
+                    <td align="right">
+                        <a href="scenario/${scenario.getId()}/cashflow/${cashFlowSourceId}/year/${year}">
+                            <fmt:formatNumber value="${scenario.getAnnualIncome(cashFlowSourceId, year)}" type="currency" />
+                        </a>
+                    </td>
                 </c:forEach>
             </tr>
         </c:forEach>
         <tr>
             <th>Total Cash Flow</th>
             <c:forEach var="year" items="${scenario.years}">
-                <td align="right">${command.cf.format(scenario.getAnnualIncome(year))}</td>
+                <td align="right">
+                    <fmt:formatNumber value="${scenario.getAnnualIncome(year)}" type="currency" />
+                </td>
             </c:forEach>
         </tr>
     </table>
