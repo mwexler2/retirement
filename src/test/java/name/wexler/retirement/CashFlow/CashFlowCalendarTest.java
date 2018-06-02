@@ -84,7 +84,7 @@ public class CashFlowCalendarTest {
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2020, Month.APRIL, 27),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
-                BigDecimal.valueOf(500.00), monthlyPayment.getId());
+                BigDecimal.valueOf(500.00), BigDecimal.ZERO, monthlyPayment.getId());
         cashFlowSources.add(debt);
         calendar.addCashFlowSources(cashFlowSources);
 

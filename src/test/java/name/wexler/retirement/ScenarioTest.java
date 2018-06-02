@@ -64,8 +64,7 @@ public class ScenarioTest {
         Liability liability1 = new Liability(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20),
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
-                BigDecimal.valueOf(200.00), liability1Monthly.getId());
-        liability1.setPaymentAmount(BigDecimal.valueOf(273.99));
+                BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId());
 
         String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};

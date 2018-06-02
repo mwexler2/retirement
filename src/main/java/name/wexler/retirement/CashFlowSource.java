@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 import name.wexler.retirement.CashFlow.CashFlowFrequency;
@@ -168,5 +169,15 @@ public abstract class CashFlowSource {
                 return equalMonthly(accrualStart, accrualEnd, amount);
         }
         return BigDecimal.ZERO;
+    }
+
+    public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance) {
+        Balance newBalance = new Balance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().add(cashFlowInstance.getAmount()));
+        return newBalance;
+    }
+
+    public Balance getStartingBalance() {
+
+        return new Balance(this.getStartDate(), BigDecimal.ZERO);
     }
 }

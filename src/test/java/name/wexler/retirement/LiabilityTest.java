@@ -46,7 +46,7 @@ public class LiabilityTest {
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
-                BigDecimal.valueOf(500.00), monthly.getId());
+                BigDecimal.valueOf(500.00), BigDecimal.valueOf(473.33), monthly.getId());
     }
 
     @After
