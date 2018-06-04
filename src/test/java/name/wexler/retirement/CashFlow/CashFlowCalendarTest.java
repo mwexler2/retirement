@@ -33,7 +33,7 @@ public class CashFlowCalendarTest {
 
         Company employer = new Company(context, "employer1");
         employer.setCompanyName("Employment Co");
-        Person employee = new Person(context, "employee1");
+        Person employee = new Person(context, "employee1", LocalDate.of(1966, Month.APRIL, 1), 62);
         Job job1 = new Job(context, "job1", employer, employee);
         LocalDate job1StartDate = LocalDate.of(2015, Month.MAY, 1);
         job1.setStartDate((job1StartDate));
@@ -65,7 +65,7 @@ public class CashFlowCalendarTest {
 
         Company lender = new Company(context, "lender1");
         lender.setCompanyName("Lender's Bank");
-        Person borrower = new Person(context, "borrower1");
+        Person borrower = new Person(context, "borrower1", LocalDate.of(2000, Month.JANUARY, 1), 70);
         List<String> borrowerIds = Arrays.asList(borrower.getId());
         String[] streetAddress = {"123 Main Street"};
         List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2017, 7, 4), BigDecimal.valueOf(42000.42)));

@@ -85,7 +85,7 @@ public class Monthly extends CashFlowFrequency {
             int cashFlowDay = Integer.min(getFirstPaymentDate().getDayOfMonth(), cashFlowMonth.lengthOfMonth());
             LocalDate cashFlowDate = cashFlowMonth.withDayOfMonth(cashFlowDay);
             BigDecimal daysInPeriod = BigDecimal.valueOf(thisYearMonth.lengthOfMonth());
-            BigDecimal accrualDays = BigDecimal.valueOf(thisAccrueStart.until(thisAccrueEnd, DAYS));
+            BigDecimal accrualDays = BigDecimal.valueOf(thisAccrueStart.until(thisAccrueEnd, DAYS)+1);
             BigDecimal portion = accrualDays.divide(daysInPeriod, 4, BigDecimal.ROUND_HALF_UP);
             portion = portion.divide(BigDecimal.valueOf(periodsPerYear), 10, BigDecimal.ROUND_HALF_UP);
             result.add(new CashFlowPeriod(thisAccrueStart, thisAccrueEnd, cashFlowDate, portion));

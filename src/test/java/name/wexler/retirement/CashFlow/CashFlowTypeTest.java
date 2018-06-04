@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
+import java.util.jar.JarEntry;
 
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.*;
@@ -107,19 +108,26 @@ public class CashFlowTypeTest {
         CashFlowCalendar cashFlowCalendar = new CashFlowCalendar(assumptions);
         BigDecimal annualAmount = BigDecimal.valueOf(1000.00);
         Context context = new Context();
-        Person employee1 = new Person(context, "employee1");
+        Person employee1 = new Person(context, "employee1", LocalDate.of(2004, Month.MARCH, 31), 65);
         Company company1 = new Company(context, "company1");
         Job job1 = new Job(context, "job1", "employer1", "employee1");
-        CashFlowSource salary1 = new Salary(context, "salary1", "job1", "salary1CashFlow", BigDecimal.valueOf(42000.42));
+        job1.setStartDate(LocalDate.of(2010, Month.SEPTEMBER, 17));
+        job1.setEndDate(LocalDate.of(2014, Month.OCTOBER, 12));
+        CashFlowFrequency biweekly = new Biweekly(context, "salary1Frequency",
+                job1.getStartDate(),
+                job1.getStartDate(),
+                job1.getEndDate(),
+                job1.getStartDate().plusDays(7), CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
+        CashFlowSource salary1 = new Salary(context, "salary1", "job1", "salary1Frequency", BigDecimal.valueOf(42000.42));
 
         List<CashFlowInstance> biweeklyCashFlows = biweekly.getCashFlowInstances(cashFlowCalendar, salary1,
                 (calendar, cashFlowId, accrualStart, accrualEnd, percent) ->
                 annualAmount.divide(BigDecimal.valueOf(26), 2, BigDecimal.ROUND_HALF_UP));
-        assertEquals(LocalDate.of(2015, Month.JANUARY, 9), biweeklyCashFlows.get(0).getCashFlowDate());
-        assertEquals(LocalDate.of(2016, Month.JANUARY, 8), biweeklyCashFlows.get(biweeklyCashFlows.size() - 1).getCashFlowDate());
+        assertEquals(LocalDate.of(2010, Month.SEPTEMBER, 24), biweeklyCashFlows.get(0).getCashFlowDate());
+        assertEquals(LocalDate.of(2014, Month.OCTOBER, 17), biweeklyCashFlows.get(biweeklyCashFlows.size() - 1).getCashFlowDate());
         assertEquals(BigDecimal.valueOf(38.46), biweeklyCashFlows.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(38.46), biweeklyCashFlows.get(biweeklyCashFlows.size() - 1).getAmount());
-        assertEquals(27, biweeklyCashFlows.size());
+        assertEquals(107, biweeklyCashFlows.size());
 
 
         List<CashFlowInstance> monthlyCashFlows = monthly.getCashFlowInstances(cashFlowCalendar, salary1,

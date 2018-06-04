@@ -47,6 +47,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = Salary.class, name = "salary"),
         @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct"),
         @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed"),
+        @JsonSubTypes.Type(value = Rent.class, name="rent"),
         @JsonSubTypes.Type(value = Liability.class, name = "liability"),
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
         @JsonSubTypes.Type(value = RSU.class, name="RSU")})
@@ -176,6 +177,7 @@ public abstract class CashFlowSource {
         return newBalance;
     }
 
+    @JsonIgnore
     public Balance getStartingBalance() {
 
         return new Balance(this.getStartDate(), BigDecimal.ZERO);

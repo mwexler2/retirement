@@ -31,7 +31,7 @@ public class ScenarioTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        Person mike = new Person(context, "mike");
+        Person mike = new Person(context, "mike", LocalDate.of(1984, Month.APRIL, 1), 45);
         Company yahoo = new Company(context, "yahoo");
         Job job1 = new Job(context, "job1", "yahoo", "mike");
         job1.setStartDate(LocalDate.of(2015, Month.APRIL, 1));
@@ -99,10 +99,10 @@ public class ScenarioTest {
         ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
+        assertEquals("{\"id\":\"scenario1\",\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
 
         String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 2\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
+        assertEquals("{\"id\":\"scenario2\",\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 2\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
     }
 
 

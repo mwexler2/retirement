@@ -6,6 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -20,16 +21,12 @@ public class PersonTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        person1 = new Person(context, "john1");
+        person1 = new Person(context, "john1", LocalDate.of(1999, Month.DECEMBER, 25), 70);
         person1.setFirstName("John");
         person1.setLastName("Doe");
-        person1.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
-        person1.setRetirementAge(65);
-        person2 = new Person(context, "jane1");
+        person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40);
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
-        person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
-        person2.setRetirementAge(40);
     }
 
     @After
@@ -74,37 +71,22 @@ public class PersonTest {
 
     @Test
     public void getBirthDate() throws Exception {
-        assertEquals(person1.getBirthDate(), LocalDate.of(1970, Month.JANUARY, 1));
+        assertEquals(person1.getBirthDate(), LocalDate.of(1999, Month.DECEMBER, 25));
         assertEquals(person2.getBirthDate(), LocalDate.of(1969, Month.DECEMBER, 31));
     }
 
     @Test
-    public void setBirthDate() throws Exception {
-        person1.setBirthDate(LocalDate.of(2000, Month.APRIL, 4));
-        assertEquals(person1.getBirthDate(), LocalDate.of(2000, Month.APRIL, 4));
-    }
-
-    @Test
     public void getRetirementAge() throws Exception {
-        assertEquals(person1.getRetirementAge(), 65);
+        assertEquals(person1.getRetirementAge(), 70);
         assertEquals(person2.getRetirementAge(), 40);
 
     }
 
     @Test
-    public void setRetirementAge() throws Exception {
-        person1.setRetirementAge(100);
-        assertEquals(person1.getRetirementAge(), 100);
-    }
-
-
-    @Test
     public void equals() throws Exception {
-        Person person1a = new Person(context, "john1a");
+        Person person1a = new Person(context, "john1a", LocalDate.of(1970, Month.JANUARY, 1), 65);
         person1a.setFirstName("John");
         person1a.setLastName("Doe");
-        person1a.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
-        person1a.setRetirementAge(65);
         assertNotEquals(person1, person1a);
         assertNotEquals(person1, person2);
     }
@@ -112,7 +94,7 @@ public class PersonTest {
     @Test
     public void toJSON() throws Exception {
         String person1Str = context.toJSON(person1);
-        assertEquals("{\"type\":\"person\",\"id\":\"john1\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}", person1Str);
+        assertEquals("{\"type\":\"person\",\"id\":\"john1\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1999-12-25\",\"retirementAge\":70}", person1Str);
 
         String person2Str = context.toJSON(person2);
         assertEquals("{\"type\":\"person\",\"id\":\"jane1\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}", person2Str);

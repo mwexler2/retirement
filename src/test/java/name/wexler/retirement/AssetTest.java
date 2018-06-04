@@ -23,7 +23,7 @@ public class AssetTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        Person owner = new Person(context, "owner1");
+        Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75);
         List<String> ownerIds = Arrays.asList(owner.getId());
         String[] streetAddress = {"123 Main Street"};
         List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));

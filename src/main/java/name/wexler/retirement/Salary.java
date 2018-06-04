@@ -28,10 +28,7 @@ import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +58,7 @@ public class Salary extends CashFlowSource {
                 Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
                 Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
-        this.setBaseAnnualSalary(baseAnnualSalary);
+        this.baseAnnualSalary = baseAnnualSalary;
         this.payUnit = this.getCashFlow().getChronoUnit();
         this.payUnitMultiplier = this.getCashFlow().getUnitMultiplier();
         this.amountPerUnit = baseAnnualSalary.divide(getCashFlow().unitsPerYear(), 2, RoundingMode.HALF_UP);
@@ -98,10 +95,6 @@ public class Salary extends CashFlowSource {
         return baseAnnualSalary;
     }
 
-    private void setBaseAnnualSalary(BigDecimal baseAnnualSalary) {
-
-        this.baseAnnualSalary = baseAnnualSalary;
-    }
 
     @JsonIgnore
     @Override

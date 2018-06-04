@@ -38,7 +38,7 @@ import java.util.Map;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "assumptions", "name", "cashFlowSources"})
+@JsonPropertyOrder({ "id", "assumptions", "name", "cashFlowSources"})
 public class Scenario {
     private final String id;
     private final String name;

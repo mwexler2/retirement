@@ -64,16 +64,13 @@ public class JobTest {
         company2 = new Company(context, "comp2");
         company2.setCompanyName("Xerox");
 
-        person1 = new Person(context, "john1");
+        person1 = new Person(context, "john1", LocalDate.of(1900, 12, 25),
+                67);
         person1.setFirstName("John");
         person1.setLastName("Doe");
-        person1.setBirthDate(LocalDate.of(1970, Month.JANUARY, 1));
-        person1.setRetirementAge(65);
-        person2 = new Person(context, "jane1");
+        person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40);
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
-        person2.setBirthDate(LocalDate.of(1969, Month.DECEMBER, 31));
-        person2.setRetirementAge(40);
 
         job1 = new Job(context, "job1", company1, person1);
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));

@@ -24,7 +24,7 @@ public class SalaryTest {
     public void setUp() throws Exception {
         context = new Context();
         Company employer = new Company(context, "employer1");
-        Person employee = new Person(context, "employee1");
+        Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77);
         Job job1 = new Job(context, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));

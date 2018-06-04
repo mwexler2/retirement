@@ -13,17 +13,15 @@
         <th>Date</th>
         <th>Accrual Start</th>
         <th>Accrual End</th>
-        <th>amount</th>
+        <th>Amount</th>
     </tr>
     <c:forEach var="cashFlow" items="${cashFlows}">
         <tr>
             <th>${cashFlow.cashFlowDate}</th>
             <td>${cashFlow.accrualStart}</td>
+            <td>${cashFlow.accrualEnd}</td>
             <td>
                 <fmt:formatNumber value="${cashFlow.amount}" type="currency" />
-            </td>
-            <td>
-                <fmt:formatNumber value="${ytd}" type="currency" />
             </td>
         </tr>
     </c:forEach>

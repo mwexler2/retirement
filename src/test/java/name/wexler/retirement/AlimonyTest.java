@@ -23,8 +23,8 @@ public class AlimonyTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        Person payee = new Person(context, "payee1");
-        Person payor = new Person(context, "payor1");
+        Person payee = new Person(context, "payee1", LocalDate.of(1976, 07, 04), 65);
+        Person payor = new Person(context, "payor1", LocalDate.of(1945, Month.AUGUST, 14), 65);
           LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
@@ -66,9 +66,9 @@ public class AlimonyTest {
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-alimony1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
+        String expenseSource1aStr = "{\"type\":\"alimony\",\"id\":\"alimony1a\",\"baseCashFlow\":\"monthly-alimony1\",\"payee\":\"payee1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}";
         CashFlowSource expenseSource1a = context.fromJSON(CashFlowSource.class, expenseSource1aStr);
-        assertEquals("liability1a", expenseSource1a.getId());
+        assertEquals("alimony1a", expenseSource1a.getId());
     }
 
 }
