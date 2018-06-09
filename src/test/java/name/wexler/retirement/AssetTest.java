@@ -1,6 +1,7 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashBalance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +27,8 @@ public class AssetTest {
         Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75);
         List<String> ownerIds = Arrays.asList(owner.getId());
         String[] streetAddress = {"123 Main Street"};
-        List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));
-        Balance initialBalance = new Balance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
+        List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));
+        CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
         asset = new RealProperty(context, "real-property1", ownerIds, initialBalance,
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US",

@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashBalance;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -42,11 +43,11 @@ import name.wexler.retirement.CashFlow.Balance;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RealProperty.class, name = "real-property"),
-        @JsonSubTypes.Type(value = Security.class, name = "Security")
+        @JsonSubTypes.Type(value = Account.class, name = "account")
 })
 public abstract class Asset {
-    private final Balance _initialBalance;
-    private final List<Balance> _interimBalances;
+    private final CashBalance _initialBalance;
+    private final List<CashBalance> _interimBalances;
 
 
     private List<Entity> _owners;
@@ -61,8 +62,8 @@ public abstract class Asset {
     protected Asset(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
                 @JsonProperty("owners") List<String> ownerIds,
-                    @JsonProperty("initialBalance") Balance initialBalance,
-                    @JsonProperty("interimBalances") List<Balance> interimBalances) {
+                    @JsonProperty("initialBalance") CashBalance initialBalance,
+                    @JsonProperty("interimBalances") List<CashBalance> interimBalances) {
         this._id = id;
         this._owners = context.getByIds(Entity.class, ownerIds);
         this._initialBalance = initialBalance;
@@ -75,7 +76,7 @@ public abstract class Asset {
 
     public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
         Balance recentBalance = _initialBalance;
-        int i =  Collections.binarySearch(_interimBalances, new Balance(valueDate, BigDecimal.ZERO), Comparator.comparing(Balance::getBalanceDate));
+        int i =  Collections.binarySearch(_interimBalances, new CashBalance(valueDate, BigDecimal.ZERO), Comparator.comparing(Balance::getBalanceDate));
         if (i >= 0) {
             recentBalance = _interimBalances.get(i);
         } else if (i < -1) {

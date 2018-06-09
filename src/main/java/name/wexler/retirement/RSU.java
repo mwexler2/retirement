@@ -79,7 +79,7 @@ public class RSU extends CashFlowSource {
     }
 
     private void setSecurityId(@JacksonInject("context") Context context, @JsonProperty(value = "security", required = true) String securityId) {
-        this.security = context.getById(Asset.class, securityId);
+        this.security = context.getById(Security.class, securityId);
     }
 
     @JsonProperty("security")
@@ -91,7 +91,7 @@ public class RSU extends CashFlowSource {
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this, (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
-            BigDecimal sharePrice = this.security.getBalanceAtDate(accrualEnd, calendar.getAssumptions()).getValue();
+            BigDecimal sharePrice = this.security.getSharePriceAtDate(accrualEnd, calendar.getAssumptions());
             BigDecimal shares = BigDecimal.valueOf(totalShares).multiply(percent);
             BigDecimal amount = sharePrice.multiply(shares);
             return amount;

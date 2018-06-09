@@ -1,6 +1,7 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashBalance;
 import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
@@ -28,8 +29,8 @@ public class LiabilityTest {
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80);
         String[] streetAddress = {"123 Main Street"};
-        List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
-        Balance initialBalance = new Balance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
+        List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
+        CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
         List<String> borrowerIds = Arrays.asList(borrower.getId());
         Asset asset = new RealProperty(context, "real-property1", borrowerIds, initialBalance,
                 streetAddress,

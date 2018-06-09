@@ -43,6 +43,7 @@ public class Retirement {
     private Entity[] companies;
     private Entity[] people;
     private CashFlowSource[] cashFlowSources;
+    private Security[] securities;
     private Asset[] assets;
     private Assumptions assumptions;
     private CashFlowFrequency[] cashFlows;
@@ -70,6 +71,9 @@ public class Retirement {
 
             String cashFlowsPath = resourceDir + "/cashFlows.json";
             this.cashFlows = context.fromJSONFileArray(CashFlowFrequency[].class, cashFlowsPath);
+
+            String securitiesPath = resourceDir + "/securities.json";
+            this.securities = context.fromJSONFileArray(Security[].class, securitiesPath);
 
             String assetsPath = resourceDir + "/assets.json";
             this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);

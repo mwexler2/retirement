@@ -54,6 +54,7 @@ public class Scenario {
              @JsonProperty("cashFlowSources") String[] cashFlowSources,
              @JsonProperty("assets") String[] assets,
              @JsonProperty("liabilities") String[] liabilities,
+             @JsonProperty("accounts") String[] accounts,
              @JsonProperty("assumptions") Assumptions assumptions) {
         this.id = id;
         this.name = name;
@@ -62,6 +63,7 @@ public class Scenario {
         setCashFlowSourceIds(context, cashFlowSources);
         setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);
+        setAccountIds(context, accounts);
         context.put(Scenario.class, id, this);
     }
 
@@ -88,7 +90,15 @@ public class Scenario {
         return result;
     }
 
-
+    @JsonProperty(value = "accounts")
+    private void setAccountIds(@JacksonInject("context") Context context,
+                                      @JsonProperty(value = "accounts", required = true) String[] accountIds) {
+        List<Account> accounts = new ArrayList<>(accountIds.length);
+        for (String accountId : accountIds) {
+            accounts.add(context.getById(Account.class, accountId));
+        }
+        calendar.addAccounts(accounts);
+    }
 
     @JsonIgnore
     public String getCashFlowSourceName(String cashFlowSourceId) {

@@ -50,9 +50,13 @@ public class RSUTest {
                 CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
 
         LocalDate job1FirstRSU = LocalDate.of(2016, Month.JUNE, 6);
-        Security aapl = new Security(context, "AAPL", Arrays.asList("employee1"),
-                new Balance(job1FirstRSU, BigDecimal.ZERO),
-                new ArrayList<Balance>(0));
+        Security aapl = new Security(context, "AAPL",
+                Arrays.asList(new ShareBalance(
+                        context,
+                        job1FirstRSU,
+                        BigDecimal.valueOf(100),
+                        BigDecimal.valueOf(42.42),
+                        "AAPL")));
         List<Vesting> vestings = Arrays.asList(
                 Vesting.of(12, BigDecimal.valueOf(0.05)),
                 Vesting.of(24, BigDecimal.valueOf(0.15)),

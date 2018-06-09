@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.CashFlow.ShareBalance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,22 +16,34 @@ import java.util.List;
 /**
  * Created by mwexler on 6/4/17.
  */
-public class Security extends Asset {
+public class Security {
+    private List<ShareBalance> sharePrices;
+    private String id;
 
     @JsonCreator
     public Security(@JacksonInject("context") Context context,
-                    @JsonProperty("id") String id,
-                    @JsonProperty("owners") List<String> ownerIds,
-                    @JsonProperty("initialAssetValue") Balance initialAssetValue,
-                    @JsonProperty("interimBalances") List<Balance> interimBalances) {
-        super(context, id, ownerIds, initialAssetValue, interimBalances);
+                    @JsonProperty(value = "id", required = true) String id,
+                    @JsonProperty("sharePrices") List<ShareBalance> sharePrices) {
+        this.sharePrices = sharePrices;
+        this.id = id;
+        context.put(Security.class, id, this);
     }
 
     public String getName() {
-        return getId();
+        return id;
     }
 
-    public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
-        return new Balance(valueDate, BigDecimal.valueOf(1500.00));
+    public String getId() {
+        return id;
+    }
+
+    public BigDecimal getSharePriceAtDate(LocalDate valueDate, Assumptions assumptions) {
+        BigDecimal sharePrice = BigDecimal.ZERO;
+        for (ShareBalance price : sharePrices) {
+            if (!valueDate.isBefore(price.getBalanceDate())) {
+                sharePrice = price.getSharePrice();
+            }
+        }
+        return sharePrice;
     }
 }

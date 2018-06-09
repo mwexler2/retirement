@@ -110,6 +110,13 @@ public class Context {
         return result;
     }
 
+    public <T> List<T> fromJSONFileList(Class clazz, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper mapper = getObjectMapper();
+        List<T> result = (List<T>) mapper.readValue(entityFile, clazz);
+        return result;
+    }
+
     public <T> T fromJSONFile(Class clazz, String filePath) throws IOException {
         File entityFile = new File(filePath);
         ObjectMapper mapper = getObjectMapper();

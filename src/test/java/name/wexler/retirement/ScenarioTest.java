@@ -2,16 +2,13 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashFlowFrequency;
+import name.wexler.retirement.CashFlow.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import name.wexler.retirement.CashFlow.Biweekly;
-import name.wexler.retirement.CashFlow.Monthly;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -54,8 +51,8 @@ public class ScenarioTest {
         String[] address = {"123 Mainstreet"};
 
         Entity[] mainBorrowers = {mike};
-        List<Balance> interimBalances = Arrays.asList();
-        Balance initialBalance = new Balance(LocalDate.of(2012, Month.JUNE, 10), BigDecimal.valueOf(100000.00));
+        List<CashBalance> interimBalances = Arrays.asList();
+        CashBalance initialBalance = new CashBalance(LocalDate.of(2012, Month.JUNE, 10), BigDecimal.valueOf(100000.00));
         List<String> ownerIds = Arrays.asList(mike.getId());
         RealProperty mainStreet = new RealProperty(context, "main", ownerIds, initialBalance, address,
                 "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
@@ -66,12 +63,27 @@ public class ScenarioTest {
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
                 BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId());
 
+        List<CashBalance> account1Cash = new ArrayList<>();
+        List<CashBalance> account2Cash = new ArrayList<>();
+        List<ShareBalance> account1Securities = new ArrayList<>();
+        List<ShareBalance> account2Securities = new ArrayList<>();
+        List<String> account1Owners = Arrays.asList("mike");
+        List<String> account2Owners = Arrays.asList("mike");
+
+        Account account1 = new Account(context, "account1", account1Owners,
+                new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),
+                account1Cash,
+                "My 401(k)","Bank of Nowhere",  account1Securities);
+        Account account2 = new Account(context, "account2", account2Owners,
+                new CashBalance(LocalDate.of(2014, Month.MARCH, 1), BigDecimal.ZERO),
+                account2Cash,"My Checking","Bank of Somewhere", account2Securities);
         String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};
+        String[] accounts = {"account1", "account2"};
         Assumptions assumptions = new Assumptions();
-        scenario1 = new Scenario(context, "scenario1", "Scenario 1", is, assets, liabilities, assumptions);
-        scenario2 = new Scenario(context, "scenario2", "Scenario 2", is, assets, liabilities, assumptions);
+        scenario1 = new Scenario(context, "scenario1", "Scenario 1", is, assets, liabilities, accounts, assumptions);
+        scenario2 = new Scenario(context, "scenario2", "Scenario 2", is, assets, liabilities, accounts, assumptions);
     }
 
     @After
@@ -108,8 +120,8 @@ public class ScenarioTest {
 
     @Test
     public void deserialize() throws Exception {
-        String scenario1aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
-        String scenario2aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[]}";
+        String scenario1aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
+        String scenario2aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
 
         Scenario scenario1a = context.fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());

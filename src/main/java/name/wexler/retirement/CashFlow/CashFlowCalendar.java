@@ -20,6 +20,7 @@ public class CashFlowCalendar {
     private final Map<String, CashFlowSource> _cashFlowSources;
     private final Map<String, Asset> _assets;
     private final Map<String, Liability> _liabilities;
+    private final Map<String, Account> _accounts;
     private List<CashFlowInstance> cashFlowInstances = null;
     private Map<Integer, Map<String, BigDecimal>> cashFlowYears = null;
     private Map<Integer, Map<String, BigDecimal>> assetValueYears = null;
@@ -32,6 +33,7 @@ public class CashFlowCalendar {
         _cashFlowSources = new HashMap<>();
         _assets = new HashMap<>();
         _liabilities = new HashMap<>();
+        _accounts = new HashMap<>();
     }
 
     public void addCashFlowSources(List<CashFlowSource> cashFlowSources) {
@@ -47,6 +49,10 @@ public class CashFlowCalendar {
     public void addLiabilities(List<Liability> liabilities) {
         _liabilitiesIndexed = false;
         liabilities.forEach(item-> _liabilities.put(item.getId(), item));
+    }
+
+    public void addAccounts(List<Account> accounts) {
+        accounts.forEach(account->_accounts.put(account.getId(), account));
     }
 
 
@@ -258,7 +264,7 @@ public class CashFlowCalendar {
                     LocalDate beginningOfYear = LocalDate.of(year, Month.JANUARY, 2);
 
                     TreeMap<LocalDate, Balance> balanceAtDateForId = balanceAtDate.get(liability.getId());
-                    Balance balance = new Balance(beginningOfYear, BigDecimal.ZERO);
+                    Balance balance = new CashBalance(beginningOfYear, BigDecimal.ZERO);
                     Map.Entry<LocalDate, Balance>  entry = balanceAtDateForId.lowerEntry(beginningOfYear);
                     if (entry != null)
                         balance = balanceAtDateForId.lowerEntry(beginningOfYear).getValue();
