@@ -1,5 +1,6 @@
 package name.wexler.retirement;
 
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -23,14 +24,16 @@ public class SalaryTest {
     public void setUp() throws Exception {
         context = new Context();
         Company employer = new Company(context, "employer1");
-        Person employee = new Person(context, "employee1");
+        Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77);
         Job job1 = new Job(context, "job1", employer, employee);
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
         LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 17);
-        Monthly job1CashFlow = new Monthly(context, "job1CashFlow1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck);
-        incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId());
-        incomeSource1.setBaseAnnualSalary(BigDecimal.valueOf(100000.00));
+        Monthly job1CashFlow =
+                new Monthly(context, "job1CashFlow1", job1.getStartDate(), job1.getEndDate(), job1FirstPaycheck,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
+        incomeSource1 = new Salary(context, "salary1", "job1", job1CashFlow.getId(),
+                BigDecimal.valueOf(100000.00));
     }
 
     @After
@@ -55,7 +58,7 @@ public class SalaryTest {
     @Test
     public void fromJSON() throws Exception {
         String incomeSource1aStr = "{\"type\":\"salary\",\"id\":\"salary1a\",\"cashFlow\":\"job1CashFlow1\",\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        IncomeSource incomeSource1a = context.fromJSON(IncomeSource.class, incomeSource1aStr);
+        CashFlowSource incomeSource1a = context.fromJSON(CashFlowSource.class, incomeSource1aStr);
         assertEquals("salary1a", incomeSource1a.getId());
     }
 

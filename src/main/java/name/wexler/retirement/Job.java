@@ -51,7 +51,7 @@ public class Job {
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "@id")
     @JsonIdentityReference(alwaysAsId = true)
-    private List<IncomeSource> incomeSources;
+    private List<CashFlowSource> incomeSources;
 
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -136,11 +136,11 @@ public class Job {
         this.employee = employee;
     }
 
-    public List<IncomeSource> getIncomeSources() {
+    public List<CashFlowSource> getIncomeSources() {
         return incomeSources;
     }
 
-    public void setIncomeSources(List<IncomeSource> incomeSources) {
+    public void setIncomeSources(List<CashFlowSource> incomeSources) {
         this.incomeSources = incomeSources;
     }
 

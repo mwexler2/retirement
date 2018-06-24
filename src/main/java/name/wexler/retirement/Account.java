@@ -23,27 +23,52 @@
 
 package name.wexler.retirement;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.CashFlow.ShareBalance;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Account {
-    private final String accountId;
+public class Account extends Asset {
+    private final String id;
     private final String accountName;
     private final String institutionName;
-    private final Asset[] assets;
 
-    public Account(String accountId, String accountName, String institutionName, Asset[] assets) {
-        this.accountId = accountId;
+    private final List<ShareBalance> securities;
+
+    @JsonCreator
+    public Account(@JacksonInject("context") Context context,
+                      @JsonProperty(value = "id", required = true) String id,
+                      @JsonProperty(value = "owners", required = true) List<String> ownerIds,
+                      @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
+                      @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
+                      @JsonProperty(value = "accountName", required = true) String accountName,
+                      @JsonProperty(value = "institutionName", required = true) String institutionName,
+                      @JsonProperty(value = "securities", required = true) List<ShareBalance> securities) {
+        super(context, id, ownerIds, initialBalance, interimBalances);
+        this.id = id;
+        context.put(Account.class, id, this);
         this.accountName = accountName;
         this.institutionName = institutionName;
-        this.assets = assets;
+        this.securities = securities;
     }
 
-    public String getAccountId() {
-        return accountId;
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return accountName;
     }
 
     public String getAccountName() {
@@ -54,15 +79,19 @@ public class Account {
         return institutionName;
     }
 
-    public Asset[] getAssets() {
-        return assets;
+    public List<ShareBalance> getSecurities() {
+        return securities;
     }
 
     public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {
-        BigDecimal result = BigDecimal.ZERO;
+        BigDecimal result = this.getBalanceAtDate(date, assumptions).getValue();
 
-        for (Asset asset : this.assets) {
-            result = result.add(asset.getBalanceAtDate(date, assumptions).getValue());
+        Map<String, ShareBalance> shareBalances = new HashMap<>();
+        for (ShareBalance security : getSecurities()) {
+            shareBalances.put(security.getId(), security);
+        }
+        for (ShareBalance security : shareBalances.values()) {
+            result = result.add(security.getValue());
         }
         return result;
     }

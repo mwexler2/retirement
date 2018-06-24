@@ -32,6 +32,7 @@ import java.time.LocalDate;
 /**
  * Created by mwexler on 7/5/16.
  */
+@JsonPropertyOrder({ "type", "id", "firstName", "lastName", "birthDate", "retirementAge"})
 public class Person extends Entity {
     private String firstName;
     private String lastName;
@@ -40,8 +41,13 @@ public class Person extends Entity {
     private LocalDate birthDate;
     private int retirementAge;
 
-    public Person(@JacksonInject("context") Context context, @JsonProperty("id") String id) throws Exception {
+    public Person(@JacksonInject("context") Context context,
+                  @JsonProperty("id") String id,
+                  @JsonProperty(value="birthDate", required=true) LocalDate birthDate,
+                  @JsonProperty(value="retirementAge", required=true) int retirementAge) throws Exception {
         super(context, id);
+        this.birthDate = birthDate;
+        this.retirementAge = retirementAge;
     }
 
     @JsonIgnore
@@ -70,17 +76,10 @@ public class Person extends Entity {
         return birthDate;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
     public int getRetirementAge() {
         return retirementAge;
     }
 
-    public void setRetirementAge(int retirementAge) {
-        this.retirementAge = retirementAge;
-    }
 
     @Override
     public boolean equals(Object o) {

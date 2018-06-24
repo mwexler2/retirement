@@ -1,7 +1,8 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 import name.wexler.retirement.CashFlow.Monthly;
 import org.junit.After;
 import org.junit.Before;
@@ -26,10 +27,10 @@ public class LiabilityTest {
     public void setUp() throws Exception {
         context = new Context();
         Company lender = new Company(context, "lender1");
-        Person borrower = new Person(context, "borrower1");
+        Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80);
         String[] streetAddress = {"123 Main Street"};
-        List<Balance> interimBalances = Arrays.asList(new Balance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
-        Balance initialBalance = new Balance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
+        List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
+        CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
         List<String> borrowerIds = Arrays.asList(borrower.getId());
         Asset asset = new RealProperty(context, "real-property1", borrowerIds, initialBalance,
                 streetAddress,
@@ -39,12 +40,14 @@ public class LiabilityTest {
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);
-        CashFlowType monthly = new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate);
+        CashFlowFrequency monthly =
+                new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate,
+                        CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         liability = new Liability(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
-                BigDecimal.valueOf(500.00), monthly.getId());
+                BigDecimal.valueOf(500.00), BigDecimal.valueOf(473.33), monthly.getId());
     }
 
     @After
@@ -67,14 +70,14 @@ public class LiabilityTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(liability);
-        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"term\":360,\"interestRate\":0.3229166666666667,\"startingBalance\":{\"balanceDate\":\"2014-10-10\",\"value\":50000.0},\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"liability\",\"id\":\"liability1\",\"source\":\"monthly-liability1\",\"lender\":\"lender1\",\"borrowers\":[\"borrower1\"],\"security\":\"real-property1\",\"startDate\":\"2014-10-10\",\"endDate\":\"2030-06-01\",\"term\":360,\"interestRate\":0.3229166666666667,\"paymentAmount\":500.0,\"cashFlow\":\"monthly-liability1\"}", expenseSource1Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-liability1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        ExpenseSource expenseSource1a = context.fromJSON(ExpenseSource.class, expenseSource1aStr);
+        String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-liability1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0,\"startDate\":\"2014-01-01\",\"term\":15,\"interestRate\":4.75,\"startingBalance\":42752.53,\"paymentAmount\":432.23,\"impoundAmount\":0.00}";
+        CashFlowSource expenseSource1a = context.fromJSON(CashFlowSource.class, expenseSource1aStr);
         assertEquals("liability1a", expenseSource1a.getId());
     }
 

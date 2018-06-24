@@ -33,40 +33,42 @@ import name.wexler.retirement.JSONDateDeserialize;
 import name.wexler.retirement.JSONDateSerialize;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Biweekly extends CashFlowType {
+public class Biweekly extends CashFlowFrequency {
     private DayOfWeek dayOfWeek;
     private static final int twoWeeks = 2 * 7;
+    private static final int weeksInBiweek = 2;
+    private static final int periodsPeryear = 26;
 
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate firstPeriodStart;
+
 
     public Biweekly(@JacksonInject("context") Context context,
                     @JsonProperty(value = "id", required = true) String id,
                     @JsonProperty(value = "firstPeriodStart", required = true) LocalDate firstPeriodStart,
                     @JsonProperty(value = "accrueStart", required = true) LocalDate accrueStart,
                     @JsonProperty(value = "accrueEnd", required = true) LocalDate accrueEnd,
-                    @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate)
+                    @JsonProperty(value = "firstPaymentDate", required = true) LocalDate firstPaymentDate,
+                    @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
     throws Exception
     {
-        super(context, id, accrueStart, accrueEnd, firstPaymentDate);
+        super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
         this.firstPeriodStart = firstPeriodStart;
         this.dayOfWeek = firstPaymentDate.getDayOfWeek();
     }
-
-    private final BigDecimal periodsPerYear = BigDecimal.valueOf(26);
-    @JsonIgnore
-    @Override
-    public BigDecimal getPeriodsPerYear() { return periodsPerYear; }
 
     public LocalDate getFirstPeriodStart() {
         return this.firstPeriodStart;
@@ -79,23 +81,44 @@ public class Biweekly extends CashFlowType {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(SingleCashFlowGenerator generator) {
-        ArrayList<CashFlowInstance> result = new ArrayList<>();
+    public List<CashFlowPeriod> getCashFlowPeriods() {
+        ArrayList<CashFlowPeriod> result = new ArrayList<>();
 
         int paymentOffset = getFirstPeriodStart().until(getFirstPaymentDate()).getDays();
+        BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
         for (LocalDate thisPeriodStart = getFirstPeriodStart(); thisPeriodStart.isBefore(getAccrueEnd());
-                thisPeriodStart = thisPeriodStart.plusWeeks(2)) {
+                thisPeriodStart = thisPeriodStart.plusWeeks(weeksInBiweek)) {
             LocalDate thisAccrualStart = thisPeriodStart;
             if (thisAccrualStart.isBefore(getAccrueStart()))
                 thisAccrualStart = getAccrueStart();
-            LocalDate thisAccrualEnd = thisAccrualStart.plusWeeks(2);
+            // accrual end = 2 weeks after accrual start, but the last day counts as part of the period so we need to subtract 1.
+            LocalDate thisAccrualEnd = thisPeriodStart.plusWeeks(2).plusDays(-1);
             if (thisAccrualEnd.isAfter(getAccrueEnd()))
                 thisAccrualEnd = getAccrueEnd();
             LocalDate cashFlowDate = thisPeriodStart.plusDays(paymentOffset);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(thisAccrualStart, thisAccrualEnd);
-            result.add(new CashFlowInstance(thisAccrualStart, thisAccrualEnd, cashFlowDate, singleFlowAmount));
+            BigDecimal daysInPeriod = BigDecimal.valueOf(twoWeeks);
+            // Add one to the number of days to make it inclusive
+            BigDecimal accrualDays = BigDecimal.valueOf(thisAccrualStart.until(thisAccrualEnd, DAYS) + 1);
+            BigDecimal portion = accrualDays.divide(daysInPeriod, 10, BigDecimal.ROUND_HALF_UP);
+            portion = portion.divide(BigDecimal.valueOf(periodsPeryear), 10, BigDecimal.ROUND_HALF_UP);
+            result.add(new CashFlowPeriod(thisAccrualStart, thisAccrualEnd, cashFlowDate, portion));
         }
 
         return result;
+    }
+
+    @JsonIgnore
+    public ChronoUnit getChronoUnit() {
+        return ChronoUnit.DAYS;
+    }
+
+    @JsonIgnore
+    public BigDecimal getUnitMultiplier() {
+        return BigDecimal.valueOf(14);
+    }
+
+    @JsonIgnore
+    public BigDecimal unitsPerYear() {
+        return BigDecimal.valueOf(26);
     }
 }

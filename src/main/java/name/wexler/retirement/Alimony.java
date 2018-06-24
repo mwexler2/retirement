@@ -24,40 +24,30 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import name.wexler.retirement.CashFlow.CashFlowFrequency;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.RoundingMode;
+import java.util.*;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
-public class Alimony extends ExpenseSource {
+@JsonPropertyOrder({ "type", "id", "startDate", "endDate", "payee", "payor", "cashFlow", "smithOstlerCashFlowType" })
+public class Alimony extends CashFlowSource {
     @JsonIgnore
     private Entity payee;
     @JsonIgnore
     private Entity payor;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate startDate;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate endDate;
     private BigDecimal baseIncome;
     private BigDecimal baseAlimony;
     private BigDecimal smithOstlerRate;
     private BigDecimal maxAlimony;
-    private CashFlowType baseCashFlow;
-    private CashFlowType smithOstlerCashFlow;
+    private CashFlowFrequency smithOstlerCashFlow;
     private final BigDecimal quartersPerYear = BigDecimal.valueOf(4);
 
     @JsonCreator
@@ -65,8 +55,6 @@ public class Alimony extends ExpenseSource {
                    @JsonProperty("id") String id,
                    @JsonProperty("payee") String payeeId,
                    @JsonProperty("payor") String payorId,
-                   @JsonProperty("startDate") LocalDate startDate,
-                   @JsonProperty("endDate") LocalDate endDate,
                    @JsonProperty("baseIncome") BigDecimal baseIncome,
                    @JsonProperty("baseAlimony") BigDecimal baseAlimony,
                    @JsonProperty("smithOstlerRate") BigDecimal smithOstlerRate,
@@ -74,29 +62,64 @@ public class Alimony extends ExpenseSource {
                    @JsonProperty("baseCashFlow") String baseCashFlowId,
                    @JsonProperty("smithOstlerCashFlow") String smithOstlerCashFlowId
     ) throws Exception {
-        super(context, id);
+        super(context, id, baseCashFlowId,
+                context.getListById(Entity.class, payeeId),
+                context.getListById(Entity.class, payorId));
         this.setPayeeId(context, payeeId);
         this.setPayorId(context, payorId);
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.baseIncome = baseIncome;
         this.baseAlimony = baseAlimony;
         this.smithOstlerRate = smithOstlerRate;
         this.maxAlimony = maxAlimony;
-        setBaseCashFlowId(context, baseCashFlowId);
         setSmithOstlerCashFlowId(context, smithOstlerCashFlowId);
         context.put(Alimony.class, id, this);
     }
 
+
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances() {
-        List<CashFlowInstance> baseCashFlows = baseCashFlow.getCashFlowInstances((accrualStart, accrualEnd) -> baseAlimony);
-        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances((accrualStart, accrualEnd) -> BigDecimal.ZERO);
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+        List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
+            return baseAlimony;
+                });
+        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar, this,
+                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
+                    BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
+                            (source) -> {
+                                if (source.isPayee(this.payor)) {
+                                    return true;
+                                }
+                                return false;
+                            });
+                    BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
+                    return alimony;
+                });
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
         allAlimonyCashFlows.addAll(smithOstlerCashFlows);
-        return allAlimonyCashFlows;
+        allAlimonyCashFlows.sort((final CashFlowInstance instance1, final CashFlowInstance instance2) ->
+            instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
+        List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
+        Map<Integer, BigDecimal> remainingBalance = new HashMap<>();
+        for (CashFlowInstance instance : allAlimonyCashFlows) {
+            Integer year = instance.getAccrualEnd().getYear();
+            if (remainingBalance.get(year) == null) {
+                remainingBalance.put(year, maxAlimony);
+            }
+            BigDecimal amount = instance.getAmount();
+            if (amount.compareTo(remainingBalance.get(year)) < 0) {
+                amount = remainingBalance.get(year);
+                instance = new CashFlowInstance(this,
+                        instance.getAccrualStart(),
+                        instance.getAccrualEnd(),
+                        instance.getCashFlowDate(),
+                        amount);
+            }
+            result.add(instance);
+            remainingBalance.put(year, remainingBalance.get(year).subtract(amount));
+        }
+        return result;
     }
 
     @JsonIgnore
@@ -108,15 +131,6 @@ public class Alimony extends ExpenseSource {
         return result;
     }
 
-    @JsonProperty(value = "baseCashFlowType")
-    public String getBaseCashFlowTypeId() {
-        return baseCashFlow.getId();
-    }
-
-    private void setBaseCashFlowId(@JacksonInject("context") Context context,
-                             @JsonProperty(value = "baseCashFlow", required = true) String baseCashFlowId) {
-        baseCashFlow = context.getById(CashFlowType.class, baseCashFlowId);
-    }
 
     @JsonProperty(value = "smithOstlerCashFlowType")
     public String getSmithOstlerCashFlowTypeId() {
@@ -125,7 +139,7 @@ public class Alimony extends ExpenseSource {
 
     private void setSmithOstlerCashFlowId(@JacksonInject("context") Context context,
                                      @JsonProperty(value = "smithOstlerCashFlow", required = true) String smithOstlerCashFlowId) {
-        smithOstlerCashFlow = context.getById(CashFlowType.class, smithOstlerCashFlowId);
+        smithOstlerCashFlow = context.getById(CashFlowFrequency.class, smithOstlerCashFlowId);
     }
 
 
@@ -163,16 +177,5 @@ public class Alimony extends ExpenseSource {
 
     public void setPayor(Entity payee) {
         this.payor = payor;
-    }
-
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() { return endDate; }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
     }
 }

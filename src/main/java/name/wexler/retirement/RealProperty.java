@@ -26,6 +26,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.CashBalance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,14 +54,14 @@ public class RealProperty extends Asset {
                 @JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
                 @JsonProperty("owners") List<String> ownerIds,
-                @JsonProperty("initialBalance") Balance initialBalance,
+                @JsonProperty("initialBalance") CashBalance initialBalance,
                 @JsonProperty("address") String[] address,
                 @JsonProperty("city") String city,
                 @JsonProperty("county") String county,
                 @JsonProperty("state") String state,
                 @JsonProperty("zipCode") String zipCode,
                 @JsonProperty("country") String country,
-                @JsonProperty("interimBalances") List<Balance> interimBalances) {
+                @JsonProperty("interimBalances") List<CashBalance> interimBalances) {
         super(context, id, ownerIds, initialBalance, interimBalances);
         this.address = address;
         this.city = city;
@@ -121,12 +122,5 @@ public class RealProperty extends Asset {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    @Override
-    public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
-        double annualRateOfReturn = assumptions.getLongTermInvestmentReturn()+1.0;
-        Balance initialBalance = super.getBalanceAtDate(valueDate, assumptions);
-        return new Balance(valueDate, initialBalance.getBalanceAtDate(valueDate, annualRateOfReturn));
     }
 }

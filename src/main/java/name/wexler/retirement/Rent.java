@@ -26,10 +26,9 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.Balance;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,8 +41,8 @@ import java.util.List;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
-public class Liability extends CashFlowSource {
+@JsonPropertyOrder({ "type", "id", "source", "lessors", "lessees", "security", "startDate", "endDate", "paymentAmount" })
+public class Rent extends CashFlowSource {
     private Asset security;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
@@ -51,42 +50,28 @@ public class Liability extends CashFlowSource {
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate endDate;
-    private int term;
-    private BigDecimal interestRate;
-    private BigDecimal periodicInterestRate;
-    private Balance _startingBalance;
     private BigDecimal paymentAmount;
-    private BigDecimal impoundAmount;
     private BigDecimal periodsPerYear = BigDecimal.valueOf(12);
 
 
     @JsonCreator
-    public Liability(@JacksonInject("context") Context context,
+    public Rent(@JacksonInject("context") Context context,
                 @JsonProperty(value = "id",              required = true) String id,
-                @JsonProperty("lender") String lenderId,
-                @JsonProperty("borrowers") String[] borrowersIds,
+                @JsonProperty("lessee") List<String> lesseeIds,
+                @JsonProperty("lessor") List<String> lessorIds,
                 @JsonProperty("asset") Asset security,
                 @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
                 @JsonProperty("endDate") LocalDate endDate,
-                @JsonProperty(value = "term",            required=true) int term,
-                @JsonProperty(value = "interestRate",    required = true) BigDecimal interestRate,
-                @JsonProperty(value = "startingBalance", required = true) BigDecimal startingBalance,
                 @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
-                @JsonProperty(value = "impoundAmount",   required = true) BigDecimal impoundAmount,
                 @JsonProperty(value = "source",          required = true) String sourceId) throws Exception {
         super(context, id, sourceId,
-                context.getListById(Entity.class, lenderId),
-                context.getByIds(Entity.class, Arrays.asList(borrowersIds)));
-        this._startingBalance = new CashBalance(startDate, startingBalance);
+                context.getByIds(Entity.class, lesseeIds),
+                context.getByIds(Entity.class, lessorIds));
         this.security = security;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.term = term;
-        this.interestRate = interestRate;
-        this.periodicInterestRate = interestRate.divide(BigDecimal.valueOf(100)).divide(periodsPerYear, RoundingMode.HALF_UP).setScale(10, RoundingMode.HALF_UP);
         this.paymentAmount = paymentAmount;
-        this.impoundAmount = impoundAmount;
-        context.put(Liability.class, id, this);
+        context.put(Rent.class, id, this);
     }
 
 
@@ -103,20 +88,11 @@ public class Liability extends CashFlowSource {
         List<Balance> interimBalances = new ArrayList<Balance>();
 
         if (security != null) {
-            result = security.getName() + "(" + getLender().getName() + ")";
+            result = security.getName() + "(" + getlessor().getName() + ")";
         } else {
-            result = getLender().getName();
+            result = getlessor().getName();
         }
         return result;
-    }
-
-    public Balance getBalanceAtDate(Balance prevBalance, LocalDate valueDate) {
-        BigDecimal balance = BigDecimal.ZERO;
-        if (!valueDate.isBefore(startDate) && !valueDate.isAfter(endDate)) {
-            BigDecimal principalPayments = BigDecimal.ZERO;
-            balance = _startingBalance.getValue().add(principalPayments);
-        }
-        return new CashBalance(valueDate, balance);
     }
 
     @JsonProperty(value = "source")
@@ -131,46 +107,32 @@ public class Liability extends CashFlowSource {
     }
 
 
-    @JsonProperty(value = "lender")
-    public String getLenderId() {
-        return getLender().getId();
+    @JsonProperty(value = "lessor")
+    public String getlessorId() {
+        return getlessor().getId();
     }
 
 
-    public Entity getLender() {
+    public Entity getlessor() {
         return getPayees().get(0);
     }
 
 
-    @JsonProperty(value = "borrowers")
-    public List<String> getBorrowerIds() {
+    @JsonProperty(value = "lessees")
+    public List<String> getlesseeIds() {
 
-        List<Entity> borrowers = getBorrowers();
-        List<String> result = new ArrayList<>(borrowers.size());
-        for (int i = 0; i < borrowers.size(); ++i)
-            result.add(borrowers.get(i).getId());
+        List<Entity> lessees = getlessees();
+        List<String> result = new ArrayList<>(lessees.size());
+        for (int i = 0; i < lessees.size(); ++i)
+            result.add(lessees.get(i).getId());
         return result;
     }
 
-    public List<Entity> getBorrowers() {
+    public List<Entity> getlessees() {
         return getPayers();
     }
 
     public LocalDate getEndDate() { return endDate; }
-
-
-    public int getTerm() {
-        return term;
-    }
-
-
-    public BigDecimal getInterestRate() {
-        return interestRate;
-    }
-
-    @Override public Balance getStartingBalance() {
-        return _startingBalance;
-    }
 
     public BigDecimal getPaymentAmount() {
         return paymentAmount;
@@ -178,11 +140,5 @@ public class Liability extends CashFlowSource {
 
     public void setPaymentAmount(BigDecimal paymentAmount) {
         this.paymentAmount = paymentAmount;
-    }
-
-    public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance) {
-        BigDecimal interest = prevBalance.getValue().multiply(this.periodicInterestRate).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal principal = paymentAmount.subtract(interest).subtract(impoundAmount);
-        return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
     }
 }

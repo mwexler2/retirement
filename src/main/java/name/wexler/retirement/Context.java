@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mwexler on 11/24/16.
@@ -62,6 +59,12 @@ public class Context {
         return result;
     }
 
+    public <T> List<T> getListById(Class clazz, String id) {
+        EntityManager<T> entityManager = this.getEntityManager(clazz);
+        List<T> result = Arrays.asList(entityManager.getById(id));
+        return result;
+    }
+
     public <T> List<T> getByIds(Class clazz, List<String> ids) {
         List<T> result = new ArrayList<>(ids.size());
         for (String id : ids) {
@@ -104,6 +107,13 @@ public class Context {
         File entityFile = new File(filePath);
         ObjectMapper mapper = getObjectMapper();
         T[] result = (T[]) mapper.readValue(entityFile, clazz);
+        return result;
+    }
+
+    public <T> List<T> fromJSONFileList(Class clazz, String filePath) throws IOException {
+        File entityFile = new File(filePath);
+        ObjectMapper mapper = getObjectMapper();
+        List<T> result = (List<T>) mapper.readValue(entityFile, clazz);
         return result;
     }
 

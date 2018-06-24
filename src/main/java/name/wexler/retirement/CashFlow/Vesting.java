@@ -21,45 +21,42 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.CashFlow;
 
-import com.fasterxml.jackson.annotation.*;
-import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.CashFlowType;
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
-import java.time.YearMonth;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by mwexler on 7/9/16.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = Liability.class, name = "liability"),
-        @JsonSubTypes.Type(value = Alimony.class, name = "alimony")
-         })
-public abstract class ExpenseSource {
+public class Vesting {
+    private int months;
+    private BigDecimal percent;
 
-    private String id;
-
-    public String getId() {
-        return id;
+    public Vesting(@JsonProperty(value = "months", required = true) int months,
+                   @JsonProperty(value = "percent", required = true) BigDecimal percent) {
+        this.months = months;
+        this.percent = percent;
     }
 
-
-    public ExpenseSource(Context context, String id) throws Exception {
-        this.id = id;
-        if (context.<ExpenseSource>getById(ExpenseSource.class, id) != null)
-            throw new Exception("Key " + id + " already exists");
-        context.put(ExpenseSource.class, id, this);
+    public static Vesting of(int mths, BigDecimal pct) {
+        Vesting result = new Vesting(mths, pct);
+        return result;
     }
 
-    public abstract List<CashFlowInstance> getCashFlowInstances();
+    public int getMonths() {
+        return months;
+    }
 
-    @JsonIgnore
-    abstract public String getName();
+    public BigDecimal getPercent() {
+        return percent;
+    }
 }
+

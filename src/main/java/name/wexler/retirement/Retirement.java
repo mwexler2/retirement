@@ -25,8 +25,8 @@ package name.wexler.retirement;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
-import java.text.NumberFormat;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -42,27 +42,17 @@ public class Retirement {
     private Job[] jobs;
     private Entity[] companies;
     private Entity[] people;
-    private IncomeSource[] incomeSources;
+    private CashFlowSource[] cashFlowSources;
+    private Security[] securities;
     private Asset[] assets;
-    private ExpenseSource[] expenseSources;
     private Assumptions assumptions;
-    private CashFlowType[] cashFlows;
+    private CashFlowFrequency[] cashFlows;
+    private String cashFlowId;
+    private String scenarioId;
 
-    public NumberFormat getCf() {
-        return cf;
-    }
-
-    public NumberFormat getPf() {
-        return pf;
-    }
-
-    private final NumberFormat cf;
-    private final NumberFormat pf;
 
     Retirement() {
         Locale enUS = Locale.forLanguageTag("en-US");
-        cf = NumberFormat.getCurrencyInstance(enUS);
-        pf = NumberFormat.getPercentInstance();
         Context context = new Context();
 
         try {
@@ -80,20 +70,18 @@ public class Retirement {
             this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
 
             String cashFlowsPath = resourceDir + "/cashFlows.json";
-            this.cashFlows = context.fromJSONFileArray(CashFlowType[].class, cashFlowsPath);
+            this.cashFlows = context.fromJSONFileArray(CashFlowFrequency[].class, cashFlowsPath);
 
-            String incomeSourcesPath = resourceDir + "/incomeSources.json";
-            this.incomeSources = context.fromJSONFileArray(IncomeSource[].class, incomeSourcesPath);
+            String securitiesPath = resourceDir + "/securities.json";
+            this.securities = context.fromJSONFileArray(Security[].class, securitiesPath);
 
             String assetsPath = resourceDir + "/assets.json";
-            File assetssFile = new File(assetsPath);
             this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
 
-            String expenseSourcesPath = resourceDir + "/expenseSources.json";
-            this.expenseSources = context.fromJSONFileArray(ExpenseSource[].class, expenseSourcesPath);
+            String cashFlowSourcesPath = resourceDir + "/cashFlowSources.json";
+            this.cashFlowSources = context.fromJSONFileArray(CashFlowSource[].class, cashFlowSourcesPath);
 
             String assumptionsPath = resourceDir + "/assumptions.json";
-            File assumptionsFile = new File(assumptionsPath);
             this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
 
             String scenariosPath = resourceDir + "/scenarios.json";
@@ -107,6 +95,26 @@ public class Retirement {
 
     public Scenario[] getScenarios() {
         return scenarios;
+    }
+
+    public Scenario getScenario(String id) {
+        for (Scenario scenario : scenarios) {
+            if (scenario.getId().equals(id))
+            return scenario;
+        }
+        return null;
+    }
+
+    public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId) {
+        Scenario scenario = getScenario(scenarioId);
+        List<CashFlowInstance> cashFlows = scenario.getCashFlows(cashFlowId);
+        return cashFlows;
+    }
+
+    public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId, int year) {
+        Scenario scenario = getScenario(scenarioId);
+        List<CashFlowInstance> cashFlows = scenario.getCashFlows(cashFlowId, year);
+        return cashFlows;
     }
 
     public void setScenarios(Scenario[] scenarios) {
