@@ -54,7 +54,9 @@ import java.util.List;
 })
 public abstract class CashFlowFrequency {
     public interface SingleCashFlowGenerator {
-        public BigDecimal getSingleCashFlowAmount(CashFlowCalendar calendar, String cashFlowId, LocalDate startAccrual, LocalDate endAccrual, BigDecimal percent);
+        public CashFlowInstance getSingleCashFlowAmount(CashFlowCalendar calendar, String cashFlowId,
+                                                        LocalDate startAccrual, LocalDate endAccrual, LocalDate cashFlowDate,
+                                                        BigDecimal percent, CashFlowInstance prevCashFlowInstance);
     }
 
     public class CashFlowPeriod {
@@ -129,9 +131,12 @@ public abstract class CashFlowFrequency {
 
         BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
         List<CashFlowPeriod> cashFlowPeriods = getCashFlowPeriods();
+        CashFlowInstance prevCashFlowInstance = null;
         for (CashFlowPeriod period : cashFlowPeriods) {
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(), period.accrualStart, period.accrualEnd, period.portion);
-            result.add(new CashFlowInstance(cashFlowSource, period.accrualStart, period.accrualEnd, period.cashFlowDate, singleFlowAmount));
+            CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(),
+                    period.accrualStart, period.accrualEnd, period.cashFlowDate, period.portion, prevCashFlowInstance);
+            result.add(cashFlowInstance);
+            prevCashFlowInstance = cashFlowInstance;
         }
 
         return result;

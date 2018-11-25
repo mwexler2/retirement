@@ -38,6 +38,7 @@ public class Context {
 
     private final Map<String, EntityManager> classEntityManager;
     private final ObjectMapper mapper;
+    private Assumptions assumptions;
 
     public Context() {
         InjectableValues injectableValues = new InjectableValues.Std().addValue("context", this);
@@ -47,6 +48,14 @@ public class Context {
 
         DateFormat format = new SimpleDateFormat("YYYY-MM-dd");
         mapper.setDateFormat(format);
+    }
+
+    public void setAssumptions(Assumptions assumptions) {
+        this.assumptions = assumptions;
+    }
+
+    public Assumptions getAssumptions() {
+        return assumptions;
     }
 
     private ObjectMapper getObjectMapper() {

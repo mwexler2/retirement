@@ -23,6 +23,7 @@ public class AlimonyTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         Person payee = new Person(context, "payee1", LocalDate.of(1976, 07, 04), 65);
         Person payor = new Person(context, "payor1", LocalDate.of(1945, Month.AUGUST, 14), 65);
           LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);

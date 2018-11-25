@@ -80,11 +80,13 @@ public class Alimony extends CashFlowSource {
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
-                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
-            return baseAlimony;
+                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
+                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance);
                 });
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar, this,
-                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
+                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
+                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (source) -> {
                                 if (source.isPayee(this.payor)) {
@@ -93,7 +95,7 @@ public class Alimony extends CashFlowSource {
                                 return false;
                             });
                     BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
-                    return alimony;
+                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, alimony, balance);
                 });
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
@@ -102,6 +104,7 @@ public class Alimony extends CashFlowSource {
             instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
         List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
         Map<Integer, BigDecimal> remainingBalance = new HashMap<>();
+        CashFlowInstance prevCashFlowInstance = null;
         for (CashFlowInstance instance : allAlimonyCashFlows) {
             Integer year = instance.getAccrualEnd().getYear();
             if (remainingBalance.get(year) == null) {
@@ -110,14 +113,16 @@ public class Alimony extends CashFlowSource {
             BigDecimal amount = instance.getAmount();
             if (amount.compareTo(remainingBalance.get(year)) < 0) {
                 amount = remainingBalance.get(year);
+                BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
                 instance = new CashFlowInstance(this,
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
-                        amount);
+                        amount, balance);
             }
             result.add(instance);
             remainingBalance.put(year, remainingBalance.get(year).subtract(amount));
+            prevCashFlowInstance = instance;
         }
         return result;
     }

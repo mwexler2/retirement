@@ -25,11 +25,14 @@ package name.wexler.retirement;
 
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
+import name.wexler.retirement.CashFlow.LiabilityCashFlowInstance;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -216,6 +219,17 @@ public class Scenario {
     @JsonIgnore
     public List<CashFlowInstance> getCashFlows(String cashFlowId) {
         return calendar.getCashFlows(cashFlowId);
+    }
+
+    @JsonIgnore
+    public Collection<Balance> getAssetValues(String assetId) { return calendar.getAssetValues(assetId); }
+
+    @JsonIgnore
+    public Collection<Balance> getLiabilityBalances(String liabilityId) { return calendar.getLiabilityBalances(liabilityId); }
+
+    @JsonIgnore
+    public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String liabilityId) {
+        return calendar.getLiabilityCashFlowInstances(liabilityId);
     }
 
     @JsonIgnore

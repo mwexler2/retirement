@@ -28,6 +28,7 @@ public class ScenarioTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         Person mike = new Person(context, "mike", LocalDate.of(1984, Month.APRIL, 1), 45);
         Company yahoo = new Company(context, "yahoo");
         Job job1 = new Job(context, "job1", "yahoo", "mike");

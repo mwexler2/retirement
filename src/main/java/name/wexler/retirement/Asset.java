@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 
 import name.wexler.retirement.CashFlow.Balance;
@@ -48,6 +49,7 @@ import name.wexler.retirement.CashFlow.CashBalance;
 public abstract class Asset {
     private final CashBalance _initialBalance;
     private final List<CashBalance> _interimBalances;
+    private final Context context;
 
 
     private List<Entity> _owners;
@@ -64,6 +66,7 @@ public abstract class Asset {
                 @JsonProperty("owners") List<String> ownerIds,
                     @JsonProperty("initialBalance") CashBalance initialBalance,
                     @JsonProperty("interimBalances") List<CashBalance> interimBalances) {
+        this.context = context;
         this._id = id;
         this._owners = context.getByIds(Entity.class, ownerIds);
         this._initialBalance = initialBalance;
@@ -74,13 +77,33 @@ public abstract class Asset {
 
     abstract public String getName();
 
-    public Balance getBalanceAtDate(LocalDate valueDate, Assumptions assumptions) {
+    @JsonIgnore
+    public Context getContext() {
+        return context;
+    }
+
+    @JsonIgnore
+    public List<Balance> getBalances() {
+        List<Balance> balances = new ArrayList<>();
+
+        balances.add(getInitialBalance());
+        balances.addAll(_interimBalances);
+        balances.add(new CashBalance(LocalDate.of(2034, Month.JANUARY, 1), BigDecimal.ZERO));
+
+        return balances;
+    }
+
+    public Balance getBalanceAtDate(LocalDate valueDate) {
+        if (valueDate.isBefore(this.getStartDate())) {
+            return new CashBalance(valueDate, BigDecimal.ZERO);
+        }
         Balance recentBalance = _initialBalance;
-        int i =  Collections.binarySearch(_interimBalances, new CashBalance(valueDate, BigDecimal.ZERO), Comparator.comparing(Balance::getBalanceDate));
+        List<Balance> balances = getBalances();
+        int i =  Collections.binarySearch(balances, new CashBalance(valueDate, BigDecimal.ZERO), Comparator.comparing(Balance::getBalanceDate));
         if (i >= 0) {
-            recentBalance = _interimBalances.get(i);
+            recentBalance = balances.get(i);
         } else if (i < -1) {
-            recentBalance = _interimBalances.get(-i - 2);
+            recentBalance = balances.get(-i - 2);
         }
         return recentBalance;
     }
@@ -112,5 +135,18 @@ public abstract class Asset {
             result.add(id);
         }
         return result;
+    }
+
+    public List<Balance> linearGrowth(Balance base, long period, BigDecimal rate) {
+        List<Balance> balances = new ArrayList<>();
+
+        for (int i = 1; i <= period; ++i) {
+            LocalDate calculatedBalanceDate = base.getBalanceDate().plusMonths(i);
+            BigDecimal multiplier = BigDecimal.ONE.add(rate.multiply(BigDecimal.valueOf(i)));
+            BigDecimal calculatedBalanceAmount = base.getValue().multiply(multiplier);
+            Balance calculatedBalance = new CashBalance(calculatedBalanceDate, calculatedBalanceAmount);
+            balances.add(calculatedBalance);
+        }
+        return balances;
     }
 }

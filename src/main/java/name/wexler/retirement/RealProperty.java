@@ -29,8 +29,11 @@ import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashBalance;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +50,6 @@ public class RealProperty extends Asset {
     private String state;
     private String zipCode;
     private String country;
-
 
     @JsonCreator
     public RealProperty(
@@ -122,5 +124,29 @@ public class RealProperty extends Asset {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    @Override
+    public List<Balance> getBalances() {
+        List<Balance> balances = super.getBalances();
+        List<Balance> newBalances = new ArrayList<>();
+
+        balances.sort((b1, b2) -> b1.getBalanceDate().compareTo(b2.getBalanceDate()));
+
+        Balance prevBalance = null;
+
+        for (Balance b : balances) {
+            if (prevBalance != null) {
+                long diff = prevBalance.getBalanceDate().until(b.getBalanceDate(), ChronoUnit.MONTHS);
+                BigDecimal annualRate = BigDecimal.valueOf(getContext().getAssumptions().getLongTermInvestmentReturn());
+                newBalances.addAll(linearGrowth(prevBalance, diff, annualRate.divide(BigDecimal.valueOf(12), 8, RoundingMode.HALF_UP)));
+            }
+            prevBalance = b;
+        }
+
+        balances.addAll(newBalances);
+        balances.sort((b1, b2) -> b1.getBalanceDate().compareTo(b2.getBalanceDate()));
+
+        return balances;
     }
 }

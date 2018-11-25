@@ -57,7 +57,10 @@ public class BonusAnnualPct extends Bonus {
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         BigDecimal annualAmount = salary.getBaseAnnualSalary().multiply(bonusPct);
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
-                (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> annualAmount);
+                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
+                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+            return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
+                });
     }
 
     @JsonProperty(value = "salary")

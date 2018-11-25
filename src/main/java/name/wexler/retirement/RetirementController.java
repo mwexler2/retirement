@@ -23,7 +23,9 @@
 
 package name.wexler.retirement;
 
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
+import name.wexler.retirement.CashFlow.LiabilityCashFlowInstance;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +67,28 @@ public class RetirementController {
         List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId);
         model.put("cashFlows", cashFlows);
         return new ModelAndView("cashFlows", model);
+    }
+
+    @RequestMapping(value = "/retirement/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
+    public ModelAndView retirementAsset(@PathVariable String assetId, @PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", assetId);
+        model.put("scenarioId", scenarioId);
+        Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId);
+        model.put("balances", balances);
+        return new ModelAndView("asset", model);
+    }
+
+    @RequestMapping(value = "/retirement/scenario/{scenarioId}/liability/{liabilityId}", method = RequestMethod.GET)
+    public ModelAndView retirementLiability(@PathVariable String liabilityId, @PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", liabilityId);
+        model.put("scenarioId", scenarioId);
+        List<LiabilityCashFlowInstance> cashFlowInstances = retirement.getLiabilityCashFlowInstances(scenarioId, liabilityId);
+        Collection<Balance> balances = retirement.getLiabilityBalances(scenarioId, liabilityId);
+        model.put("balances", balances);
+        model.put("cashFlowInstances", cashFlowInstances);
+        return new ModelAndView("liability", model);
     }
 
     @RequestMapping(value = "/retirement", method = RequestMethod.GET)

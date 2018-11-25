@@ -108,10 +108,12 @@ public class CashFlowCalendar {
     }
 
 
-    public BigDecimal getAssetValue(String id, Integer year) {
+    public BigDecimal getAssetValue(String assetId, Integer year) {
         if (!_assetsIndexed)
             indexAssets();
-        return getBalance(assetValueYears, id, year);
+        List<Balance> assetValues = _assets.get(assetId).getBalances();
+        Balance balance = _assets.get(assetId).getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
+        return balance.getValue();
     }
 
     public BigDecimal getLiabilityAmount(String id, Integer year) {
@@ -206,13 +208,10 @@ public class CashFlowCalendar {
                 balanceAtDate.put(id, balanceAtDateForId);
             }
             List<CashFlowInstance> cashFlowInstances = cashFlowSource.getCashFlowInstances(this);
-            Balance prevBalance = cashFlowSource.getStartingBalance();
             for (CashFlowInstance cashFlowInstance : cashFlowInstances) {
                 LocalDate cashFlowDate = cashFlowInstance.getCashFlowDate();
-                Balance newBalance = cashFlowSource.computeNewBalance(cashFlowInstance, prevBalance);
-                balanceAtDateForId.put(cashFlowInstance.getCashFlowDate(), newBalance);
-                prevBalance = newBalance;
-
+                balanceAtDateForId.put(cashFlowInstance.getCashFlowDate(),
+                        new CashBalance(cashFlowInstance.getCashFlowDate(), cashFlowInstance.getBalance()));
             }
             indexCashFlowInstances(cashFlowInstances, cashFlowSource.getId(), this.cashFlowInstances, cashFlowYears);
         });
@@ -244,10 +243,8 @@ public class CashFlowCalendar {
     private void indexAssets() {
         assetValueYears = new HashMap<>();
         _assets.values().forEach(asset -> {
-            Balance prevBalance = asset.getInitialBalance();
             for (int year : getYears()) {
-                Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1),
-                        _assumptions);
+                Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
                 indexBalances(balance, asset.getId(), assetValueYears);
             }
         });
@@ -261,7 +258,7 @@ public class CashFlowCalendar {
                 Liability liability = (Liability) cashFlowSource;
                 Balance prevBalance = liability.getStartingBalance();
                 for (int year : getYears()) {
-                    LocalDate beginningOfYear = LocalDate.of(year, Month.JANUARY, 2);
+                    LocalDate beginningOfYear = LocalDate.of(year, Month.JANUARY, 1);
 
                     TreeMap<LocalDate, Balance> balanceAtDateForId = balanceAtDate.get(liability.getId());
                     Balance balance = new CashBalance(beginningOfYear, BigDecimal.ZERO);
@@ -316,5 +313,23 @@ public class CashFlowCalendar {
             }
         }
         return cashFlows;
+    }
+
+    public List<Balance> getAssetValues(String assetId) {
+        if (!_assetsIndexed)
+            indexAssets();
+
+        List<Balance> assetValues = _assets.get(assetId).getBalances();
+        return assetValues;
+    }
+
+    public List<Balance> getLiabilityBalances(String liabilityId) {
+        if (!_cashFlowsIndexed)
+            indexCashFlows();
+        return new ArrayList<Balance>(balanceAtDate.get(liabilityId).values());
+    }
+
+    public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String liabilityId) {
+        return (List<LiabilityCashFlowInstance>) (List<?>) getCashFlows(liabilityId);
     }
 }

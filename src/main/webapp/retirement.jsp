@@ -81,7 +81,9 @@
         </tr>
         <c:forEach var="assetId" items="${scenario.assetIds}">
             <tr>
-                <th>${scenario.getAssetName(assetId)}</th>
+                <th><a href="scenario/${scenario.getId()}/asset/${assetId}">
+                        ${scenario.getAssetName(assetId)}
+                </a></th>
                 <c:forEach var="year" items="${scenario.years}">
                     <td align="right">
                         <fmt:formatNumber value="${scenario.getAssetValue(assetId, year)}" type="currency" />
@@ -103,7 +105,9 @@
         </tr>
         <c:forEach var="liabilityId" items="${scenario.liabilityIds}">
             <tr>
-                <th>${scenario.getLiabilityName(liabilityId)}</th>
+                <th><a href="scenario/${scenario.getId()}/liability/${liabilityId}">
+                        ${scenario.getLiabilityName(liabilityId)}
+                </a></th>
                 <c:forEach var="year" items="${scenario.years}">
                     <td align="right">
                         <fmt:formatNumber value="${scenario.getLiabilityAmount(liabilityId, year)}" type="currency" />

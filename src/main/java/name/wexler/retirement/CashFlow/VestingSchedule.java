@@ -70,12 +70,16 @@ public class VestingSchedule extends CashFlowFrequency {
         ArrayList<CashFlowInstance> result = new ArrayList<>(vestings.size());
 
         LocalDate thisAccrueStart = this.getAccrueStart();
+        CashFlowInstance prevCashFlowInstance = null;
         for (Vesting vesting : vestings) {
             LocalDate thisAccrueEnd = thisAccrueStart.plusMonths(vesting.getMonths()).minusDays(1);
             LocalDate cashFlowDate = thisAccrueEnd.plusDays(1);
-            BigDecimal singleFlowAmount = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(), thisAccrueStart, thisAccrueEnd, vesting.getPercent());
-            result.add(new CashFlowInstance(cashFlowSource, thisAccrueStart, thisAccrueEnd, cashFlowDate, singleFlowAmount));
+            CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(),
+                    thisAccrueStart, thisAccrueEnd, cashFlowDate,
+                    vesting.getPercent(), prevCashFlowInstance);
+            result.add(cashFlowInstance);
             thisAccrueStart = thisAccrueEnd.plusDays(1);
+            prevCashFlowInstance = cashFlowInstance;
         }
         return result;
     }

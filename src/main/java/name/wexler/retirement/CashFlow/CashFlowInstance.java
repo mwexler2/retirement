@@ -14,12 +14,15 @@ public class CashFlowInstance {
     private final LocalDate accrualEnd;
     private final LocalDate cashFlowDate;
     private final BigDecimal amount;
+    private final BigDecimal balance;
 
-    public CashFlowInstance(CashFlowSource cashFlowSource, LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount) {
+    public CashFlowInstance(CashFlowSource cashFlowSource, LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount,
+                            BigDecimal balance) {
         this.accrualStart = accrualStart;
         this.accrualEnd = accrualEnd;
         this.cashFlowDate = cashFlowDate;
         this.amount = amount;
+        this.balance = balance;
         this.cashFlowSource = cashFlowSource;
     }
 
@@ -46,6 +49,8 @@ public class CashFlowInstance {
     public BigDecimal getAmount() {
         return amount;
     }
+
+    public BigDecimal getBalance() { return balance; }
 
     public LocalDate getCashFlowDate() {
         return cashFlowDate;

@@ -25,6 +25,7 @@ package name.wexler.retirement;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -83,6 +84,7 @@ public class Retirement {
 
             String assumptionsPath = resourceDir + "/assumptions.json";
             this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
+            context.setAssumptions(this.assumptions);
 
             String scenariosPath = resourceDir + "/scenarios.json";
             this.scenarios = context.fromJSONFileArray(Scenario[].class, scenariosPath);
@@ -103,6 +105,24 @@ public class Retirement {
             return scenario;
         }
         return null;
+    }
+
+    public Collection<Balance> getAssetValues(String scenarioId, String assetId) {
+        Scenario scenario = getScenario(scenarioId);
+        Collection<Balance> balances = scenario.getAssetValues(assetId);
+        return balances;
+    }
+
+    public Collection<Balance> getLiabilityBalances(String scenarioId, String liabilityId) {
+        Scenario scenario = getScenario(scenarioId);
+        Collection<Balance> balances = scenario.getLiabilityBalances(liabilityId);
+        return balances;
+    }
+
+    public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String scenarioId, String liabilityId) {
+        Scenario scenario = getScenario(scenarioId);
+        List<LiabilityCashFlowInstance> cashFlowInstances = scenario.getLiabilityCashFlowInstances(liabilityId);
+        return cashFlowInstances;
     }
 
     public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId) {

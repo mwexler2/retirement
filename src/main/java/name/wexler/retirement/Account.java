@@ -84,7 +84,7 @@ public class Account extends Asset {
     }
 
     public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {
-        BigDecimal result = this.getBalanceAtDate(date, assumptions).getValue();
+        BigDecimal result = this.getBalanceAtDate(date).getValue();
 
         Map<String, ShareBalance> shareBalances = new HashMap<>();
         for (ShareBalance security : getSecurities()) {

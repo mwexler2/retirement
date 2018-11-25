@@ -26,10 +26,7 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.CashFlow.CashBalance;
-import name.wexler.retirement.CashFlow.CashFlowCalendar;
-import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.CashFlow.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -93,7 +90,21 @@ public class Liability extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this, (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> paymentAmount);
+
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) ->
+        {
+            BigDecimal balance = _startingBalance.getValue();
+            if (prevCashFlowInstance != null)
+                 balance = prevCashFlowInstance.getBalance();
+            BigDecimal interest = balance.multiply(periodicInterestRate).setScale(2, RoundingMode.HALF_UP);
+            BigDecimal principal = paymentAmount.subtract(impoundAmount).subtract(interest).setScale(2, RoundingMode.HALF_UP);
+            if (principal.compareTo(balance) >= 1)
+                principal = balance;
+            balance = balance.subtract(principal);
+            return new LiabilityCashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate,
+                    principal, interest, impoundAmount, balance);
+        });
     }
 
     @JsonIgnore
@@ -108,15 +119,6 @@ public class Liability extends CashFlowSource {
             result = getLender().getName();
         }
         return result;
-    }
-
-    public Balance getBalanceAtDate(Balance prevBalance, LocalDate valueDate) {
-        BigDecimal balance = BigDecimal.ZERO;
-        if (!valueDate.isBefore(startDate) && !valueDate.isAfter(endDate)) {
-            BigDecimal principalPayments = BigDecimal.ZERO;
-            balance = _startingBalance.getValue().add(principalPayments);
-        }
-        return new CashBalance(valueDate, balance);
     }
 
     @JsonProperty(value = "source")

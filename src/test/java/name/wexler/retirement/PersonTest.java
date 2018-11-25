@@ -21,6 +21,7 @@ public class PersonTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         person1 = new Person(context, "john1", LocalDate.of(1999, Month.DECEMBER, 25), 70);
         person1.setFirstName("John");
         person1.setLastName("Doe");

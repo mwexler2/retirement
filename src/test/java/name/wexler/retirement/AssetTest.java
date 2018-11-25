@@ -24,6 +24,7 @@ public class AssetTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75);
         List<String> ownerIds = Arrays.asList(owner.getId());
         String[] streetAddress = {"123 Main Street"};

@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
 
@@ -60,8 +61,11 @@ public class BonusPeriodicFixed extends Bonus {
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
-                (calendar, cashFlowId, accrualStart, accrualEnd, percent) ->
-                annualAmount.multiply(percent).setScale(2, BigDecimal.ROUND_HALF_UP)
+                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
+                    BigDecimal amount = annualAmount.multiply(percent).setScale(2, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                }
         );
     }
 

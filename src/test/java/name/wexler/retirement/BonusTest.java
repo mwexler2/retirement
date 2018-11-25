@@ -28,6 +28,7 @@ public class BonusTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
 
         Company employer = new Company(context, "employer1");
         Person employee = new Person(context, "employee1", LocalDate.of(1976, Month.MARCH, 28), 65);

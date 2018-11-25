@@ -90,11 +90,13 @@ public class RSU extends CashFlowSource {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this, (calendar, cashFlowId, accrualStart, accrualEnd, percent) -> {
+        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
             BigDecimal sharePrice = this.security.getSharePriceAtDate(accrualEnd, calendar.getAssumptions());
             BigDecimal shares = BigDecimal.valueOf(totalShares).multiply(percent);
             BigDecimal amount = sharePrice.multiply(shares);
-            return amount;
+            BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+            return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
         });
     }
 

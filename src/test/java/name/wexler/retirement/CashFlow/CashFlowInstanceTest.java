@@ -20,7 +20,9 @@ public class CashFlowInstanceTest {
     @Before
     public void setUp() throws Exception {
         BigDecimal thousand = BigDecimal.valueOf(1000.00);
+        Assumptions assumptions = new Assumptions();
         Context context = new Context();
+        context.setAssumptions(assumptions);
         Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62);
         Company company1 = new Company(context, "company1");
         Job job1 = new Job(context, "job1", "employer1", "employee1");
@@ -35,7 +37,8 @@ public class CashFlowInstanceTest {
                 LocalDate.of(2014, Month.MAY, 1),
                 LocalDate.of(2014, Month.MAY, 15),
                 LocalDate.of(2014, Month.MAY, 25),
-                thousand
+                thousand,
+                BigDecimal.ZERO
         );
 
     }

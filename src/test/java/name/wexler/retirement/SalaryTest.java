@@ -23,6 +23,7 @@ public class SalaryTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         Company employer = new Company(context, "employer1");
         Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77);
         Job job1 = new Job(context, "job1", employer, employee);

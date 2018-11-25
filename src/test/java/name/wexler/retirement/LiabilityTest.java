@@ -26,6 +26,7 @@ public class LiabilityTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80);
         String[] streetAddress = {"123 Main Street"};

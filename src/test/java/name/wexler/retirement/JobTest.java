@@ -58,7 +58,9 @@ public class JobTest {
 
     @Before
     public void setUp() throws Exception {
+        Assumptions assumptions = new Assumptions();
         context = new Context();
+        context.setAssumptions(assumptions);
         company1 = new Company(context, "comp1");
         company1.setCompanyName("IBM");
         company2 = new Company(context, "comp2");

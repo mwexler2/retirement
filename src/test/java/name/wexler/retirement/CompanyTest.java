@@ -17,6 +17,7 @@ public class CompanyTest {
     @Before
     public void setUp() throws Exception {
         context = new Context();
+        context.setAssumptions(new Assumptions());
         company1 = new Company(context, "comp1");
         company1.setCompanyName("IBM");
         company2 = new Company(context, "comp2");
