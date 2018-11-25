@@ -125,8 +125,8 @@ public class CashFlowCalendarTest {
     public void getAnnualExpense() {
         assertEquals(BigDecimal.valueOf(4000.00).setScale(2, RoundingMode.HALF_UP), calendar.getAnnualCashFlow("debt1", 2011));
         assertEquals(BigDecimal.valueOf(6000.00).setScale(2, RoundingMode.HALF_UP), calendar.getAnnualCashFlow("debt1", 2012));
-        assertEquals(BigDecimal.valueOf(6000.00).setScale(2, RoundingMode.HALF_UP), calendar.getAnnualCashFlow("debt1", 2030));
-        assertEquals(BigDecimal.valueOf(2000.00).setScale(2, RoundingMode.HALF_UP), calendar.getAnnualCashFlow("debt1", 2031));
+        assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), calendar.getAnnualCashFlow("debt1", 2030));
+        assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), calendar.getAnnualCashFlow("debt1", 2031));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("debt1", 1999));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bad-debt", 2012));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bad-debt", 1999));
