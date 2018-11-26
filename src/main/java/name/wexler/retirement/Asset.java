@@ -88,7 +88,6 @@ public abstract class Asset {
 
         balances.add(getInitialBalance());
         balances.addAll(_interimBalances);
-        balances.add(new CashBalance(LocalDate.of(2034, Month.JANUARY, 1), BigDecimal.ZERO));
 
         return balances;
     }

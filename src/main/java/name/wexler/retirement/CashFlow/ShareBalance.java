@@ -40,6 +40,8 @@ public class ShareBalance implements Balance {
         return sharePrice;
     }
 
+    public BigDecimal getShares() { return shares; }
+
     public String getId() {
         return security.getId();
     }
