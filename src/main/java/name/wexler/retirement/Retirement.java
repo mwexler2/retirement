@@ -117,6 +117,12 @@ public class Retirement {
         return balances;
     }
 
+    public Collection<Balance> getAssetValues(String scenarioId, String assetId, int year) {
+        Scenario scenario = getScenario(scenarioId);
+        Collection<Balance> balances = scenario.getAssetValues(assetId, year);
+        return balances;
+    }
+
     public Collection<Balance> getLiabilityBalances(String scenarioId, String liabilityId) {
         Scenario scenario = getScenario(scenarioId);
         Collection<Balance> balances = scenario.getLiabilityBalances(liabilityId);

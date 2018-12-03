@@ -225,6 +225,11 @@ public class Scenario {
     public Collection<Balance> getAssetValues(String assetId) { return calendar.getAssetValues(assetId); }
 
     @JsonIgnore
+    public Collection<Balance> getAssetValues(String assetId, int year) {
+        return calendar.getAssetValues(assetId, year);
+    }
+
+    @JsonIgnore
     public Collection<Balance> getLiabilityBalances(String liabilityId) { return calendar.getLiabilityBalances(liabilityId); }
 
     @JsonIgnore

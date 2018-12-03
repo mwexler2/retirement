@@ -86,7 +86,9 @@
                 </a></th>
                 <c:forEach var="year" items="${scenario.years}">
                     <td align="right">
-                        <fmt:formatNumber value="${scenario.getAssetValue(assetId, year)}" type="currency" />
+                        <a href="scenario/${scenario.getId()}/asset/${assetId}/year/${year}">
+                          <fmt:formatNumber value="${scenario.getAssetValue(assetId, year)}" type="currency" />
+                        </a>
                     </td>
                 </c:forEach>
             </tr>

@@ -323,6 +323,14 @@ public class CashFlowCalendar {
         return assetValues;
     }
 
+    public List<Balance> getAssetValues(String assetId, int year) {
+        if (!_assetsIndexed)
+            indexAssets();
+
+        List<Balance> assetValues = _assets.get(assetId).getBalances(year);
+        return assetValues;
+    }
+
     public List<Balance> getLiabilityBalances(String liabilityId) {
         if (!_cashFlowsIndexed)
             indexCashFlows();

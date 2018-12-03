@@ -33,7 +33,9 @@ import name.wexler.retirement.CashFlow.ShareBalance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -82,9 +84,7 @@ public class Account extends Asset {
         return securities;
     }
 
-    @Override @JsonIgnore
-    public List<Balance> getBalances() {
-        List<Balance> balances = new ArrayList<>();
+    private Map<LocalDate, List<Balance>> _getBalanceMap() {
         Map<LocalDate, List<Balance>> balanceMap = new HashMap<>();
 
         for (ShareBalance shareBalance : getSecurities()) {
@@ -95,6 +95,13 @@ public class Account extends Asset {
             BigDecimal value = shareBalance.getSharePrice().multiply(shareBalance.getShares());
             balanceMap.get(balanceDate).add(new CashBalance(balanceDate, value));
         }
+        return balanceMap;
+
+    }
+    @Override @JsonIgnore
+    public List<Balance> getBalances() {
+        List<Balance> balances = new ArrayList<>();
+        Map<LocalDate, List<Balance>> balanceMap = _getBalanceMap();
 
         for (LocalDate date : balanceMap.keySet()) {
             List<Balance> dateBalances = balanceMap.get(date);
@@ -105,6 +112,23 @@ public class Account extends Asset {
             balances.add(new CashBalance(date, total));
         }
         return balances;
+    }
+
+    @Override
+    @JsonIgnore
+    public List<Balance> getBalances(int year) {
+        List<Balance> balances = new ArrayList<>();
+        Map<LocalDate, List<Balance>> balanceMap = _getBalanceMap();
+
+        LocalDate lastDateInYear = balanceMap.keySet()
+                .stream()
+                .filter(balance -> year == balance.getYear())
+                .max(LocalDate::compareTo)
+                .orElse(LocalDate.of(year, Month.JANUARY, 1));
+
+        List<Balance> dateBalances = balanceMap.get(lastDateInYear);
+
+        return dateBalances;
     }
 
    /* public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {

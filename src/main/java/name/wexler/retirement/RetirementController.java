@@ -69,6 +69,20 @@ public class RetirementController {
         return new ModelAndView("cashFlows", model);
     }
 
+    @RequestMapping(value = "/retirement/scenario/{scenarioId}/asset/{assetId}/year/{year}", method = RequestMethod.GET)
+    public ModelAndView retirementAsset(@PathVariable String assetId,
+                                        @PathVariable String scenarioId,
+                                        @PathVariable int year,
+                                        ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", assetId);
+        model.put("scenarioId", scenarioId);
+        model.put("year", year);
+        Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId, year);
+        model.put("balances", balances);
+        return new ModelAndView("asset", model);
+    }
+
     @RequestMapping(value = "/retirement/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
     public ModelAndView retirementAsset(@PathVariable String assetId, @PathVariable String scenarioId, ModelMap model) {
         Retirement retirement = new Retirement();

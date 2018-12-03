@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashBalance;
@@ -88,6 +89,19 @@ public abstract class Asset {
 
         balances.add(getInitialBalance());
         balances.addAll(_interimBalances);
+
+        return balances;
+    }
+
+    @JsonIgnore
+    public List<Balance> getBalances(int year) {
+        List<Balance> balances = new ArrayList<>();
+
+        balances.add(getInitialBalance());
+        balances.addAll(
+                _interimBalances.stream()
+                        .filter(balance -> year == balance.getBalanceDate().getYear())
+                        .collect(Collectors.toList()));
 
         return balances;
     }
