@@ -23,7 +23,6 @@
 
 package name.wexler.retirement;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -49,6 +48,7 @@ public class Retirement {
     private Assumptions assumptions;
     private CashFlowFrequency[] cashFlows;
     private Account[] accounts;
+    private SecurityTransaction[] securityTxns;
     private String cashFlowId;
     private String scenarioId;
 
@@ -85,6 +85,9 @@ public class Retirement {
 
             String accountsPath = resourceDir + "/accounts.json";
             this.accounts = context.fromJSONFileArray(Account[].class, accountsPath);
+
+            String securityTxnsPath = resourceDir + "/securityTxn.json";
+            this.securityTxns = context.fromJSONFileArray(SecurityTransaction[].class, securityTxnsPath);
 
             String assumptionsPath = resourceDir + "/assumptions.json";
             this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);

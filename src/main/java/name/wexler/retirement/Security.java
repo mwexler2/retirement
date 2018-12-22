@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.opencsv.CSVReader;
 
@@ -25,7 +22,7 @@ import com.opencsv.CSVReader;
  * Created by mwexler on 6/4/17.
  */
 public class Security {
-    private Map<LocalDate, BigDecimal> historicalPrices;
+    private Map<LocalDate, BigDecimal> historicalPrices = new HashMap<>();
     private String id;
 
     @JsonCreator
@@ -60,8 +57,15 @@ public class Security {
             reader = new CSVReaderHeaderAware(new FileReader(csvFile));
             Map<String,String> line;
             while ((line =  reader.readMap()) != null) {
+                if (!line.containsKey("Date") || !line.containsKey("Close"))
+                    continue;
                 LocalDate date = LocalDate.parse(line.get("Date"), DateTimeFormatter.ISO_DATE);
-                BigDecimal close = new BigDecimal(line.get("Close"));
+                BigDecimal close = BigDecimal.ZERO;
+                try {
+                    close = new BigDecimal(line.get("Close"));
+                } catch ( NumberFormatException nfe) {
+                    continue;   // skip invalid data (e.g. "1981-08-10,null,null,null,null,null,null")
+                }
                 historicalPrices.put(date, close);
             }
         } catch (IOException e) {

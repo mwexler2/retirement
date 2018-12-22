@@ -74,10 +74,10 @@ public class ScenarioTest {
         Account account1 = new Account(context, "account1", account1Owners,
                 new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),
                 account1Cash,
-                "My 401(k)","Bank of Nowhere",  account1Securities);
+                "My 401(k)","Bank of Nowhere");
         Account account2 = new Account(context, "account2", account2Owners,
                 new CashBalance(LocalDate.of(2014, Month.MARCH, 1), BigDecimal.ZERO),
-                account2Cash,"My Checking","Bank of Somewhere", account2Securities);
+                account2Cash,"My Checking","Bank of Somewhere");
         String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};

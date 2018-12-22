@@ -31,7 +31,7 @@ public class AccountTest {
         List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2010, 12, 31), BigDecimal.valueOf(5.45)));
         List<ShareBalance> securities = Arrays.asList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
-        a1 = new Account(context, "a1", owners, initialBalance,  interimBalances, "Test Account", "Bank of Banking", securities);
+        a1 = new Account(context, "a1", owners, initialBalance,  interimBalances, "Test Account", "Bank of Banking");
     }
 
     @Test

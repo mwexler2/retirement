@@ -31,6 +31,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -47,7 +48,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = Rent.class, name="rent"),
         @JsonSubTypes.Type(value = Liability.class, name = "liability"),
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
-        @JsonSubTypes.Type(value = RSU.class, name="RSU")})
+        @JsonSubTypes.Type(value = RSU.class, name="RSU"),
+        @JsonSubTypes.Type(value = AccountSource.class, name="accountSource")})
 public abstract class CashFlowSource {
     private String id;
     private List<Entity> payers;
@@ -57,16 +59,17 @@ public abstract class CashFlowSource {
     public CashFlowSource(@JsonProperty(value = "context", required = true) Context context,
                           @JsonProperty("id") String id,
                           @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
-                          List<Entity> payees, List<Entity> payers) throws Exception {
+                          List<Entity> payees, List<Entity> payers)
+            throws NoSuchElementException, IllegalArgumentException {
         this.id = id;
         this.payees = payees;
         this.payers = payers;
         if (context.getById(CashFlowSource.class, id) != null)
-            throw new Exception("Key " + id + " already exists");
+            throw new IllegalArgumentException("Key " + id + " already exists");
         context.put(CashFlowSource.class, id, this);
         this.cashFlow = context.getById(CashFlowFrequency.class, cashFlowId);
         if (this.cashFlow == null) {
-            throw new Exception("CashFlowSource " + cashFlowId + " not found");
+            throw new NoSuchElementException("CashFlowSource " + cashFlowId + " not found");
         }
     }
 

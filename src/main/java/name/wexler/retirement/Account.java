@@ -27,9 +27,8 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashBalance;
-import name.wexler.retirement.CashFlow.ShareBalance;
+import name.wexler.retirement.CashFlow.*;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,9 +40,10 @@ import java.util.stream.Collectors;
  * Created by mwexler on 7/9/16.
  */
 public class Account extends Asset {
-    private final String id;
+
+    private AccountSource cashFlowSource;
     private final String accountName;
-    private final String institutionName;
+    private final Company company;
 
     private final List<ShareBalance> securities;
 
@@ -54,18 +54,18 @@ public class Account extends Asset {
                       @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
                       @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
                       @JsonProperty(value = "accountName", required = true) String accountName,
-                      @JsonProperty(value = "institutionName", required = true) String institutionName,
-                      @JsonProperty(value = "securities", required = true) List<ShareBalance> securities) {
+                      @JsonProperty(value = "company", required = true) String companyId) {
         super(context, id, ownerIds, initialBalance, interimBalances);
-        this.id = id;
         context.put(Account.class, id, this);
         this.accountName = accountName;
-        this.institutionName = institutionName;
-        this.securities = securities;
+        this.securities = new ArrayList<>();
+        company = context.getById(Company.class, companyId);
+        List<Entity> owners = context.getByIds(Entity.class, ownerIds);
+        cashFlowSource = context.getById(CashFlowSource.class, id);
     }
 
     public String getId() {
-        return id;
+        return super.getId();
     }
 
     public String getName() {
@@ -77,7 +77,7 @@ public class Account extends Asset {
     }
 
     public String getInstitutionName() {
-        return institutionName;
+        return company.getCompanyName();
     }
 
     public List<ShareBalance> getSecurities() {
@@ -98,6 +98,11 @@ public class Account extends Asset {
         return balanceMap;
 
     }
+
+    public AccountSource getCashFlowSource() {
+        return cashFlowSource;
+    }
+
     @Override @JsonIgnore
     public List<Balance> getBalances() {
         List<Balance> balances = new ArrayList<>();
