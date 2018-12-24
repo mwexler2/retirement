@@ -2,7 +2,7 @@ package name.wexler.retirement.CashFlow;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import name.wexler.retirement.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

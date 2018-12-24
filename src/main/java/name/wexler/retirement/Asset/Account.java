@@ -21,20 +21,23 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.Asset;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.*;
 import name.wexler.retirement.CashFlow.*;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
+import name.wexler.retirement.CashFlowSource.AccountSource;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/9/16.

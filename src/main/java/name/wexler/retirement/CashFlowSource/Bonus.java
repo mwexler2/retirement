@@ -21,9 +21,12 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.CashFlowSource;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.Context;
+import name.wexler.retirement.Job;
 
 import java.util.Arrays;
 

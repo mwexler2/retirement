@@ -2,7 +2,14 @@ package name.wexler.retirement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import name.wexler.retirement.Asset.Account;
+import name.wexler.retirement.Asset.RealProperty;
 import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowSource.Liability;
+import name.wexler.retirement.CashFlowSource.Salary;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Entity;
+import name.wexler.retirement.Entity.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

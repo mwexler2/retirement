@@ -21,7 +21,7 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.CashFlowSource;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +29,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.Context;
+import name.wexler.retirement.Job;
+import name.wexler.retirement.Security;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

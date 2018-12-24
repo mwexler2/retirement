@@ -5,17 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.*;
+import name.wexler.retirement.JSON.JSONDateDeserialize;
+import name.wexler.retirement.JSON.JSONDateSerialize;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 /**
  * Created by mwexler on 11/29/16.
  */
 public class ShareBalance implements Balance {
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
+    @JsonDeserialize(using= JSONDateDeserialize.class)
+    @JsonSerialize(using= JSONDateSerialize.class)
     private final LocalDate balanceDate;
     private final BigDecimal shares;
     private final BigDecimal sharePrice;

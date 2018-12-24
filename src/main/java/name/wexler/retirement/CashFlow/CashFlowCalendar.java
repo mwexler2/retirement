@@ -1,6 +1,10 @@
 package name.wexler.retirement.CashFlow;
 
 import name.wexler.retirement.*;
+import name.wexler.retirement.Asset.Account;
+import name.wexler.retirement.Asset.Asset;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.Liability;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

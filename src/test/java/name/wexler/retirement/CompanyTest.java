@@ -1,5 +1,7 @@
 package name.wexler.retirement;
 
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Entity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

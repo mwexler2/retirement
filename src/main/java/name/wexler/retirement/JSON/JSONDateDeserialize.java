@@ -21,12 +21,12 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.JSON;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -35,12 +35,15 @@ import java.time.format.DateTimeFormatter;
 /**
  * Created by mwexler on 8/8/16.
  */
-public class JSONDateSerialize extends JsonSerializer<LocalDate> {
+public class JSONDateDeserialize extends JsonDeserializer<LocalDate> {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public void serialize(LocalDate value, JsonGenerator jgen, SerializerProvider provider)
+    @Override
+    public LocalDate deserialize(JsonParser paramJsonParser,
+                            DeserializationContext paramDeserializationContext)
             throws IOException {
-        jgen.writeString(formatter.format(value));
+        String str = paramJsonParser.getText().trim();
+        return LocalDate.parse(str, formatter);
     }
 }

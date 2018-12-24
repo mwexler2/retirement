@@ -21,11 +21,14 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.Entity;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.Context;
+import name.wexler.retirement.JSON.JSONDateDeserialize;
+import name.wexler.retirement.JSON.JSONDateSerialize;
 
 import java.time.LocalDate;
 
@@ -36,8 +39,8 @@ import java.time.LocalDate;
 public class Person extends Entity {
     private String firstName;
     private String lastName;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
+    @JsonDeserialize(using= JSONDateDeserialize.class)
+    @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate birthDate;
     private int retirementAge;
 

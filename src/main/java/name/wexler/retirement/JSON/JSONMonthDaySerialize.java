@@ -21,33 +21,26 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.JSON;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
+import java.io.IOException;
+import java.time.MonthDay;
+import java.time.format.DateTimeFormatter;
 
 /**
- * Created by mwexler on 7/5/16.
+ * Created by mwexler on 8/8/16.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = Person.class, name = "person"),
-        @JsonSubTypes.Type(value = Company.class, name = "company") })
-public abstract class Entity {
-    private final String id;
+class JSONMonthDaySerialize extends JsonSerializer<MonthDay> {
 
-    public Entity(Context context, @JsonProperty("id") String id) throws Exception {
-        this.id = id;
-         if (context.getById(Entity.class, id) != null)
-            throw new Exception("Key " + id + " already exists");
-        context.put(Entity.class, id, this);
-    }
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("--MM-dd");
 
-    abstract public String getName ();
-
-    public String getId() {
-        return id;
+    public void serialize(MonthDay value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
+        jgen.writeString(formatter.format(value));
     }
 }

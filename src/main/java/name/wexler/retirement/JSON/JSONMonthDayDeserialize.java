@@ -21,26 +21,27 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.JSON;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 import java.time.MonthDay;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Created by mwexler on 8/8/16.
+ *
+ * Parse a Month day in "mm-dd" format into a month and a day and return a MonthDay Object
  */
-class JSONMonthDaySerialize extends JsonSerializer<MonthDay> {
-
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("--MM-dd");
-
-    public void serialize(MonthDay value, JsonGenerator jgen, SerializerProvider provider)
+class JSONMonthDayDeserialize extends JsonDeserializer<MonthDay> {
+    @Override
+    public MonthDay deserialize(JsonParser paramJsonParser,
+                            DeserializationContext paramDeserializationContext)
             throws IOException {
-        jgen.writeString(formatter.format(value));
+        String str = paramJsonParser.getText().trim();
+        return MonthDay.parse(str);
     }
 }

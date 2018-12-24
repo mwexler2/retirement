@@ -26,6 +26,12 @@ package name.wexler.retirement;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Entity;
+import name.wexler.retirement.Entity.Person;
+import name.wexler.retirement.JSON.JSONDateDeserialize;
+import name.wexler.retirement.JSON.JSONDateSerialize;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -39,8 +45,8 @@ import java.util.List;
 @JsonPropertyOrder({ "id", "startDate", "endDate", "incomeSources", "employer", "employee" })
 public class Job {
     private String id;
-    @JsonDeserialize(using=JSONDateDeserialize.class)
-    @JsonSerialize(using=JSONDateSerialize.class)
+    @JsonDeserialize(using= JSONDateDeserialize.class)
+    @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate startDate;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)

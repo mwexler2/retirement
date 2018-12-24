@@ -1,6 +1,10 @@
 package name.wexler.retirement.CashFlow;
 
 import name.wexler.retirement.*;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.Salary;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,9 +12,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
-import java.util.jar.JarEntry;
 
-import static java.math.BigDecimal.ZERO;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.*;
 

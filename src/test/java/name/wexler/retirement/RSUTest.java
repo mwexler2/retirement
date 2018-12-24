@@ -1,6 +1,11 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.RSU;
+import name.wexler.retirement.CashFlowSource.Salary;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +13,6 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

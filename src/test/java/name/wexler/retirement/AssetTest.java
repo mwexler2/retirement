@@ -1,7 +1,9 @@
 package name.wexler.retirement;
 
-import name.wexler.retirement.CashFlow.Balance;
+import name.wexler.retirement.Asset.Asset;
+import name.wexler.retirement.Asset.RealProperty;
 import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.Entity.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

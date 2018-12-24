@@ -20,9 +20,10 @@
 * I can be reached at mike.wexler@gmail.com.
 *
 */
-package name.wexler.retirement;
+package name.wexler.retirement.Entity;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.Context;
 
 /**
  * Created by mwexler on 7/5/16.

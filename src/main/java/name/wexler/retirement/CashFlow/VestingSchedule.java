@@ -26,12 +26,11 @@ package name.wexler.retirement.CashFlow;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import name.wexler.retirement.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;

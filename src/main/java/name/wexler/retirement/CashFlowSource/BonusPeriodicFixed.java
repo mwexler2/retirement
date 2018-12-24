@@ -21,11 +21,13 @@
 *
 */
 
-package name.wexler.retirement;
+package name.wexler.retirement.CashFlowSource;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.CashFlow.CashFlowCalendar;
 import name.wexler.retirement.CashFlow.CashFlowInstance;
+import name.wexler.retirement.CashFlowSource.Bonus;
+import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,46 +36,36 @@ import java.util.List;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "job", "salary", "bonusPct", "bonusDay" })
-public class BonusAnnualPct extends Bonus {
+@JsonPropertyOrder({ "type", "id",  "job", "annualAmount", "cashFlow" })
+public class BonusPeriodicFixed extends Bonus {
     @JsonIdentityReference(alwaysAsId = true)
-    private Salary salary;
-    private BigDecimal bonusPct;
+    private BigDecimal annualAmount;
 
-    public BonusAnnualPct(@JacksonInject("context") Context context,
-                          @JsonProperty(value = "id", required = true) String id,
-                          @JsonProperty(value = "job", required = true) String jobId,
-                          @JsonProperty(value = "salary", required = true) String salaryId,
-                          @JsonProperty(value = "bonusPct", required = true) BigDecimal bonusPCT,
-                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
+
+    public BonusPeriodicFixed(@JacksonInject("context") Context context,
+                              @JsonProperty(value = "id", required = true) String id,
+                              @JsonProperty(value = "job", required = true) String jobId,
+                              @JsonProperty(value = "annualAmount", required = true) BigDecimal annualAmount,
+                              @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
             throws Exception {
         super(context, id, jobId, cashFlowId);
-        this.setSalaryId(context, salaryId);
-        this.bonusPct = bonusPCT;
+        this.annualAmount = annualAmount;
     }
+
 
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        BigDecimal annualAmount = salary.getBaseAnnualSalary().multiply(bonusPct);
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
+                    BigDecimal amount = annualAmount.multiply(percent).setScale(2, BigDecimal.ROUND_HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
-            return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
-                });
+                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                }
+        );
     }
 
-    @JsonProperty(value = "salary")
-    public String getSalaryId() {
-        return salary.getId();
-    }
-
-    private void setSalaryId(@JacksonInject("context") Context context,
-                             @JsonProperty(value = "salary", required = true) String salaryId) {
-        this.salary = context.getById(CashFlowSource.class, salaryId);
-    }
-
-    public BigDecimal getBonusPct() {
-        return bonusPct;
+    public BigDecimal getAnnualAmount() {
+        return annualAmount;
     }
 }

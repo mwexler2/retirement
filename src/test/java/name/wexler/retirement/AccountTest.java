@@ -1,6 +1,6 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.Asset.Account;
 import name.wexler.retirement.CashFlow.Balance;
 import name.wexler.retirement.CashFlow.CashBalance;
 import name.wexler.retirement.CashFlow.ShareBalance;
@@ -10,9 +10,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 

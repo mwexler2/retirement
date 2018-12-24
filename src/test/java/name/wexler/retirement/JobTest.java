@@ -24,6 +24,13 @@
 package name.wexler.retirement;
 
 
+import name.wexler.retirement.CashFlowSource.Bonus;
+import name.wexler.retirement.CashFlowSource.BonusAnnualPct;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.Salary;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Entity;
+import name.wexler.retirement.Entity.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

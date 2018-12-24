@@ -1,6 +1,10 @@
 package name.wexler.retirement.CashFlow;
 
 import name.wexler.retirement.*;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.CashFlowSource.Salary;
+import name.wexler.retirement.Entity.Company;
+import name.wexler.retirement.Entity.Person;
 import org.junit.Before;
 import org.junit.Test;
 
