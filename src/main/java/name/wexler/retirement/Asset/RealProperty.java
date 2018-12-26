@@ -24,9 +24,8 @@
 package name.wexler.retirement.Asset;
 
 import com.fasterxml.jackson.annotation.*;
-import name.wexler.retirement.Asset.Asset;
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.CashFlowFrequency.Balance;
+import name.wexler.retirement.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;

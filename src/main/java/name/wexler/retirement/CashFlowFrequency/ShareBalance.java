@@ -1,4 +1,4 @@
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,6 +50,8 @@ public class ShareBalance implements Balance {
     public LocalDate getBalanceDate() {
         return balanceDate;
     }
+
+    public Security getSecurity() { return security; }
 
 
     @Override

@@ -30,7 +30,9 @@ import name.wexler.retirement.Context;
 import name.wexler.retirement.JSON.JSONDateDeserialize;
 import name.wexler.retirement.JSON.JSONDateSerialize;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -43,6 +45,11 @@ public class Person extends Entity {
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate birthDate;
     private int retirementAge;
+    private static final String peoplePath = "people.json";
+
+    public static List<Person> readPeople(Context context) throws IOException {
+        return context.fromJSONFileList(Entity[].class, peoplePath);
+    }
 
     public Person(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,

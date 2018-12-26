@@ -44,7 +44,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 
-import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowFrequency.*;
 
 /**
  * Created by mwexler on 8/13/16.

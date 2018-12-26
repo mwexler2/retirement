@@ -1,9 +1,9 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.Asset.Account;
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashBalance;
-import name.wexler.retirement.CashFlow.ShareBalance;
+import name.wexler.retirement.CashFlowFrequency.Balance;
+import name.wexler.retirement.CashFlowFrequency.CashBalance;
+import name.wexler.retirement.CashFlowFrequency.ShareBalance;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -50,7 +51,7 @@ public class AccountTest {
     }
 
     public void getSecurities() {
-        List<ShareBalance> securites = a1.getSecurities();
+        Map<String, List<ShareBalance>> securites = a1.getSecurities();
         assertEquals(0, securites.size());
     }
 

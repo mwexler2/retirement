@@ -1,4 +1,4 @@
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

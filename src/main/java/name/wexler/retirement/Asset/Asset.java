@@ -25,13 +25,14 @@ package name.wexler.retirement.Asset;
 
 import com.fasterxml.jackson.annotation.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashBalance;
+import name.wexler.retirement.CashFlowFrequency.Balance;
+import name.wexler.retirement.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.Context;
 import name.wexler.retirement.Entity.Entity;
 
@@ -59,6 +60,11 @@ public abstract class Asset {
     }
 
     private final String _id;
+    private static final String assetsPath = "assets.json";
+
+    static public List<Asset> readAssets(Context context) throws IOException {
+        return context.fromJSONFileList(Asset[].class, assetsPath);
+    }
 
     @JsonCreator
     protected Asset(@JacksonInject("context") Context context,

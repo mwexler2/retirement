@@ -1,6 +1,6 @@
 package name.wexler.retirement;
 
-import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowFrequency.*;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.CashFlowSource.RSU;
 import name.wexler.retirement.CashFlowSource.Salary;

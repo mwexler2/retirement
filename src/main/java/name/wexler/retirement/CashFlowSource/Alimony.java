@@ -24,10 +24,10 @@
 package name.wexler.retirement.CashFlowSource;
 
 import com.fasterxml.jackson.annotation.*;
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashFlowCalendar;
-import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.CashFlowFrequency;
+import name.wexler.retirement.CashFlowFrequency.Balance;
+import name.wexler.retirement.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.Context;
 import name.wexler.retirement.Entity.Entity;
 

@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.opencsv.CSVReaderHeaderAware;
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashBalance;
-import name.wexler.retirement.CashFlow.ShareBalance;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,8 +12,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import com.opencsv.CSVReader;
-
 
 /**
  * Created by mwexler on 6/4/17.
@@ -24,6 +19,11 @@ import com.opencsv.CSVReader;
 public class Security {
     private Map<LocalDate, BigDecimal> historicalPrices = new HashMap<>();
     private String id;
+    private static final String securitiesPath = "securities.json";
+
+    static public List<Security> readSecurities(Context context) throws IOException {
+        return context.fromJSONFileList(Security[].class, securitiesPath);
+    }
 
     @JsonCreator
     public Security(@JacksonInject("context") Context context,

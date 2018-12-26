@@ -25,9 +25,11 @@ package name.wexler.retirement.CashFlowSource;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.*;
-import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowFrequency.*;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.Entity.Entity;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -57,6 +59,11 @@ public abstract class CashFlowSource {
     private List<Entity> payers;
     private List<Entity> payees;
     private CashFlowFrequency cashFlow;
+    private static final String cashFlowSourcesPath = "cashFlowSources.json";
+
+    static public List<CashFlowSource> readCashFlowSources(Context context) throws IOException {
+       return context.fromJSONFileList(CashFlowSource[].class, cashFlowSourcesPath);
+    }
 
     public CashFlowSource(@JsonProperty(value = "context", required = true) Context context,
                           @JsonProperty("id") String id,

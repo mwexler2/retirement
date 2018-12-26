@@ -28,12 +28,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.*;
-import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowFrequency.*;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.CashFlowSource.AccountSource;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.Entity.Company;
 import name.wexler.retirement.Entity.Entity;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
@@ -47,8 +50,19 @@ public class Account extends Asset {
     private AccountSource cashFlowSource;
     private final String accountName;
     private final Company company;
+    private static final String accountsPath = "accounts.json";
+    @JsonIgnore
+    private final Map<String, List<ShareBalance>> securities;
+    private List<CashFlowInstance> cashFlowInstances;
 
-    private final List<ShareBalance> securities;
+    static public void readAccounts(Context context) throws IOException {
+        List<Account> accounts = context.fromJSONFileList(Account[].class, accountsPath);
+        // String securityTxnsPath = "/securityTxn.json";
+        // this.securityTxns = context.fromJSONFileList(SecurityTransaction[].class, securityTxnsPath);
+        getAccountHistory(accounts);
+        return;
+
+    }
 
     @JsonCreator
     public Account(@JacksonInject("context") Context context,
@@ -61,8 +75,8 @@ public class Account extends Asset {
         super(context, id, ownerIds, initialBalance, interimBalances);
         context.put(Account.class, id, this);
         this.accountName = accountName;
-        this.securities = new ArrayList<>();
-        company = context.getById(Company.class, companyId);
+        this.securities = new HashMap<>();
+        company = context.getById(Entity.class, companyId);
         List<Entity> owners = context.getByIds(Entity.class, ownerIds);
         cashFlowSource = context.getById(CashFlowSource.class, id);
     }
@@ -83,20 +97,23 @@ public class Account extends Asset {
         return company.getCompanyName();
     }
 
-    public List<ShareBalance> getSecurities() {
+    @JsonIgnore
+    public Map<String, List<ShareBalance>> getSecurities() {
         return securities;
     }
 
     private Map<LocalDate, List<Balance>> _getBalanceMap() {
         Map<LocalDate, List<Balance>> balanceMap = new HashMap<>();
 
-        for (ShareBalance shareBalance : getSecurities()) {
-            LocalDate balanceDate = shareBalance.getBalanceDate();
-            if (!balanceMap.containsKey(balanceDate)) {
-                balanceMap.put(balanceDate, new ArrayList<Balance>());
+        for (List<ShareBalance> securityBalanceList: getSecurities().values()) {
+            for (ShareBalance shareBalance : securityBalanceList) {
+                LocalDate balanceDate = shareBalance.getBalanceDate();
+                if (!balanceMap.containsKey(balanceDate)) {
+                    balanceMap.put(balanceDate, new ArrayList<Balance>());
+                }
+                BigDecimal value = shareBalance.getSharePrice().multiply(shareBalance.getShares());
+                balanceMap.get(balanceDate).add(new CashBalance(balanceDate, value));
             }
-            BigDecimal value = shareBalance.getSharePrice().multiply(shareBalance.getShares());
-            balanceMap.get(balanceDate).add(new CashBalance(balanceDate, value));
         }
         return balanceMap;
 
@@ -104,6 +121,10 @@ public class Account extends Asset {
 
     public AccountSource getCashFlowSource() {
         return cashFlowSource;
+    }
+
+    public Company getCompany() {
+        return company;
     }
 
     @Override @JsonIgnore
@@ -139,7 +160,7 @@ public class Account extends Asset {
         return dateBalances;
     }
 
-   /* public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {
+    /* public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {
         BigDecimal result = this.getBalanceAtDate(date).getValue();
 
         Map<String, ShareBalance> shareBalances = new HashMap<>();
@@ -151,4 +172,42 @@ public class Account extends Asset {
         }
         return result;
     } */
+
+   private void readCashFlowInstances() throws ClassNotFoundException {
+       AccountReader accountReader = AccountReader.factory(this);
+
+       cashFlowInstances = accountReader.readCashFlowInstances(this);
+
+       for (CashFlowInstance instance: cashFlowInstances) {
+           if (instance instanceof SecurityTransaction) {
+               SecurityTransaction txn = (SecurityTransaction) instance;
+               String id = txn.getChange().getSecurity().getId();
+               ShareBalance lastBalance;
+               List<ShareBalance> shareBalanceList;
+               if (!securities.containsKey(id)) {
+                   shareBalanceList = new ArrayList<>();
+                   securities.put(id, shareBalanceList);
+                   lastBalance = txn.getChange();
+               } else {
+                   shareBalanceList = securities.get(id);
+                   ShareBalance prevBalance = shareBalanceList.get(shareBalanceList.size() - 1);
+                   BigDecimal totalShares = prevBalance.getShares().add(txn.getChange().getShares());
+                   lastBalance = new ShareBalance(
+                           this.getContext(), txn.getAccrualStart(), totalShares, txn.getChange().getSharePrice(),
+                           txn.getChange().getSecurity().getId());
+               }
+               shareBalanceList.add(lastBalance);
+           }
+       }
+   }
+
+   public static void getAccountHistory(List<Account> accounts) {
+       for (Account account: accounts) {
+           try {
+               account.readCashFlowInstances();
+           } catch (ClassNotFoundException cnfe) {
+               System.out.println("No reader for " + account.getCompany().getId() + " skipping.");
+           }
+       }
+   }
 }

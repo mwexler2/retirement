@@ -21,11 +21,12 @@
 *
 */
 
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.Context;
 

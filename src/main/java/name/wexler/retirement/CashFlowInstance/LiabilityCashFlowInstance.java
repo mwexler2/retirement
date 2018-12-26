@@ -1,5 +1,6 @@
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowInstance;
 
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
 package name.wexler.retirement;
 
-import name.wexler.retirement.CashFlow.CashFlowFrequency;
-import name.wexler.retirement.CashFlow.Monthly;
+import name.wexler.retirement.CashFlowFrequency.CashFlowFrequency;
+import name.wexler.retirement.CashFlowFrequency.Monthly;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.CashFlowSource.Salary;
 import name.wexler.retirement.Entity.Company;

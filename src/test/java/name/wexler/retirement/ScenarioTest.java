@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.Asset.Account;
 import name.wexler.retirement.Asset.RealProperty;
-import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowFrequency.*;
 import name.wexler.retirement.CashFlowSource.Liability;
 import name.wexler.retirement.CashFlowSource.Salary;
 import name.wexler.retirement.Entity.Company;

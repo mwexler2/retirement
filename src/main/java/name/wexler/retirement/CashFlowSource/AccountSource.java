@@ -3,8 +3,8 @@ package name.wexler.retirement.CashFlowSource;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import name.wexler.retirement.CashFlow.CashFlowCalendar;
-import name.wexler.retirement.CashFlow.CashFlowInstance;
+import name.wexler.retirement.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.Context;
 import name.wexler.retirement.Entity.Entity;
 

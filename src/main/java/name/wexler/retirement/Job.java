@@ -33,6 +33,7 @@ import name.wexler.retirement.Entity.Person;
 import name.wexler.retirement.JSON.JSONDateDeserialize;
 import name.wexler.retirement.JSON.JSONDateSerialize;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.ArrayList;
@@ -71,6 +72,12 @@ public class Job {
     @JsonIdentityReference(alwaysAsId = true)
     private Entity employee;
 
+    private static final String jobsPath = "jobs.json";
+
+    public static List<Job> readJobs(Context context) throws IOException
+    {
+        return context.fromJSONFileList(Job[].class, jobsPath);
+    }
 
     @JsonCreator
     public Job(@JacksonInject("context") Context context,

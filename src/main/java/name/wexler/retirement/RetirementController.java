@@ -23,9 +23,9 @@
 
 package name.wexler.retirement;
 
-import name.wexler.retirement.CashFlow.Balance;
-import name.wexler.retirement.CashFlow.CashFlowInstance;
-import name.wexler.retirement.CashFlow.LiabilityCashFlowInstance;
+import name.wexler.retirement.CashFlowFrequency.Balance;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.CashFlowInstance.LiabilityCashFlowInstance;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -35,9 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class RetirementController {

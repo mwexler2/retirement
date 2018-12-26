@@ -23,6 +23,8 @@
 
 package name.wexler.retirement;
 
+import java.io.IOException;
+
 /**
  * Created by mwexler on 6/28/16.
  */
@@ -32,6 +34,12 @@ public class Assumptions {
     private double inflation                 = 4.0/100.0;
     private int alimonyEndAge               = 65;
     private int yearsInShortTerm            = 10;
+
+    static public void readAssumptions(Context context) throws IOException {
+        String assumptionsPath = "assumptions.json";
+        Assumptions assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
+        context.setAssumptions(assumptions);
+    }
 
     public double getLongTermInvestmentReturn() {
         return longTermInvestmentReturn;

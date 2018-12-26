@@ -25,12 +25,20 @@ package name.wexler.retirement.Entity;
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.Context;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonTypeName("company")
 public class Company extends Entity {
     private String companyName;
+    private static final String companyPath = "company.json";
+
+    public static List<Company> readComapnies(Context context) throws IOException {
+        return context.fromJSONFileList(Entity[].class, companyPath);
+    }
 
     @JsonCreator
     public Company(@JacksonInject("context") Context context, @JsonProperty("id") String id) throws Exception {
@@ -46,7 +54,6 @@ public class Company extends Entity {
 
         if (companyName != null ? !companyName.equals(company.companyName) : company.companyName != null) return false;
         return getId() != null ? getId().equals(company.getId()) : company.getId() == null;
-
     }
 
     @Override

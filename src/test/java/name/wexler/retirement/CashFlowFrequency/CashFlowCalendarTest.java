@@ -1,4 +1,4 @@
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import name.wexler.retirement.*;
 import name.wexler.retirement.Asset.Asset;

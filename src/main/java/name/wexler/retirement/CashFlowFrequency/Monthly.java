@@ -21,7 +21,7 @@
 *
 */
 
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,7 +29,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;

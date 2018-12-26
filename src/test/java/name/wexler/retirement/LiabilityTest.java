@@ -2,9 +2,9 @@ package name.wexler.retirement;
 
 import name.wexler.retirement.Asset.Asset;
 import name.wexler.retirement.Asset.RealProperty;
-import name.wexler.retirement.CashFlow.CashBalance;
-import name.wexler.retirement.CashFlow.CashFlowFrequency;
-import name.wexler.retirement.CashFlow.Monthly;
+import name.wexler.retirement.CashFlowFrequency.CashBalance;
+import name.wexler.retirement.CashFlowFrequency.CashFlowFrequency;
+import name.wexler.retirement.CashFlowFrequency.Monthly;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.CashFlowSource.Liability;
 import name.wexler.retirement.Entity.Company;

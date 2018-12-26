@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import name.wexler.retirement.Entity.Company;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,6 +18,10 @@ import java.util.*;
  * Created by mwexler on 11/24/16.
  */
 public class Context {
+    private static final Path userHome = Paths.get(System.getProperty("user.home"));
+    private static final Path retirementDir = userHome.resolve(".retirement");
+    private static final Path resourceDir = retirementDir.resolve("resources");
+    private static final Path historyDir = retirementDir.resolve("history");
 
     private class EntityManager<T> {
         private final HashMap<String, T> allEntities = new HashMap<>();
@@ -112,24 +119,28 @@ public class Context {
         return result;
     }
 
-    public <T> T[] fromJSONFileArray(Class clazz, String filePath) throws IOException {
-        File entityFile = new File(filePath);
+    private <T> T[] fromJSONFileArray(Class clazz, String fileName) throws IOException {
+        Path filePath = resourceDir.resolve(fileName);
+        File entityFile = filePath.toFile();
         ObjectMapper mapper = getObjectMapper();
         T[] result = (T[]) mapper.readValue(entityFile, clazz);
         return result;
     }
 
-    public <T> List<T> fromJSONFileList(Class clazz, String filePath) throws IOException {
-        File entityFile = new File(filePath);
-        ObjectMapper mapper = getObjectMapper();
-        List<T> result = (List<T>) mapper.readValue(entityFile, clazz);
-        return result;
+    public <T> List<T> fromJSONFileList(Class clazz, String fileName) throws IOException {
+        return Arrays.asList(fromJSONFileArray(clazz, fileName));
     }
 
-    public <T> T fromJSONFile(Class clazz, String filePath) throws IOException {
-        File entityFile = new File(filePath);
+    public <T> T fromJSONFile(Class clazz, String fileName) throws IOException {
+        Path filePath = resourceDir.resolve(fileName);
+        File entityFile = filePath.toFile();
         ObjectMapper mapper = getObjectMapper();
         T result = (T) mapper.readValue(entityFile, clazz);
         return result;
+    }
+
+    public Path getHistoryDir(Company company) {
+        Path dirPath = historyDir.resolve(company.getId());
+        return dirPath;
     }
 }

@@ -1,8 +1,9 @@
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowInstance;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.Asset.Account;
+import name.wexler.retirement.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
@@ -23,5 +24,9 @@ public class SecurityTransaction extends AssetTransaction {
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(), amount, BigDecimal.ZERO);
         change = shareChange;
+    }
+
+    public ShareBalance getChange() {
+        return change;
     }
 }

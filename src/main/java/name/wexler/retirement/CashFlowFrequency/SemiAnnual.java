@@ -21,7 +21,7 @@
 * I can be reached at mike.wexler@gmail.com.
 * 
 */
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,7 +30,6 @@ import name.wexler.retirement.Context;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.MonthDay;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;

@@ -21,16 +21,18 @@
 *
 */
 
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowFrequency;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.*;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.JSON.JSONDateDeserialize;
 import name.wexler.retirement.JSON.JSONDateSerialize;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -89,6 +91,12 @@ public abstract class CashFlowFrequency {
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate firstPaymentDate;
+
+    private static final String cashFlowsPath = "cashFlows.json";
+
+    public static List<CashFlowFrequency> readCashFlowFrequencies(Context context) throws IOException {
+        return context.fromJSONFileList(CashFlowFrequency[].class, cashFlowsPath);
+    }
 
     public CashFlowFrequency(@JacksonInject("context") Context context,
                              @JsonProperty(value = "id", required = true) String id,

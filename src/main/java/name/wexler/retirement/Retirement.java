@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -33,8 +34,12 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 
 import name.wexler.retirement.Asset.Account;
 import name.wexler.retirement.Asset.Asset;
-import name.wexler.retirement.CashFlow.*;
+import name.wexler.retirement.CashFlowFrequency.*;
+import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.CashFlowInstance.LiabilityCashFlowInstance;
+import name.wexler.retirement.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.Entity.Company;
 import name.wexler.retirement.Entity.Entity;
 import name.wexler.retirement.Entity.Person;
 
@@ -43,17 +48,10 @@ import name.wexler.retirement.Entity.Person;
  * Created by mwexler on 6/28/16.
  */
 public class Retirement {
-    private Scenario[] scenarios;
-    private Job[] jobs;
-    private Entity[] companies;
-    private Entity[] people;
-    private CashFlowSource[] cashFlowSources;
-    private Security[] securities;
-    private Asset[] assets;
-    private Assumptions assumptions;
-    private CashFlowFrequency[] cashFlows;
-    private Account[] accounts;
-    private SecurityTransaction[] securityTxns;
+    private List<Scenario> scenarios;
+    private List<Job> jobs;
+    private List<Person> people;
+    private List<SecurityTransaction> securityTxns;
     private String cashFlowId;
     private String scenarioId;
 
@@ -63,43 +61,18 @@ public class Retirement {
         Context context = new Context();
 
         try {
+            this.people = Person.readPeople(context);
+            Company.readComapnies(context);
+            Job.readJobs(context);
+            CashFlowFrequency.readCashFlowFrequencies(context);
+            Security.readSecurities(context);
+            Asset.readAssets(context);
+            CashFlowSource.readCashFlowSources(context);
+            Account.readAccounts(context);
 
-            String userHome = System.getProperty("user.home");
-            String resourceDir = userHome + "/.retirement/resources";
-            
-            String peoplePath = resourceDir + "/people.json";
-            this.people = context.fromJSONFileArray(Entity[].class, peoplePath);
 
-            String companyPath = resourceDir + "/company.json";
-            this.companies = context.fromJSONFile(Entity[].class, companyPath);
 
-            String jobsPath = resourceDir + "/jobs.json";
-            this.jobs = context.fromJSONFileArray(Job[].class, jobsPath);
-
-            String cashFlowsPath = resourceDir + "/cashFlows.json";
-            this.cashFlows = context.fromJSONFileArray(CashFlowFrequency[].class, cashFlowsPath);
-
-            String securitiesPath = resourceDir + "/securities.json";
-            this.securities = context.fromJSONFileArray(Security[].class, securitiesPath);
-
-            String assetsPath = resourceDir + "/assets.json";
-            this.assets = context.fromJSONFileArray(Asset[].class, assetsPath);
-
-            String cashFlowSourcesPath = resourceDir + "/cashFlowSources.json";
-            this.cashFlowSources = context.fromJSONFileArray(CashFlowSource[].class, cashFlowSourcesPath);
-
-            String accountsPath = resourceDir + "/accounts.json";
-            this.accounts = context.fromJSONFileArray(Account[].class, accountsPath);
-
-            String securityTxnsPath = resourceDir + "/securityTxn.json";
-            this.securityTxns = context.fromJSONFileArray(SecurityTransaction[].class, securityTxnsPath);
-
-            String assumptionsPath = resourceDir + "/assumptions.json";
-            this.assumptions = context.fromJSONFile(Assumptions.class, assumptionsPath);
-            context.setAssumptions(this.assumptions);
-
-            String scenariosPath = resourceDir + "/scenarios.json";
-            this.scenarios = context.fromJSONFileArray(Scenario[].class, scenariosPath);
+            this.scenarios = Scenario.readScenarios(context);
         } catch (JsonGenerationException | JsonMappingException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -107,7 +80,7 @@ public class Retirement {
         }
     }
 
-    public Scenario[] getScenarios() {
+    public List<Scenario> getScenarios() {
         return scenarios;
     }
 
@@ -155,15 +128,15 @@ public class Retirement {
         return cashFlows;
     }
 
-    public void setScenarios(Scenario[] scenarios) {
+    public void setScenarios(List<Scenario> scenarios) {
         this.scenarios = scenarios;
     }
 
-    public Entity[] getPeople() {
+    public List<Person> getPeople() {
         return people;
     }
 
-    public void setPeople(Person[] people) {
+    public void setPeople(List<Person> people) {
         this.people = people;
     }
 }

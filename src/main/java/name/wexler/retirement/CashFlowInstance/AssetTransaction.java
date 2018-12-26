@@ -1,4 +1,4 @@
-package name.wexler.retirement.CashFlow;
+package name.wexler.retirement.CashFlowInstance;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
