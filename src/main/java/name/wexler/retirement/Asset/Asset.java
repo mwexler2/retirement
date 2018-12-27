@@ -117,7 +117,8 @@ public abstract class Asset {
         }
         Balance recentBalance = _initialBalance;
         List<Balance> balances = getBalances();
-        int i =  Collections.binarySearch(balances, new CashBalance(valueDate, BigDecimal.ZERO), Comparator.comparing(Balance::getBalanceDate));
+        int i =  Collections.binarySearch(balances, new CashBalance(valueDate, BigDecimal.ZERO),
+                Comparator.comparing(Balance::getBalanceDate));
         if (i >= 0) {
             recentBalance = balances.get(i);
         } else if (i < -1) {

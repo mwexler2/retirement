@@ -22,19 +22,26 @@ public class ShareBalance implements Balance {
     private final BigDecimal sharePrice;
     private final Security security;
 
+    public ShareBalance(LocalDate balanceDate,
+                        BigDecimal shares,
+                        BigDecimal sharePrice,
+                        Security security) {
+        this.balanceDate = balanceDate;
+        this.shares = shares;
+        this.sharePrice = sharePrice;
+        this.security = security;
+    }
+
     public ShareBalance(@JacksonInject("context") Context context,
                         @JsonDeserialize(using=JSONDateDeserialize.class) @JsonProperty(value = "date", required = true) LocalDate balanceDate,
                         @JsonProperty(value = "shares", defaultValue = "0.00") BigDecimal shares,
                         @JsonProperty(value = "sharePrice", required = true) BigDecimal sharePrice,
                         @JsonProperty(value = "security", required = true) String securityId) {
-        this.balanceDate = balanceDate;
-        this.shares = shares;
-        this.sharePrice = sharePrice;
-        this.security = context.getById(Security.class, securityId);
+        this(balanceDate, shares, sharePrice, context.getById(Security.class, securityId));
     }
 
     public BigDecimal getValue() {
-        return shares.multiply(sharePrice);
+        return shares.multiply(sharePrice).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public BigDecimal getSharePrice() {
@@ -53,6 +60,10 @@ public class ShareBalance implements Balance {
 
     public Security getSecurity() { return security; }
 
+    public ShareBalance applyChange(ShareBalance change) {
+        BigDecimal shares = this.shares.add(change.shares).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return new ShareBalance(this.getBalanceDate(), shares, change.sharePrice, change.getSecurity());
+    }
 
     @Override
     public String toString() {

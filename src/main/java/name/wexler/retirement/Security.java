@@ -69,7 +69,7 @@ public class Security {
                 historicalPrices.put(date, close);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Can't read history for " + this.getId());
         }
     }
 

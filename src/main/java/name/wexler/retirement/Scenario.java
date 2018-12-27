@@ -109,7 +109,7 @@ public class Scenario {
                                       @JsonProperty(value = "accounts", required = true) String[] accountIds) {
         List<Account> accounts = new ArrayList<>(accountIds.length);
         for (String accountId : accountIds) {
-            accounts.add(context.getById(Account.class, accountId));
+            accounts.add(context.getById(Asset.class, accountId));
         }
         calendar.addAccounts(accounts);
     }

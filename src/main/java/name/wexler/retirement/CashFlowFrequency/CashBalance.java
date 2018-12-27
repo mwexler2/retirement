@@ -16,8 +16,8 @@ import java.time.temporal.ChronoUnit;
 public class CashBalance implements Balance {
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
-    private final LocalDate balanceDate;
-    private final BigDecimal value;
+    private LocalDate balanceDate;
+    private BigDecimal value;
 
     public CashBalance(@JsonDeserialize(using=JSONDateDeserialize.class) @JsonProperty("date") LocalDate balanceDate,
                        @JsonProperty("amount") BigDecimal amount) {
@@ -49,5 +49,10 @@ public class CashBalance implements Balance {
             balance = value.multiply(BigDecimal.valueOf(totalReturn));
         }
         return balance;
+    }
+
+    public void applyChange(LocalDate balanceDate, BigDecimal amount) {
+        this.balanceDate = balanceDate;
+        this.value = this.value.add(amount).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }

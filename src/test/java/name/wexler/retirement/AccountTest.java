@@ -30,7 +30,8 @@ public class AccountTest {
         List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2010, 12, 31), BigDecimal.valueOf(5.45)));
         List<ShareBalance> securities = Arrays.asList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
-        a1 = new Account(context, "a1", owners, initialBalance,  interimBalances, "Test Account", "Bank of Banking");
+        a1 = new Account(context, "a1", owners, initialBalance,  interimBalances, "Test Account",
+                "Bank of Banking", null);
     }
 
     @Test
@@ -48,11 +49,6 @@ public class AccountTest {
 
     public void getInstitutionName() {
         assertEquals("Bank of Banking", a1.getInstitutionName());
-    }
-
-    public void getSecurities() {
-        Map<String, List<ShareBalance>> securites = a1.getSecurities();
-        assertEquals(0, securites.size());
     }
 
     public void getAccountValue() {

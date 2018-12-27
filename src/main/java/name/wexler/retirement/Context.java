@@ -22,6 +22,7 @@ public class Context {
     private static final Path retirementDir = userHome.resolve(".retirement");
     private static final Path resourceDir = retirementDir.resolve("resources");
     private static final Path historyDir = retirementDir.resolve("history");
+    private static final Path txnDir = historyDir.resolve("txns");
 
     private class EntityManager<T> {
         private final HashMap<String, T> allEntities = new HashMap<>();
@@ -140,7 +141,7 @@ public class Context {
     }
 
     public Path getHistoryDir(Company company) {
-        Path dirPath = historyDir.resolve(company.getId());
+        Path dirPath = txnDir.resolve(company.getId());
         return dirPath;
     }
 }

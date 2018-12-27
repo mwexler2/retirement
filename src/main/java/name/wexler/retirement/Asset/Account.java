@@ -41,25 +41,33 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/9/16.
  */
 public class Account extends Asset {
+    private static List<Account> accounts = new ArrayList<>();
+    private static final String accountsPath = "accounts.json";
 
-    private AccountSource cashFlowSource;
+    private final AccountSource cashFlowSource;
     private final String accountName;
     private final Company company;
-    private static final String accountsPath = "accounts.json";
-    @JsonIgnore
-    private final Map<String, List<ShareBalance>> securities;
-    private List<CashFlowInstance> cashFlowInstances;
+    private final String indicator;
 
+    // History of balances for Cash and Securities
+    private Map<LocalDate, CashBalance> cashBalanceAtDate = new HashMap<>();
+    private Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
+    private Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
+
+    @JsonIgnore
+    private List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
     static public void readAccounts(Context context) throws IOException {
-        List<Account> accounts = context.fromJSONFileList(Account[].class, accountsPath);
-        // String securityTxnsPath = "/securityTxn.json";
-        // this.securityTxns = context.fromJSONFileList(SecurityTransaction[].class, securityTxnsPath);
-        getAccountHistory(accounts);
+        Set<Company> companies = new HashSet<>();
+        for (Account account: accounts) {
+            companies.add(account.getCompany());
+        }
+        getAccountHistory(context, companies);
         return;
 
     }
@@ -71,14 +79,21 @@ public class Account extends Asset {
                       @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
                       @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
                       @JsonProperty(value = "accountName", required = true) String accountName,
-                      @JsonProperty(value = "company", required = true) String companyId) {
+                      @JsonProperty(value = "company", required = true) String companyId,
+                      @JsonProperty(value = "indicator") String indicator) {
         super(context, id, ownerIds, initialBalance, interimBalances);
-        context.put(Account.class, id, this);
         this.accountName = accountName;
-        this.securities = new HashMap<>();
-        company = context.getById(Entity.class, companyId);
-        List<Entity> owners = context.getByIds(Entity.class, ownerIds);
-        cashFlowSource = context.getById(CashFlowSource.class, id);
+        this.company = context.getById(Entity.class, companyId);
+        this.cashFlowSource = context.getById(CashFlowSource.class, id);
+        this.indicator = indicator;
+        context.put(Account.class, indicator, this);
+        accounts.add(this);
+    }
+
+    public void addCashFlowInstances(List<CashFlowInstance> instances) {
+        instances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
+        computeBalances(instances);
+        cashFlowInstances.addAll(instances);
     }
 
     public String getId() {
@@ -97,28 +112,6 @@ public class Account extends Asset {
         return company.getCompanyName();
     }
 
-    @JsonIgnore
-    public Map<String, List<ShareBalance>> getSecurities() {
-        return securities;
-    }
-
-    private Map<LocalDate, List<Balance>> _getBalanceMap() {
-        Map<LocalDate, List<Balance>> balanceMap = new HashMap<>();
-
-        for (List<ShareBalance> securityBalanceList: getSecurities().values()) {
-            for (ShareBalance shareBalance : securityBalanceList) {
-                LocalDate balanceDate = shareBalance.getBalanceDate();
-                if (!balanceMap.containsKey(balanceDate)) {
-                    balanceMap.put(balanceDate, new ArrayList<Balance>());
-                }
-                BigDecimal value = shareBalance.getSharePrice().multiply(shareBalance.getShares());
-                balanceMap.get(balanceDate).add(new CashBalance(balanceDate, value));
-            }
-        }
-        return balanceMap;
-
-    }
-
     public AccountSource getCashFlowSource() {
         return cashFlowSource;
     }
@@ -129,84 +122,101 @@ public class Account extends Asset {
 
     @Override @JsonIgnore
     public List<Balance> getBalances() {
-        List<Balance> balances = new ArrayList<>();
-        Map<LocalDate, List<Balance>> balanceMap = _getBalanceMap();
-
-        for (LocalDate date : balanceMap.keySet()) {
-            List<Balance> dateBalances = balanceMap.get(date);
-            BigDecimal total = BigDecimal.ZERO;
-            for (Balance balance : dateBalances) {
-                total = total.add(balance.getValue());
-            }
-            balances.add(new CashBalance(date, total));
-        }
+        List<Balance> balances = new ArrayList<Balance>(this.accountValueByDate.values());
+        balances.sort(Comparator.comparing(Balance::getBalanceDate));
         return balances;
     }
 
+    // Return the total value of securities and cash at each point during the year where it cash or share quantity
+    // changed.
     @Override
     @JsonIgnore
     public List<Balance> getBalances(int year) {
-        List<Balance> balances = new ArrayList<>();
-        Map<LocalDate, List<Balance>> balanceMap = _getBalanceMap();
+        List<Balance> balances =
+                accountValueByDate.values()
+                        .stream()
+                        .filter(balance -> year == balance.getBalanceDate().getYear())
+                        .sorted(Comparator.comparing(CashBalance::getBalanceDate))
+                        .collect(Collectors.toList());
 
-        LocalDate lastDateInYear = balanceMap.keySet()
-                .stream()
-                .filter(balance -> year == balance.getYear())
-                .max(LocalDate::compareTo)
-                .orElse(LocalDate.of(year, Month.JANUARY, 1));
-
-        List<Balance> dateBalances = balanceMap.get(lastDateInYear);
-
-        return dateBalances;
+        return balances;
     }
 
-    /* public BigDecimal getAccountValue(LocalDate date, Assumptions assumptions) {
-        BigDecimal result = this.getBalanceAtDate(date).getValue();
+    private void processSecurityTransaction(SecurityTransaction txn,
+                                            CashBalance cashBalance,
+                                            Map<String, ShareBalance> shareBalancesBySymbol) {
+        ShareBalance change = txn.getChange();
+        Security security = change.getSecurity();
+        String symbol = security.getId();
 
-        Map<String, ShareBalance> shareBalances = new HashMap<>();
-        for (ShareBalance security : getSecurities()) {
-            shareBalances.put(security.getId(), security);
+        // Update running share balance for this symbol, creating an entry if it doesn't already exist.
+        if (!shareBalancesBySymbol.containsKey(symbol)) {
+            shareBalancesBySymbol.put(symbol,
+                    new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security));
         }
-        for (ShareBalance security : shareBalances.values()) {
-            result = result.add(security.getValue());
+        ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
+        ShareBalance newShareBalance = oldShareBalance.applyChange(change);
+        shareBalancesBySymbol.put(symbol, newShareBalance);
+
+        // Store the share balance by date and symbol
+        if (!shareBalancesByDateAndSymbol.containsKey(txn.getCashFlowDate())) {
+            shareBalancesByDateAndSymbol.put(txn.getCashFlowDate(),
+                    new HashMap<>());
         }
-        return result;
-    } */
+        Map<String, ShareBalance> shareBalancesAtTxnDate = shareBalancesByDateAndSymbol.get(txn.getCashFlowDate());
+        ShareBalance oldBalance = shareBalancesAtTxnDate.get(symbol);
+        if (oldBalance == null) {
+            oldBalance = new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security);
+        }
+        ShareBalance newBalance = oldBalance.applyChange(change);
+        shareBalancesAtTxnDate.put(symbol, newShareBalance);
 
-   private void readCashFlowInstances() throws ClassNotFoundException {
-       AccountReader accountReader = AccountReader.factory(this);
+        // Calculate the total account value at the transaction date
+        BigDecimal cashValue = cashBalance.getValue();
+        BigDecimal shareValue = shareBalancesBySymbol
+                .values()
+                .stream()
+                .map(ShareBalance::getValue)
+                .reduce(BigDecimal.ZERO,
+                        (a, b) -> a.add(b));
+        accountValueByDate.put(txn.getCashFlowDate(),
+                new CashBalance(txn.getCashFlowDate(), cashValue.add(shareValue)));
+    }
 
-       cashFlowInstances = accountReader.readCashFlowInstances(this);
+    private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
+        // Running Balances for Cash and Securities
+        CashBalance cashBalance = new CashBalance(LocalDate.now(), BigDecimal.ZERO);
+        Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
 
-       for (CashFlowInstance instance: cashFlowInstances) {
-           if (instance instanceof SecurityTransaction) {
-               SecurityTransaction txn = (SecurityTransaction) instance;
-               String id = txn.getChange().getSecurity().getId();
-               ShareBalance lastBalance;
-               List<ShareBalance> shareBalanceList;
-               if (!securities.containsKey(id)) {
-                   shareBalanceList = new ArrayList<>();
-                   securities.put(id, shareBalanceList);
-                   lastBalance = txn.getChange();
-               } else {
-                   shareBalanceList = securities.get(id);
-                   ShareBalance prevBalance = shareBalanceList.get(shareBalanceList.size() - 1);
-                   BigDecimal totalShares = prevBalance.getShares().add(txn.getChange().getShares());
-                   lastBalance = new ShareBalance(
-                           this.getContext(), txn.getAccrualStart(), totalShares, txn.getChange().getSharePrice(),
-                           txn.getChange().getSecurity().getId());
-               }
-               shareBalanceList.add(lastBalance);
-           }
-       }
+        cashFlowInstances.stream().
+                forEach(instance -> {
+                    // Update the running cash balance
+                    cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
+
+                    // Put the new balance in the current transaction
+                    instance.setBalance(cashBalance.getValue());
+
+                    // Store the history cash balance by date
+                    cashBalanceAtDate.put(instance.getCashFlowDate(), cashBalance);
+
+                    if (instance instanceof SecurityTransaction) {
+                        processSecurityTransaction((SecurityTransaction) instance, cashBalance, shareBalancesBySymbol);
+                    }
+                });
+    }
+
+   private static void readCashFlowInstances(Context context, Company company) throws ClassNotFoundException {
+       AccountReader accountReader = AccountReader.factory(company);
+
+       accountReader.readCashFlowInstances(context, company);
    }
 
-   public static void getAccountHistory(List<Account> accounts) {
-       for (Account account: accounts) {
+   public static void getAccountHistory(Context context, Collection<Company> companies) {
+       for (Company company: companies) {
            try {
-               account.readCashFlowInstances();
+               readCashFlowInstances(context, company);
            } catch (ClassNotFoundException cnfe) {
-               System.out.println("No reader for " + account.getCompany().getId() + " skipping.");
+               System.out.println("No reader for " + company.getId() + " skipping.");
            }
        }
    }

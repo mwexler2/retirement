@@ -3,6 +3,7 @@ package name.wexler.retirement.CashFlowInstance;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.Asset.Account;
+import name.wexler.retirement.Asset.Asset;
 import name.wexler.retirement.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.Context;
 
@@ -14,16 +15,28 @@ public class SecurityTransaction extends AssetTransaction {
     Account account;
 
     public SecurityTransaction(
-            @JacksonInject("context")  Context context,
-            @JsonProperty(value = "account", required = true) String accountId,
-            @JsonProperty(value = "cashAmount", required=true) BigDecimal amount,
-            @JsonProperty(value = "shareChange", required=true) ShareBalance shareChange) {
+            Context context,
+            Account account,
+            BigDecimal amount,
+            ShareBalance shareChange) {
         super(
-                ((Account) context.getById(Account.class, accountId)).getCashFlowSource(),
+                account.getCashFlowSource(),
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(), amount, BigDecimal.ZERO);
         change = shareChange;
+        this.account = account;
+    }
+
+    public SecurityTransaction(
+            @JacksonInject("context")  Context context,
+            @JsonProperty(value = "account", required = true) String accountId,
+            @JsonProperty(value = "cashAmount", required=true) BigDecimal amount,
+            @JsonProperty(value = "shareChange", required=true) ShareBalance shareChange) {
+        this(context,
+                (Account) context.getById(Asset.class, accountId),
+                amount,
+                shareChange);
     }
 
     public ShareBalance getChange() {
