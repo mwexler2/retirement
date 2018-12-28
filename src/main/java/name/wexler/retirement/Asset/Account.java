@@ -38,6 +38,7 @@ import name.wexler.retirement.Entity.Entity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
@@ -91,9 +92,9 @@ public class Account extends Asset {
     }
 
     public void addCashFlowInstances(List<CashFlowInstance> instances) {
-        instances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
-        computeBalances(instances);
         cashFlowInstances.addAll(instances);
+        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
+        computeBalances(this.cashFlowInstances);
     }
 
     public String getId() {
@@ -149,6 +150,7 @@ public class Account extends Asset {
         Security security = change.getSecurity();
         String symbol = security.getId();
 
+        System.out.println("    change = " + change);
         // Update running share balance for this symbol, creating an entry if it doesn't already exist.
         if (!shareBalancesBySymbol.containsKey(symbol)) {
             shareBalancesBySymbol.put(symbol,
@@ -156,6 +158,7 @@ public class Account extends Asset {
         }
         ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
         ShareBalance newShareBalance = oldShareBalance.applyChange(change);
+        System.out.println("    oldShareBalance = " + oldShareBalance + ", newShareBalance = " + newShareBalance);
         shareBalancesBySymbol.put(symbol, newShareBalance);
 
         // Store the share balance by date and symbol
@@ -170,6 +173,7 @@ public class Account extends Asset {
         }
         ShareBalance newBalance = oldBalance.applyChange(change);
         shareBalancesAtTxnDate.put(symbol, newShareBalance);
+        System.out.println("    oldBalance = " + oldBalance + ", newBalance = " + newBalance);
 
         // Calculate the total account value at the transaction date
         BigDecimal cashValue = cashBalance.getValue();
@@ -179,8 +183,10 @@ public class Account extends Asset {
                 .map(ShareBalance::getValue)
                 .reduce(BigDecimal.ZERO,
                         (a, b) -> a.add(b));
+        BigDecimal totalValue = cashValue.add(shareValue).setScale(2, BigDecimal.ROUND_HALF_UP);
+        System.out.println("     accountValue: " + totalValue + " = " + cashValue + " + " + shareValue);
         accountValueByDate.put(txn.getCashFlowDate(),
-                new CashBalance(txn.getCashFlowDate(), cashValue.add(shareValue)));
+                new CashBalance(txn.getCashFlowDate(), totalValue));
     }
 
     private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
@@ -188,11 +194,14 @@ public class Account extends Asset {
         CashBalance cashBalance = new CashBalance(LocalDate.now(), BigDecimal.ZERO);
         Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
 
+        System.out.println(this);
         cashFlowInstances.stream().
                 forEach(instance -> {
                     // Update the running cash balance
+                    System.out.println("  " + instance);
                     cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
 
+                    System.out.println("  cashBalance = " + cashBalance);
                     // Put the new balance in the current transaction
                     instance.setBalance(cashBalance.getValue());
 
@@ -205,7 +214,7 @@ public class Account extends Asset {
                 });
     }
 
-   private static void readCashFlowInstances(Context context, Company company) throws ClassNotFoundException {
+   private static void readCashFlowInstances(Context context, Company company) throws IOException, ClassNotFoundException {
        AccountReader accountReader = AccountReader.factory(company);
 
        accountReader.readCashFlowInstances(context, company);
@@ -217,7 +226,13 @@ public class Account extends Asset {
                readCashFlowInstances(context, company);
            } catch (ClassNotFoundException cnfe) {
                System.out.println("No reader for " + company.getId() + " skipping.");
+           } catch (IOException ioe) {
+               ioe.printStackTrace();
            }
        }
+   }
+
+   public String toString() {
+        return this.accountName + " (" + this.company.getCompanyName() + ")";
    }
 }
