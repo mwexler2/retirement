@@ -36,7 +36,7 @@ public class CashBalance implements Balance {
 
     @Override
     public String toString() {
-        String result = balanceDate.toString() + ": " + getValue();
+        String result = balanceDate.toString() + ": $" + getValue();
         return result;
     }
 

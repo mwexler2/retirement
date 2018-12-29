@@ -64,11 +64,12 @@ public class Account extends Asset {
     @JsonIgnore
     private List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
     static public void readAccounts(Context context) throws IOException {
-        Set<Company> companies = new HashSet<>();
+        Set<String> companyIds = new HashSet<>();
         for (Account account: accounts) {
-            companies.add(account.getCompany());
+            companyIds.add(account.getCompany().getId());
         }
-        getAccountHistory(context, companies);
+        companyIds.add(MintAccountReader.mintPseudoCompany);
+        getAccountHistory(context, companyIds);
         return;
 
     }
@@ -150,7 +151,6 @@ public class Account extends Asset {
         Security security = change.getSecurity();
         String symbol = security.getId();
 
-        System.out.println("    change = " + change);
         // Update running share balance for this symbol, creating an entry if it doesn't already exist.
         if (!shareBalancesBySymbol.containsKey(symbol)) {
             shareBalancesBySymbol.put(symbol,
@@ -158,7 +158,6 @@ public class Account extends Asset {
         }
         ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
         ShareBalance newShareBalance = oldShareBalance.applyChange(change);
-        System.out.println("    oldShareBalance = " + oldShareBalance + ", newShareBalance = " + newShareBalance);
         shareBalancesBySymbol.put(symbol, newShareBalance);
 
         // Store the share balance by date and symbol
@@ -173,7 +172,6 @@ public class Account extends Asset {
         }
         ShareBalance newBalance = oldBalance.applyChange(change);
         shareBalancesAtTxnDate.put(symbol, newShareBalance);
-        System.out.println("    oldBalance = " + oldBalance + ", newBalance = " + newBalance);
 
         // Calculate the total account value at the transaction date
         BigDecimal cashValue = cashBalance.getValue();
@@ -184,7 +182,6 @@ public class Account extends Asset {
                 .reduce(BigDecimal.ZERO,
                         (a, b) -> a.add(b));
         BigDecimal totalValue = cashValue.add(shareValue).setScale(2, BigDecimal.ROUND_HALF_UP);
-        System.out.println("     accountValue: " + totalValue + " = " + cashValue + " + " + shareValue);
         accountValueByDate.put(txn.getCashFlowDate(),
                 new CashBalance(txn.getCashFlowDate(), totalValue));
     }
@@ -198,10 +195,8 @@ public class Account extends Asset {
         cashFlowInstances.stream().
                 forEach(instance -> {
                     // Update the running cash balance
-                    System.out.println("  " + instance);
                     cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
 
-                    System.out.println("  cashBalance = " + cashBalance);
                     // Put the new balance in the current transaction
                     instance.setBalance(cashBalance.getValue());
 
@@ -210,22 +205,24 @@ public class Account extends Asset {
 
                     if (instance instanceof SecurityTransaction) {
                         processSecurityTransaction((SecurityTransaction) instance, cashBalance, shareBalancesBySymbol);
+                    } else {
+                        accountValueByDate.put(instance.getCashFlowDate(), cashBalance);
                     }
                 });
     }
 
-   private static void readCashFlowInstances(Context context, Company company) throws IOException, ClassNotFoundException {
-       AccountReader accountReader = AccountReader.factory(company);
+   private static void readCashFlowInstances(Context context, String companyId) throws IOException, ClassNotFoundException {
+       AccountReader accountReader = AccountReader.factory(companyId);
 
-       accountReader.readCashFlowInstances(context, company);
+       accountReader.readCashFlowInstances(context, companyId);
    }
 
-   public static void getAccountHistory(Context context, Collection<Company> companies) {
-       for (Company company: companies) {
+   public static void getAccountHistory(Context context, Collection<String> companyIds) {
+       for (String companyId: companyIds) {
            try {
-               readCashFlowInstances(context, company);
+               readCashFlowInstances(context, companyId);
            } catch (ClassNotFoundException cnfe) {
-               System.out.println("No reader for " + company.getId() + " skipping.");
+               System.out.println("No reader for " + companyId + " skipping.");
            } catch (IOException ioe) {
                ioe.printStackTrace();
            }

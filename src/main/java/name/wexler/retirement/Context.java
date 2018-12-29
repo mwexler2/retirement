@@ -140,8 +140,8 @@ public class Context {
         return result;
     }
 
-    public Path getHistoryDir(Company company) {
-        Path dirPath = txnDir.resolve(company.getId());
+    public Path getHistoryDir(String companyId) {
+        Path dirPath = txnDir.resolve(companyId);
         return dirPath;
     }
 }

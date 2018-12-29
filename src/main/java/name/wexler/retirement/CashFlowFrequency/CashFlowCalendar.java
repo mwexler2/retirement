@@ -110,7 +110,7 @@ public class CashFlowCalendar {
     public BigDecimal getAnnualCashFlow(String cashFlowId, Integer year) {
         if (!_cashFlowsIndexed)
             indexCashFlows();
-        return getAnnualCashFlow(cashFlowYears, cashFlowId, year);
+        return getBalance(cashFlowYears, cashFlowId, year);
     }
 
 
@@ -128,14 +128,6 @@ public class CashFlowCalendar {
         return getBalance(liabilityValueYears, id, year);
     }
 
-    private BigDecimal getAnnualCashFlow(Map<Integer, Map<String, BigDecimal>> cashFlowYears, String cashFlowId, Integer year) {
-        Map<String, BigDecimal> yearMap = cashFlowYears.get(year);
-        BigDecimal cashFlow = BigDecimal.ZERO;
-        if (yearMap != null  && yearMap.containsKey(cashFlowId)) {
-            cashFlow = yearMap.get(cashFlowId);
-        }
-        return cashFlow;
-    }
 
     private BigDecimal getBalance(Map<Integer, Map<String, BigDecimal>> years, String id, Integer year) {
         Map<String, BigDecimal> yearMap = years.get(year);

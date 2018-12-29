@@ -42,4 +42,9 @@ public class SecurityTransaction extends AssetTransaction {
     public ShareBalance getChange() {
         return change;
     }
+
+    public String toString() {
+        return this.getCashFlowDate() + ": " + change.getSecurity().getId() + " - " +
+                change.getShares() + " * $" + change.getSharePrice();
+    }
 }

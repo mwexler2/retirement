@@ -67,7 +67,7 @@ public class ShareBalance implements Balance {
 
     @Override
     public String toString() {
-        String result = balanceDate.toString() + ": " + getValue();
-        return result;
+        return balanceDate.toString() + ": " + this.security.getId() + " - " +
+                this.shares + " * " + this.sharePrice + " = " + this.getValue();
     }
 }
