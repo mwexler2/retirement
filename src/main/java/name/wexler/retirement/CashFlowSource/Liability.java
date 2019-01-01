@@ -103,7 +103,7 @@ public class Liability extends CashFlowSource {
         {
             BigDecimal balance = _startingBalance.getValue();
             if (prevCashFlowInstance != null)
-                 balance = prevCashFlowInstance.getBalance();
+                 balance = prevCashFlowInstance.getCashBalance();
             BigDecimal interest = balance.multiply(periodicInterestRate).setScale(2, RoundingMode.HALF_UP);
             BigDecimal principal = paymentAmount.subtract(impoundAmount).subtract(interest).setScale(2, RoundingMode.HALF_UP);
             if (principal.compareTo(balance) >= 1)

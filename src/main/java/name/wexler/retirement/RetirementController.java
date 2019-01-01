@@ -24,6 +24,7 @@
 package name.wexler.retirement;
 
 import name.wexler.retirement.CashFlowFrequency.Balance;
+import name.wexler.retirement.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.CashFlowInstance.LiabilityCashFlowInstance;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class RetirementController {
@@ -72,12 +76,20 @@ public class RetirementController {
                                         @PathVariable String scenarioId,
                                         @PathVariable int year,
                                         ModelMap model) {
+
         Retirement retirement = new Retirement();
         model.put("assetId", assetId);
         model.put("scenarioId", scenarioId);
         model.put("year", year);
+        List<CashFlowInstance> cashFlowInstances = retirement.getCashFlows(scenarioId, assetId, year);
+        model.put("cashFlowInstances", cashFlowInstances);
         Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId, year);
         model.put("balances", balances);
+        Map<LocalDate, Balance> assetValuesByDate = new HashMap<>();
+        for (Balance balance: balances) {
+            assetValuesByDate.put(balance.getBalanceDate(), balance);
+        }
+        model.put("assetValuesByDate", assetValuesByDate);
         return new ModelAndView("asset", model);
     }
 

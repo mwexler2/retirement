@@ -1,22 +1,12 @@
 package name.wexler.retirement;
 
-import com.opencsv.CSVReaderHeaderAware;
 import name.wexler.retirement.Asset.Account;
-import name.wexler.retirement.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.CashFlowInstance.SecurityTransaction;
-import name.wexler.retirement.Entity.Company;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +33,8 @@ public class MintAccountReader extends AccountReader {
         LocalDate accrualEnd = txnDate;
         BigDecimal txnAmount = BigDecimal.ZERO;
         String action = line.get("Transaction Type");
-        String description = line.get("Descrioption");
+
+        String description = line.get("Description");
         String category = line.get("Category");
         String notes = line.get("Notes");
         String labelsStr = line.get("Labels");
@@ -52,6 +43,8 @@ public class MintAccountReader extends AccountReader {
         try {
             String amountStr = line.get("Amount");
             txnAmount = amountStr.isEmpty() ? BigDecimal.ZERO : new BigDecimal(amountStr);
+            if (action.equals("debit"))
+                txnAmount = txnAmount.negate();
         } catch (NumberFormatException nfe) {
             return null;
         }
@@ -60,7 +53,7 @@ public class MintAccountReader extends AccountReader {
                 BigDecimal.ZERO);
 
         instance.setAction(action);
-        instance.setDescripotion(description);
+        instance.setDescription(description);
         instance.setCategory(category);
         instance.setNotes(notes);
         instance.setLabels(labels);

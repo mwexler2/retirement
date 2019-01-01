@@ -66,8 +66,8 @@ public class Retirement {
             Job.readJobs(context);
             CashFlowFrequency.readCashFlowFrequencies(context);
             Security.readSecurities(context);
-            Asset.readAssets(context);
             CashFlowSource.readCashFlowSources(context);
+            Asset.readAssets(context);
             Account.readAccounts(context);
 
 

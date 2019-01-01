@@ -1,30 +1,15 @@
 package name.wexler.retirement;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.opencsv.CSVParser;
-import com.opencsv.CSVReaderHeaderAware;
 import name.wexler.retirement.Asset.Account;
 import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.CashFlowFrequency.ShareBalance;
-import name.wexler.retirement.Entity.Company;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
-
-import static java.nio.charset.Charset.defaultCharset;
 
 public class SchwabAccountReader extends AccountReader {
     private static final DateTimeFormatter schwabDate = DateTimeFormatter.ofPattern("MM/dd/yyyy");
@@ -65,13 +50,23 @@ public class SchwabAccountReader extends AccountReader {
         BigDecimal quantity = BigDecimal.ZERO;
         String symbol = line.get("Symbol");
         String action = line.get("Action");
-        String description = line.get("Descrioption");
+        String description = line.get("Description");
+        String amountStr = line.get("Amount").replace("$", "").replace(",", "").trim();
         try {
-            String amountStr = line.get("Amount").replace("$", "");
             txnAmount = amountStr.isEmpty() ? BigDecimal.ZERO : new BigDecimal(amountStr);
-            String priceStr = line.get("Price").replace("$", "");
-            sharePrice = priceStr.isEmpty() ? BigDecimal.ZERO : new BigDecimal(priceStr);
         } catch (NumberFormatException nfe) {
+            System.out.println("Can't parse amount: " + amountStr);
+            return null;   // skip invalid data (e.g. "1981-08-10,null,null,null,null,null,null")
+        }
+        String priceStr = line.get("Price").replace("$", "").replace(",", "").trim();
+        try {
+            sharePrice = priceStr.isEmpty() ? BigDecimal.ZERO : new BigDecimal(priceStr);
+            // For Whatever reason, US Treasuries are reported with a price that is 100 times too high
+            if (description.startsWith("US TREASURY")) {
+                sharePrice = sharePrice.divide(BigDecimal.valueOf(100));
+            }
+        } catch (NumberFormatException nfe) {
+            System.out.println("Can't parse price" + priceStr);
             return null;   // skip invalid data (e.g. "1981-08-10,null,null,null,null,null,null")
         }
 
@@ -94,7 +89,7 @@ public class SchwabAccountReader extends AccountReader {
             instance = new SecurityTransaction(context, account, txnAmount, balance);
         }
         instance.setAction(action);
-        instance.setDescripotion(description);
+        instance.setDescription(description);
         return new AccountAndCashFlowInstance(account, instance);
     }
 }

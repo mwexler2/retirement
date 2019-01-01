@@ -53,7 +53,7 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = Liability.class, name = "liability"),
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
-        @JsonSubTypes.Type(value = AccountSource.class, name="accountSource")})
+        @JsonSubTypes.Type(value = AccountSource.class, name="account")})
 public abstract class CashFlowSource {
     private String id;
     private List<Entity> payers;
@@ -78,7 +78,7 @@ public abstract class CashFlowSource {
         context.put(CashFlowSource.class, id, this);
         this.cashFlow = context.getById(CashFlowFrequency.class, cashFlowId);
         if (this.cashFlow == null) {
-            throw new NoSuchElementException("CashFlowSource " + cashFlowId + " not found");
+            throw new NoSuchElementException("CashFlowFrequency " + cashFlowId + " not found");
         }
     }
 
@@ -128,9 +128,7 @@ public abstract class CashFlowSource {
         return result;
     }
 
-
     public abstract List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar);
-
 
     abstract public String getName();
 
@@ -148,38 +146,6 @@ public abstract class CashFlowSource {
         return cashFlow.getId();
     }
 
-    private BigDecimal annualPercent(LocalDate accrualStart, LocalDate accrualEnd, BigDecimal annualAmount) {
-        BigDecimal accrualDays = BigDecimal.valueOf(accrualStart.until(accrualEnd).getDays());
-        BigDecimal percent = accrualDays.divide(BigDecimal.valueOf(accrualEnd.lengthOfYear()), 8, RoundingMode.HALF_UP);
-        BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
-        return amount;
-    }
-
-    private BigDecimal equalMonthly(LocalDate accrualStart, LocalDate accrualEnd, BigDecimal annualAmount) {
-        Period accrualPeriod = accrualStart.until(accrualEnd.plusDays(1));  // We add 1 day because the LocalDate.until method is exclusive
-        int accrualMonths = accrualPeriod.getMonths();
-        Period partialMonth = accrualPeriod.minusMonths(accrualMonths);
-        int accrualDays = accrualPeriod.getDays();
-        BigDecimal monthsPerYear = BigDecimal.valueOf(12);
-        BigDecimal wholeMonthsPercent = BigDecimal.valueOf(accrualMonths);
-        BigDecimal partialMonthPercent = BigDecimal.valueOf(accrualDays).divide(BigDecimal.valueOf(accrualEnd.lengthOfMonth()), 8, RoundingMode.HALF_UP);
-        BigDecimal percent = wholeMonthsPercent.add(partialMonthPercent).divide(monthsPerYear, 8, RoundingMode.HALF_UP);
-        BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
-        return amount;
-    }
-
-
-    public BigDecimal apportionCashFlow(LocalDate accrualStart, LocalDate accrualEnd, BigDecimal amount) {
-        switch(getCashFlow().getApportionmentPeriod()) {
-            case WHOLE_TERM:
-                return annualPercent(accrualStart, accrualEnd, amount);
-            case ANNUAL:
-                return annualPercent(accrualStart, accrualEnd, amount);
-            case EQUAL_MONTHLY:
-                return equalMonthly(accrualStart, accrualEnd, amount);
-        }
-        return BigDecimal.ZERO;
-    }
 
     public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance) {
         Balance newBalance = new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().add(cashFlowInstance.getAmount()));

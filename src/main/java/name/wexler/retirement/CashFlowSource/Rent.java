@@ -83,7 +83,7 @@ public class Rent extends CashFlowSource {
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
-                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance);
                 });
     }

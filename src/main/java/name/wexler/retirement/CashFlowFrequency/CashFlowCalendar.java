@@ -209,7 +209,7 @@ public class CashFlowCalendar {
             for (CashFlowInstance cashFlowInstance : cashFlowInstances) {
                 LocalDate cashFlowDate = cashFlowInstance.getCashFlowDate();
                 balanceAtDateForId.put(cashFlowInstance.getCashFlowDate(),
-                        new CashBalance(cashFlowInstance.getCashFlowDate(), cashFlowInstance.getBalance()));
+                        new CashBalance(cashFlowInstance.getCashFlowDate(), cashFlowInstance.getCashBalance()));
             }
             indexCashFlowInstances(cashFlowInstances, cashFlowSource.getId(), this.cashFlowInstances, cashFlowYears);
         });

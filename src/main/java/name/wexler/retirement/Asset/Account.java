@@ -38,9 +38,7 @@ import name.wexler.retirement.Entity.Entity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +61,7 @@ public class Account extends Asset {
 
     @JsonIgnore
     private List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
+
     static public void readAccounts(Context context) throws IOException {
         Set<String> companyIds = new HashSet<>();
         for (Account account: accounts) {
@@ -71,7 +70,12 @@ public class Account extends Asset {
         companyIds.add(MintAccountReader.mintPseudoCompany);
         getAccountHistory(context, companyIds);
         return;
+    }
 
+    public class CashFlowSourceNotFoundException extends Exception {
+        public CashFlowSourceNotFoundException(String id) {
+            super("CashFlowSource: " + id + " not found");
+        }
     }
 
     @JsonCreator
@@ -82,11 +86,14 @@ public class Account extends Asset {
                       @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
                       @JsonProperty(value = "accountName", required = true) String accountName,
                       @JsonProperty(value = "company", required = true) String companyId,
-                      @JsonProperty(value = "indicator") String indicator) {
+                      @JsonProperty(value = "indicator") String indicator) throws CashFlowSourceNotFoundException {
         super(context, id, ownerIds, initialBalance, interimBalances);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
         this.cashFlowSource = context.getById(CashFlowSource.class, id);
+        if (cashFlowSource == null) {
+            throw new CashFlowSourceNotFoundException(id);
+        }
         this.indicator = indicator;
         context.put(Account.class, indicator, this);
         accounts.add(this);
@@ -96,6 +103,7 @@ public class Account extends Asset {
         cashFlowInstances.addAll(instances);
         this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
         computeBalances(this.cashFlowInstances);
+        cashFlowSource.setCashFlowInstances(this.cashFlowInstances);
     }
 
     public String getId() {
@@ -135,13 +143,21 @@ public class Account extends Asset {
     @JsonIgnore
     public List<Balance> getBalances(int year) {
         List<Balance> balances =
-                accountValueByDate.values()
+                accountValueByDate.keySet()
                         .stream()
-                        .filter(balance -> year == balance.getBalanceDate().getYear())
-                        .sorted(Comparator.comparing(CashBalance::getBalanceDate))
+                        .filter(date -> year == date.getYear())
+                        .sorted()
+                        .map(date -> accountValueByDate.get(date))
                         .collect(Collectors.toList());
 
         return balances;
+    }
+
+    // Return the total value of securities and cash at each point during the year where it cash or share quantity
+    // changed.
+    @JsonIgnore
+    public Balance getBalances(LocalDate date) {
+        return accountValueByDate.get(date);
     }
 
     private void processSecurityTransaction(SecurityTransaction txn,
@@ -156,9 +172,7 @@ public class Account extends Asset {
             shareBalancesBySymbol.put(symbol,
                     new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security));
         }
-        ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
-        ShareBalance newShareBalance = oldShareBalance.applyChange(change);
-        shareBalancesBySymbol.put(symbol, newShareBalance);
+
 
         // Store the share balance by date and symbol
         if (!shareBalancesByDateAndSymbol.containsKey(txn.getCashFlowDate())) {
@@ -170,44 +184,49 @@ public class Account extends Asset {
         if (oldBalance == null) {
             oldBalance = new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security);
         }
-        ShareBalance newBalance = oldBalance.applyChange(change);
-        shareBalancesAtTxnDate.put(symbol, newShareBalance);
+        if (!change.getShares().equals(BigDecimal.ZERO)) {
+            ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
+            ShareBalance newShareBalance = oldShareBalance.applyChange(change);
+            shareBalancesBySymbol.put(symbol, newShareBalance);
 
+            ShareBalance newBalance = oldBalance.applyChange(change);
+            shareBalancesAtTxnDate.put(symbol, newShareBalance);
+        }
+    }
+
+    private BigDecimal calculateTotalValue(Map<String, ShareBalance> shareBalancesBySymbol,
+                                           CashBalance cashBalance) {
         // Calculate the total account value at the transaction date
         BigDecimal cashValue = cashBalance.getValue();
+
+
         BigDecimal shareValue = shareBalancesBySymbol
                 .values()
                 .stream()
                 .map(ShareBalance::getValue)
                 .reduce(BigDecimal.ZERO,
                         (a, b) -> a.add(b));
-        BigDecimal totalValue = cashValue.add(shareValue).setScale(2, BigDecimal.ROUND_HALF_UP);
-        accountValueByDate.put(txn.getCashFlowDate(),
-                new CashBalance(txn.getCashFlowDate(), totalValue));
+        return cashValue.add(shareValue).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
         // Running Balances for Cash and Securities
-        CashBalance cashBalance = new CashBalance(LocalDate.now(), BigDecimal.ZERO);
+        CashBalance cashBalance = new CashBalance(getInitialBalance().getBalanceDate(), getInitialBalanceAmount());
         Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
 
-        System.out.println(this);
         cashFlowInstances.stream().
                 forEach(instance -> {
-                    // Update the running cash balance
                     cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
-
-                    // Put the new balance in the current transaction
-                    instance.setBalance(cashBalance.getValue());
-
-                    // Store the history cash balance by date
                     cashBalanceAtDate.put(instance.getCashFlowDate(), cashBalance);
-
                     if (instance instanceof SecurityTransaction) {
                         processSecurityTransaction((SecurityTransaction) instance, cashBalance, shareBalancesBySymbol);
-                    } else {
-                        accountValueByDate.put(instance.getCashFlowDate(), cashBalance);
+
                     }
+                    instance.setCashBalance(cashBalance.getValue());
+                    BigDecimal totalValue = calculateTotalValue(shareBalancesBySymbol, cashBalance);
+                    instance.setAssetBalance(totalValue);
+                    accountValueByDate.put(instance.getCashFlowDate(),
+                            new CashBalance(instance.getCashFlowDate(), totalValue));
                 });
     }
 

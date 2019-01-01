@@ -98,7 +98,7 @@ public class RSU extends CashFlowSource {
             BigDecimal sharePrice = this.security.getSharePriceAtDate(accrualEnd, calendar.getAssumptions());
             BigDecimal shares = BigDecimal.valueOf(totalShares).multiply(percent);
             BigDecimal amount = sharePrice.multiply(shares);
-            BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+            BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
         });
     }

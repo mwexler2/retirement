@@ -1,6 +1,5 @@
 package name.wexler.retirement.CashFlowInstance;
 
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import name.wexler.retirement.CashFlowSource.CashFlowSource;
 
 import java.math.BigDecimal;
@@ -18,8 +17,9 @@ public class CashFlowInstance {
     private final LocalDate cashFlowDate;
     private final BigDecimal amount;
     private String action;
-    private BigDecimal balance;
-    private String descripotion = "";
+    private BigDecimal cashBalance;
+    private BigDecimal assetBalance;
+    private String description = "";
     private String notes = "";
     private List<String> labels = Arrays.asList();
     private String category = "";
@@ -30,7 +30,8 @@ public class CashFlowInstance {
         this.accrualEnd = accrualEnd;
         this.cashFlowDate = cashFlowDate;
         this.amount = amount;
-        this.balance = balance;
+        this.cashBalance = balance;
+        this.assetBalance = BigDecimal.ZERO;
         this.cashFlowSource = cashFlowSource;
     }
 
@@ -46,13 +47,13 @@ public class CashFlowInstance {
 
     public void setNotes(String notes) { this.notes = notes; }
 
-    public List<String> getLabes() { return labels; }
+    public List<String> getLabels() { return labels; }
 
     public void setLabels(List<String> labels) { this.labels = labels; }
 
-    public String getDescripotion() { return descripotion; }
+    public String getDescription() { return description; }
 
-    public void setDescripotion(String descripotion) { this.descripotion = descripotion; }
+    public void setDescription(String description) { this.description = description; }
 
     public String getCashFlowId() {
         return cashFlowSource.getId();
@@ -78,10 +79,16 @@ public class CashFlowInstance {
         return amount;
     }
 
-    public BigDecimal getBalance() { return balance; }
+    public BigDecimal getCashBalance() { return cashBalance; }
 
-    public void setBalance(BigDecimal newBalance) {
-        this.balance = newBalance;
+    public void setAssetBalance(BigDecimal newBalance) {
+        this.assetBalance = newBalance;
+    }
+
+    public BigDecimal getAssetBalance() { return assetBalance; }
+
+    public void setCashBalance(BigDecimal newBalance) {
+        this.cashBalance = newBalance;
     }
 
     public LocalDate getCashFlowDate() {
@@ -91,7 +98,7 @@ public class CashFlowInstance {
 
     @Override
     public String toString() {
-        String result = cashFlowDate.toString() + ": " + getAmount() + " => " + balance;
+        String result = cashFlowDate.toString() + ": " + getAmount() + " => " + cashBalance;
         return result;
     }
 }

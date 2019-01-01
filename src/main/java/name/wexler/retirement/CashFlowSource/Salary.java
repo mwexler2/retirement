@@ -104,7 +104,7 @@ public class Salary extends CashFlowSource {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = baseAnnualSalary.multiply(percent).setScale(2, RoundingMode.HALF_UP);
-                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getBalance();
+                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
                 }
         );
