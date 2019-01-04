@@ -5,6 +5,7 @@ import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class CashFlowInstance {
     private BigDecimal assetBalance;
     private String description = "";
     private String notes = "";
-    private List<String> labels = Arrays.asList();
+    private List<String> labels = Collections.emptyList();
     private String category = "";
 
     public CashFlowInstance(CashFlowSource cashFlowSource, LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount,

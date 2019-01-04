@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -35,9 +36,9 @@ public class LiabilityTest {
         Company lender = new Company(context, "lender1");
         Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80);
         String[] streetAddress = {"123 Main Street"};
-        List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
+        List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
         CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
-        List<String> borrowerIds = Arrays.asList(borrower.getId());
+        List<String> borrowerIds = Collections.singletonList(borrower.getId());
         Asset asset = new RealProperty(context, "real-property1", borrowerIds, initialBalance,
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US",
@@ -57,19 +58,19 @@ public class LiabilityTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
 
     @Test
-    public void getId() throws Exception {
+    public void getId() {
         String name1 = liability.getId();
         assertEquals(name1, "liability1");
     }
 
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertEquals(liability, liability);
     }
 

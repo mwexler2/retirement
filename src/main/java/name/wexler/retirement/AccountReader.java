@@ -3,7 +3,6 @@ package name.wexler.retirement;
 import com.opencsv.CSVReaderHeaderAware;
 import name.wexler.retirement.Asset.Account;
 import name.wexler.retirement.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.Entity.Company;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +25,7 @@ public abstract class AccountReader {
         }
     }
 
-    public class AccountAndCashFlowInstance {
+    protected class AccountAndCashFlowInstance {
         private final Account account;
         private final CashFlowInstance cashFlowInstance;
 
@@ -66,15 +65,14 @@ public abstract class AccountReader {
         }
     }
 
-    protected Map<Account, List<CashFlowInstance>> readCashFlowInstancesFromStream(
+    private Map<Account, List<CashFlowInstance>> readCashFlowInstancesFromStream(
             Context context,
             Account accountForStream,
             BufferedReader br)
             throws IOException, AccountNotFoundException {
         Map<Account, List<CashFlowInstance>> cashFlowInstancesByAccount = new HashMap<>();
 
-        CSVReaderHeaderAware reader = null;
-        reader = new CSVReaderHeaderAware(br);
+        CSVReaderHeaderAware reader = new CSVReaderHeaderAware(br);
         Map<String, String> line;
         while ((line = reader.readMap()) != null) {
             AccountAndCashFlowInstance instance = getInstanceFromLine(context, accountForStream, line);

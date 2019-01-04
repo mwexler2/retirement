@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 
 
 public class SecurityTransaction extends AssetTransaction {
-    ShareBalance change;
-    Account account;
+    private final ShareBalance change;
+    private final Account account;
 
     public SecurityTransaction(
             Context context,

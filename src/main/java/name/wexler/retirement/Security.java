@@ -17,12 +17,12 @@ import java.util.*;
  * Created by mwexler on 6/4/17.
  */
 public class Security {
-    private Map<LocalDate, BigDecimal> historicalPrices = new HashMap<>();
-    private String id;
+    private final Map<LocalDate, BigDecimal> historicalPrices = new HashMap<>();
+    private final String id;
     private static final String securitiesPath = "securities.json";
 
-    static public List<Security> readSecurities(Context context) throws IOException {
-        return context.fromJSONFileList(Security[].class, securitiesPath);
+    static public void readSecurities(Context context) throws IOException {
+        context.fromJSONFileList(Security[].class, securitiesPath);
     }
 
     @JsonCreator
@@ -52,9 +52,7 @@ public class Security {
     private void _getHistory() {
         String csvFile = _getCSVFileName();
 
-        CSVReaderHeaderAware reader = null;
-        try {
-            reader = new CSVReaderHeaderAware(new FileReader(csvFile));
+        try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(new FileReader(csvFile))) {
             Map<String,String> line;
             while ((line =  reader.readMap()) != null) {
                 if (!line.containsKey("Date") || !line.containsKey("Close"))

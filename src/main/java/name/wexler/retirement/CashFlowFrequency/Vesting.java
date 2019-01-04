@@ -31,11 +31,11 @@ import java.math.BigDecimal;
  * Created by mwexler on 7/9/16.
  */
 public class Vesting {
-    private int months;
-    private BigDecimal percent;
+    private final int months;
+    private final BigDecimal percent;
 
-    public Vesting(@JsonProperty(value = "months", required = true) int months,
-                   @JsonProperty(value = "percent", required = true) BigDecimal percent) {
+    private Vesting(@JsonProperty(value = "months", required = true) int months,
+                    @JsonProperty(value = "percent", required = true) BigDecimal percent) {
         this.months = months;
         this.percent = percent;
     }

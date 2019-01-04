@@ -46,30 +46,26 @@ import java.util.stream.Collectors;
  * Created by mwexler on 7/9/16.
  */
 public class Account extends Asset {
-    private static List<Account> accounts = new ArrayList<>();
-    private static final String accountsPath = "accounts.json";
+    private static final List<Account> accounts = new ArrayList<>();
 
     private final AccountSource cashFlowSource;
     private final String accountName;
     private final Company company;
-    private final String indicator;
 
     // History of balances for Cash and Securities
-    private Map<LocalDate, CashBalance> cashBalanceAtDate = new HashMap<>();
-    private Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
-    private Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
+    private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
+    private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
 
     @JsonIgnore
-    private List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
+    private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
-    static public void readAccounts(Context context) throws IOException {
+    static public void readAccounts(Context context) {
         Set<String> companyIds = new HashSet<>();
         for (Account account: accounts) {
             companyIds.add(account.getCompany().getId());
         }
         companyIds.add(MintAccountReader.mintPseudoCompany);
         getAccountHistory(context, companyIds);
-        return;
     }
 
     public class CashFlowSourceNotFoundException extends Exception {
@@ -94,7 +90,6 @@ public class Account extends Asset {
         if (cashFlowSource == null) {
             throw new CashFlowSourceNotFoundException(id);
         }
-        this.indicator = indicator;
         context.put(Account.class, indicator, this);
         accounts.add(this);
     }
@@ -126,13 +121,13 @@ public class Account extends Asset {
         return cashFlowSource;
     }
 
-    public Company getCompany() {
+    private Company getCompany() {
         return company;
     }
 
     @Override @JsonIgnore
-    public List<Balance> getBalances() {
-        List<Balance> balances = new ArrayList<Balance>(this.accountValueByDate.values());
+    public List<Balance> getBalances(Scenario scenario) {
+        List<Balance> balances = new ArrayList<>(this.accountValueByDate.values());
         balances.sort(Comparator.comparing(Balance::getBalanceDate));
         return balances;
     }
@@ -141,7 +136,7 @@ public class Account extends Asset {
     // changed.
     @Override
     @JsonIgnore
-    public List<Balance> getBalances(int year) {
+    public List<Balance> getBalances(Scenario scenario, int year) {
         List<Balance> balances =
                 accountValueByDate.keySet()
                         .stream()
@@ -153,15 +148,7 @@ public class Account extends Asset {
         return balances;
     }
 
-    // Return the total value of securities and cash at each point during the year where it cash or share quantity
-    // changed.
-    @JsonIgnore
-    public Balance getBalances(LocalDate date) {
-        return accountValueByDate.get(date);
-    }
-
     private void processSecurityTransaction(SecurityTransaction txn,
-                                            CashBalance cashBalance,
                                             Map<String, ShareBalance> shareBalancesBySymbol) {
         ShareBalance change = txn.getChange();
         Security security = change.getSecurity();
@@ -217,9 +204,8 @@ public class Account extends Asset {
         cashFlowInstances.stream().
                 forEach(instance -> {
                     cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
-                    cashBalanceAtDate.put(instance.getCashFlowDate(), cashBalance);
                     if (instance instanceof SecurityTransaction) {
-                        processSecurityTransaction((SecurityTransaction) instance, cashBalance, shareBalancesBySymbol);
+                        processSecurityTransaction((SecurityTransaction) instance, shareBalancesBySymbol);
 
                     }
                     instance.setCashBalance(cashBalance.getValue());
@@ -236,7 +222,7 @@ public class Account extends Asset {
        accountReader.readCashFlowInstances(context, companyId);
    }
 
-   public static void getAccountHistory(Context context, Collection<String> companyIds) {
+   private static void getAccountHistory(Context context, Collection<String> companyIds) {
        for (String companyId: companyIds) {
            try {
                readCashFlowInstances(context, companyId);

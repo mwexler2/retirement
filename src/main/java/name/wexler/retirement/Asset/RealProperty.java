@@ -27,9 +27,12 @@ import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.CashFlowFrequency.Balance;
 import name.wexler.retirement.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.Context;
+import name.wexler.retirement.Scenario;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,15 +126,19 @@ public class RealProperty extends Asset {
     }
 
     @Override
-    public List<Balance> getBalances() {
-        List<Balance> balances = super.getBalances();
+    public List<Balance> getBalances(Scenario scenario) {
+        List<Balance> balances = super.getBalances(scenario);
         List<Balance> newBalances = new ArrayList<>();
 
         balances.sort((b1, b2) -> b1.getBalanceDate().compareTo(b2.getBalanceDate()));
 
         Balance prevBalance = null;
 
-        for (Balance b : balances) {
+        LocalDate endOfTime = LocalDate.of(scenario.getYears().get(scenario.getYears().size() - 1), Month.JANUARY, 1);
+        Balance lastBalance = new CashBalance(endOfTime, BigDecimal.ZERO);
+        List<Balance> balancesIncludingLast = new ArrayList<>(balances);
+        balancesIncludingLast.add(lastBalance);
+        for (Balance b : balancesIncludingLast) {
             if (prevBalance != null) {
                 long diff = prevBalance.getBalanceDate().until(b.getBalanceDate(), ChronoUnit.MONTHS);
                 BigDecimal annualRate = BigDecimal.valueOf(getContext().getAssumptions().getLongTermInvestmentReturn());

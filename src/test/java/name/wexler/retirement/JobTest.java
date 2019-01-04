@@ -54,12 +54,7 @@ public class JobTest {
     private Job job2;
     private Company company1;
     private Company company2;
-    private Person person1;
-    private Person person2;
-    private Salary job1Salary;
-    private Bonus job1Bonus;
     private Salary job1Salary2;
-    private Bonus job1Bonus2;
     private Salary job2Salary;
     private Context context;
 
@@ -73,11 +68,11 @@ public class JobTest {
         company2 = new Company(context, "comp2");
         company2.setCompanyName("Xerox");
 
-        person1 = new Person(context, "john1", LocalDate.of(1900, 12, 25),
+        Person person1 = new Person(context, "john1", LocalDate.of(1900, 12, 25),
                 67);
         person1.setFirstName("John");
         person1.setLastName("Doe");
-        person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40);
+        Person person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40);
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
 
@@ -95,12 +90,12 @@ public class JobTest {
                 new SemiMonthly(context, "semi-monthly-salary1",
                 job1.getStartDate(), job1.getEndDate(), job1FirstPaycheckDate, 5, 20,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        job1Salary = new Salary(context, "job1Salary", job1.getId(), job1SalarySource.getId(),
+        Salary job1Salary = new Salary(context, "job1Salary", job1.getId(), job1SalarySource.getId(),
                 BigDecimal.valueOf(100000.00));
         Annual job1BonusSource =
                 new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());
+        Bonus job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());
         CashFlowSource[] job1IS = {job1Salary, job1Bonus};
 
         LocalDate salary2FirstPaycheck = LocalDate.of(job1.getStartDate().getYear(), job1.getStartDate().getMonth(), 10);
@@ -114,7 +109,7 @@ public class JobTest {
                 new Annual(context, "annual-bonus2", job1FirstBonusDay,
                 job1.getStartDate(), job1.getEndDate(),
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        job1Bonus2 = new BonusAnnualPct(context, "job1Bonus2", "job1", "job1Salary", job1BonusPct, job1BonusSource2.getId());
+        Bonus job1Bonus2 = new BonusAnnualPct(context, "job1Bonus2", "job1", "job1Salary", job1BonusPct, job1BonusSource2.getId());
 
         LocalDate job2FirstPaycheck = LocalDate.of(2001, Month.JUNE, 22);
         LocalDate job2FirstPeriodStart = LocalDate.of(2001, Month.JUNE, 9);
@@ -128,11 +123,11 @@ public class JobTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
-    public void getName() throws Exception {
+    public void getName() {
         String name1 = job1.getName();
         assertEquals(name1, "IBM");
         String name2 = job2.getName();
@@ -140,7 +135,7 @@ public class JobTest {
     }
 
     @Test
-    public void getEmployer() throws Exception {
+    public void getEmployer() {
         Entity company1a = job1.getEmployer();
         assertEquals(company1, company1a);
         Entity company2a = job2.getEmployer();
@@ -148,13 +143,13 @@ public class JobTest {
     }
 
     @Test
-    public void setEmployer() throws Exception {
+    public void setEmployer() {
         job1.setEmployer(company2);
         assertEquals(job1.getEmployer(), company2);
     }
 
     @Test
-    public void getStartDate() throws Exception {
+    public void getStartDate() {
         LocalDate startDate1 = job1.getStartDate();
         assertEquals(LocalDate.of(2001, Month.APRIL, 1), startDate1);
         LocalDate startDate2 = job2.getStartDate();
@@ -162,14 +157,14 @@ public class JobTest {
     }
 
     @Test
-    public void setEndDate() throws Exception {
+    public void setEndDate() {
         LocalDate newYearsEve = LocalDate.of(1999, Month.DECEMBER, 31);
         job1.setEndDate(newYearsEve);
         assertEquals(newYearsEve, job1.getEndDate());
     }
 
     @Test
-    public void getEndDate() throws Exception {
+    public void getEndDate() {
         LocalDate endDate1 = job1.getEndDate();
         assertEquals(LocalDate.of(2002, Month.AUGUST, 15), endDate1);
         LocalDate endDate2 = job2.getEndDate();
@@ -177,14 +172,14 @@ public class JobTest {
     }
 
     @Test
-    public void setStartDate() throws Exception {
+    public void setStartDate() {
         LocalDate newYearsEve = LocalDate.of(1999, Month.DECEMBER, 31);
         job1.setStartDate(newYearsEve);
         assertEquals(newYearsEve, job1.getStartDate());
     }
 
     @Test
-    public void getIncomeSources() throws Exception {
+    public void getIncomeSources() {
         List<CashFlowSource> incomeSources1 = job1.getIncomeSources();
         List<CashFlowSource> incomeSources2 = job2.getIncomeSources();
     }
@@ -197,7 +192,7 @@ public class JobTest {
     }
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertNotEquals(job1, job2);
     }
 

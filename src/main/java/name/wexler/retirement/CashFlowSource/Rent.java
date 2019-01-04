@@ -46,13 +46,13 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lessors", "lessees", "security", "startDate", "endDate", "paymentAmount" })
 public class Rent extends CashFlowSource {
-    private Asset security;
+    private final Asset security;
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate startDate;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
-    private LocalDate endDate;
+    private final LocalDate endDate;
     private BigDecimal paymentAmount;
     private BigDecimal periodsPerYear = BigDecimal.valueOf(12);
 
@@ -66,7 +66,7 @@ public class Rent extends CashFlowSource {
                 @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
                 @JsonProperty("endDate") LocalDate endDate,
                 @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
-                @JsonProperty(value = "source",          required = true) String sourceId) throws Exception {
+                @JsonProperty(value = "source",          required = true) String sourceId) {
         super(context, id, sourceId,
                 context.getByIds(Entity.class, lesseeIds),
                 context.getByIds(Entity.class, lessorIds));
@@ -92,7 +92,7 @@ public class Rent extends CashFlowSource {
     @Override
     public String getName() {
         String result;
-        List<Balance> interimBalances = new ArrayList<Balance>();
+        List<Balance> interimBalances = new ArrayList<>();
 
         if (security != null) {
             result = security.getName() + "(" + getlessor().getName() + ")";
@@ -120,7 +120,7 @@ public class Rent extends CashFlowSource {
     }
 
 
-    public Entity getlessor() {
+    private Entity getlessor() {
         return getPayees().get(0);
     }
 
@@ -130,12 +130,11 @@ public class Rent extends CashFlowSource {
 
         List<Entity> lessees = getlessees();
         List<String> result = new ArrayList<>(lessees.size());
-        for (int i = 0; i < lessees.size(); ++i)
-            result.add(lessees.get(i).getId());
+        for (Entity lessee : lessees) result.add(lessee.getId());
         return result;
     }
 
-    public List<Entity> getlessees() {
+    private List<Entity> getlessees() {
         return getPayers();
     }
 

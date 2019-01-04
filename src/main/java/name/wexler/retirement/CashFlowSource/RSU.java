@@ -35,6 +35,7 @@ import name.wexler.retirement.Security;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,18 +46,17 @@ public class RSU extends CashFlowSource {
     @JsonIgnore
     private Job job;
     private Security security;
-    private int totalShares;
+    private final int totalShares;
 
     public RSU(@JacksonInject("context") Context context,
                @JsonProperty(value = "id", required = true) String id,
                @JsonProperty(value = "job", required = true) String jobId,
                @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
                @JsonProperty(value = "security", required = true) String securityId,
-               @JsonProperty(value = "totalShares", required = true) int totalShares)
-            throws Exception {
+               @JsonProperty(value = "totalShares", required = true) int totalShares) {
         super(context, id, cashFlowId,
-                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
-                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
+                Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployee()),
+                Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
         this.setSecurityId(context, securityId);
         this.totalShares = totalShares;

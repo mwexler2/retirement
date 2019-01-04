@@ -61,7 +61,7 @@ public class CashFlowInstanceTest {
     }
 
     @Test
-    public void isPaidInDateRange() throws Exception {
+    public void isPaidInDateRange() {
 
         RangeResult[] testData = new RangeResult[]{
                 new RangeResult(
@@ -96,7 +96,7 @@ public class CashFlowInstanceTest {
     }
 
     @Test
-    public void getAmount() throws Exception {
+    public void getAmount() {
         assertEquals(thousand, cfi.getAmount());
     }
 

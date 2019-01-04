@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -28,9 +29,9 @@ public class AssetTest {
         context = new Context();
         context.setAssumptions(new Assumptions());
         Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75);
-        List<String> ownerIds = Arrays.asList(owner.getId());
+        List<String> ownerIds = Collections.singletonList(owner.getId());
         String[] streetAddress = {"123 Main Street"};
-        List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));
+        List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));
         CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));
         asset = new RealProperty(context, "real-property1", ownerIds, initialBalance,
                 streetAddress,
@@ -39,19 +40,19 @@ public class AssetTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
 
     @Test
-    public void getId() throws Exception {
+    public void getId() {
         String name1 = asset.getId();
         assertEquals(name1, "real-property1");
     }
 
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertEquals(asset, asset);
     }
 

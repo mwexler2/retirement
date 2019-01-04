@@ -35,6 +35,7 @@ import name.wexler.retirement.CashFlowFrequency.Balance;
 import name.wexler.retirement.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.Context;
 import name.wexler.retirement.Entity.Entity;
+import name.wexler.retirement.Scenario;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -53,7 +54,7 @@ public abstract class Asset {
     private final Context context;
 
 
-    private List<Entity> _owners;
+    private final List<Entity> _owners;
 
     public String getId() {
         return _id;
@@ -62,8 +63,8 @@ public abstract class Asset {
     private final String _id;
     private static final String assetsPath = "assets.json";
 
-    static public List<Asset> readAssets(Context context) throws IOException {
-        return context.fromJSONFileList(Asset[].class, assetsPath);
+    static public void readAssets(Context context) throws IOException {
+        context.fromJSONFileList(Asset[].class, assetsPath);
     }
 
     @JsonCreator
@@ -89,7 +90,7 @@ public abstract class Asset {
     }
 
     @JsonIgnore
-    public List<Balance> getBalances() {
+    public List<Balance> getBalances(Scenario scenario) {
         List<Balance> balances = new ArrayList<>();
 
         balances.add(getInitialBalance());
@@ -99,7 +100,7 @@ public abstract class Asset {
     }
 
     @JsonIgnore
-    public List<Balance> getBalances(int year) {
+    public List<Balance> getBalances(Scenario scenario, int year) {
         List<Balance> balances = new ArrayList<>();
 
         balances.add(getInitialBalance());
@@ -111,12 +112,12 @@ public abstract class Asset {
         return balances;
     }
 
-    public Balance getBalanceAtDate(LocalDate valueDate) {
+    public Balance getBalanceAtDate(Scenario scenario, LocalDate valueDate) {
         if (valueDate.isBefore(this.getStartDate())) {
             return new CashBalance(valueDate, BigDecimal.ZERO);
         }
         Balance recentBalance = _initialBalance;
-        List<Balance> balances = getBalances();
+        List<Balance> balances = getBalances(scenario);
         int i =  Collections.binarySearch(balances, new CashBalance(valueDate, BigDecimal.ZERO),
                 Comparator.comparing(Balance::getBalanceDate));
         if (i >= 0) {
@@ -138,7 +139,7 @@ public abstract class Asset {
     }
 
     @JsonIgnore
-    public LocalDate getStartDate() {
+    private LocalDate getStartDate() {
         return _initialBalance.getBalanceDate();
     }
 

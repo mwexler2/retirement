@@ -22,7 +22,7 @@
             ${balances.get(0).balanceDate}
         </td><td align="right">
             <fmt:formatNumber value="0" type="currency" />
-        </td><td align=""right">
+        </td><td align=right">
             <fmt:formatNumber value="0" type="currency" />
         </td><td align="right">
             <fmt:formatNumber value="0" type="currency" />

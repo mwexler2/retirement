@@ -13,10 +13,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
@@ -26,16 +23,20 @@ import static org.junit.Assert.*;
  */
 
 public class CashFlowCalendarTest {
-    private Context context;
     private CashFlowCalendar calendar;
     private List<CashFlowSource> cashFlowSources;
 
     @Before
     public void setUp() throws Exception {
         Assumptions assumptions = new Assumptions();
-        context = new Context();
+        Context context = new Context();
         context.setAssumptions(assumptions);
-        calendar = new CashFlowCalendar(assumptions);
+        String[] cashFlowSourceIds = new String[0];
+        String[] assets = new String[0];
+        String[] liabilities = new String[0];
+        String[] accounts = new String[0];
+        Scenario scenario = new Scenario(context, "MyScenario", "My Scenario", cashFlowSourceIds, assets, liabilities, accounts, assumptions);
+        calendar = new CashFlowCalendar(scenario, assumptions);
         cashFlowSources = new ArrayList<>();
 
         Company employer = new Company(context, "employer1");
@@ -73,9 +74,9 @@ public class CashFlowCalendarTest {
         Company lender = new Company(context, "lender1");
         lender.setCompanyName("Lender's Bank");
         Person borrower = new Person(context, "borrower1", LocalDate.of(2000, Month.JANUARY, 1), 70);
-        List<String> borrowerIds = Arrays.asList(borrower.getId());
+        List<String> borrowerIds = Collections.singletonList(borrower.getId());
         String[] streetAddress = {"123 Main Street"};
-        List<CashBalance> interimBalances = Arrays.asList(new CashBalance(LocalDate.of(2017, 7, 4), BigDecimal.valueOf(42000.42)));
+        List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2017, 7, 4), BigDecimal.valueOf(42000.42)));
         CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.0));
         Asset asset = new RealProperty(context, "real-property1", borrowerIds, initialBalance,
                 streetAddress,
@@ -98,7 +99,7 @@ public class CashFlowCalendarTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
 
@@ -139,12 +140,16 @@ public class CashFlowCalendarTest {
 
     @Test
     public void getAnnualIncome() {
-        assertEquals(BigDecimal.valueOf(10835.23).setScale(2), calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2015));
-        assertEquals(BigDecimal.valueOf(66666.64).setScale(2), calendar.getAnnualCashFlow("salary1",             2015));
+        assertEquals(BigDecimal.valueOf(10835.23).setScale(2, BigDecimal.ROUND_HALF_UP),
+                calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2015));
+        assertEquals(BigDecimal.valueOf(66666.64).setScale(2, BigDecimal.ROUND_HALF_UP),
+                calendar.getAnnualCashFlow("salary1",             2015));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bonusAnnualPct1",     2012));
-        assertEquals(BigDecimal.valueOf(607.14).setScale(2),calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2016));
+        assertEquals(BigDecimal.valueOf(607.14).setScale(2, BigDecimal.ROUND_HALF_UP),
+                calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2016));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("salary1",             2016));
-        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2), calendar.getAnnualCashFlow("bonusAnnualPct1",     2016));
+        assertEquals(BigDecimal.valueOf(1000000.00).setScale(2, BigDecimal.ROUND_HALF_UP),
+                calendar.getAnnualCashFlow("bonusAnnualPct1",     2016));
         assertEquals(BigDecimal.ZERO,calendar.getAnnualCashFlow("bonusPeriodicFixed1", 2017));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("salary1",             2017));
         assertEquals(BigDecimal.ZERO, calendar.getAnnualCashFlow("bonusAnnualPct1",     2017));

@@ -27,7 +27,7 @@ public class AlimonyTest {
     public void setUp() throws Exception {
         context = new Context();
         context.setAssumptions(new Assumptions());
-        Person payee = new Person(context, "payee1", LocalDate.of(1976, 07, 04), 65);
+        Person payee = new Person(context, "payee1", LocalDate.of(1976, Month.JULY, 4), 65);
         Person payor = new Person(context, "payor1", LocalDate.of(1945, Month.AUGUST, 14), 65);
           LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
@@ -45,19 +45,19 @@ public class AlimonyTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
 
     @Test
-    public void getId() throws Exception {
+    public void getId() {
         String name1 = alimony.getId();
         assertEquals(name1, "alimony1");
     }
 
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertEquals(alimony, alimony);
     }
 

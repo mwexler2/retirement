@@ -32,9 +32,11 @@ public class CashFlowCalendar {
     private Map<Integer, Map<String, BigDecimal>> assetValueYears = null;
     private Map<Integer, Map<String, BigDecimal>> liabilityValueYears = null;
     private Map<String, TreeMap<LocalDate, Balance>> balanceAtDate = null;
-    private Assumptions _assumptions;
+    private final Assumptions _assumptions;
+    private final Scenario _scenario;
 
-    public CashFlowCalendar(Assumptions assumptions) {
+    public CashFlowCalendar(Scenario scenario, Assumptions assumptions) {
+        _scenario = scenario;
         _assumptions = assumptions;
         _cashFlowSources = new HashMap<>();
         _assets = new HashMap<>();
@@ -117,8 +119,9 @@ public class CashFlowCalendar {
     public BigDecimal getAssetValue(String assetId, Integer year) {
         if (!_assetsIndexed)
             indexAssets();
-        List<Balance> assetValues = _assets.get(assetId).getBalances();
-        Balance balance = _assets.get(assetId).getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
+        List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario);
+        Balance balance = _assets.get(assetId).getBalanceAtDate(_scenario,
+                LocalDate.of(year, Month.JANUARY, 1));
         return balance.getValue();
     }
 
@@ -242,7 +245,7 @@ public class CashFlowCalendar {
         assetValueYears = new HashMap<>();
         _assets.values().forEach(asset -> {
             for (int year : getYears()) {
-                Balance balance = asset.getBalanceAtDate(LocalDate.of(year, Month.JANUARY, 1));
+                Balance balance = asset.getBalanceAtDate(_scenario, LocalDate.of(year, Month.JANUARY, 1));
                 indexBalances(balance, asset.getId(), assetValueYears);
             }
         });
@@ -317,7 +320,7 @@ public class CashFlowCalendar {
         if (!_assetsIndexed)
             indexAssets();
 
-        List<Balance> assetValues = _assets.get(assetId).getBalances();
+        List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario);
         return assetValues;
     }
 
@@ -325,7 +328,7 @@ public class CashFlowCalendar {
         if (!_assetsIndexed)
             indexAssets();
 
-        List<Balance> assetValues = _assets.get(assetId).getBalances(year);
+        List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario, year);
         return assetValues;
     }
 

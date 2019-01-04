@@ -27,11 +27,11 @@ public class CompanyTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
-    public void getName() throws Exception {
+    public void getName() {
         String name1 = company1.getName();
         assertEquals(name1, "IBM");
         String name2 = company2.getName();
@@ -39,7 +39,7 @@ public class CompanyTest {
     }
 
     @Test
-    public void getCompanyName() throws Exception {
+    public void getCompanyName() {
         String name1 = company1.getCompanyName();
         assertEquals(name1, "IBM");
         String name2 = company2.getCompanyName();
@@ -47,7 +47,7 @@ public class CompanyTest {
     }
 
     @Test
-    public void setCompanyName() throws Exception {
+    public void setCompanyName() {
         company1.setCompanyName("International Business Machines");
         assertEquals(company1.getCompanyName(), "International Business Machines");
     }
@@ -55,7 +55,7 @@ public class CompanyTest {
 
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertNotEquals(company1, company2);
     }
 

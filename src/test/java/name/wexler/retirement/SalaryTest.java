@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -42,12 +41,12 @@ public class SalaryTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
 
     @Test
-    public void getId() throws Exception {
+    public void getId() {
         String name1 = incomeSource1.getId();
         assertEquals(name1, "salary1");
     }

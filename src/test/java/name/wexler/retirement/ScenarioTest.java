@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.Asset.Account;
 import name.wexler.retirement.Asset.RealProperty;
 import name.wexler.retirement.CashFlowFrequency.*;
+import name.wexler.retirement.CashFlowSource.AccountSource;
+import name.wexler.retirement.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.CashFlowSource.Liability;
 import name.wexler.retirement.CashFlowSource.Salary;
 import name.wexler.retirement.Entity.Company;
@@ -22,6 +24,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,9 +62,9 @@ public class ScenarioTest {
         String[] address = {"123 Mainstreet"};
 
         Entity[] mainBorrowers = {mike};
-        List<CashBalance> interimBalances = Arrays.asList();
+        List<CashBalance> interimBalances = Collections.emptyList();
         CashBalance initialBalance = new CashBalance(LocalDate.of(2012, Month.JUNE, 10), BigDecimal.valueOf(100000.00));
-        List<String> ownerIds = Arrays.asList(mike.getId());
+        List<String> ownerIds = Collections.singletonList(mike.getId());
         RealProperty mainStreet = new RealProperty(context, "main", ownerIds, initialBalance, address,
                 "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
         String[] borrowers = {mike.getId()};
@@ -75,8 +78,16 @@ public class ScenarioTest {
         List<CashBalance> account2Cash = new ArrayList<>();
         List<ShareBalance> account1Securities = new ArrayList<>();
         List<ShareBalance> account2Securities = new ArrayList<>();
-        List<String> account1Owners = Arrays.asList("mike");
-        List<String> account2Owners = Arrays.asList("mike");
+        List<String> account1Owners = Collections.singletonList("mike");
+        List<String> account2Owners = Collections.singletonList("mike");
+
+        List<String> payors = new ArrayList<>();
+        new Monthly(context, "account1", LocalDate.now(), LocalDate.now(), LocalDate.now(),
+                CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
+        CashFlowSource a1Source = new AccountSource(context, "account1", "account1", account1Owners, payors);
+        new Monthly(context, "account2", LocalDate.now(), LocalDate.now(), LocalDate.now(),
+                CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
+        CashFlowSource a2Source = new AccountSource(context, "account2", "account2", account1Owners, payors);
 
         Account account1 = new Account(context, "account1", account1Owners,
                 new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),
@@ -95,13 +106,13 @@ public class ScenarioTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
 
     }
 
 
     @Test
-    public void getName() throws Exception {
+    public void getName() {
         String name1 = scenario1.getName();
         assertEquals(name1, "Scenario 1");
         String name2 = scenario2.getName();
@@ -110,7 +121,7 @@ public class ScenarioTest {
 
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertNotEquals(scenario1, scenario2);
     }
 

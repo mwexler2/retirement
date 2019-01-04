@@ -62,7 +62,7 @@ public class Scenario {
     }
 
     @JsonCreator
-    Scenario(@JacksonInject("context") Context context,
+    public Scenario(@JacksonInject("context") Context context,
              @JsonProperty("id") String id,
              @JsonProperty("name") String name,
              @JsonProperty("cashFlowSources") String[] cashFlowSources,
@@ -73,7 +73,7 @@ public class Scenario {
         this.id = id;
         this.name = name;
         this._assumptions = assumptions;
-        calendar = new CashFlowCalendar(assumptions);
+        calendar = new CashFlowCalendar(this, assumptions);
         setCashFlowSourceIds(context, cashFlowSources);
         setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);

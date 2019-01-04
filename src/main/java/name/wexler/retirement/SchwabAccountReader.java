@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class SchwabAccountReader extends AccountReader {
     private static final DateTimeFormatter schwabDate = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
+    private static final String usTreasuryPrefix = "US TREASURY";
 
     @Override
     protected Account determineAccountFromFirstLine(Context context, BufferedReader br) {
@@ -62,8 +62,9 @@ public class SchwabAccountReader extends AccountReader {
         try {
             sharePrice = priceStr.isEmpty() ? BigDecimal.ZERO : new BigDecimal(priceStr);
             // For Whatever reason, US Treasuries are reported with a price that is 100 times too high
-            if (description.startsWith("US TREASURY")) {
-                sharePrice = sharePrice.divide(BigDecimal.valueOf(100));
+
+            if (description.startsWith(usTreasuryPrefix)) {
+                sharePrice = sharePrice.divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP);
             }
         } catch (NumberFormatException nfe) {
             System.out.println("Can't parse price" + priceStr);

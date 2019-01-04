@@ -39,15 +39,14 @@ import java.util.List;
 public class BonusAnnualPct extends Bonus {
     @JsonIdentityReference(alwaysAsId = true)
     private Salary salary;
-    private BigDecimal bonusPct;
+    private final BigDecimal bonusPct;
 
     public BonusAnnualPct(@JacksonInject("context") Context context,
                           @JsonProperty(value = "id", required = true) String id,
                           @JsonProperty(value = "job", required = true) String jobId,
                           @JsonProperty(value = "salary", required = true) String salaryId,
                           @JsonProperty(value = "bonusPct", required = true) BigDecimal bonusPCT,
-                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
-            throws Exception {
+                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId) {
         super(context, id, jobId, cashFlowId);
         this.setSalaryId(context, salaryId);
         this.bonusPct = bonusPCT;

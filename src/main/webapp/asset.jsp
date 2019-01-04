@@ -43,7 +43,7 @@
                     <td>${cashFlowInstance.action}</td>
                     <td>${cashFlowInstance.accrualStart}</td>
                     <td>${cashFlowInstance.accrualEnd}</td>
-                    <td alignt="right">
+                    <td align="right">
                         <fmt:formatNumber value="${cashFlowInstance.amount}" type="currency" />
                     </td>
                     <td align="right">

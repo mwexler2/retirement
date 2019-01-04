@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import name.wexler.retirement.Entity.Company;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,7 +77,7 @@ public class Context {
 
     public <T> List<T> getListById(Class clazz, String id) {
         EntityManager<T> entityManager = this.getEntityManager(clazz);
-        List<T> result = Arrays.asList(entityManager.getById(id));
+        List<T> result = Collections.singletonList(entityManager.getById(id));
         return result;
     }
 

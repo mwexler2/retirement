@@ -74,9 +74,9 @@ public class Job {
 
     private static final String jobsPath = "jobs.json";
 
-    public static List<Job> readJobs(Context context) throws IOException
+    public static void readJobs(Context context) throws IOException
     {
-        return context.fromJSONFileList(Job[].class, jobsPath);
+        context.fromJSONFileList(Job[].class, jobsPath);
     }
 
     @JsonCreator

@@ -32,11 +32,11 @@ public class PersonTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
-    public void getName() throws Exception {
+    public void getName() {
         String name1 = person1.getName();
         assertEquals(name1, "John Doe");
         String name2 = person2.getName();
@@ -44,7 +44,7 @@ public class PersonTest {
     }
 
     @Test
-    public void getFirstName() throws Exception {
+    public void getFirstName() {
         String name1 = person1.getFirstName();
         assertEquals(name1, "John");
         String name2 = person2.getFirstName();
@@ -52,13 +52,13 @@ public class PersonTest {
     }
 
     @Test
-    public void setFirstName() throws Exception {
+    public void setFirstName() {
         person1.setFirstName("Johnny");
         assertEquals(person1.getFirstName(), "Johnny");
     }
 
     @Test
-    public void getLastName() throws Exception {
+    public void getLastName() {
         String name1 = person1.getLastName();
         assertEquals(name1, "Doe");
         String name2 = person2.getLastName();
@@ -66,19 +66,19 @@ public class PersonTest {
     }
 
     @Test
-    public void setLastName() throws Exception {
+    public void setLastName() {
         person1.setLastName("Dough");
         assertEquals(person1.getLastName(), "Dough");
     }
 
     @Test
-    public void getBirthDate() throws Exception {
+    public void getBirthDate() {
         assertEquals(person1.getBirthDate(), LocalDate.of(1999, Month.DECEMBER, 25));
         assertEquals(person2.getBirthDate(), LocalDate.of(1969, Month.DECEMBER, 31));
     }
 
     @Test
-    public void getRetirementAge() throws Exception {
+    public void getRetirementAge() {
         assertEquals(person1.getRetirementAge(), 70);
         assertEquals(person2.getRetirementAge(), 40);
 

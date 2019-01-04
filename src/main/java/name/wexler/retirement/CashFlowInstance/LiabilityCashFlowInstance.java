@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class LiabilityCashFlowInstance extends CashFlowInstance {
-    private BigDecimal principal;
-    private BigDecimal interest;
-    private BigDecimal impounds;
+    private final BigDecimal principal;
+    private final BigDecimal interest;
+    private final BigDecimal impounds;
 
     public LiabilityCashFlowInstance(CashFlowSource cashFlowSource,
                                      LocalDate accrualStart, LocalDate accrualEnd,

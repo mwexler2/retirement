@@ -27,11 +27,14 @@ public class CashFlowTypeTest {
     private SemiMonthly semiMonthly;
     private Quarterly quarterly;
     private Context context;
+    private CashFlowCalendar cashFlowCalendar;
+
 
     @Before
     public void setUp() throws Exception {
         context = new Context();
-        context.setAssumptions(new Assumptions());
+        Assumptions assumptions = new Assumptions();
+        context.setAssumptions(assumptions);
         LocalDate annualAccrueStart = LocalDate.of(2014, Month.AUGUST, 17);
         LocalDate annualAccrueEnd = LocalDate.of(2015, Month.SEPTEMBER, 20);
         LocalDate annualFirstPayment = LocalDate.of(2015, Month.MARCH, 15);
@@ -77,14 +80,22 @@ public class CashFlowTypeTest {
                 19, 7,
                 CashFlowFrequency.ApportionmentPeriod.ANNUAL
         );
+
+        String[] cashFlowSources = new String[0];
+        String[] assets = new String[0];
+        String[] liabilities = new String[0];
+        String[] accounts = new String[0];
+        Scenario scenario = new Scenario(context, "MyScenario", "My Scenario", cashFlowSources, assets, liabilities,
+                accounts, assumptions);
+        cashFlowCalendar = new CashFlowCalendar(scenario, assumptions);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
-    public void CashFlowType() throws Exception {
+    public void CashFlowType() {
         LocalDate annualAccrueStart = LocalDate.of(2014, Month.AUGUST, 17);
         LocalDate annualAccrueEnd = LocalDate.of(2015, Month.SEPTEMBER, 20);
         LocalDate annualFirstPayment = LocalDate.of(2015, Month.MARCH, 15);
@@ -98,7 +109,7 @@ public class CashFlowTypeTest {
     }
 
     @Test
-    public void getAccrueStart() throws Exception {
+    public void getAccrueStart() {
         assertEquals(LocalDate.of(2014, Month.DECEMBER, 23), biweekly.getAccrueStart());
         assertEquals(LocalDate.of(1999, Month.APRIL, 2), monthly.getAccrueStart());
         assertEquals(LocalDate.of(2016, Month.FEBRUARY, 14), semiMonthly.getAccrueStart());
@@ -109,11 +120,7 @@ public class CashFlowTypeTest {
 
     @Test()
     public void getFlowInstances()  throws Exception {
-        Assumptions assumptions = new Assumptions();
-        CashFlowCalendar cashFlowCalendar = new CashFlowCalendar(assumptions);
         BigDecimal annualAmount = BigDecimal.valueOf(1000.00);
-        Context context = new Context();
-        context.setAssumptions(assumptions);
         Person employee1 = new Person(context, "employee1", LocalDate.of(2004, Month.MARCH, 31), 65);
         Company company1 = new Company(context, "company1");
         Job job1 = new Job(context, "job1", "employer1", "employee1");

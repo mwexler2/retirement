@@ -45,12 +45,11 @@ public class Alimony extends CashFlowSource {
     private Entity payee;
     @JsonIgnore
     private Entity payor;
-    private BigDecimal baseIncome;
-    private BigDecimal baseAlimony;
-    private BigDecimal smithOstlerRate;
-    private BigDecimal maxAlimony;
+    private final BigDecimal baseIncome;
+    private final BigDecimal baseAlimony;
+    private final BigDecimal smithOstlerRate;
+    private final BigDecimal maxAlimony;
     private CashFlowFrequency smithOstlerCashFlow;
-    private final BigDecimal quartersPerYear = BigDecimal.valueOf(4);
 
     @JsonCreator
     public Alimony(@JacksonInject("context") Context context,
@@ -63,7 +62,7 @@ public class Alimony extends CashFlowSource {
                    @JsonProperty("maxAlimony") BigDecimal maxAlimony,
                    @JsonProperty("baseCashFlow") String baseCashFlowId,
                    @JsonProperty("smithOstlerCashFlow") String smithOstlerCashFlowId
-    ) throws Exception {
+    ) {
         super(context, id, baseCashFlowId,
                 context.getListById(Entity.class, payeeId),
                 context.getListById(Entity.class, payorId));
@@ -91,10 +90,7 @@ public class Alimony extends CashFlowSource {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (source) -> {
-                                if (source.isPayee(this.payor)) {
-                                    return true;
-                                }
-                                return false;
+                                return source.isPayee(this.payor);
                             });
                     BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
                     return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, alimony, balance);
@@ -133,7 +129,6 @@ public class Alimony extends CashFlowSource {
     @Override
     public String getName() {
         String result;
-        List<Balance> interimBalances = new ArrayList<Balance>();
         result = payor.getName() + "(" + payee.getName() + ")";
         return result;
     }
@@ -150,18 +145,9 @@ public class Alimony extends CashFlowSource {
     }
 
 
-    @JsonProperty(value = "payee")
-    public String getPayeeId() {
-        return payee.getId();
-    }
-
     private void setPayeeId(@JacksonInject("context") Context context,
                             @JsonProperty(value = "payee", required = true) String payeeId) {
         this.payee = context.getById(Entity.class, payeeId);
-    }
-
-    public Entity getPayee() {
-        return payee;
     }
 
     public void setPayee(Entity payee) {
@@ -178,11 +164,7 @@ public class Alimony extends CashFlowSource {
         this.payor = context.getById(Entity.class, payorId);
     }
 
-    public Entity getPayor() {
-        return payor;
-    }
-
-    public void setPayor(Entity payee) {
+    public void setPayor(Entity payor) {
         this.payor = payor;
     }
 }

@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,25 +46,21 @@ public class Salary extends CashFlowSource {
             property = "id")
     @JsonIgnore
     private Job job;
-    private BigDecimal baseAnnualSalary;
-    @JsonIgnore
-    private ChronoUnit payUnit;
-    private BigDecimal payUnitMultiplier;
-    private BigDecimal amountPerUnit;
+    private final BigDecimal baseAnnualSalary;
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
                   @JsonProperty("job") String jobId,
                   @JsonProperty("cashFlow") String cashFlowId,
-                  @JsonProperty("baseAnnualSalary") BigDecimal baseAnnualSalary) throws Exception {
+                  @JsonProperty("baseAnnualSalary") BigDecimal baseAnnualSalary) {
         super(context, id, cashFlowId,
-                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
-                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
+                Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployee()),
+                Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
         this.baseAnnualSalary = baseAnnualSalary;
-        this.payUnit = this.getCashFlow().getChronoUnit();
-        this.payUnitMultiplier = this.getCashFlow().getUnitMultiplier();
-        this.amountPerUnit = baseAnnualSalary.divide(getCashFlow().unitsPerYear(), 2, RoundingMode.HALF_UP);
+        ChronoUnit payUnit = this.getCashFlow().getChronoUnit();
+        BigDecimal payUnitMultiplier = this.getCashFlow().getUnitMultiplier();
+        BigDecimal amountPerUnit = baseAnnualSalary.divide(getCashFlow().unitsPerYear(), 2, RoundingMode.HALF_UP);
     }
 
     @JsonIgnore

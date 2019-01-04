@@ -45,7 +45,6 @@ public class Annual extends CashFlowFrequency {
     private MonthDay monthDay;
     private int firstYear;
     private int lastYear;
-    private static final int periodsPerYear = 1;
 
     public Annual(@JacksonInject("context") Context context,
                   @JsonProperty(value = "id", required = true) String id,

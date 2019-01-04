@@ -29,6 +29,7 @@ import name.wexler.retirement.Context;
 import name.wexler.retirement.Job;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -41,11 +42,10 @@ public abstract class Bonus extends CashFlowSource {
     public Bonus(@JacksonInject("context") Context context,
                  @JsonProperty(value = "id", required = true) String id,
                  @JsonProperty(value = "job", required = true) String jobId,
-                 @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
-            throws Exception {
+                 @JsonProperty(value = "cashFlow", required = true) String cashFlowId) {
         super(context, id, cashFlowId,
-                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployee()),
-                Arrays.asList(((Job) context.getById(Job.class, jobId)).getEmployer()));
+                Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployee()),
+                Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
     }
 

@@ -57,16 +57,16 @@ import java.util.List;
 })
 public abstract class CashFlowFrequency {
     public interface SingleCashFlowGenerator {
-        public CashFlowInstance getSingleCashFlowAmount(CashFlowCalendar calendar, String cashFlowId,
-                                                        LocalDate startAccrual, LocalDate endAccrual, LocalDate cashFlowDate,
-                                                        BigDecimal percent, CashFlowInstance prevCashFlowInstance);
+        CashFlowInstance getSingleCashFlowAmount(CashFlowCalendar calendar, String cashFlowId,
+                                                 LocalDate startAccrual, LocalDate endAccrual, LocalDate cashFlowDate,
+                                                 BigDecimal percent, CashFlowInstance prevCashFlowInstance);
     }
 
     public class CashFlowPeriod {
-        LocalDate accrualStart;
-        LocalDate accrualEnd;
-        LocalDate cashFlowDate;
-        BigDecimal portion;
+        final LocalDate accrualStart;
+        final LocalDate accrualEnd;
+        final LocalDate cashFlowDate;
+        final BigDecimal portion;
 
         public CashFlowPeriod(LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal portion) {
             this.accrualStart = accrualStart;
@@ -77,7 +77,8 @@ public abstract class CashFlowFrequency {
     }
 
     private final String id;
-    public enum ApportionmentPeriod { WHOLE_TERM, ANNUAL, EQUAL_MONTHLY };
+    public enum ApportionmentPeriod { WHOLE_TERM, ANNUAL, EQUAL_MONTHLY }
+
     private  ApportionmentPeriod apportionmentPeriod;
 
     @JsonDeserialize(using= JSONDateDeserialize.class)
@@ -94,8 +95,8 @@ public abstract class CashFlowFrequency {
 
     private static final String cashFlowsPath = "cashFlows.json";
 
-    public static List<CashFlowFrequency> readCashFlowFrequencies(Context context) throws IOException {
-        return context.fromJSONFileList(CashFlowFrequency[].class, cashFlowsPath);
+    public static void readCashFlowFrequencies(Context context) throws IOException {
+        context.fromJSONFileList(CashFlowFrequency[].class, cashFlowsPath);
     }
 
     public CashFlowFrequency(@JacksonInject("context") Context context,
@@ -133,7 +134,7 @@ public abstract class CashFlowFrequency {
         return firstPaymentDate;
     }
 
-    abstract public List<CashFlowPeriod> getCashFlowPeriods();
+    protected abstract List<CashFlowPeriod> getCashFlowPeriods();
 
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowSource cashFlowSource, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();

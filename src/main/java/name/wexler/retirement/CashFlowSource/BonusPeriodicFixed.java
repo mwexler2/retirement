@@ -38,15 +38,14 @@ import java.util.List;
 @JsonPropertyOrder({ "type", "id",  "job", "annualAmount", "cashFlow" })
 public class BonusPeriodicFixed extends Bonus {
     @JsonIdentityReference(alwaysAsId = true)
-    private BigDecimal annualAmount;
+    private final BigDecimal annualAmount;
 
 
     public BonusPeriodicFixed(@JacksonInject("context") Context context,
                               @JsonProperty(value = "id", required = true) String id,
                               @JsonProperty(value = "job", required = true) String jobId,
                               @JsonProperty(value = "annualAmount", required = true) BigDecimal annualAmount,
-                              @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
-            throws Exception {
+                              @JsonProperty(value = "cashFlow", required = true) String cashFlowId) {
         super(context, id, jobId, cashFlowId);
         this.annualAmount = annualAmount;
     }

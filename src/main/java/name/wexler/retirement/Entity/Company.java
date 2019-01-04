@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.Context;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -36,8 +35,8 @@ public class Company extends Entity {
     private String companyName;
     private static final String companyPath = "company.json";
 
-    public static List<Company> readComapnies(Context context) throws IOException {
-        return context.fromJSONFileList(Entity[].class, companyPath);
+    public static void readComapnies(Context context) throws IOException {
+        context.fromJSONFileList(Entity[].class, companyPath);
     }
 
     @JsonCreator

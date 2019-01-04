@@ -82,12 +82,12 @@ public class RSUTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
 
     @Test
-    public void getId() throws Exception {
+    public void getId() {
         String name1 = salary.getId();
         assertEquals(name1, "salary1");
         String name2 = rsu1.getId();
@@ -98,7 +98,7 @@ public class RSUTest {
 
 
     @Test
-    public void equals() throws Exception {
+    public void equals() {
         assertNotEquals(salary, rsu2);
     }
 

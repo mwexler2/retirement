@@ -31,9 +31,7 @@ import name.wexler.retirement.Entity.Entity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -55,14 +53,14 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
         @JsonSubTypes.Type(value = AccountSource.class, name="account")})
 public abstract class CashFlowSource {
-    private String id;
-    private List<Entity> payers;
-    private List<Entity> payees;
+    private final String id;
+    private final List<Entity> payers;
+    private final List<Entity> payees;
     private CashFlowFrequency cashFlow;
     private static final String cashFlowSourcesPath = "cashFlowSources.json";
 
-    static public List<CashFlowSource> readCashFlowSources(Context context) throws IOException {
-       return context.fromJSONFileList(CashFlowSource[].class, cashFlowSourcesPath);
+    static public void readCashFlowSources(Context context) throws IOException {
+        context.fromJSONFileList(CashFlowSource[].class, cashFlowSourcesPath);
     }
 
     public CashFlowSource(@JsonProperty(value = "context", required = true) Context context,
@@ -83,7 +81,7 @@ public abstract class CashFlowSource {
     }
 
     @JsonIgnore
-    public LocalDate getStartDate() {
+    private LocalDate getStartDate() {
         return cashFlow.getAccrueStart();
     }
 
