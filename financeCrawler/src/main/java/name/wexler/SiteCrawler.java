@@ -30,8 +30,6 @@ abstract public class SiteCrawler {
     abstract public void processResponse(URL url, String contents, Map<String, List<String>> headers);
 
     public void crawlURL(URL url) {
-        queue.add(url);
-
         Callable<String> callableTask = () -> {
             URLConnection connection = url.openConnection();
 
@@ -49,9 +47,5 @@ abstract public class SiteCrawler {
             return "get" + url;
         };
         executorService.submit(callableTask);
-    }
-
-    public URL getNextURL() {
-        return queue.remove();
     }
 }

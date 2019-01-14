@@ -1,13 +1,18 @@
 package name.wexler;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import com.opencsv.CSVReaderHeaderAware;
+
+import java.io.*;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -19,22 +24,51 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class YahooFinanceCrawler extends SiteCrawler {
-    private final String yahooFinanceBaseURL = "https://finance.yahoo.com/";
-    private final String yahooQueryBaseURL = "https://query1.finance.yahoo.com/v7/finance/download/";
-    private final int minSleepMilliseconds = 2000;
-    private final int sleepMillisecondsBound = 3000;
+    private static final String yahooFinanceBaseURL = "https://finance.yahoo.com/";
+    private static final String yahooQueryBaseURL = "https://query1.finance.yahoo.com/v7/finance/download/";
+    private static final int minSleepMilliseconds = 2000;
+    private static final int sleepMillisecondsBound = 3000;
+    private long periodStart;
+    private final long periodEnd = (System.currentTimeMillis() / 1000L);
+    private static final long minPeriodStart = -2208960000L;
     private Random random = new Random();
+    private final String ticker;
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private boolean writeHeader = false;
 
-    YahooFinanceCrawler(List<String> tickers) {
+    YahooFinanceCrawler(String ticker) {
         super();
-        for (String ticker : tickers) {
-            crawlURL(tickerToURL(ticker));
+        this.ticker = ticker;
+        this.periodStart = getPeriodStart();
+    }
+
+    private long getPeriodStart() {
+        long result = minPeriodStart;
+        String csvFile = _getCSVFileName(ticker);
+
+        try (CSVReaderHeaderAware reader = new CSVReaderHeaderAware(new FileReader(csvFile))) {
+            Map<String, String> line;
+            while ((line = reader.readMap()) != null) {
+                if (!line.containsKey("Date"))
+                    continue;
+                LocalDate date = LocalDate.parse(line.get("Date"), DateTimeFormatter.ISO_DATE);
+                ZoneId zoneId = ZoneId.systemDefault();
+                result = date.plus(1, ChronoUnit.DAYS).atStartOfDay(zoneId).toEpochSecond();
+            }
+        } catch (IOException e) {
+            writeHeader = true;
+            return minPeriodStart;
         }
+        return result;
+    }
+
+    public void crawl() {
+        crawlURL(tickerToURL(ticker));
     }
 
     @Override
     public ExecutorService getExecutorService() {
-        return Executors.newSingleThreadExecutor();
+        return executorService;
     }
 
     @Override
@@ -74,18 +108,17 @@ public class YahooFinanceCrawler extends SiteCrawler {
     }
 
     private void processDownloadFile(URL url, String content, Map<String, List<String>> headers) {
-        Matcher tickerMatcher = tickerURLPattern.matcher(url.toString());
-        if (tickerMatcher.find()) {
-            String ticker = tickerMatcher.group(1);
-            String fileName = _getCSVFileName(ticker);
-            try {
+        String fileName = _getCSVFileName(ticker);
+        if (!writeHeader) { // If we already have a head, skip the first line.
+            content = content.substring(content.indexOf('\n') + 1);
+        }
+        try {
 
-                PrintWriter out = new PrintWriter(new FileOutputStream(fileName, true));
-                out.print(content);
-                out.close();
-            } catch (IOException ioe) {
-                throw new RuntimeException("can't write " + fileName, ioe);
-            }
+            PrintWriter out = new PrintWriter(new FileOutputStream(fileName, true));
+            out.print(content);
+            out.close();
+        } catch (IOException ioe) {
+            throw new RuntimeException("can't write " + fileName, ioe);
         }
     }
 
@@ -93,17 +126,11 @@ public class YahooFinanceCrawler extends SiteCrawler {
         Matcher crumbMatcher = crumbPattern.matcher(content);
         if (crumbMatcher.find()) {
             String crumb = crumbMatcher.group(1);
-            Matcher tickerMatcher = tickerPattern.matcher(content);
-            if (tickerMatcher.find()) {
-                String ticker = tickerMatcher.group(1);
-                long periodStart = 1544321863;
-                long periodEnd = 1547000263;
-                String interval = "1d";
-                String event = "history";
-                // https://query1.finance.yahoo.com/v7/finance/download/TWST?period1=1544321863&period2=1547000263&interval=1d&events=history&crumb=p1nTbKrcUvc
-                URL downloadURL = getDownloadURL(ticker, periodStart, periodEnd, interval, event, crumb);
-                crawlURL(downloadURL);
-            }
+            String interval = "1d";
+            String event = "history";
+            // https://query1.finance.yahoo.com/v7/finance/download/TWST?period1=1544321863&period2=1547000263&interval=1d&events=history&crumb=p1nTbKrcUvc
+            URL downloadURL = getDownloadURL(ticker, periodStart, periodEnd, interval, event, crumb);
+            crawlURL(downloadURL);
         }
     }
 
