@@ -1,6 +1,7 @@
 package name.wexler;
 
 import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -62,6 +63,7 @@ public class YahooFinanceCrawler extends SiteCrawler {
 
     static final Pattern crumbPattern = Pattern.compile("\"CrumbStore\":\\{\"crumb\":\"([^\"]*)\"\\}");
     static final Pattern tickerPattern = Pattern.compile("\"ticker\":\"([^\"]+)\"");
+    static final Pattern tickerURLPattern = Pattern.compile("/download/([^?]+)\\?");
 
     private String _getCSVFileName(String ticker) {
         String userHome = System.getProperty("user.home");
@@ -72,16 +74,18 @@ public class YahooFinanceCrawler extends SiteCrawler {
     }
 
     private void processDownloadFile(URL url, String content, Map<String, List<String>> headers) {
-        Matcher tickerMatcher = tickerPattern.matcher(content);
+        Matcher tickerMatcher = tickerURLPattern.matcher(url.toString());
         if (tickerMatcher.find()) {
             String ticker = tickerMatcher.group(1);
-        try {
             String fileName = _getCSVFileName(ticker);
-            PrintWriter out = new PrintWriter(fileName));
-            out.print(content);
-            out.close();
-        } catch (IOException ioe) {
-            throw new RuntimeException("can't write " + fileName, ioe)
+            try {
+
+                PrintWriter out = new PrintWriter(new FileOutputStream(fileName, true));
+                out.print(content);
+                out.close();
+            } catch (IOException ioe) {
+                throw new RuntimeException("can't write " + fileName, ioe);
+            }
         }
     }
 
