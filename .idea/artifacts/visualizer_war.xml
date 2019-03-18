@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" build-on-make="true" name="visualizer:war">
+    <output-path>$PROJECT_DIR$/visualizer/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>visualizer</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="retirement.war">
+      <element id="artifact" artifact-name="visualizer:war exploded" />
+    </root>
+  </artifact>
+</component>
