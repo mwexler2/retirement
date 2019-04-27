@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class TickerHistory {
     JDBCDriverConnection conn = null;
+    private static final int initialTickers = 100;
+    private static final int initialHistory = 1000;
 
     public TickerHistory(JDBCDriverConnection conn) {
         this.conn = conn;
@@ -100,7 +102,7 @@ public class TickerHistory {
     }
 
     public Map<String, LocalDate> getTickers() {
-        Map<String, LocalDate> result = new HashMap<>();
+        Map<String, LocalDate> result = new HashMap<>(initialTickers);
 
         String sql = "SELECT name, MAX(date), count(*)\n"
          + "FROM tickerHistory\n"
@@ -120,11 +122,12 @@ public class TickerHistory {
     }
 
     public Map<LocalDate, BigDecimal> getHistoricalPrices(String ticker) {
-        Map<LocalDate, BigDecimal> historicalPrices = new HashMap<>();
+        Map<LocalDate, BigDecimal> historicalPrices = new HashMap<>(initialHistory);
 
         String sql = "SELECT date, close\n"
                 + "FROM tickerHistory\n"
-                + "WHERE name=?;\n";
+                + "WHERE name=?\n"
+                + "AND   date>'2008-01-01';\n";
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, ticker);
             try (ResultSet rs = pstmt.executeQuery()) {

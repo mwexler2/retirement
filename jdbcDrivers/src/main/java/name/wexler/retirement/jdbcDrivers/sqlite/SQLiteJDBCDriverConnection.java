@@ -47,13 +47,4 @@ public class SQLiteJDBCDriverConnection extends JDBCDriverConnection {
 
         return url;
     }
-
-
-    public static void main(String[] argv)  {
-        try {
-            DriverManager.registerDriver(new JDBC());
-        } catch (SQLException sqle) {
-            throw new RuntimeException(sqle);
-        }
-    }
 }
