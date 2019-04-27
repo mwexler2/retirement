@@ -1,0 +1,124 @@
+/*
+* Retirement calculator - Allows one to run various retirement scenarios and see how much money you have to retire on.
+*
+* Copyright (C) 2016  Michael C. Wexler
+
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*
+* I can be reached at mike.wexler@gmail.com.
+*
+*/
+
+package name.wexler.retirement.visualizer;
+
+import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
+import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
+import name.wexler.retirement.datastore.DataStore;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.Collection;
+import java.util.List;
+
+@Controller
+public class RetirementController {
+
+    private static final String VIEW_INDEX = "index";
+    private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RetirementController.class);
+//    DataStore ds = new DataStore();
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/cashflow/{cashFlowId}/year/{year}", method = RequestMethod.GET)
+    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId,
+                                           @PathVariable String scenarioId,
+                                           @PathVariable int year,
+                                           ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("cashFlowId", cashFlowId);
+        model.put("scenarioId", scenarioId);
+        model.put("year", year);
+        List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId, year);
+        model.put("cashFlows", cashFlows);
+        return new ModelAndView("yearCashFlows", model);
+    }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/cashflow/{cashFlowId}", method = RequestMethod.GET)
+    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId, @PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("cashFlowId", cashFlowId);
+        model.put("scenarioId", scenarioId);
+        List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId);
+        model.put("cashFlows", cashFlows);
+        return new ModelAndView("cashFlows", model);
+    }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/asset/{assetId}/year/{year}", method = RequestMethod.GET)
+    public ModelAndView retirementAsset(@PathVariable String assetId,
+                                        @PathVariable String scenarioId,
+                                        @PathVariable int year,
+                                        ModelMap model) {
+
+        Retirement retirement = new Retirement();
+        model.put("assetId", assetId);
+        model.put("scenarioId", scenarioId);
+        model.put("year", year);
+        List<CashFlowInstance> cashFlowInstances = retirement.getCashFlows(scenarioId, assetId, year);
+        model.put("cashFlowInstances", cashFlowInstances);
+        Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId, year);
+        model.put("balances", balances);
+        return new ModelAndView("asset", model);
+    }
+
+    @RequestMapping(value = "/visualzier/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
+    public ModelAndView retirementAsset(@PathVariable String assetId, @PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", assetId);
+        model.put("scenarioId", scenarioId);
+        Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId);
+        model.put("balances", balances);
+        return new ModelAndView("asset", model);
+    }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}", method = RequestMethod.GET)
+    public ModelAndView retirementLiability(@PathVariable String liabilityId, @PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", liabilityId);
+        model.put("scenarioId", scenarioId);
+        List<LiabilityCashFlowInstance> cashFlowInstances = retirement.getLiabilityCashFlowInstances(scenarioId, liabilityId);
+        Collection<Balance> balances = retirement.getLiabilityBalances(scenarioId, liabilityId);
+        model.put("balances", balances);
+        model.put("cashFlowInstances", cashFlowInstances);
+        return new ModelAndView("liability", model);
+    }
+
+    @RequestMapping(value = "/visualizer", method = RequestMethod.GET)
+    public ModelAndView retirement(ModelMap model) {
+        return new ModelAndView("retirement", "command", new Retirement());
+    }
+
+    @RequestMapping(value = "/visualizer/{name}", method = RequestMethod.GET)
+    public String updateRetirement(@PathVariable String name, ModelMap model) {
+        logger.debug("[updateRetirement]");
+        return VIEW_INDEX;
+
+    }
+
+}
