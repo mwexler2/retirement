@@ -85,10 +85,10 @@ public class ScenarioTest {
         List<String> payors = new ArrayList<>();
         new Monthly(context, "account1", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource a1Source = new AccountSource(context, "account1", "account1", account1Owners, payors);
+        CashFlowSource a1Source = new AccountSource(context, "account1", "account1", account1Owners, payors, "Misc");
         new Monthly(context, "account2", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource a2Source = new AccountSource(context, "account2", "account2", account1Owners, payors);
+        CashFlowSource a2Source = new AccountSource(context, "account2", "account2", account1Owners, payors, "not misc");
 
         Account account1 = new Account(context, "account1", account1Owners,
                 new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),

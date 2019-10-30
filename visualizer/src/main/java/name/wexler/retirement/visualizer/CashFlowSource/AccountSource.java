@@ -13,17 +13,20 @@ import java.util.stream.Collectors;
 
 public class AccountSource extends CashFlowSource {
     private List<CashFlowInstance> cashFlowInstances = null;
+    private String accountName = null;
 
     @JsonCreator
     public AccountSource(@JacksonInject("context") Context context,
-                     @JsonProperty(value = "id",              required = true) String id,
-                     @JsonProperty(value = "cashFlow",      required = true) String cashFlowId,
-                     @JsonProperty(value = "payees",          required = true) List<String> payees,
-                     @JsonProperty(value = "payors",          required = true) List<String> payors
+                        @JsonProperty(value = "id",              required = true) String id,
+                        @JsonProperty(value = "cashFlow",        required = true) String cashFlowId,
+                        @JsonProperty(value = "payees",          required = true) List<String> payees,
+                        @JsonProperty(value = "payors",          required = true) List<String> payors,
+                         @JsonProperty(value = "accountName",    required = true) String accountName
                      ) throws IllegalArgumentException, DuplicateEntityException {
         super(context, id, cashFlowId,
                 context.getByIds(Entity.class, payees),
                 context.getByIds(Entity.class, payors));
+        this.accountName = accountName;
     }
 
     @Override
@@ -39,15 +42,16 @@ public class AccountSource extends CashFlowSource {
     public String getName() {
         StringBuilder result = new StringBuilder();
 
-        result.append('(');
-        result.append(String.join(", ",
-                this.getPayees().stream().map((payee) ->
-                        payee.getId())
-                        .collect(Collectors.toList())));
-        result.append(")/(");
         result.append(String.join(", ",
                 this.getPayers().stream().map((payer) ->
                         payer.getId())
+                        .collect(Collectors.toList())));
+        result.append(" ");
+        result.append(this.accountName);
+        result.append(" (");
+        result.append(String.join(", ",
+                this.getPayees().stream().map((payee) ->
+                        payee.getId())
                         .collect(Collectors.toList())));
         result.append(")");
         return result.toString();

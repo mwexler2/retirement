@@ -1,8 +1,10 @@
-<%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="f"   uri="http://retirement.wexler.name.visualizer/functions" %>
+<%@ taglib prefix="display" uri="http://displaytag.sf.net" %>
 
-<p>Date is: </p>
+
 <%@ page isELIgnored="false" %>
 <html>
 <head>
@@ -14,32 +16,28 @@
         th a {
             text-decoration-line: none;
         }
+        table, thead, tbody, tr, th, td {
+            border: solid thin;
+            border-collapse: collapse;
+        }
     </style>
 </head>
 <body>
 <h1>Retirement Calculator</h1>
 
 
-<table border="1" >
-    <caption>People</caption>
-    <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Birth Date</th>
-        <th>Retirement Age</th>
-    </tr>
-    <c:forEach var="person" items="${command.people}">
-        <tr>
-            <td><c:out value="${person.firstName}"/></td>
-            <td><c:out value="${person.lastName}"/></td>
-            <td>${f:formatLocalDate(person.birthDate, 'dd.MM.yyyy')}</td>
-            <td>${person.retirementAge}</td>
-        </tr>
-    </c:forEach>
-</table>
+<display:table name="${command.people}" >
+    <display:caption>People</display:caption>
+    <display:column property="firstName" title="First Name" />
+    <display:column property="lastName" title="Last Name"/>
+    <display:column property="birthDate" title="Birth Date" />
+    <display:column property="retirementAge" title="Retirement Age"/>
+</display:table>
+
 
 <c:forEach var="scenario" items="${command.scenarios}">
     <h2>${scenario.name}</h2>
+
 
 <table border="1">
     <caption>Assumptions</caption>
@@ -66,6 +64,20 @@
     </tr>
 </table>
 
+
+    <c:set var="assetsAndLiabilities" scope="page" value="${scenario.assetsAndLiabilities}"></c:set>
+    <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.BigDecimalTotalTableDecorator"
+        sort="external">
+        <display:caption>Assets & Liabilities</display:caption>
+        <display:column property="itemType" group="1" />
+        <display:column property="itemClass" group="2" />
+        <c:forEach var="col" items="${assetsAndLiabilities.getColumnDefinitions()}">
+            <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
+                            property="${col.property}" decorator="${col.decorator}" style="text-align: right"
+                            total="${col.total}" />
+        </c:forEach>
+
+    </display:table>
 
     <table border="1">
         <caption>Assets and Liabilities</caption>
@@ -150,13 +162,13 @@
         <c:forEach var="cashFlowSourceId" items="${scenario.cashFlowSourceIds}">
             <tr>
                 <th>
-                    <a href="scenario/${scenario.getId()}/cashflow/${cashFlowSourceId}">
+                    <a href="${scenario.getCashFlowSourceURL(cashFlowSourceId)}">
                         ${scenario.getCashFlowSourceName(cashFlowSourceId)}
                     </a>
                 </th>
                 <c:forEach var="year" items="${scenario.years}">
                     <td align="right">
-                        <a href="scenario/${scenario.getId()}/cashflow/${cashFlowSourceId}/year/${year}">
+                        <a href="${scenario.getCashFlowSourceURL(cashFlowSourceId, year)}">
                             <fmt:formatNumber value="${scenario.getAnnualIncome(cashFlowSourceId, year)}" type="currency" />
                         </a>
                     </td>

@@ -55,6 +55,7 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = Liability.class, name = "liability"),
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
+        @JsonSubTypes.Type(value = StockOption.class, name="stockOption"),
         @JsonSubTypes.Type(value = AccountSource.class, name="account")})
 public abstract class CashFlowSource extends Entity {
     private final List<Entity> payers;

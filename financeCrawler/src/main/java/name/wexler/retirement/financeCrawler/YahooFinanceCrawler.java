@@ -1,16 +1,11 @@
 package name.wexler.retirement.financeCrawler;
 
-import com.opencsv.CSVReaderHeaderAware;
 import name.wexler.retirement.datastore.TickerHistory;
 
-import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,6 +74,7 @@ public class YahooFinanceCrawler extends SiteCrawler {
 
 
     private void processDownloadFile(URL url, String content, Map<String, List<String>> headers) {
+        System.out.println("Processing download file for " + url);
         String[] lines = content.split("\n");
         String[] fieldNames = null;
         for (int i = 0; i < lines.length; ++i) {
@@ -92,12 +88,15 @@ public class YahooFinanceCrawler extends SiteCrawler {
                         fieldNameVals.put(fieldNames[j], fields[j]);
                     }
                 }
+                if (fieldNameVals.get("Open") == null)
+                    continue;
                 tickerHistory.insertRow(ticker, fieldNameVals);
             }
         }
     }
 
     private void processHistoryPage(URL url, String content, Map<String, List<String>> headers) {
+        System.out.println("Processing history page for " + url);
         Matcher crumbMatcher = crumbPattern.matcher(content);
         if (crumbMatcher.find()) {
             String crumb = crumbMatcher.group(1);

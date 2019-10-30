@@ -37,6 +37,9 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -246,5 +249,18 @@ public class Scenario extends Entity {
     @JsonIgnore
     public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
         return calendar.getCashFlows(cashFlowId, year);
+    }
+
+    @JsonIgnore
+    public String getCashFlowSourceURL(String cashFlowSourceId) throws MalformedURLException {
+        return "/scenario/" + getId() + "/cashflow/" + cashFlowSourceId;
+    }
+
+    public String getCashFlowSourceURL(String cashFlowSourceId, int year) throws MalformedURLException {
+        return "/scenario/" + getId() + "/cashflow/" + cashFlowSourceId + "/year/" + year;
+    }
+
+    public List<Map<String, Object>> getAssetsAndLiabilities() {
+        return calendar.getAssetsAndLiabilities();
     }
 }

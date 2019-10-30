@@ -8,6 +8,7 @@ import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.visualizer.Scenario;
+import name.wexler.retirement.visualizer.CashFlowFrequency.MoneyTableColumnDecorator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,6 +37,11 @@ public class CashFlowCalendar {
     private final Assumptions _assumptions;
     private final Scenario _scenario;
 
+    /**
+     *
+     * @param scenario
+     * @param assumptions
+     */
     public CashFlowCalendar(Scenario scenario, Assumptions assumptions) {
         _scenario = scenario;
         _assumptions = assumptions;
@@ -341,5 +347,115 @@ public class CashFlowCalendar {
 
     public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String liabilityId) {
         return (List<LiabilityCashFlowInstance>) (List<?>) getCashFlows(liabilityId);
+    }
+
+
+    public class TableList extends ArrayList<Map<String, Object>> {
+        private List<ColumnDefinition> columnDefinitions;
+        TableList(List<ColumnDefinition> columnDefinitions) {
+            super();
+            this.columnDefinitions = columnDefinitions;
+        }
+
+        public List<ColumnDefinition> getColumnDefinitions() {
+            return columnDefinitions;
+        }
+
+        public String getItemClass(Map<String, Object> item) { return (String) item.get("itemClass"); }
+        public String getItemType(Map<String, Object> item) { return (String) item.get("itemType"); }
+        public String getItemName(Map<String, Object> item) { return (String) item.get("name"); }
+
+    }
+
+    public TableList getAssetsAndLiabilities() {
+        List<ColumnDefinition> columnDefinitions = new ArrayList<>();
+        // columnDefinitions.add(new ColumnDefinition("", "id"), null);
+        String nameHref = "scenario/" + this._scenario.getId() + "/asset/";
+        columnDefinitions.add(ColumnDefinition.Builder.newInstance().
+                setName("").
+                setProperty("name").
+                setHref(nameHref).
+                setParamProperty("id").
+                setTotal(false).
+                build());
+        for (int year : this.getYears()) {
+            columnDefinitions.add(ColumnDefinition.Builder.newInstance().
+                    setName(Integer.toString(year)).
+                    setProperty(Integer.toString(year)).
+                    setDecorator(MoneyTableColumnDecorator.class.getName()).
+                    setTotal(true).
+                    build());
+        }
+        TableList tableList = new TableList(columnDefinitions);
+
+        HashMap<String, Object> assetSubtitleRow = new HashMap<>();
+//        tableList.add(assetSubtitleRow);
+        assetSubtitleRow.put("id", "");
+        assetSubtitleRow.put("name", "Assets");
+
+        for (Asset asset: this._assets.values()) {
+            Map assetRow = new HashMap();
+            assetRow.put("id", asset.getId());
+            assetRow.put("name", asset.getName());
+            assetRow.put("itemType", "Asset");
+            assetRow.put("itemClass", asset.getClass().getSimpleName());
+            for (int year: getYears()) {
+                assetRow.put(Integer.toString(year), getAssetValue(asset.getId(), year));
+            }
+            tableList.add(assetRow);
+        }
+
+        // Subtotals for assets
+        Map<String, Object> totalAssetRow = new HashMap<>();
+        // tableList.add(totalAssetRow);
+        totalAssetRow.put("id", "");
+        totalAssetRow.put("name", "Total Assets");
+        for (int year: getYears()) {
+            totalAssetRow.put(Integer.toString(year), getAssetValue(year));
+        }
+        Map liabilitySubtitleRow = new HashMap();
+ //       tableList.add(liabilitySubtitleRow);
+        liabilitySubtitleRow.put("id", "");
+        liabilitySubtitleRow.put("name", "Liabilities");
+        for (Liability liability: _liabilities.values()) {
+            Map<String, Object> liabilityRow = new HashMap<>();
+            liabilityRow.put("id", liability.getId());
+            liabilityRow.put("name", liability.getName());
+            liabilityRow.put("itemType", "Liability");
+            liabilityRow.put("itemClass", liability.getClass().getSimpleName());
+            for (int year: getYears()) {
+                liabilityRow.put(Integer.toString(year), getLiabilityAmount(liability.getId(), year));
+            }
+            tableList.add(liabilityRow);
+        }
+        Map<String, Object> totalLiabilityRow = new HashMap<>();
+        totalLiabilityRow.put("name", "Total Liabilities");
+        for (int year: getYears()) {
+            totalLiabilityRow.put(Integer.toString(year), getLiabilityAmount(year));
+        }
+        List netWorthRow = new ArrayList();
+        netWorthRow.add("Net Worth");
+        for (int year: getYears()) {
+            BigDecimal netWorth = getAssetValue(year).subtract(getLiabilityAmount(year));
+            netWorthRow.add(netWorth);
+        }
+
+        Comparator<Map<String, Object>> byTypeClassAndName = new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                int result = 0;
+                result = ((String) o1.getOrDefault("itemType", "")).
+                        compareTo((String) o2.getOrDefault("itemType", ""));
+                if (result == 0)
+                    result = ((String) o1.getOrDefault("itemClass", "")).
+                            compareTo((String) o2.getOrDefault("itemClass", ""));
+                if (result == 0)
+                    result = ((String) o1.getOrDefault("name", "")).compareTo((String) o2.getOrDefault("name", ""));
+                return result;
+            }
+        };
+
+        Collections.sort(tableList, byTypeClassAndName);
+        return tableList;
     }
 }

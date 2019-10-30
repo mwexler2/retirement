@@ -30,7 +30,7 @@ public class AccountTest {
         List<String> payors = new ArrayList<>();
         new Monthly(context, "a1", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource a1Source = new AccountSource(context, "a1", "a1", payees, payors);
+        CashFlowSource a1Source = new AccountSource(context, "a1", "a1", payees, payors, "other");
         String[] cashFlowSources = new String[0];
         String[] assets = new String[0];
         String[] liabilities = new String[0];

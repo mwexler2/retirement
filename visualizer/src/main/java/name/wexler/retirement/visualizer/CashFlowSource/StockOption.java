@@ -28,34 +28,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
-import name.wexler.retirement.visualizer.Context;
-import name.wexler.retirement.visualizer.Job;
-import name.wexler.retirement.visualizer.Security;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.Context;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RSU extends EquityCompensation {
+public class StockOption extends EquityCompensation {
+    BigDecimal strikePrice;
 
-    public RSU(@JacksonInject("context") Context context,
-               @JsonProperty(value = "id", required = true) String id,
-               @JsonProperty(value = "job", required = true) String jobId,
-               @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
-               @JsonProperty(value = "security", required = true) String securityId,
-               @JsonProperty(value = "totalShares", required = true) int totalShares) throws DuplicateEntityException {
+    public StockOption(@JacksonInject("context") Context context,
+                       @JsonProperty(value = "id", required = true) String id,
+                       @JsonProperty(value = "job", required = true) String jobId,
+                       @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
+                       @JsonProperty(value = "security", required = true) String securityId,
+                       @JsonProperty(value = "totalShares", required = true) int totalShares,
+                       @JsonProperty(value = "strikePrice", required = true) BigDecimal strikePrice) throws DuplicateEntityException {
         super(context, id, jobId, cashFlowId, securityId, totalShares);
+        this.strikePrice = strikePrice;
     }
 
 
     @JsonIgnore
     public String getName() {
-        return getJob().getName() + " RSU";
+        return getJob().getName() + " Stock Option";
     }
 
     @JsonIgnore
@@ -65,7 +65,7 @@ public class RSU extends EquityCompensation {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
             BigDecimal sharePrice = getSecurity().getSharePriceAtDate(accrualEnd, calendar.getAssumptions());
             BigDecimal shares = BigDecimal.valueOf(getTotalShares()).multiply(percent);
-            BigDecimal amount = sharePrice.multiply(shares);
+            BigDecimal amount = sharePrice.subtract(strikePrice).multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
         });

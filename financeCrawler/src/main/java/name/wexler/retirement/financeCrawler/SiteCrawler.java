@@ -1,11 +1,9 @@
 package name.wexler.retirement.financeCrawler;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -30,21 +28,46 @@ abstract public class SiteCrawler {
     abstract public void processResponse(URL url, String contents, Map<String, List<String>> headers);
 
     public void crawlURL(URL url) {
+        invokeURL(url, "GET", "");
+    }
+
+    public void postURL(URL url, String content) {
+        invokeURL(url, "POST", content);
+    }
+
+    private void invokeURL(URL url, String method, String content) {
         Callable<String> callableTask = () -> {
-            URLConnection connection = url.openConnection();
+            System.out.println("Sending request to " + url);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
 
-            connection.setRequestProperty("Cookie",
+            conn.setRequestProperty("Cookie",
                     StringUtils.join(cookieManager.getCookieStore().getCookies(), ';'));
+            conn.setRequestProperty("Content-Type", "application/json");
 
-            InputStream is = connection.getInputStream();
-            BufferedInputStream reader = new BufferedInputStream(is);
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
-            String contents = buffer.lines().collect(Collectors.joining("\n"));
-            processResponse(url, contents, connection.getHeaderFields());
-            Map<String, List<String>> headerFields = connection.getHeaderFields();
+            if (content.length() > 0) {
+                conn.setDoOutput(true);
+                OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+                writer.write(content);
+                writer.flush();
+                writer.close();
+            }
 
-            cookieManager.put(url.toURI(), headerFields);
-            return "get" + url;
+            try {
+                InputStream is = conn.getInputStream();
+                BufferedInputStream reader = new BufferedInputStream(is);
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
+                String contents = buffer.lines().collect(Collectors.joining("\n"));
+                processResponse(url, contents, conn.getHeaderFields());
+                Map<String, List<String>> headerFields = conn.getHeaderFields();
+
+                cookieManager.put(url.toURI(), headerFields);
+                reader.close();
+            } catch (FileNotFoundException fnfe) {
+                System.out.println("Caught exception: " + fnfe);
+            }
+
+            return method + url;
         };
         executorService.submit(callableTask);
     }
