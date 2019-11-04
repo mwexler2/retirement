@@ -2,7 +2,7 @@ package name.wexler.retirement.visualizer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
 import name.wexler.retirement.visualizer.CashFlowSource.*;
@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,7 +64,8 @@ public class ScenarioTest {
         List<String> ownerIds = Collections.singletonList(mike.getId());
         RealProperty mainStreet = new RealProperty(context, "main", ownerIds, initialBalance, address,
                 "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
-        String[] borrowers = {mike.getId()};
+        List<String> borrowers = new ArrayList<>();
+        borrowers.add(mike.getId());
 
         Liability liability1 = new SecuredLoan(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20),
@@ -87,11 +87,11 @@ public class ScenarioTest {
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
         CashFlowSource a2Source = new AccountSource(context, "account2", "account2", account1Owners, payors, "not misc");
 
-        Account account1 = new Account(context, "account1", account1Owners,
+        AssetAccount account1 = new AssetAccount(context, "account1", account1Owners,
                 new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),
                 account1Cash,
                 "My 401(k)","Bank of Nowhere", null);
-        Account account2 = new Account(context, "account2", account2Owners,
+        AssetAccount account2 = new AssetAccount(context, "account2", account2Owners,
                 new CashBalance(LocalDate.of(2014, Month.MARCH, 1), BigDecimal.ZERO),
                 account2Cash,"My Checking","Bank of Somewhere", null);
         String[] is = {"salary1", "liability1"};

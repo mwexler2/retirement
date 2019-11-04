@@ -46,7 +46,7 @@ import name.wexler.retirement.visualizer.Entity.Entity;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RealProperty.class, name = "real-property"),
-        @JsonSubTypes.Type(value = Account.class, name = "account")
+        @JsonSubTypes.Type(value = AssetAccount.class, name = "account")
 })
 public abstract class Asset extends Entity {
     private final CashBalance _initialBalance;

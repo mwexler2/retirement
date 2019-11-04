@@ -65,7 +65,7 @@ abstract public class Liability extends CashFlowSource {
     public Liability(@JacksonInject("context") Context context,
                 @JsonProperty(value = "id",              required = true) String id,
                 @JsonProperty("lender") String lenderId,
-                @JsonProperty("borrowers") String[] borrowersIds,
+                @JsonProperty("borrowers") List<String> borrowersIds,
                 @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
                 @JsonProperty("endDate") LocalDate endDate,
                 @JsonProperty(value = "interestRate",    required = true) BigDecimal interestRate,
@@ -74,7 +74,7 @@ abstract public class Liability extends CashFlowSource {
     throws DuplicateEntityException {
         super(context, id, sourceId,
                 context.getListById(Entity.class, lenderId),
-                context.getByIds(Entity.class, Arrays.asList(borrowersIds)));
+                context.getByIds(Entity.class, borrowersIds));
         this._startingBalance = new CashBalance(startDate, startingBalance);
         this.startDate = startDate;
         this.endDate = endDate;

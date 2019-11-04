@@ -2,7 +2,7 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Context;
@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 
 public class SecurityTransaction extends AssetTransaction {
     private final ShareBalance change;
-    private final Account account;
+    private final AssetAccount account;
 
     public SecurityTransaction(
             Context context,
-            Account account,
+            AssetAccount account,
             BigDecimal amount,
             ShareBalance shareChange) {
         super(
@@ -34,7 +34,7 @@ public class SecurityTransaction extends AssetTransaction {
             @JsonProperty(value = "cashAmount", required=true) BigDecimal amount,
             @JsonProperty(value = "shareChange", required=true) ShareBalance shareChange) {
         this(context,
-                (Account) context.getById(Asset.class, accountId),
+                (AssetAccount) context.getById(Asset.class, accountId),
                 amount,
                 shareChange);
     }

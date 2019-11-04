@@ -1,6 +1,6 @@
 package name.wexler.retirement.visualizer;
 
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
 import name.wexler.retirement.visualizer.CashFlowSource.AccountSource;
 import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class AccountTest {
-    private Account a1;
+    private AssetAccount a1;
     private Scenario scenario;
 
     @Before
@@ -41,7 +41,7 @@ public class AccountTest {
         List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2010, 12, 31), BigDecimal.valueOf(5.45)));
         List<ShareBalance> securities = Collections.singletonList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
-        a1 = new Account(context, "a1", owners, initialBalance,  interimBalances, "Test Account",
+        a1 = new AssetAccount(context, "a1", owners, initialBalance,  interimBalances, "Test AssetAccount",
                 "Bank of Banking", null);
     }
 
@@ -51,11 +51,11 @@ public class AccountTest {
     }
 
     public void getName() {
-        assertEquals("Test Account", a1.getName());
+        assertEquals("Test AssetAccount", a1.getName());
     }
 
     public void getAccountName() {
-        assertEquals("Test Account", a1.getAccountName());
+        assertEquals("Test AssetAccount", a1.getAccountName());
     }
 
     public void getInstitutionName() {

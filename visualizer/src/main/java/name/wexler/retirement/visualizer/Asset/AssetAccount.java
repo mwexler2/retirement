@@ -27,15 +27,14 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Scenario;
 import name.wexler.retirement.visualizer.MintAccountReader;
 import name.wexler.retirement.visualizer.Security;
 import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.visualizer.CashFlowSource.AccountSource;
@@ -54,8 +53,8 @@ import java.util.stream.Collectors;
 /**
  * Created by mwexler on 7/9/16.
  */
-public class Account extends Asset {
-    private static final List<Account> accounts = new ArrayList<>();
+public class AssetAccount extends Asset implements Account {
+    private static final List<AssetAccount> accounts = new ArrayList<>();
 
     private final AccountSource cashFlowSource;
     private final String accountName;
@@ -70,7 +69,7 @@ public class Account extends Asset {
 
     static public void readAccounts(Context context) {
         Set<String> companyIds = new HashSet<>();
-        for (Account account: accounts) {
+        for (AssetAccount account: accounts) {
             companyIds.add(account.getCompany().getId());
         }
         companyIds.add(MintAccountReader.mintPseudoCompany);
@@ -84,14 +83,14 @@ public class Account extends Asset {
     }
 
     @JsonCreator
-    public Account(@JacksonInject("context") Context context,
-                      @JsonProperty(value = "id", required = true) String id,
-                      @JsonProperty(value = "owners", required = true) List<String> ownerIds,
-                      @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
-                      @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
-                      @JsonProperty(value = "accountName", required = true) String accountName,
-                      @JsonProperty(value = "company", required = true) String companyId,
-                      @JsonProperty(value = "indicator") String indicator)
+    public AssetAccount(@JacksonInject("context") Context context,
+                        @JsonProperty(value = "id", required = true) String id,
+                        @JsonProperty(value = "owners", required = true) List<String> ownerIds,
+                        @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
+                        @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
+                        @JsonProperty(value = "accountName", required = true) String accountName,
+                        @JsonProperty(value = "company", required = true) String companyId,
+                        @JsonProperty(value = "indicator") String indicator)
             throws CashFlowSourceNotFoundException, DuplicateEntityException {
         super(context, id, ownerIds, initialBalance, interimBalances);
         this.accountName = accountName;
@@ -100,7 +99,7 @@ public class Account extends Asset {
         if (cashFlowSource == null) {
             throw new CashFlowSourceNotFoundException(id);
         }
-        context.put(Account.class, indicator, this);
+        context.put(AssetAccount.class, indicator, this);
         accounts.add(this);
     }
 

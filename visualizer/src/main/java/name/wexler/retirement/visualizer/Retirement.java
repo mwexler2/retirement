@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.core.JsonGenerationException;
 
 import name.wexler.retirement.datastore.DataStore;
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
@@ -73,7 +73,7 @@ public class Retirement {
             Security.readSecurities(context, ds);
             CashFlowSource.readCashFlowSources(context);
             Asset.readAssets(context);
-            Account.readAccounts(context);
+            AssetAccount.readAccounts(context);
 
 
 

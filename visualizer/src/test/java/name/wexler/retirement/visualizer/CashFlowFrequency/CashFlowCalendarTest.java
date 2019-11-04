@@ -84,7 +84,8 @@ public class CashFlowCalendarTest {
         Asset asset = new RealProperty(context, "real-property1", borrowerIds, initialBalance,
                 streetAddress,
                 "Anytown", "Count County", "AS", "01234", "US", interimBalances);
-        String[] borrowers = { borrower.getId() };
+        List<String> borrowers = new ArrayList<>();
+        borrowers.add(borrower.getId());
         LocalDate accrueStart = LocalDate.of(2011, Month.MAY, 1);
         LocalDate accrueEnd = LocalDate.of(2031, Month.APRIL, 1);
         LocalDate firstPaymentDate = LocalDate.of(accrueStart.getYear(), accrueStart.getMonth(), 14);

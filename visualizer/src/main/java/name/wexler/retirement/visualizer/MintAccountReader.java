@@ -1,12 +1,9 @@
 package name.wexler.retirement.visualizer;
 
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.PaycheckInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.PaymentInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.ReimbursementInstance;
-import name.wexler.retirement.visualizer.Entity.Company;
+import name.wexler.retirement.visualizer.CashFlowInstance.*;
+import name.wexler.retirement.visualizer.CashFlowSource.CreditCardAccount;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.BufferedReader;
@@ -23,7 +20,7 @@ public class MintAccountReader extends AccountReader {
     public static final String mintPseudoCompany = "mint";
 
     @Override
-    protected Account determineAccountFromFirstLine(Context context, BufferedReader br) {
+    protected AssetAccount determineAccountFromFirstLine(Context context, BufferedReader br) {
         return null;
     }
 
@@ -31,7 +28,7 @@ public class MintAccountReader extends AccountReader {
     @Override
     protected AccountAndCashFlowInstance getInstanceFromLine(
             Context context,
-            Account accountForStream,   // Not used as the account is specified in each transaction
+            AssetAccount accountForStream,   // Not used as the account is specified in each transaction
             Map<String, String> line) throws AccountNotFoundException {
         if (!line.containsKey("Date") || !line.containsKey("Amount"))
             return null;
@@ -45,6 +42,7 @@ public class MintAccountReader extends AccountReader {
         String category = line.get("Category");
         String notes = line.get("Notes");
         String labelsStr = line.get("Labels");
+
         Account account = getAccountFromLine(context, line, txnDate);
         List<String> labels = Arrays.asList(labelsStr.split(","));
         try {
@@ -90,16 +88,23 @@ public class MintAccountReader extends AccountReader {
     }
 
     private Account getAccountFromLine(Context context, Map<String, String> line, LocalDate txnDate) throws AccountNotFoundException {
+        Account account = null;
         String accountName = line.get("Account Name").trim();
-        Account account = context.getById(Account.class, accountName);
-        if (account == null) {
-            try {
-                account = new Account(context, accountName, new ArrayList<>(0), new CashBalance(txnDate, BigDecimal.ZERO), new ArrayList<>(0), accountName, accountName, accountName);
-            } catch (Entity.DuplicateEntityException dee) {
-                throw new RuntimeException(dee);
-            } catch (Account.CashFlowSourceNotFoundException cfsnfe) {
-                throw new RuntimeException(cfsnfe);
+        CreditCardAccount creditCardAccount = context.getById(CreditCardAccount.class, accountName);
+        if (creditCardAccount != null) {
+            account = creditCardAccount;
+        } else {
+            AssetAccount assetAccount = context.getById(AssetAccount.class, accountName);
+            if (assetAccount == null) {
+                try {
+                    assetAccount = new AssetAccount(context, accountName, new ArrayList<>(0), new CashBalance(txnDate, BigDecimal.ZERO), new ArrayList<>(0), accountName, accountName, accountName);
+                } catch (Entity.DuplicateEntityException dee) {
+                    throw new RuntimeException(dee);
+                } catch (AssetAccount.CashFlowSourceNotFoundException cfsnfe) {
+                    throw new RuntimeException(cfsnfe);
+                }
             }
+            account = assetAccount;
         }
         return account;
     }

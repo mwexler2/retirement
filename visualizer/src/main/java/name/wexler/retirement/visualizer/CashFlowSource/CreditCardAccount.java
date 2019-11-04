@@ -31,8 +31,11 @@ import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
+import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
@@ -47,10 +50,9 @@ import java.util.stream.Collectors;
 /**
  * Created by mwexler on 7/9/16.
  */
-public class CreditCardAccount extends Asset {
+public class CreditCardAccount extends Liability implements Account {
     private static final List<CreditCardAccount> accounts = new ArrayList<>();
 
-    private final AccountSource cashFlowSource;
     private final String accountName;
     private final Company company;
 
@@ -79,30 +81,22 @@ public class CreditCardAccount extends Asset {
     @JsonCreator
     public CreditCardAccount(@JacksonInject("context") Context context,
                              @JsonProperty(value = "id", required = true) String id,
-                             @JsonProperty(value = "owners", required = true) List<String> ownerIds,
-                             @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
-                             @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
+                             @JsonProperty("borrowers") List<String> borrowersIds,
+                             @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
+                             @JsonProperty("endDate") LocalDate endDate,
+                             @JsonProperty(value = "interestRate",    required = true) BigDecimal interestRate,
                              @JsonProperty(value = "accountName", required = true) String accountName,
                              @JsonProperty(value = "company", required = true) String companyId,
-                             @JsonProperty(value = "indicator") String indicator)
-            throws CashFlowSourceNotFoundException, DuplicateEntityException {
-        super(context, id, ownerIds, initialBalance, interimBalances);
+                             @JsonProperty(value = "indicator") String indicator,
+                             @JsonProperty(value = "source",          required = true) String sourceId)
+            throws DuplicateEntityException {
+        super(context, id, companyId, borrowersIds, startDate, endDate, interestRate, BigDecimal.ZERO, sourceId);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
-        this.cashFlowSource = context.getById(CashFlowSource.class, id);
-        if (cashFlowSource == null) {
-            throw new CashFlowSourceNotFoundException(id);
-        }
         context.put(CreditCardAccount.class, indicator, this);
         accounts.add(this);
     }
 
-    public void addCashFlowInstances(List<CashFlowInstance> instances) {
-        cashFlowInstances.addAll(instances);
-        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
-        computeBalances(this.cashFlowInstances);
-        cashFlowSource.setCashFlowInstances(this.cashFlowInstances);
-    }
 
     public String getId() {
         return super.getId();
@@ -120,69 +114,10 @@ public class CreditCardAccount extends Asset {
         return company.getCompanyName();
     }
 
-    public AccountSource getCashFlowSource() {
-        return cashFlowSource;
-    }
-
     public Company getCompany() {
         return company;
     }
 
-    @Override @JsonIgnore
-    public List<Balance> getBalances(Scenario scenario) {
-        List<Balance> balances = new ArrayList<>(this.accountValueByDate.values());
-        balances.sort(Comparator.comparing(Balance::getBalanceDate));
-        return balances;
-    }
-
-    // Return the total value of securities and cash at each point during the year where it cash or share quantity
-    // changed.
-    @Override
-    @JsonIgnore
-    public List<Balance> getBalances(Scenario scenario, int year) {
-        List<Balance> balances =
-                accountValueByDate.keySet()
-                        .stream()
-                        .filter(date -> year == date.getYear())
-                        .sorted()
-                        .map(date -> accountValueByDate.get(date))
-                        .collect(Collectors.toList());
-
-        return balances;
-    }
-
-    private void processSecurityTransaction(SecurityTransaction txn,
-                                            Map<String, ShareBalance> shareBalancesBySymbol) {
-        ShareBalance change = txn.getChange();
-        Security security = change.getSecurity();
-        String symbol = security.getId();
-
-        // Update running share balance for this symbol, creating an entry if it doesn't already exist.
-        if (!shareBalancesBySymbol.containsKey(symbol)) {
-            shareBalancesBySymbol.put(symbol,
-                    new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security));
-        }
-
-
-        // Store the share balance by date and symbol
-        if (!shareBalancesByDateAndSymbol.containsKey(txn.getCashFlowDate())) {
-            shareBalancesByDateAndSymbol.put(txn.getCashFlowDate(),
-                    new HashMap<>());
-        }
-        Map<String, ShareBalance> shareBalancesAtTxnDate = shareBalancesByDateAndSymbol.get(txn.getCashFlowDate());
-        ShareBalance oldBalance = shareBalancesAtTxnDate.get(symbol);
-        if (oldBalance == null) {
-            oldBalance = new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security);
-        }
-        if (!change.getShares().equals(BigDecimal.ZERO)) {
-            ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
-            ShareBalance newShareBalance = oldShareBalance.applyChange(change);
-            shareBalancesBySymbol.put(symbol, newShareBalance);
-
-            ShareBalance newBalance = oldBalance.applyChange(change);
-            shareBalancesAtTxnDate.put(symbol, newShareBalance);
-        }
-    }
 
     private BigDecimal calculateTotalValue(Map<String, ShareBalance> shareBalancesBySymbol,
                                            CashBalance cashBalance) {
@@ -201,18 +136,13 @@ public class CreditCardAccount extends Asset {
 
     private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
         // Running Balances for Cash and Securities
-        CashBalance cashBalance = new CashBalance(getInitialBalance().getBalanceDate(), getInitialBalanceAmount());
-        Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
+        CashBalance cashBalance = new CashBalance(getStartingBalance().getBalanceDate(), getStartingBalance().getValue());
 
         cashFlowInstances.stream().
                 forEach(instance -> {
                     cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
-                    if (instance instanceof SecurityTransaction) {
-                        processSecurityTransaction((SecurityTransaction) instance, shareBalancesBySymbol);
-
-                    }
                     instance.setCashBalance(cashBalance.getValue());
-                    BigDecimal totalValue = calculateTotalValue(shareBalancesBySymbol, cashBalance);
+                    BigDecimal totalValue = cashBalance.getValue();
                     instance.setAssetBalance(totalValue);
                     accountValueByDate.put(instance.getCashFlowDate(),
                             new CashBalance(instance.getCashFlowDate(), totalValue));
@@ -240,4 +170,30 @@ public class CreditCardAccount extends Asset {
    public String toString() {
         return this.accountName + " (" + this.company.getCompanyName() + ")";
    }
+
+   public BigDecimal getPaymentAmount() {
+        return BigDecimal.ZERO;
+    }
+
+    public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance) {
+        BigDecimal interest = prevBalance.getValue().multiply(getPeriodicInterestRate()).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal principal = getPaymentAmount().subtract(interest);
+        return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+        return cashFlowInstances;
+    }
+
+    public void addCashFlowInstances(List<CashFlowInstance> instances) {
+        cashFlowInstances.addAll(instances);
+        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
+        computeBalances(this.cashFlowInstances);
+    }
+
+    public CashFlowSource getCashFlowSource() {
+        return this;
+    }
 }

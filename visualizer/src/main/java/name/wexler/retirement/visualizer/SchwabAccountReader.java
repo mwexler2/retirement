@@ -1,6 +1,6 @@
 package name.wexler.retirement.visualizer;
 
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
@@ -18,13 +18,13 @@ public class SchwabAccountReader extends AccountReader {
     private static final String usTreasuryPrefix = "US TREASURY";
 
     @Override
-    protected Account determineAccountFromFirstLine(Context context, BufferedReader br) {
+    protected AssetAccount determineAccountFromFirstLine(Context context, BufferedReader br) {
         try {
             String firstLine = br.readLine();
             String firstLineWithoutPrefix = firstLine.replace("\"Transactions  for account ", "");
             String[] parts = firstLineWithoutPrefix.split(" as of ");
             String accountIndicator = parts[0];
-            return context.getById(Account.class, accountIndicator);
+            return context.getById(AssetAccount.class, accountIndicator);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -33,7 +33,7 @@ public class SchwabAccountReader extends AccountReader {
 
     @Override
     protected AccountAndCashFlowInstance getInstanceFromLine(Context context,
-                                                   Account account,
+                                                   AssetAccount account,
                                                    Map<String, String> line) {
         if (!line.containsKey("Date") || !line.containsKey("Price"))
             return null;

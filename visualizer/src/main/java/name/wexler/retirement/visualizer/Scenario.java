@@ -25,7 +25,7 @@ package name.wexler.retirement.visualizer;
 
 
 import com.fasterxml.jackson.annotation.*;
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
@@ -38,8 +38,6 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -105,7 +103,7 @@ public class Scenario extends Entity {
     @JsonProperty(value = "accounts")
     private void setAccountIds(@JacksonInject("context") Context context,
                                       @JsonProperty(value = "accounts", required = true) String[] accountIds) {
-        List<Account> accounts = new ArrayList<>(accountIds.length);
+        List<AssetAccount> accounts = new ArrayList<>(accountIds.length);
         for (String accountId : accountIds) {
             accounts.add(context.getById(Asset.class, accountId));
         }

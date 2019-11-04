@@ -1,9 +1,9 @@
 package name.wexler.retirement.visualizer;
 
 import com.opencsv.CSVReaderHeaderAware;
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public abstract class AccountReader {
         private final String accountName;
 
         public AccountNotFoundException(String accountName) {
-            super("Account " + accountName + " not found");
+            super("AssetAccount " + accountName + " not found");
             this.accountName = accountName;
         }
     }
@@ -56,7 +56,7 @@ public abstract class AccountReader {
                 }
                 System.out.println("entry filename = " + filePath);
                 BufferedReader br = Files.newBufferedReader(filePath, Charset.defaultCharset());
-                Account accountForStream = determineAccountFromFirstLine(context, br);
+                AssetAccount accountForStream = determineAccountFromFirstLine(context, br);
                 Map<Account, List<CashFlowInstance>> cashFlowInstancesByAccount =
                         readCashFlowInstancesFromStream(context, accountForStream, br);
                 cashFlowInstancesByAccount.forEach((account, instances) -> account.addCashFlowInstances(instances));
@@ -68,7 +68,7 @@ public abstract class AccountReader {
 
     private Map<Account, List<CashFlowInstance>> readCashFlowInstancesFromStream(
             Context context,
-            Account accountForStream,
+            AssetAccount accountForStream,
             BufferedReader br)
             throws IOException, AccountNotFoundException {
         Map<Account, List<CashFlowInstance>> cashFlowInstancesByAccount = new HashMap<>();
@@ -91,10 +91,10 @@ public abstract class AccountReader {
     }
 
 
-    protected abstract Account determineAccountFromFirstLine(Context context, BufferedReader br);
+    protected abstract AssetAccount determineAccountFromFirstLine(Context context, BufferedReader br);
 
     protected abstract AccountAndCashFlowInstance getInstanceFromLine(Context context,
-                                                            Account account,
+                                                            AssetAccount account,
                                                             Map<String, String> line)
             throws AccountNotFoundException;
 }

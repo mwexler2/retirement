@@ -1,6 +1,6 @@
 package name.wexler.retirement.visualizer.CashFlowFrequency;
 
-import name.wexler.retirement.visualizer.Asset.Account;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowSource.Liability;
 import name.wexler.retirement.visualizer.Assumptions;
@@ -28,7 +28,7 @@ public class CashFlowCalendar {
     private final Map<String, CashFlowSource> _cashFlowSources;
     private final Map<String, Asset> _assets;
     private final Map<String, Liability> _liabilities;
-    private final Map<String, Account> _accounts;
+    private final Map<String, AssetAccount> _accounts;
     private List<CashFlowInstance> cashFlowInstances = null;
     private Map<Integer, Map<String, BigDecimal>> cashFlowYears = null;
     private Map<Integer, Map<String, BigDecimal>> assetValueYears = null;
@@ -66,7 +66,7 @@ public class CashFlowCalendar {
         liabilities.forEach(item-> _liabilities.put(item.getId(), item));
     }
 
-    public void addAccounts(List<Account> accounts) {
+    public void addAccounts(List<AssetAccount> accounts) {
         accounts.forEach(account->_accounts.put(account.getId(), account));
     }
 

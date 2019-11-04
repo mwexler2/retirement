@@ -60,7 +60,7 @@ public class SecuredLoan extends Liability {
     public SecuredLoan(@JacksonInject("context") Context context,
                        @JsonProperty(value = "id",              required = true) String id,
                        @JsonProperty("lender") String lenderId,
-                       @JsonProperty("borrowers") String[] borrowersIds,
+                       @JsonProperty("borrowers") List<String> borrowersIds,
                        @JsonProperty("asset") Asset security,
                        @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
                        @JsonProperty("endDate") LocalDate endDate,
@@ -105,7 +105,6 @@ public class SecuredLoan extends Liability {
     @Override
     public String getName() {
         String result;
-        List<Balance> interimBalances = new ArrayList<>();
 
         if (security != null) {
             result = security.getName() + "(" + getLender().getName() + ")";
