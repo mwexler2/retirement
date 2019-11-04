@@ -6,6 +6,7 @@ public class ColumnDefinition {
     private String href;
     private String paramProperty;
     private String decorator;
+    private String paramName;
     private boolean total;
 
     public ColumnDefinition(Builder builder)
@@ -16,6 +17,7 @@ public class ColumnDefinition {
         this.paramProperty = builder.paramProperty;
         this.decorator = builder.decorator;
         this.total = builder.total;
+        this.paramName = builder.paramName;
     }
 
     // Static class Builder
@@ -27,6 +29,7 @@ public class ColumnDefinition {
         private String href;
         private String paramProperty;
         private String decorator;
+        private String paramName;
         private boolean total;
 
         public static Builder newInstance()
@@ -40,6 +43,11 @@ public class ColumnDefinition {
         public Builder setName(String name)
         {
             this.name = name;
+            return this;
+        }
+
+        public Builder setParamName(String paramName) {
+            this.paramName = paramName;
             return this;
         }
 

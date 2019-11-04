@@ -66,7 +66,7 @@
 
 
     <c:set var="assetsAndLiabilities" scope="page" value="${scenario.assetsAndLiabilities}"></c:set>
-    <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.BigDecimalTotalTableDecorator"
+    <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.MultilevelBigDecimalLinkTableDecorator"
         sort="external">
         <display:caption>Assets & Liabilities</display:caption>
         <display:column property="itemType" group="1" />
@@ -79,112 +79,18 @@
 
     </display:table>
 
-    <table border="1">
-        <caption>Assets and Liabilities</caption>
-        <tr>
-            <th>&nbsp;</th>
-    <c:forEach var="year" items="${scenario.years}">
-        <th>${year}</th>
-    </c:forEach>
-        </tr>
-        <tr>
-        <th>Assets</th>
-            <td colspan="${scenario.numYears}">&nbsp;</td>
-        </tr>
-        <c:forEach var="assetId" items="${scenario.assetIds}">
-            <tr>
-                <th><a href="scenario/${scenario.getId()}/asset/${assetId}">
-                        ${scenario.getAssetName(assetId)}
-                </a></th>
-                <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">
-                        <a href="scenario/${scenario.getId()}/asset/${assetId}/year/${year}">
-                          <fmt:formatNumber value="${scenario.getAssetValue(assetId, year)}" type="currency" />
-                        </a>
-                    </td>
-                </c:forEach>
-            </tr>
+    <c:set var="cashFlows" scope="page" value="${scenario.cashFlows}"></c:set>
+    <display:table uid="cashFlow" name="${cashFlows}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.MultilevelBigDecimalLinkTableDecorator"
+                   sort="external">
+        <display:caption>Income and Expenses --- displaytag</display:caption>
+        <display:column property="itemType" group="1" />
+        <display:column property="itemClass" group="2" />
+        <c:forEach var="col" items="${cashFlows.getColumnDefinitions()}">
+            <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
+                            property="${col.property}" decorator="${col.decorator}" style="text-align: right"
+                            total="${col.total}" />
         </c:forEach>
-            <tr>
-                <th>Total Assets</th>
-                <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">
-                        <fmt:formatNumber value="${scenario.getAssetValue(year)}" type="currency" />
-                    </td>
-                </c:forEach>
-            </tr>
-        <tr>
-            <th>Liabilities</th>
-            <td colspan="${scenario.numYears}">&nbsp;</td>
-        </tr>
-        <c:forEach var="liabilityId" items="${scenario.liabilityIds}">
-            <tr>
-                <th><a href="scenario/${scenario.getId()}/liability/${liabilityId}">
-                        ${scenario.getLiabilityName(liabilityId)}
-                </a></th>
-                <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">
-                        <fmt:formatNumber value="${scenario.getLiabilityAmount(liabilityId, year)}" type="currency" />
-                    </td>
-                </c:forEach>
-            </tr>
-        </c:forEach>
-        <tr>
-            <th>Total Liabilities</th>
-            <c:forEach var="year" items="${scenario.years}">
-                <td align="right">
-                    <fmt:formatNumber value="${scenario.getLiabilityAmount(year)}" type="currency" />
-                </td>
-            </c:forEach>
-        </tr>
-        <tr>
-            <th>Net Worth</th>
-            <c:forEach var="year" items="${scenario.years}">
-                <td align="right">
-                    <fmt:formatNumber value="${scenario.getNetWorth(year)}" type="currency" />
-                </td>
-            </c:forEach>
-        </tr>
-    </table>
 
-    <table border="1">
-        <caption>Income & Expenses</caption>
-        <tr>
-            <th>&nbsp;</th>
-            <c:forEach var="year" items="${scenario.years}">
-                <th>${year}</th>
-            </c:forEach>
-        </tr>
-        <tr>
-            <th>Income</th>
-            <td colspan="${scenario.numYears}">&nbsp;</td>
-        </tr>
-        <c:forEach var="cashFlowSourceId" items="${scenario.cashFlowSourceIds}">
-            <tr>
-                <th>
-                    <a href="${scenario.getCashFlowSourceURL(cashFlowSourceId)}">
-                        ${scenario.getCashFlowSourceName(cashFlowSourceId)}
-                    </a>
-                </th>
-                <c:forEach var="year" items="${scenario.years}">
-                    <td align="right">
-                        <a href="${scenario.getCashFlowSourceURL(cashFlowSourceId, year)}">
-                            <fmt:formatNumber value="${scenario.getAnnualIncome(cashFlowSourceId, year)}" type="currency" />
-                        </a>
-                    </td>
-                </c:forEach>
-            </tr>
-        </c:forEach>
-        <tr>
-            <th>Total Cash Flow</th>
-            <c:forEach var="year" items="${scenario.years}">
-                <td align="right">
-                    <fmt:formatNumber value="${scenario.getAnnualIncome(year)}" type="currency" />
-                </td>
-            </c:forEach>
-        </tr>
-    </table>
-</c:forEach>
-
+    </display:table>
 </body>
 </html>

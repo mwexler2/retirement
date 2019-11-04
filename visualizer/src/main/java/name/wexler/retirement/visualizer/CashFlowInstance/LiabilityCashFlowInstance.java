@@ -33,4 +33,6 @@ public class LiabilityCashFlowInstance extends CashFlowInstance {
         return impounds;
     }
 
+    public BigDecimal getBalance() { return getCashBalance(); }
+
 }

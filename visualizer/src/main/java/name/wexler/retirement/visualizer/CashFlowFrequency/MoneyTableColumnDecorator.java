@@ -25,8 +25,15 @@ public class MoneyTableColumnDecorator implements DisplaytagColumnDecorator {
         if (columnValue == null) {
             return "";
         }
-        BigDecimal money = (BigDecimal) columnValue;
-        return this.moneyFormat.format(money);
+        if (columnValue instanceof BigDecimal) {
+            BigDecimal money = (BigDecimal) columnValue;
+            return this.moneyFormat.format(money);
+        } else if (columnValue instanceof CashFlowCalendar.AmountAndLink) {
+            CashFlowCalendar.AmountAndLink amountAndLink = (CashFlowCalendar.AmountAndLink) columnValue;
+            return "<a href='" + amountAndLink.getLink() + "'>" +
+                    this.moneyFormat.format(amountAndLink.getAmount()) + "</a>";
+        }
+        return "";
     }
 }
 

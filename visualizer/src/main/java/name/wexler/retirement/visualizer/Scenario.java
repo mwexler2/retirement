@@ -260,7 +260,9 @@ public class Scenario extends Entity {
         return "/scenario/" + getId() + "/cashflow/" + cashFlowSourceId + "/year/" + year;
     }
 
-    public List<Map<String, Object>> getAssetsAndLiabilities() {
+    public CashFlowCalendar.TableList getAssetsAndLiabilities() {
         return calendar.getAssetsAndLiabilities();
     }
+
+    public CashFlowCalendar.TableList getCashFlows() { return calendar.getCashFlows(); }
 }

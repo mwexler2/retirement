@@ -87,7 +87,7 @@ public class RetirementController {
         return new ModelAndView("asset", model);
     }
 
-    @RequestMapping(value = "/visualzier/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
     public ModelAndView retirementAsset(@PathVariable String assetId, @PathVariable String scenarioId, ModelMap model) {
         Retirement retirement = new Retirement();
         model.put("assetId", assetId);
