@@ -54,13 +54,6 @@ public class AccountTest {
         assertEquals("Test AssetAccount", a1.getName());
     }
 
-    public void getAccountName() {
-        assertEquals("Test AssetAccount", a1.getAccountName());
-    }
-
-    public void getInstitutionName() {
-        assertEquals("Bank of Banking", a1.getInstitutionName());
-    }
 
     public void getAccountValue() {
         Balance accountBalance = a1.getBalanceAtDate(scenario, LocalDate.of(2015, 10, 1));

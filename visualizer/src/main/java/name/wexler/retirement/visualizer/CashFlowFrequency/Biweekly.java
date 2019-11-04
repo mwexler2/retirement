@@ -74,10 +74,6 @@ public class Biweekly extends CashFlowFrequency {
         return this.firstPeriodStart;
     }
 
-    @JsonIgnore
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
 
     @JsonIgnore
     @Override

@@ -58,6 +58,7 @@ public class Retirement {
     private List<SecurityTransaction> securityTxns;
     private String cashFlowId;
     private String scenarioId;
+    static private DataStore ds;
 
 
     Retirement() {
@@ -65,7 +66,6 @@ public class Retirement {
         Context context = new Context();
 
         try {
-            DataStore ds = new DataStore();
             this.people = Person.readPeople(context);
             Company.readCompanies(context);
             Job.readJobs(context);
@@ -96,6 +96,8 @@ public class Retirement {
         }
         return null;
     }
+
+    static public DataStore getDataStore() { return ds; }
 
     public Collection<Balance> getAssetValues(String scenarioId, String assetId) {
         Scenario scenario = getScenario(scenarioId);
@@ -145,13 +147,14 @@ public class Retirement {
         this.people = people;
     }
 
+
     static {
         try {
             DriverManager.registerDriver(new JDBC());
         } catch (SQLException var1) {
             var1.printStackTrace();
         }
-
+        ds = new DataStore();
     }
 }
 

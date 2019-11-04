@@ -63,15 +63,6 @@ public class CreditCardAccount extends Liability implements Account {
     @JsonIgnore
     private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
-    static public void readAccounts(Context context) {
-        Set<String> companyIds = new HashSet<>();
-        for (CreditCardAccount account: accounts) {
-            companyIds.add(account.getCompany().getId());
-        }
-        companyIds.add(MintAccountReader.mintPseudoCompany);
-        getAccountHistory(context, companyIds);
-    }
-
     public class CashFlowSourceNotFoundException extends Exception {
         public CashFlowSourceNotFoundException(String id) {
             super("CashFlowSource: " + id + " not found");
@@ -148,24 +139,6 @@ public class CreditCardAccount extends Liability implements Account {
                             new CashBalance(instance.getCashFlowDate(), totalValue));
                 });
     }
-
-   private static void readCashFlowInstances(Context context, String companyId) throws IOException, ClassNotFoundException {
-       AccountReader accountReader = AccountReader.factory(companyId);
-
-       accountReader.readCashFlowInstances(context, companyId);
-   }
-
-   private static void getAccountHistory(Context context, Collection<String> companyIds) {
-       for (String companyId: companyIds) {
-           try {
-               readCashFlowInstances(context, companyId);
-           } catch (ClassNotFoundException cnfe) {
-               System.out.println("No reader for " + companyId + " skipping.");
-           } catch (IOException ioe) {
-               ioe.printStackTrace();
-           }
-       }
-   }
 
    public String toString() {
         return this.accountName + " (" + this.company.getCompanyName() + ")";

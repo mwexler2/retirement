@@ -7,6 +7,7 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import org.apache.commons.collections.ListUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class AccountSource extends CashFlowSource {
                 context.getByIds(Entity.class, payees),
                 context.getByIds(Entity.class, payors));
         this.accountName = accountName;
+        this.cashFlowInstances = ListUtils.EMPTY_LIST;
     }
 
     @Override

@@ -92,4 +92,18 @@ public class TxnHistory {
         }
         return LocalDate.ofEpochDay(0);
     }
+
+    public ResultSet getTransactions() {
+        String sql =
+                "SELECT date, description, original_description, amount, txn_type, category, account_name, labels, notes \n" +
+                        "FROM txnHistory \n";
+        try {
+            Statement stmt = conn.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql);
+            return rs;
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
 }

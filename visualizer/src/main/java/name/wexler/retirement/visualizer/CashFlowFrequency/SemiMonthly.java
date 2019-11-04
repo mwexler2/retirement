@@ -88,12 +88,12 @@ public class SemiMonthly extends Monthly {
 
             LocalDate firstAccrueStart = thisAccrueStart;
             LocalDate firstAccrueEnd = thisAccrueEnd;
-            if (firstAccrueEnd.getDayOfMonth() > this.middleOfMonth)
-                firstAccrueEnd = firstAccrueEnd.withDayOfMonth(this.middleOfMonth);
+            if (firstAccrueEnd.getDayOfMonth() > middleOfMonth)
+                firstAccrueEnd = firstAccrueEnd.withDayOfMonth(middleOfMonth);
             if (firstCashFlowDate.isBefore(firstAccrueEnd))
                 firstCashFlowDate = firstCashFlowDate.plusMonths(1);
             if (!firstAccrueEnd.isBefore(this.getAccrueStart())) {
-                BigDecimal daysInPeriod = BigDecimal.valueOf(this.middleOfMonth);
+                BigDecimal daysInPeriod = BigDecimal.valueOf(middleOfMonth);
                 // Add 1 day to make it inclusive
                 BigDecimal accrualDays = BigDecimal.valueOf(firstAccrueStart.until(firstAccrueEnd.plusDays(1), DAYS));
                 BigDecimal portion = accrualDays.divide(daysInPeriod, 4, RoundingMode.HALF_UP);
@@ -101,13 +101,13 @@ public class SemiMonthly extends Monthly {
                 result.add(new CashFlowPeriod(firstAccrueStart, firstAccrueEnd, firstCashFlowDate, portion));
             }
 
-            LocalDate secondAccrueStart = thisAccrueStart.withDayOfMonth(this.middleOfMonth + 1);
+            LocalDate secondAccrueStart = thisAccrueStart.withDayOfMonth(middleOfMonth + 1);
             LocalDate secondAccrueEnd = thisAccrueEnd;
             LocalDate secondCashFlowDate = thisAccrueStart.withDayOfMonth(secondPaymentDayOfMonth);
             if (secondCashFlowDate.isBefore(secondAccrueEnd))
                 secondCashFlowDate = secondCashFlowDate.plusMonths(1);
             if (secondAccrueStart.isBefore(this.getAccrueEnd())) {
-                BigDecimal daysInPeriod = BigDecimal.valueOf(secondAccrueEnd.lengthOfMonth() - this.middleOfMonth);
+                BigDecimal daysInPeriod = BigDecimal.valueOf(secondAccrueEnd.lengthOfMonth() - middleOfMonth);
                 BigDecimal accrualDays = BigDecimal.valueOf(secondAccrueStart.until(secondAccrueEnd.plusDays(1), DAYS));
                 BigDecimal portion = accrualDays.divide(daysInPeriod, 4, RoundingMode.HALF_UP);
                 portion = portion.divide(BigDecimal.valueOf(periodsPerYear), 10, RoundingMode.HALF_UP);

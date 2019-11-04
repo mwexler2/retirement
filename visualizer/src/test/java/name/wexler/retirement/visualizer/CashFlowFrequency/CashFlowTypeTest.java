@@ -223,31 +223,6 @@ public class CashFlowTypeTest {
         assertEquals("quartly first payment date", LocalDate.of(1999, Month.MAY, 5), result);
     }
 
-    @Test
-    public void getMonthDay() {
-        MonthDay result = annual.getMonthDay();
-        MonthDay expectedResult = MonthDay.of(Month.MARCH, 15);
-        assertEquals(expectedResult, result);
-    }
-
-    @Test
-    public void getFirstYear() {
-        int result = annual.getFirstYear();
-        assertEquals(2015, result);
-    }
-
-    @Test
-    public void getLastYear() {
-
-        int result = annual.getLastYear();
-        assertEquals(2015, result);
-    }
-
-    @Test
-    public void getDayOfWeek() {
-        DayOfWeek result = biweekly.getDayOfWeek();
-        assertEquals(DayOfWeek.FRIDAY, result);
-    }
 
     @Test
     public void toJSON() throws Exception {

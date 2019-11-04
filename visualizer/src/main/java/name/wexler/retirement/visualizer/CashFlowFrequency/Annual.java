@@ -66,22 +66,6 @@ public class Annual extends CashFlowFrequency {
         return getAccrueStart().withDayOfYear(1);
     }
 
-
-    @JsonIgnore
-    public MonthDay getMonthDay() {
-        return monthDay;
-    }
-
-    @JsonIgnore
-    public int getFirstYear() {
-        return firstYear;
-    }
-
-    @JsonIgnore
-    public int getLastYear() {
-        return lastYear;
-    }
-
     @JsonIgnore
     @Override
     public List<CashFlowPeriod> getCashFlowPeriods() {

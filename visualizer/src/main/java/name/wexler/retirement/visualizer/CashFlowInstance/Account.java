@@ -6,9 +6,9 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import java.util.List;
 
 public interface Account {
-    public void addCashFlowInstances(List<CashFlowInstance> instances);
+    void addCashFlowInstances(List<CashFlowInstance> instances);
 
-    public Entity getCompany();
+    Entity getCompany();
 
-    public CashFlowSource getCashFlowSource();
+    CashFlowSource getCashFlowSource();
 }

@@ -30,7 +30,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Scenario;
-import name.wexler.retirement.visualizer.MintAccountReader;
 import name.wexler.retirement.visualizer.Security;
 import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
@@ -68,12 +67,12 @@ public class AssetAccount extends Asset implements Account {
     private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
     static public void readAccounts(Context context) {
-        Set<String> companyIds = new HashSet<>();
-        for (AssetAccount account: accounts) {
-            companyIds.add(account.getCompany().getId());
+        try {
+            AccountReader accountReader = new AccountReader();
+            accountReader.readCashFlowInstances(context);
+        } catch (IOException ioe) {
+            System.err.println(ioe);
         }
-        companyIds.add(MintAccountReader.mintPseudoCompany);
-        getAccountHistory(context, companyIds);
     }
 
     public class CashFlowSourceNotFoundException extends Exception {
@@ -116,14 +115,6 @@ public class AssetAccount extends Asset implements Account {
 
     public String getName() {
         return accountName;
-    }
-
-    public String getAccountName() {
-        return accountName;
-    }
-
-    public String getInstitutionName() {
-        return company.getCompanyName();
     }
 
     public AccountSource getCashFlowSource() {
@@ -225,23 +216,6 @@ public class AssetAccount extends Asset implements Account {
                 });
     }
 
-   private static void readCashFlowInstances(Context context, String companyId) throws IOException, ClassNotFoundException {
-       AccountReader accountReader = AccountReader.factory(companyId);
-
-       accountReader.readCashFlowInstances(context, companyId);
-   }
-
-   private static void getAccountHistory(Context context, Collection<String> companyIds) {
-       for (String companyId: companyIds) {
-           try {
-               readCashFlowInstances(context, companyId);
-           } catch (ClassNotFoundException cnfe) {
-               System.out.println("No reader for " + companyId + " skipping.");
-           } catch (IOException ioe) {
-               ioe.printStackTrace();
-           }
-       }
-   }
 
    public String toString() {
         return this.accountName + " (" + this.company.getCompanyName() + ")";

@@ -34,7 +34,7 @@ public class SecurityTransaction extends AssetTransaction {
             @JsonProperty(value = "cashAmount", required=true) BigDecimal amount,
             @JsonProperty(value = "shareChange", required=true) ShareBalance shareChange) {
         this(context,
-                (AssetAccount) context.getById(Asset.class, accountId),
+                context.getById(Asset.class, accountId),
                 amount,
                 shareChange);
     }
