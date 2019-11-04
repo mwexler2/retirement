@@ -91,7 +91,7 @@ public class CashFlowCalendarTest {
         CashFlowFrequency monthlyPayment =
                 new Monthly(context, "monthly-debt1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.WHOLE_TERM);
-        Liability debt = new Liability(context, "debt1", lender.getId(), borrowers, asset,
+        Liability debt = new SecuredLoan(context, "debt1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2020, Month.APRIL, 27),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),

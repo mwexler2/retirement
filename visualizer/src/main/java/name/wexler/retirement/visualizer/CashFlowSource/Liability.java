@@ -49,88 +49,50 @@ import java.util.List;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "security", "startDate", "endDate", "term", "interestRate", "startingBalance", "paymentAmount" })
-public class Liability extends CashFlowSource {
-    private final Asset security;
+@JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "startDate", "endDate", "interestRate", "startingBalance" })
+abstract public class Liability extends CashFlowSource {
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate startDate;
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private final LocalDate endDate;
-    private final int term;
     private final BigDecimal interestRate;
     private final BigDecimal periodicInterestRate;
     private final Balance _startingBalance;
-    private BigDecimal paymentAmount;
-    private final BigDecimal impoundAmount;
-
 
     @JsonCreator
     public Liability(@JacksonInject("context") Context context,
                 @JsonProperty(value = "id",              required = true) String id,
                 @JsonProperty("lender") String lenderId,
                 @JsonProperty("borrowers") String[] borrowersIds,
-                @JsonProperty("asset") Asset security,
                 @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
                 @JsonProperty("endDate") LocalDate endDate,
-                @JsonProperty(value = "term",            required=true) int term,
                 @JsonProperty(value = "interestRate",    required = true) BigDecimal interestRate,
                 @JsonProperty(value = "startingBalance", required = true) BigDecimal startingBalance,
-                @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
-                @JsonProperty(value = "impoundAmount",   required = true) BigDecimal impoundAmount,
                 @JsonProperty(value = "source",          required = true) String sourceId)
     throws DuplicateEntityException {
         super(context, id, sourceId,
                 context.getListById(Entity.class, lenderId),
                 context.getByIds(Entity.class, Arrays.asList(borrowersIds)));
         this._startingBalance = new CashBalance(startDate, startingBalance);
-        this.security = security;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.term = term;
         this.interestRate = interestRate;
         BigDecimal periodsPerYear = BigDecimal.valueOf(12);
         this.periodicInterestRate = interestRate.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
                 .divide(periodsPerYear, RoundingMode.HALF_UP)
                 .setScale(10, RoundingMode.HALF_UP);
-        this.paymentAmount = paymentAmount;
-        this.impoundAmount = impoundAmount;
         context.put(Liability.class, id, this);
     }
 
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
-                (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) ->
-        {
-            BigDecimal balance = _startingBalance.getValue();
-            if (prevCashFlowInstance != null)
-                 balance = prevCashFlowInstance.getCashBalance();
-            BigDecimal interest = balance.multiply(periodicInterestRate).setScale(2, RoundingMode.HALF_UP);
-            BigDecimal principal = paymentAmount.subtract(impoundAmount).subtract(interest).setScale(2, RoundingMode.HALF_UP);
-            if (principal.compareTo(balance) >= 1)
-                principal = balance;
-            balance = balance.subtract(principal);
-            return new LiabilityCashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate,
-                    principal, interest, impoundAmount, balance);
-        });
-    }
-
-    @JsonIgnore
-    @Override
     public String getName() {
         String result;
-        List<Balance> interimBalances = new ArrayList<>();
 
-        if (security != null) {
-            result = security.getName() + "(" + getLender().getName() + ")";
-        } else {
-            result = getLender().getName();
-        }
+        result = getLender().getName();
         return result;
     }
 
@@ -140,19 +102,13 @@ public class Liability extends CashFlowSource {
     }
 
 
-    @JsonProperty(value = "security")
-    public String getSecurityId() {
-        return this.security.getId();
-    }
-
-
     @JsonProperty(value = "lender")
     public String getLenderId() {
         return getLender().getId();
     }
 
 
-    private Entity getLender() {
+    public Entity getLender() {
         return getPayees().get(0);
     }
 
@@ -172,31 +128,17 @@ public class Liability extends CashFlowSource {
 
     public LocalDate getEndDate() { return endDate; }
 
-
-    public int getTerm() {
-        return term;
-    }
-
-
     public BigDecimal getInterestRate() {
         return interestRate;
     }
+
+    public BigDecimal getPeriodicInterestRate() { return periodicInterestRate; }
 
     @Override public Balance getStartingBalance() {
         return _startingBalance;
     }
 
-    public BigDecimal getPaymentAmount() {
-        return paymentAmount;
-    }
+    abstract public BigDecimal getPaymentAmount();
 
-    public void setPaymentAmount(BigDecimal paymentAmount) {
-        this.paymentAmount = paymentAmount;
-    }
-
-    public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance) {
-        BigDecimal interest = prevBalance.getValue().multiply(this.periodicInterestRate).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal principal = paymentAmount.subtract(interest).subtract(impoundAmount);
-        return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
-    }
+    abstract public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance);
 }

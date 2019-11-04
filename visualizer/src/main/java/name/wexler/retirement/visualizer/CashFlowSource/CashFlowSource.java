@@ -52,7 +52,7 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = BonusAnnualPct.class, name = "bonusAnnualPct"),
         @JsonSubTypes.Type(value = BonusPeriodicFixed.class, name = "bonusPeriodicFixed"),
         @JsonSubTypes.Type(value = Rent.class, name="rent"),
-        @JsonSubTypes.Type(value = Liability.class, name = "liability"),
+        @JsonSubTypes.Type(value = SecuredLoan.class, name = "securedLoan"),
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
         @JsonSubTypes.Type(value = StockOption.class, name="stockOption"),

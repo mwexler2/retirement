@@ -7,6 +7,7 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Monthly;
 import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.visualizer.CashFlowSource.Liability;
+import name.wexler.retirement.visualizer.CashFlowSource.SecuredLoan;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
 import org.junit.After;
@@ -49,7 +50,7 @@ public class LiabilityTest {
         CashFlowFrequency monthly =
                 new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        liability = new Liability(context, "liability1", lender.getId(), borrowers, asset,
+        liability = new SecuredLoan(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),

@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.visualizer.Asset.Account;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
-import name.wexler.retirement.visualizer.CashFlowSource.AccountSource;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.Liability;
-import name.wexler.retirement.visualizer.CashFlowSource.Salary;
+import name.wexler.retirement.visualizer.CashFlowSource.*;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Entity.Person;
@@ -70,7 +67,7 @@ public class ScenarioTest {
                 "anyTown", "AnyCount", "AS", "00000", "US", interimBalances);
         String[] borrowers = {mike.getId()};
 
-        Liability liability1 = new Liability(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
+        Liability liability1 = new SecuredLoan(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20),
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
                 BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId());
