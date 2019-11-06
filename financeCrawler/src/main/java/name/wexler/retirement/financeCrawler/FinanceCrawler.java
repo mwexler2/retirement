@@ -10,11 +10,10 @@ import name.wexler.retirement.datastore.TxnHistory;
  */
 public class FinanceCrawler
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) {
         DataStore ds = new DataStore();
 
-        if (true) {
+        if (false) {
             TickerHistory tickerHistory = ds.getTickerHistory();
             tickerHistory.getTickers().forEach((ticker, lastDate) -> {
                 System.out.println("Crawling " + ticker + " for post " + lastDate);
@@ -23,7 +22,7 @@ public class FinanceCrawler
             });
         }
         // CitibankCrawler citiCrawler = new CitibankCrawler()
-        if (false) {
+        if (true) {
             TxnHistory txnHistory = ds.getTxnHistory();
             MintCrawler mintCrawler = new MintCrawler(txnHistory, txnHistory.getLastDate());
             mintCrawler.crawl();

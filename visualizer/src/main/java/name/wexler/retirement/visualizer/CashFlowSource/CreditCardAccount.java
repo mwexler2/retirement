@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 /**
  * Created by mwexler on 7/9/16.
  */
-public class CreditCardAccount extends Liability implements Account {
+public class CreditCardAccount extends Liability {
     private static final List<CreditCardAccount> accounts = new ArrayList<>();
 
     private final String accountName;
@@ -58,10 +58,7 @@ public class CreditCardAccount extends Liability implements Account {
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
-    private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
 
-    @JsonIgnore
-    private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
     public class CashFlowSourceNotFoundException extends Exception {
         public CashFlowSourceNotFoundException(String id) {
@@ -73,13 +70,13 @@ public class CreditCardAccount extends Liability implements Account {
     public CreditCardAccount(@JacksonInject("context") Context context,
                              @JsonProperty(value = "id", required = true) String id,
                              @JsonProperty("borrowers") List<String> borrowersIds,
-                             @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
+                             @JsonProperty(value = "startDate", required = true) LocalDate startDate,
                              @JsonProperty("endDate") LocalDate endDate,
-                             @JsonProperty(value = "interestRate",    required = true) BigDecimal interestRate,
+                             @JsonProperty(value = "interestRate", required = true) BigDecimal interestRate,
                              @JsonProperty(value = "accountName", required = true) String accountName,
                              @JsonProperty(value = "company", required = true) String companyId,
                              @JsonProperty(value = "indicator") String indicator,
-                             @JsonProperty(value = "source",          required = true) String sourceId)
+                             @JsonProperty(value = "source", required = true) String sourceId)
             throws DuplicateEntityException {
         super(context, id, companyId, borrowersIds, startDate, endDate, interestRate, BigDecimal.ZERO, sourceId);
         this.accountName = accountName;
@@ -105,11 +102,6 @@ public class CreditCardAccount extends Liability implements Account {
         return company.getCompanyName();
     }
 
-    public Company getCompany() {
-        return company;
-    }
-
-
     private BigDecimal calculateTotalValue(Map<String, ShareBalance> shareBalancesBySymbol,
                                            CashBalance cashBalance) {
         // Calculate the total account value at the transaction date
@@ -125,26 +117,13 @@ public class CreditCardAccount extends Liability implements Account {
         return cashValue.add(shareValue).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
-        // Running Balances for Cash and Securities
-        CashBalance cashBalance = new CashBalance(getStartingBalance().getBalanceDate(), getStartingBalance().getValue());
 
-        cashFlowInstances.stream().
-                forEach(instance -> {
-                    cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
-                    instance.setCashBalance(cashBalance.getValue());
-                    BigDecimal totalValue = cashBalance.getValue();
-                    instance.setAssetBalance(totalValue);
-                    accountValueByDate.put(instance.getCashFlowDate(),
-                            new CashBalance(instance.getCashFlowDate(), totalValue));
-                });
+
+    public String toString() {
+        return this.accountName + " (" + this.company.getCompanyName() + ")";
     }
 
-   public String toString() {
-        return this.accountName + " (" + this.company.getCompanyName() + ")";
-   }
-
-   public BigDecimal getPaymentAmount() {
+    public BigDecimal getPaymentAmount() {
         return BigDecimal.ZERO;
     }
 
@@ -154,17 +133,7 @@ public class CreditCardAccount extends Liability implements Account {
         return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
     }
 
-    @JsonIgnore
-    @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return cashFlowInstances;
-    }
 
-    public void addCashFlowInstances(List<CashFlowInstance> instances) {
-        cashFlowInstances.addAll(instances);
-        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
-        computeBalances(this.cashFlowInstances);
-    }
 
     public CashFlowSource getCashFlowSource() {
         return this;

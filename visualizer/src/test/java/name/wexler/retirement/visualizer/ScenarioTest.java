@@ -9,6 +9,7 @@ import name.wexler.retirement.visualizer.CashFlowSource.*;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Entity.Person;
+import org.apache.commons.collections.ListUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,7 +72,7 @@ public class ScenarioTest {
         Liability liability1 = new SecuredLoan(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20),
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
-                BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId());
+                BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId(), Arrays.asList(""));
 
         List<CashBalance> account1Cash = new ArrayList<>();
         List<CashBalance> account2Cash = new ArrayList<>();

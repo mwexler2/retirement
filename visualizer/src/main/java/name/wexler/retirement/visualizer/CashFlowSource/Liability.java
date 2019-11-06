@@ -28,7 +28,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.Context;
+import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
@@ -41,25 +43,26 @@ import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInsta
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "startDate", "endDate", "interestRate", "startingBalance" })
-abstract public class Liability extends CashFlowSource {
+abstract public class Liability extends CashFlowSource implements Account {
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate startDate;
+    @JsonIgnore
+    private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private final LocalDate endDate;
     private final BigDecimal interestRate;
     private final BigDecimal periodicInterestRate;
     private final Balance _startingBalance;
+    private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
 
     @JsonCreator
     public Liability(@JacksonInject("context") Context context,
@@ -94,6 +97,11 @@ abstract public class Liability extends CashFlowSource {
 
         result = getLender().getName();
         return result;
+    }
+
+    @JsonIgnore
+    public Company getCompany() {
+        return (Company) getLender();
     }
 
     @JsonProperty(value = "source")
@@ -141,4 +149,36 @@ abstract public class Liability extends CashFlowSource {
     abstract public BigDecimal getPaymentAmount();
 
     abstract public Balance computeNewBalance(CashFlowInstance cashFlowInstance, Balance prevBalance);
+
+    private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
+        // Running Balances for Cash and Securities
+        CashBalance cashBalance = new CashBalance(getStartingBalance().getBalanceDate(), getStartingBalance().getValue());
+
+        cashFlowInstances.stream().
+                forEach(instance -> {
+                    cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
+                    instance.setCashBalance(cashBalance.getValue());
+                    BigDecimal totalValue = cashBalance.getValue();
+                    instance.setAssetBalance(totalValue);
+                    accountValueByDate.put(instance.getCashFlowDate(),
+                            new CashBalance(instance.getCashFlowDate(), totalValue));
+                });
+    }
+
+    public void addCashFlowInstances(List<CashFlowInstance> instances) {
+        cashFlowInstances.addAll(instances);
+        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
+        computeBalances(this.cashFlowInstances);
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+        return cashFlowInstances;
+    }
+
+    @JsonIgnore
+    public CashFlowSource getCashFlowSource() {
+        return this;
+    }
 }

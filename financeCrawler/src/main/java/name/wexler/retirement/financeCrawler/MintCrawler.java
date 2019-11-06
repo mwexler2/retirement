@@ -77,7 +77,7 @@ public class MintCrawler {
 
     public void crawl() {
         String line;
-        String cmd = "/usr/local/bin/mintapi --keyring --headless --t mike.wexler@gmail.com --extended-transactions";
+        String cmd = "/usr/local/bin/mintapi --keyring --headless --t mike.wexler@gmail.com --extended-transactions --include-investment";
         try {
             Process p = Runtime.getRuntime().exec(cmd);
             String result = null;

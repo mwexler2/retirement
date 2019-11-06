@@ -30,6 +30,7 @@ import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.Context;
@@ -69,7 +70,8 @@ public class SecuredLoan extends Liability {
                        @JsonProperty(value = "startingBalance", required = true) BigDecimal startingBalance,
                        @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
                        @JsonProperty(value = "impoundAmount",   required = true) BigDecimal impoundAmount,
-                       @JsonProperty(value = "source",          required = true) String sourceId)
+                       @JsonProperty(value = "source",          required = true) String sourceId,
+                       @JsonProperty(value = "indicators",      required = true) List<String> indicators)
     throws DuplicateEntityException {
         super(context, id, lenderId, borrowersIds, startDate, endDate, interestRate,
                 startingBalance, sourceId);
@@ -78,7 +80,9 @@ public class SecuredLoan extends Liability {
         BigDecimal periodsPerYear = BigDecimal.valueOf(12);
         this.paymentAmount = paymentAmount;
         this.impoundAmount = impoundAmount;
-        context.put(SecuredLoan.class, id, this);
+        for (String indicator : indicators) {
+            context.put(SecuredLoan.class, indicator, this);
+        }
     }
 
     @JsonIgnore

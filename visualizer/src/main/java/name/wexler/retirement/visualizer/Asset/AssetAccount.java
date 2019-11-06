@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.CashFlowInstance.Account;
+import name.wexler.retirement.visualizer.CashFlowSource.SecuredLoan;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Scenario;
 import name.wexler.retirement.visualizer.Security;
@@ -89,7 +90,7 @@ public class AssetAccount extends Asset implements Account {
                         @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
                         @JsonProperty(value = "accountName", required = true) String accountName,
                         @JsonProperty(value = "company", required = true) String companyId,
-                        @JsonProperty(value = "indicator") String indicator)
+                        @JsonProperty(value = "indicators", required = true) List<String> indicators)
             throws CashFlowSourceNotFoundException, DuplicateEntityException {
         super(context, id, ownerIds, initialBalance, interimBalances);
         this.accountName = accountName;
@@ -98,7 +99,9 @@ public class AssetAccount extends Asset implements Account {
         if (cashFlowSource == null) {
             throw new CashFlowSourceNotFoundException(id);
         }
-        context.put(AssetAccount.class, indicator, this);
+        for (String indicator : indicators) {
+            context.put(AssetAccount.class, indicator, this);
+        }
         accounts.add(this);
     }
 
