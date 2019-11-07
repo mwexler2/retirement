@@ -76,9 +76,9 @@ public class AssetAccount extends Asset implements Account {
         }
     }
 
-    public class CashFlowSourceNotFoundException extends Exception {
-        public CashFlowSourceNotFoundException(String id) {
-            super("CashFlowSource: " + id + " not found");
+    public class NotFoundException extends Exception {
+        public NotFoundException(Class c, String id) {
+            super(c.getSimpleName() + ": " + id + " not found");
         }
     }
 
@@ -91,13 +91,16 @@ public class AssetAccount extends Asset implements Account {
                         @JsonProperty(value = "accountName", required = true) String accountName,
                         @JsonProperty(value = "company", required = true) String companyId,
                         @JsonProperty(value = "indicators", required = true) List<String> indicators)
-            throws CashFlowSourceNotFoundException, DuplicateEntityException {
+            throws NotFoundException, DuplicateEntityException {
         super(context, id, ownerIds, initialBalance, interimBalances);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
+        if (this.company == null) {
+            throw new NotFoundException(Company.class, companyId);
+        }
         this.cashFlowSource = context.getById(CashFlowSource.class, id);
         if (cashFlowSource == null) {
-            throw new CashFlowSourceNotFoundException(id);
+            throw new NotFoundException(CashFlowSource.class, id);
         }
         for (String indicator : indicators) {
             context.put(AssetAccount.class, indicator, this);

@@ -116,21 +116,21 @@ public class AccountReader {
             Entity company = account.getCompany();
             if (action.equals("debit")) {
                 if (company == null) {
-                    System.err.println(new AccountNotFoundException(description));
+                    System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
                 instance = new PaymentInstance(account.getCashFlowSource(), accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company, category);
             } else if (action.equals("credit") && category.equals("Paycheck")) {
                 if (company == null) {
-                    System.err.println(new AccountNotFoundException(description));
+                    System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
                 instance = new PaycheckInstance(account.getCashFlowSource(), accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);
             } else if (action.equals("credit") && category.equals("Reimbursement")) {
                 if (company == null) {
-                    System.err.println(new AccountNotFoundException(description));
+                    System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
                 instance = new ReimbursementInstance(account.getCashFlowSource(), accrualEnd, accrualEnd, txnDate, txnAmount,
@@ -168,16 +168,8 @@ public class AccountReader {
         } else {
             AssetAccount assetAccount = context.getById(AssetAccount.class, accountName);
             if (assetAccount == null) {
-                try {
-                    assetAccount = new AssetAccount(context, accountName, new ArrayList<>(0), new CashBalance(txnDate, BigDecimal.ZERO), new ArrayList<>(0), accountName, accountName,
-                            Arrays.asList(accountName));
-                } catch (Entity.DuplicateEntityException dee) {
-                    System.err.println(accountName + ":" + dee);
-                    return null;
-                } catch (AssetAccount.CashFlowSourceNotFoundException cfsnfe) {
-                    System.err.println(accountName + ":" + cfsnfe);
-                    return null;
-                }
+                System.err.println("Asset Account: " + accountName + " not found.");
+                return null;
             }
             account = assetAccount;
         }

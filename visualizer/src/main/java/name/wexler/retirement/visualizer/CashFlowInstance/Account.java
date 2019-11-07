@@ -10,5 +10,7 @@ public interface Account {
 
     Entity getCompany();
 
+    String getName();
+
     CashFlowSource getCashFlowSource();
 }
