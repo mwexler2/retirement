@@ -20,8 +20,38 @@
             border: solid thin;
             border-collapse: collapse;
         }
+        tr.details {
+            visibility: collapse;
+        }
+        tr.subtotal-header {
+            visibility: collapse;
+        }
     </style>
+    <script type="application/javascript">
+        function displayDetails(event) {
+            children = document.getElementsByClassName(event.currentTarget.id);
+            for (let child of children) {
+                if (child.style.visibility == "visible")
+                    child.style.visibility = "collapse";
+                else
+                    child.style.visibility = "visible";
+            }
+        }
+        window.addEventListener("DOMContentLoaded", function() {
+            var subTotals = document.getElementsByClassName("subtotal");
+            for (let subTotal of subTotals) {
+                subTotal.onclick = displayDetails;
+            }
+        }, false);
+    </script>
 </head>
+<!--
+
+Then your normal row would look something like:
+
+<tr id='row1'><td> .... </td><td><a href="#" onClick="displayDetails('row1')">Details</a><
+-->
+
 <body>
 <h1>Retirement Calculator</h1>
 

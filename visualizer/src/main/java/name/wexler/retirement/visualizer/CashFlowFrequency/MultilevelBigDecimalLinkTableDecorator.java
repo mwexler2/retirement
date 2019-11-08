@@ -50,7 +50,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
     /**
      * Maps the groups to their current totals.
      */
-    private Map groupBigDecimalToGroupTotal = new HashMap();
+    private Map groupNumberToGroupTotal = new HashMap();
 
     /**
      * The deepest reset group. Resets on an outer group will force any deeper groups to reset as well.
@@ -125,7 +125,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             containsTotaledColumns = containsTotaledColumns || headerCell.isTotaled();
             if (headerCell.getGroup() > 0)
             {
-                groupBigDecimalToGroupTotal.put(new Integer(headerCell.getGroup()), new GroupTotals(headerCell
+                groupNumberToGroupTotal.put(new Integer(headerCell.getGroup()), new GroupTotals(headerCell
                     .getColumnNumber()));
                 if (headerCell.getGroup() > innermostGroup)
                 {
@@ -221,14 +221,21 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         if (containsTotaledColumns)
         {
             StringBuffer tr = new StringBuffer();
-            tr.append("<tr>");
-            GroupTotals groupTotals = (GroupTotals) groupBigDecimalToGroupTotal.get(new Integer(group));
+            tr.append("<tr class=\"").
+                    append(value).append(" ").
+                    append(getSubtotalHeaderClass()).
+                    append(" group-").append(group).
+                    append("\" >");
+            GroupTotals groupTotals = (GroupTotals) groupNumberToGroupTotal.get(new Integer(group));
             int myColumnNumber = groupTotals.columnNumber;
             for (int i = 0; i < myColumnNumber; i++)
             {
                 tr.append("<td></td>\n");
             }
-            tr.append("<td class=\"").append(getSubtotalHeaderClass()).append(" group-").append(group).append("\" >");
+            tr.append("<td class=\"").
+                    append(getSubtotalHeaderClass()).
+                    append(" group-").append(group).
+                    append("\" >");
             tr.append(value).append("</td>\n");
             List headerCells = tableModel.getHeaderCellList();
             for (int i = myColumnNumber; i < headerCells.size() - 1; i++)
@@ -252,6 +259,20 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
 //        }
     }
 
+    public String addRowClass()
+    {
+        List<String> classes = new ArrayList<>(this.groupNumberToGroupTotal.size() + 1);
+        classes.add("details");
+        groupNumberToGroupTotal.forEach((groupNumber, total) -> {
+            int columnNumber = ((GroupTotals) total).columnNumber;
+            HashMap<Integer, String> currentRow = (HashMap) getCurrentRowObject();
+            HeaderCell headerCell = (HeaderCell) tableModel.getHeaderCellList().get(columnNumber);
+            String beanPropertyName = headerCell.getBeanPropertyName();
+            classes.add(currentRow.get(beanPropertyName));
+        });
+        return String.join(" ", classes);
+    }
+
     public String startRow()
     {
         StringBuffer sb = new StringBuffer();
@@ -263,11 +284,11 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return sb.toString();
     }
 
-    public void endOfGroup(String value, int groupBigDecimal)
+    public void endOfGroup(String value, int groupNumber)
     {
-        if (deepestResetGroup > groupBigDecimal)
+        if (deepestResetGroup > groupNumber)
         {
-            deepestResetGroup = groupBigDecimal;
+            deepestResetGroup = groupNumber;
         }
     }
 
@@ -282,12 +303,12 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
                 // Starting with the deepest group, print the current total and reset. Do not reset unaffected groups.
                 for (int i = innermostGroup; i >= deepestResetGroup; i--)
                 {
-                    Integer groupBigDecimal = new Integer(i);
+                    Integer groupNumber = new Integer(i);
 
-                    GroupTotals totals = (GroupTotals) groupBigDecimalToGroupTotal.get(groupBigDecimal);
+                    GroupTotals totals = (GroupTotals) groupNumberToGroupTotal.get(groupNumber);
                     if (totals == null)
                     {
-                        logger.warn("There is a gap in the defined groups - no group defined for " + groupBigDecimal);
+                        logger.warn("There is a gap in the defined groups - no group defined for " + groupNumber);
                         continue;
                     }
                     totals.printTotals(getListIndex(), out);
@@ -468,9 +489,12 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return buffer.toString();
     }
 
-    public String getTotalsRowOpen()
+    public String getTotalsRowOpen(String currentLabel)
     {
-        return TagConstants.TAG_OPEN + TagConstants.TAGNAME_ROW + " class=\"subtotal\"" + TagConstants.TAG_CLOSE;
+        return TagConstants.TAG_OPEN + TagConstants.TAGNAME_ROW +
+                " id=\"" + currentLabel + "\"" +
+                " class=\"subtotal\"" +
+                TagConstants.TAG_CLOSE;
     }
 
     public String getTotalRowLabel(String groupingValue)
@@ -507,10 +531,6 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
          * The label class.
          */
         protected String totalLabelClass = getSubtotalLabelClass();
-        /**
-         * The row opener
-         */
-        protected String totalsRowOpen = getTotalsRowOpen();
 
         /**
          * The value class.
@@ -534,7 +554,8 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             List headerCells = tableModel.getHeaderCellList();
             if (firstRowOfCurrentSet < currentRow) // If there is more than one row, show a total
             {
-                out.append(totalsRowOpen);
+                String currentLabel = getCellValue(columnNumber, firstRowOfCurrentSet);
+                out.append(getTotalsRowOpen(currentLabel));
                 for (Iterator iterator = headerCells.iterator(); iterator.hasNext();)
                 {
                     HeaderCell headerCell = (HeaderCell) iterator.next();
@@ -542,7 +563,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
                     if (columnNumber == headerCell.getColumnNumber())
                     {
                         // a totals label if it is the column for the current group
-                        String currentLabel = getCellValue(columnNumber, firstRowOfCurrentSet);
+
                         out.append(getTotalsTdOpen(headerCell, getTotalLabelClass() + " group-" + (columnNumber + 1)));
                         out.append(getTotalRowLabel(currentLabel));
                     }
@@ -578,11 +599,6 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         public String getTotalLabelClass()
         {
             return totalLabelClass;
-        }
-
-        public void setTotalsRowOpen(String totalsRowOpen)
-        {
-            this.totalsRowOpen = totalsRowOpen;
         }
 
         public void setTotalLabelClass(String totalLabelClass)
