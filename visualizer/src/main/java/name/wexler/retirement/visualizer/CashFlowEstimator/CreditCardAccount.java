@@ -21,31 +21,23 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.*;
-import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
-import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -62,7 +54,7 @@ public class CreditCardAccount extends Liability {
 
     public class CashFlowSourceNotFoundException extends Exception {
         public CashFlowSourceNotFoundException(String id) {
-            super("CashFlowSource: " + id + " not found");
+            super("CashFlowEstimator: " + id + " not found");
         }
     }
 
@@ -133,9 +125,11 @@ public class CreditCardAccount extends Liability {
         return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
     }
 
-
-
-    public CashFlowSource getCashFlowSource() {
+    public CashFlowEstimator getCashFlowSource() {
         return this;
+    }
+
+    public boolean isOwner(Entity entity) {
+        return this.getBorrowerIds().contains(entity);
     }
 }

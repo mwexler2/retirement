@@ -1,9 +1,10 @@
 package name.wexler.retirement.visualizer;
 
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.RSU;
-import name.wexler.retirement.visualizer.CashFlowSource.Salary;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowEstimator.RSU;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Salary;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
 import org.junit.After;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -36,7 +38,11 @@ public class RSUTest {
 
         Company employer = new Company(context, "employer1");
         Person employee = new Person(context, "employee1", LocalDate.of(1776, Month.JULY, 4), 200);
-        Job job1 = new Job(context, "job1", employer, employee);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
+        Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
 
@@ -117,12 +123,12 @@ public class RSUTest {
         String rsu1Str = "{\"type\":\"RSU\",\"id\":\"rsu1a\",\"job\":\"job1\",\"cashFlow\":\"vestingSchedule1" +
                 "\", \"security\":\"AAPL\",\"totalShares\":1500}";
 
-        CashFlowSource incomeSource2a = context.fromJSON(RSU.class, rsu1Str);
+        CashFlowEstimator incomeSource2a = context.fromJSON(RSU.class, rsu1Str);
         assertEquals("rsu1a", incomeSource2a.getId());
 
         String rsu2Str = "{\"type\":\"RSU\",\"id\":\"rsu2a\",\"job\":\"job1\",\"cashFlow\":\"job1AnnualVesting\",\"security\":\"MGTX\",\"totalShares\":700}}";
 
-        CashFlowSource fixedRSU = context.fromJSON(RSU.class, rsu2Str);
+        CashFlowEstimator fixedRSU = context.fromJSON(RSU.class, rsu2Str);
         assertEquals("rsu2a", fixedRSU.getId());
     }
 

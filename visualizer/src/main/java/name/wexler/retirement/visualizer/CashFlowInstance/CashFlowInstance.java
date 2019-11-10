@@ -1,6 +1,7 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowSink;
+import name.wexler.retirement.visualizer.CashFlowSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,9 +24,15 @@ public class CashFlowInstance {
     private String notes = "";
     private List<String> labels = Collections.emptyList();
     private String category = "";
+    private CashFlowSink cashFlowSink;
+    private boolean estimated;
 
-    public CashFlowInstance(CashFlowSource cashFlowSource, LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate, BigDecimal amount,
-                            BigDecimal balance) {
+    public CashFlowInstance(boolean estimated,
+                            CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
+                            String category,
+                            LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
+                            BigDecimal amount, BigDecimal balance) {
+        this.estimated = estimated;
         this.accrualStart = accrualStart;
         this.accrualEnd = accrualEnd;
         this.cashFlowDate = cashFlowDate;
@@ -33,6 +40,8 @@ public class CashFlowInstance {
         this.cashBalance = balance;
         this.assetBalance = BigDecimal.ZERO;
         this.cashFlowSource = cashFlowSource;
+        this.cashFlowSink = cashFlowSink;
+        this.category = category;
     }
 
     public String getAction() { return action; }
@@ -61,6 +70,10 @@ public class CashFlowInstance {
 
     public CashFlowSource getCashFlowSource() {
         return cashFlowSource;
+    }
+
+    public CashFlowSink getCashFlowSink() {
+        return cashFlowSink;
     }
 
     public LocalDate getAccrualStart() {

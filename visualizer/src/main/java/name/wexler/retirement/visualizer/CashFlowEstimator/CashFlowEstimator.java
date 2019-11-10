@@ -21,15 +21,15 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
+import name.wexler.retirement.visualizer.CashFlowSource;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
-import name.wexler.retirement.visualizer.CashFlowFrequency.*;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 
@@ -56,30 +56,33 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = CreditCardAccount.class, name = "creditCard"),
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
-        @JsonSubTypes.Type(value = StockOption.class, name="stockOption"),
-        @JsonSubTypes.Type(value = AccountSource.class, name="account")})
-public abstract class CashFlowSource extends Entity {
+        @JsonSubTypes.Type(value = StockOption.class, name="stockOption")})
+public abstract class CashFlowEstimator extends Entity implements CashFlowSource {
     private final List<Entity> payers;
     private final List<Entity> payees;
     private CashFlowFrequency cashFlow;
     private static final String cashFlowSourcesPath = "cashFlowSources.json";
 
     static public void readCashFlowSources(Context context) throws IOException {
-        context.fromJSONFileList(CashFlowSource[].class, cashFlowSourcesPath);
+        context.fromJSONFileList(CashFlowEstimator[].class, cashFlowSourcesPath);
     }
 
-    public CashFlowSource(@JsonProperty(value = "context", required = true) Context context,
-                          @JsonProperty("id") String id,
-                          @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
-                          List<Entity> payees, List<Entity> payers)
+    public CashFlowEstimator(@JsonProperty(value = "context", required = true) Context context,
+                             @JsonProperty("id") String id,
+                             @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
+                             List<Entity> payees, List<Entity> payers)
             throws NoSuchElementException, IllegalArgumentException, DuplicateEntityException {
-        super(context, id, CashFlowSource.class);
+        super(context, id, CashFlowEstimator.class);
         this.payees = payees;
         this.payers = payers;
         this.cashFlow = context.getById(CashFlowFrequency.class, cashFlowId);
         if (this.cashFlow == null) {
             throw new NoSuchElementException("CashFlowFrequency " + cashFlowId + " not found");
         }
+    }
+
+    public String getCategory() {
+        return getClass().getSimpleName();
     }
 
     @JsonIgnore
@@ -114,7 +117,7 @@ public abstract class CashFlowSource extends Entity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CashFlowSource that = (CashFlowSource) o;
+        CashFlowEstimator that = (CashFlowEstimator) o;
 
         if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
         return cashFlow != null ? cashFlow.equals(that.cashFlow) : that.cashFlow == null;
@@ -152,5 +155,10 @@ public abstract class CashFlowSource extends Entity {
     public Balance getStartingBalance() {
 
         return new CashBalance(this.getStartDate(), BigDecimal.ZERO);
+    }
+
+    @JsonIgnore
+    public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) {
+
     }
 }

@@ -30,7 +30,7 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.Context;
 
 import java.io.IOException;
@@ -133,14 +133,14 @@ public abstract class CashFlowFrequency extends Entity {
 
     protected abstract List<CashFlowPeriod> getCashFlowPeriods();
 
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowSource cashFlowSource, SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
         List<CashFlowPeriod> cashFlowPeriods = getCashFlowPeriods();
         CashFlowInstance prevCashFlowInstance = null;
         for (CashFlowPeriod period : cashFlowPeriods) {
-            CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(),
+            CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowEstimator.getId(),
                     period.accrualStart, period.accrualEnd, period.cashFlowDate, period.portion, prevCashFlowInstance);
             result.add(cashFlowInstance);
             prevCashFlowInstance = cashFlowInstance;

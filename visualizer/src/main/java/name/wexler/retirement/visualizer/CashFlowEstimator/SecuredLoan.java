@@ -21,28 +21,22 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
-import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
+import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
-import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
-import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,7 +49,7 @@ public class SecuredLoan extends Liability {
     private final int term;
     private BigDecimal paymentAmount;
     private final BigDecimal impoundAmount;
-
+    private CashFlowSink defaultSink;
 
     @JsonCreator
     public SecuredLoan(@JacksonInject("context") Context context,
@@ -71,6 +65,7 @@ public class SecuredLoan extends Liability {
                        @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
                        @JsonProperty(value = "impoundAmount",   required = true) BigDecimal impoundAmount,
                        @JsonProperty(value = "source",          required = true) String sourceId,
+                       @JsonProperty(value = "defaultSink",   required = true) String defaultSinkId,
                        @JsonProperty(value = "indicators",      required = true) List<String> indicators)
     throws DuplicateEntityException {
         super(context, id, lenderId, borrowersIds, startDate, endDate, interestRate,
@@ -80,9 +75,15 @@ public class SecuredLoan extends Liability {
         BigDecimal periodsPerYear = BigDecimal.valueOf(12);
         this.paymentAmount = paymentAmount;
         this.impoundAmount = impoundAmount;
+        this.defaultSink = context.getById(Asset.class, defaultSinkId);
         for (String indicator : indicators) {
             context.put(SecuredLoan.class, indicator, this);
         }
+    }
+
+    @JsonIgnore
+    public boolean isOwner(Entity entity) {
+        return this.getBorrowerIds().contains(entity.getId());
     }
 
     @JsonIgnore
@@ -100,7 +101,8 @@ public class SecuredLoan extends Liability {
             if (principal.compareTo(balance) >= 1)
                 principal = balance;
             balance = balance.subtract(principal);
-            return new LiabilityCashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate,
+            return new LiabilityCashFlowInstance(true,this, defaultSink,
+                    getCategory(), accrualStart, accrualEnd, cashFlowDate,
                     principal, interest, impoundAmount, balance);
         });
     }

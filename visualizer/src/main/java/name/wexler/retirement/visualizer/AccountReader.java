@@ -1,35 +1,31 @@
 package name.wexler.retirement.visualizer;
 
-import com.opencsv.CSVReaderHeaderAware;
 import name.wexler.retirement.datastore.DataStore;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.*;
-import name.wexler.retirement.visualizer.CashFlowSource.CreditCardAccount;
-import name.wexler.retirement.visualizer.CashFlowSource.Liability;
-import name.wexler.retirement.visualizer.CashFlowSource.SecuredLoan;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CreditCardAccount;
+import name.wexler.retirement.visualizer.CashFlowEstimator.SecuredLoan;
 import name.wexler.retirement.visualizer.Entity.Entity;
+import name.wexler.retirement.visualizer.Expense.Expense;
+import name.wexler.retirement.visualizer.Expense.Spending;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
 public class AccountReader {
-    public AccountReader() {
+    private Spending spending;
 
+    public AccountReader(Context context) {
+        spending = context.getById(Expense.class, "spending");
     }
+
     public class AccountNotFoundException extends Exception {
         private final String accountName;
 
@@ -114,29 +110,35 @@ public class AccountReader {
 
             CashFlowInstance instance;
             Entity company = account.getCompany();
+            CashFlowSource cashFlowSource = context.getById(Account.class, description);
             if (action.equals("debit")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                instance = new PaymentInstance(account.getCashFlowSource(), accrualEnd, accrualEnd, txnDate, txnAmount,
-                        BigDecimal.ZERO, company, category);
+                if (cashFlowSource == null)
+                    cashFlowSource = spending;
+                instance = new PaymentInstance(cashFlowSource, account, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+                        BigDecimal.ZERO, company);
             } else if (action.equals("credit") && category.equals("Paycheck")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                instance = new PaycheckInstance(account.getCashFlowSource(), accrualEnd, accrualEnd, txnDate, txnAmount,
-                        BigDecimal.ZERO, company);
+                Job job = context.getById(Job.class, description);
+                instance = new PaycheckInstance(account, job, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+                        BigDecimal.ZERO);
             } else if (action.equals("credit") && category.equals("Reimbursement")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                instance = new ReimbursementInstance(account.getCashFlowSource(), accrualEnd, accrualEnd, txnDate, txnAmount,
+                Job job = context.getById(Job.class, description);
+                instance = new ReimbursementInstance(account, job.getDefaultSink(), category,
+                        accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);
             } else {
-                instance = new CashFlowInstance(account.getCashFlowSource(),
+                instance = new CashFlowInstance(false, account, account, category,
                         accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO);
             }

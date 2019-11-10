@@ -31,8 +31,8 @@ import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.Liability;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.IOException;
@@ -86,18 +86,11 @@ public class Scenario extends Entity {
     @JsonProperty(value = "cashFlowSources")
     private void setCashFlowSourceIds(@JacksonInject("context") Context context,
                                       @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowSourceIds) {
-        List<CashFlowSource> cashFlowSources = new ArrayList<>(cashFlowSourceIds.length);
+        List<CashFlowEstimator> cashFlowEstimators = new ArrayList<>(cashFlowSourceIds.length);
         for (String cashFlowSourceId : cashFlowSourceIds) {
-            cashFlowSources.add(context.getById(CashFlowSource.class, cashFlowSourceId));
+            cashFlowEstimators.add(context.getById(CashFlowEstimator.class, cashFlowSourceId));
         }
-        calendar.addCashFlowSources(cashFlowSources);
-    }
-
-    @JsonProperty(value = "cashFlowSources")
-    public String[] getCashFlowSourceIds() {
-        Map<String, String> nameAndIds = calendar.getCashFlowNameAndIds();
-        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
-        return result;
+        calendar.addCashFlowEstimators(cashFlowEstimators);
     }
 
     @JsonProperty(value = "accounts")
@@ -109,13 +102,6 @@ public class Scenario extends Entity {
         }
         calendar.addAccounts(accounts);
     }
-
-    @JsonIgnore
-    public String getCashFlowSourceName(String cashFlowSourceId) {
-        return calendar.getCashFlowSourceName(cashFlowSourceId);
-    }
-
-
 
     @JsonProperty(value = "assets")
     private void setAssetIds(@JacksonInject("context") Context context,
@@ -137,76 +123,9 @@ public class Scenario extends Entity {
         calendar.addLiabilities(liabilities);
     }
 
-    @JsonProperty(value = "assets")
-    public String[] getAssetIds() {
-        Map<String, String> nameAndIds = calendar.getAssetNameAndIds();
-        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
-        return result;
-    }
-
-    @JsonProperty(value = "liabilities")
-    public String[] getLiabilityIds() {
-        Map<String, String> nameAndIds = calendar.getLiabilityNameAndIds();
-        String[] result = nameAndIds.keySet().toArray(new String[nameAndIds.size()]);
-        return result;
-    }
-
     @JsonProperty(value = "assumptions")
     public Assumptions getAssumptions() {
         return _assumptions;
-    }
-
-    @JsonIgnore
-    public String getLiabilityName(String id) {
-        return calendar.getLiabilityName(id);
-    }
-
-    @JsonIgnore
-    public String getAssetName(String assetId) {
-        return calendar.getAssetName(assetId);
-    }
-
-    @JsonIgnore
-    public BigDecimal getAnnualIncome(String incomeSourceId, int year ) {
-        return calendar.getAnnualCashFlow(incomeSourceId, year);
-    }
-
-    @JsonIgnore
-    public BigDecimal getAssetValue(String assetId, int year ) {
-        return calendar.getAssetValue(assetId, year);
-    }
-
-    @JsonIgnore
-    public BigDecimal getLiabilityAmount(String id, int year ) {
-        return calendar.getLiabilityAmount(id, year);
-    }
-
-
-    @JsonIgnore
-    public BigDecimal getAnnualIncome(int year) {
-        return calendar.getAnnualCashFlow(year);
-    }
-
-    @JsonIgnore
-    public BigDecimal getLiabilityAmount(int year) {
-        return calendar.getLiabilityAmount(year);
-    }
-
-    @JsonIgnore
-    public BigDecimal getNetWorth(int year) {
-        return getAssetValue(year).subtract(getLiabilityAmount(year));
-    }
-
-    @JsonIgnore
-    public BigDecimal getAssetValue(int year) {
-        return calendar.getAssetValue(year);
-    }
-
-
-    @JsonIgnore
-    public BigDecimal getNetIncome(int year) {
-        BigDecimal netIncome = calendar.getAnnualCashFlow(year);
-        return netIncome;
     }
 
     public String getName() {
@@ -218,10 +137,6 @@ public class Scenario extends Entity {
         return calendar.getYears();
     }
 
-    @JsonIgnore
-    public int getNumYears() {
-        return calendar.getYears().size();
-    }
 
     @JsonIgnore
     public List<CashFlowInstance> getCashFlows(String cashFlowId) {
@@ -247,15 +162,6 @@ public class Scenario extends Entity {
     @JsonIgnore
     public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
         return calendar.getCashFlows(cashFlowId, year);
-    }
-
-    @JsonIgnore
-    public String getCashFlowSourceURL(String cashFlowSourceId) throws MalformedURLException {
-        return "/scenario/" + getId() + "/cashflow/" + cashFlowSourceId;
-    }
-
-    public String getCashFlowSourceURL(String cashFlowSourceId, int year) throws MalformedURLException {
-        return "/scenario/" + getId() + "/cashflow/" + cashFlowSourceId + "/year/" + year;
     }
 
     public CashFlowCalendar.TableList getAssetsAndLiabilities() {

@@ -21,13 +21,14 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
@@ -45,7 +46,7 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lessors", "lessees", "security", "startDate", "endDate", "paymentAmount" })
-public class Rent extends CashFlowSource {
+public class Rent extends CashFlowEstimator {
     private final Asset security;
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
@@ -55,6 +56,8 @@ public class Rent extends CashFlowSource {
     private final LocalDate endDate;
     private BigDecimal paymentAmount;
     private BigDecimal periodsPerYear = BigDecimal.valueOf(12);
+    private CashFlowSink defaultCashFlowSink;
+    private CashFlowSink defaultSink;
 
 
     @JsonCreator
@@ -66,7 +69,8 @@ public class Rent extends CashFlowSource {
                 @JsonProperty(value = "startDate",       required=true) LocalDate startDate,
                 @JsonProperty("endDate") LocalDate endDate,
                 @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
-                @JsonProperty(value = "source",          required = true) String sourceId)
+                @JsonProperty(value = "source",          required = true) String sourceId,
+                @JsonProperty(value = "defaultSink",   required = true) String defaultSourceId)
     throws DuplicateEntityException {
         super(context, id, sourceId,
                 context.getByIds(Entity.class, lesseeIds),
@@ -75,6 +79,7 @@ public class Rent extends CashFlowSource {
         this.startDate = startDate;
         this.endDate = endDate;
         this.paymentAmount = paymentAmount;
+        this.defaultSink = context.getById(Asset.class, defaultSourceId);
         context.put(Rent.class, id, this);
     }
 
@@ -85,7 +90,8 @@ public class Rent extends CashFlowSource {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance);
+                    return new CashFlowInstance(true,this, defaultSink, getCategory(),
+                            accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance);
                 });
     }
 

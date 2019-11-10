@@ -21,7 +21,7 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
@@ -39,7 +39,7 @@ import java.util.List;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Salary extends CashFlowSource {
+public class Salary extends CashFlowEstimator {
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "id")
@@ -102,7 +102,7 @@ public class Salary extends CashFlowSource {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = baseAnnualSalary.multiply(percent).setScale(2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    return new CashFlowInstance(true, this, getJob().getDefaultSink(), this.getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
                 }
         );
     }

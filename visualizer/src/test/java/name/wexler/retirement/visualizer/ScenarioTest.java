@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
-import name.wexler.retirement.visualizer.CashFlowSource.*;
+import name.wexler.retirement.visualizer.CashFlowEstimator.*;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Entity.Person;
-import org.apache.commons.collections.ListUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +38,11 @@ public class ScenarioTest {
         context.setAssumptions(new Assumptions());
         Person mike = new Person(context, "mike", LocalDate.of(1984, Month.APRIL, 1), 45);
         Company yahoo = new Company(context, "yahoo");
-        String[] incomeSourceIds = new String[0];
-        Job job1 = new Job(context, "job1", "yahoo", "mike", incomeSourceIds);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(mike.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
+        Job job1 = new Job(context, "job1", "yahoo", "mike", defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2015, Month.DECEMBER, 15));
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 1);
@@ -72,7 +74,7 @@ public class ScenarioTest {
         Liability liability1 = new SecuredLoan(context, "liability1", bankOfNowhere.getId(), borrowers, mainStreet,
                 LocalDate.of(2012, Month.JUNE, 20),
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
-                BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId(), Arrays.asList(""));
+                BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId(), defaultSink.getId(), Arrays.asList(""));
 
         List<CashBalance> account1Cash = new ArrayList<>();
         List<CashBalance> account2Cash = new ArrayList<>();
@@ -84,10 +86,8 @@ public class ScenarioTest {
         List<String> payors = new ArrayList<>();
         new Monthly(context, "account1", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource a1Source = new AccountSource(context, "account1", "account1", account1Owners, payors, "Misc");
         new Monthly(context, "account2", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource a2Source = new AccountSource(context, "account2", "account2", account1Owners, payors, "not misc");
 
         AssetAccount account1 = new AssetAccount(context, "account1", account1Owners,
                 new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),

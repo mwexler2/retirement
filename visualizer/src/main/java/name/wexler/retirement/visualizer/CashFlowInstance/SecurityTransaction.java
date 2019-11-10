@@ -17,26 +17,18 @@ public class SecurityTransaction extends AssetTransaction {
     public SecurityTransaction(
             Context context,
             AssetAccount account,
+            String category,
             BigDecimal amount,
             ShareBalance shareChange) {
-        super(
-                account.getCashFlowSource(),
+        super(false,
+                account,
+                account,
+                category,
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(), amount, BigDecimal.ZERO);
         change = shareChange;
         this.account = account;
-    }
-
-    public SecurityTransaction(
-            @JacksonInject("context")  Context context,
-            @JsonProperty(value = "account", required = true) String accountId,
-            @JsonProperty(value = "cashAmount", required=true) BigDecimal amount,
-            @JsonProperty(value = "shareChange", required=true) ShareBalance shareChange) {
-        this(context,
-                context.getById(Asset.class, accountId),
-                amount,
-                shareChange);
     }
 
     public ShareBalance getChange() {

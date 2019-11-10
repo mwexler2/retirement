@@ -21,12 +21,11 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.Context;
@@ -35,10 +34,8 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
-import name.wexler.retirement.visualizer.CashFlowFrequency.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,7 +47,7 @@ import java.util.*;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "source", "lender", "borrowers", "startDate", "endDate", "interestRate", "startingBalance" })
-abstract public class Liability extends CashFlowSource implements Account {
+abstract public class Liability extends CashFlowEstimator implements Account {
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate startDate;
@@ -178,7 +175,12 @@ abstract public class Liability extends CashFlowSource implements Account {
     }
 
     @JsonIgnore
-    public CashFlowSource getCashFlowSource() {
+    public CashFlowEstimator getCashFlowSource() {
         return this;
+    }
+
+    @JsonIgnore
+    public void sinkCashFlowInstance(CashFlowInstance cashFlowInstance) {
+
     }
 }

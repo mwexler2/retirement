@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.File;
@@ -140,8 +141,12 @@ public class Context {
         Path filePath = resourceDir.resolve(fileName);
         File entityFile = filePath.toFile();
         ObjectMapper mapper = getObjectMapper();
-        T[] result = (T[]) mapper.readValue(entityFile, clazz);
-        return result;
+        try {
+            T[] result = (T[]) mapper.readValue(entityFile, clazz);
+            return result;
+        } catch (MismatchedInputException mie) {
+            throw new IOException("Can't parse " + filePath, mie);
+        }
     }
 
     public <T> List<T> fromJSONFileList(Class clazz, String fileName) throws IOException {

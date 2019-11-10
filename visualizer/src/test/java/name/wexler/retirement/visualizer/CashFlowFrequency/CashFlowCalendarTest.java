@@ -1,14 +1,12 @@
 package name.wexler.retirement.visualizer.CashFlowFrequency;
 
+import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.Asset.Asset;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
-import name.wexler.retirement.visualizer.Assumptions;
-import name.wexler.retirement.visualizer.CashFlowSource.*;
-import name.wexler.retirement.visualizer.Context;
+import name.wexler.retirement.visualizer.CashFlowEstimator.*;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
-import name.wexler.retirement.visualizer.Job;
-import name.wexler.retirement.visualizer.Scenario;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +25,7 @@ import static org.junit.Assert.*;
 
 public class CashFlowCalendarTest {
     private CashFlowCalendar calendar;
-    private List<CashFlowSource> cashFlowSources;
+    private List<CashFlowEstimator> cashFlowEstimators;
 
     @Before
     public void setUp() throws Exception {
@@ -40,12 +38,16 @@ public class CashFlowCalendarTest {
         String[] accounts = new String[0];
         Scenario scenario = new Scenario(context, "MyScenario", "My Scenario", cashFlowSourceIds, assets, liabilities, accounts, assumptions);
         calendar = new CashFlowCalendar(scenario, assumptions);
-        cashFlowSources = new ArrayList<>();
+        cashFlowEstimators = new ArrayList<>();
 
         Company employer = new Company(context, "employer1");
         employer.setCompanyName("Employment Co");
         Person employee = new Person(context, "employee1", LocalDate.of(1966, Month.APRIL, 1), 62);
-        Job job1 = new Job(context, "job1", employer, employee);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
+        Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         LocalDate job1StartDate = LocalDate.of(2015, Month.MAY, 1);
         job1.setStartDate((job1StartDate));
         LocalDate job1EndDate = LocalDate.of(2015, Month.DECEMBER, 31);
@@ -56,7 +58,7 @@ public class CashFlowCalendarTest {
                 job1FirstPaycheck, CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
         Salary salary = new Salary(context, "salary1", "job1", monthly.getId(),
                 BigDecimal.valueOf(100000.00));
-        cashFlowSources.add(salary);
+        cashFlowEstimators.add(salary);
 
         LocalDate job1FirstBonus = LocalDate.of(2016, Month.JUNE, 6);
         Annual annual = new Annual(context, "job1BonusSource1",
@@ -64,7 +66,7 @@ public class CashFlowCalendarTest {
                 CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         BonusAnnualPct bonusAnnualPct = new BonusAnnualPct(context,  "bonusAnnualPct1", "job1", "salary1", BigDecimal.valueOf(10.0),
                 annual.getId());
-        cashFlowSources.add(bonusAnnualPct);
+        cashFlowEstimators.add(bonusAnnualPct);
 
         LocalDate job1FirstPeriodStart = LocalDate.of(2015, Month.APRIL, 25);
         CashFlowFrequency biweeklySource =
@@ -72,7 +74,7 @@ public class CashFlowCalendarTest {
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         BonusPeriodicFixed bonusPeriodicFixed = new BonusPeriodicFixed(context, "bonusPeriodicFixed1", "job1", BigDecimal.valueOf(17000.00),
                 biweeklySource.getId());
-        cashFlowSources.add(bonusPeriodicFixed);
+        cashFlowEstimators.add(bonusPeriodicFixed);
 
         Company lender = new Company(context, "lender1");
         lender.setCompanyName("Lender's Bank");
@@ -96,9 +98,9 @@ public class CashFlowCalendarTest {
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2020, Month.APRIL, 27),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
-                BigDecimal.valueOf(500.00), BigDecimal.ZERO, monthlyPayment.getId(), Arrays.asList("bar"));
-        cashFlowSources.add(debt);
-        calendar.addCashFlowSources(cashFlowSources);
+                BigDecimal.valueOf(500.00), BigDecimal.ZERO, monthlyPayment.getId(), defaultSink.getId(), Arrays.asList("bar"));
+        cashFlowEstimators.add(debt);
+        calendar.addCashFlowEstimators(cashFlowEstimators);
 
     }
 
@@ -109,7 +111,7 @@ public class CashFlowCalendarTest {
 
     @Test
     public void addIncomeSources() {
-        calendar.addCashFlowSources(cashFlowSources);
+        calendar.addCashFlowEstimators(cashFlowEstimators);
     }
 
 
@@ -119,16 +121,6 @@ public class CashFlowCalendarTest {
         assertEquals(21, result.size());
         assertEquals(2011, result.get(0).intValue());
         assertEquals(2031, result.get(20).intValue());
-    }
-
-    @Test
-    public void getIncomeCashFlowIds() {
-        Map<String, String> result = calendar.getCashFlowNameAndIds();
-        System.out.println("cashFlowIds = " + result);
-        assertEquals(4, result.size());
-        assertThat(result.keySet(), hasItem("bonusPeriodicFixed1"));
-        assertThat(result.keySet(), hasItem("salary1"));
-        assertThat(result.keySet(), hasItem("bonusAnnualPct1"));
     }
 
     @Test

@@ -1,10 +1,13 @@
 package name.wexler.retirement.visualizer;
 
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Monthly;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Quarterly;
-import name.wexler.retirement.visualizer.CashFlowSource.Alimony;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Alimony;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +16,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,9 +44,13 @@ public class AlimonyTest {
         CashFlowFrequency quarterly =
                 new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),
                 BigDecimal.valueOf(50000.00), BigDecimal.valueOf(1200.00), BigDecimal.valueOf(0.33), BigDecimal.valueOf(102500.00), monthly.getId(),
-                quarterly.getId());
+                quarterly.getId(), defaultSink.getId());
     }
 
     @After
@@ -71,7 +80,7 @@ public class AlimonyTest {
     @Test
     public void deserialize() throws Exception {
         String expenseSource1aStr = "{\"type\":\"alimony\",\"id\":\"alimony1a\",\"baseCashFlow\":\"monthly-alimony1\",\"payee\":\"payee1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}";
-        CashFlowSource expenseSource1a = context.fromJSON(CashFlowSource.class, expenseSource1aStr);
+        CashFlowEstimator expenseSource1a = context.fromJSON(CashFlowEstimator.class, expenseSource1aStr);
         assertEquals("alimony1a", expenseSource1a.getId());
     }
 

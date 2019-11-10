@@ -2,11 +2,11 @@ package name.wexler.retirement.visualizer.CashFlowFrequency;
 
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.Asset;
-import name.wexler.retirement.visualizer.CashFlowSource.Liability;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Scenario;
 
@@ -20,12 +20,12 @@ import java.util.*;
  */
 public class CashFlowCalendar {
     public interface CashFlowChecker {
-        boolean check(CashFlowSource source);
+        boolean check(CashFlowInstance source);
     }
     private boolean _assetsIndexed = false;
     private boolean _liabilitiesIndexed = false;
     private boolean _cashFlowsIndexed = false;
-    private final Map<String, CashFlowSource> _cashFlowSources;
+    private final Map<String, CashFlowEstimator> _cashFlowEstimators;
     private final Map<String, Asset> _assets;
     private final Map<String, Liability> _liabilities;
     private final Map<String, AssetAccount> _accounts;
@@ -45,15 +45,16 @@ public class CashFlowCalendar {
     public CashFlowCalendar(Scenario scenario, Assumptions assumptions) {
         _scenario = scenario;
         _assumptions = assumptions;
-        _cashFlowSources = new HashMap<>();
+        _cashFlowEstimators = new HashMap<>();
         _assets = new HashMap<>();
         _liabilities = new HashMap<>();
         _accounts = new HashMap<>();
     }
 
-    public void addCashFlowSources(List<CashFlowSource> cashFlowSources) {
+    public void addCashFlowEstimators(List<CashFlowEstimator> cashFlowEstimators) {
         _cashFlowsIndexed = false;
-        cashFlowSources.forEach(item-> _cashFlowSources.put(item.getId(), item));
+        cashFlowEstimators.forEach(item->
+                _cashFlowEstimators.put(item.getId(), item));
     }
 
     public void addAssets(List<Asset> assets) {
@@ -70,19 +71,6 @@ public class CashFlowCalendar {
         accounts.forEach(account->_accounts.put(account.getId(), account));
     }
 
-
-    public String getCashFlowSourceName(String cashFlowSourceId) {
-        return _cashFlowSources.get(cashFlowSourceId).getName();
-    }
-
-    public String getAssetName(String assetId) {
-        return _assets.get(assetId).getName();
-    }
-
-    public String getLiabilityName(String id) {
-        return _liabilities.get(id).getName();
-    }
-
     public List<Integer> getYears() {
         if (!_cashFlowsIndexed)
             indexCashFlows();
@@ -90,30 +78,6 @@ public class CashFlowCalendar {
         List<Integer> yearList = new ArrayList<>(yearSet);
         yearList.sort(Comparator.naturalOrder());
         return yearList;
-    }
-
-    public Map<String, String> getCashFlowNameAndIds() {
-        if (!_cashFlowsIndexed)
-            indexCashFlows();
-        Map<String, String> cashFlowNameAndIds = new HashMap<>();
-        _cashFlowSources.values().forEach(cashFlowSource-> cashFlowNameAndIds.put(cashFlowSource.getId(), cashFlowSource.getName()));
-        return cashFlowNameAndIds;
-    }
-
-    public Map<String, String> getAssetNameAndIds() {
-        if (!_assetsIndexed)
-            indexAssets();
-        Map<String, String> assetNameAndIds = new HashMap<>();
-        _assets.values().forEach(asset-> assetNameAndIds.put(asset.getId(), asset.getName()));
-        return assetNameAndIds;
-    }
-
-    public Map<String, String> getLiabilityNameAndIds() {
-        if (!_liabilitiesIndexed)
-            indexLiabilities();
-        Map<String, String> liabilityNameAndIds = new HashMap<>();
-        _liabilities.values().forEach(liability-> liabilityNameAndIds.put(liability.getId(), liability.getName()));
-        return liabilityNameAndIds;
     }
 
     public BigDecimal getAnnualCashFlow(String cashFlowId, Integer year) {
@@ -126,7 +90,6 @@ public class CashFlowCalendar {
     public BigDecimal getAssetValue(String assetId, Integer year) {
         if (!_assetsIndexed)
             indexAssets();
-        List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario);
         Balance balance = _assets.get(assetId).getBalanceAtDate(_scenario,
                 LocalDate.of(year, Month.JANUARY, 1));
         return balance.getValue();
@@ -143,7 +106,7 @@ public class CashFlowCalendar {
             return getAssetValue(entity.getId(), year);
         } else if (entity instanceof Liability) {
             return getLiabilityAmount(entity.getId(), year);
-        } else if (entity instanceof CashFlowSource) {
+        } else if (entity instanceof CashFlowEstimator) {
             return getAnnualCashFlow(entity.getId(), year);
         } else {
             System.err.println("Can't handle entity type: " + entity.getClass().getSimpleName());
@@ -164,7 +127,7 @@ public class CashFlowCalendar {
         BigDecimal sum = BigDecimal.ZERO;
         for (CashFlowInstance cashFlowInstance : this.cashFlowInstances) {
             cashFlowInstance.getCashFlowSource();
-            if (checker.check(cashFlowInstance.getCashFlowSource())) {
+            if (checker.check(cashFlowInstance)) {
                 if (cashFlowInstance.isPaidInDateRange(accrualStart, accrualEnd)) {
                     sum = sum.add(cashFlowInstance.getAmount());
                 }
@@ -221,7 +184,7 @@ public class CashFlowCalendar {
         cashFlowInstances = new ArrayList<>();
         cashFlowYears = new HashMap<>();
         balanceAtDate = new HashMap<>();
-        _cashFlowSources.values().forEach(cashFlowSource -> {
+        _cashFlowEstimators.values().forEach(cashFlowSource -> {
             String id = cashFlowSource.getId();
             TreeMap<LocalDate, Balance> balanceAtDateForId = balanceAtDate.getOrDefault(id, new TreeMap<>());
             if (!balanceAtDate.containsKey(id)) {
@@ -273,7 +236,7 @@ public class CashFlowCalendar {
     private void indexLiabilities() {
         liabilityValueYears = new HashMap<>();
 
-        _cashFlowSources.values().forEach(cashFlowSource -> {
+        _cashFlowEstimators.values().forEach(cashFlowSource -> {
             if (cashFlowSource instanceof Liability) {
                 Liability liability = (Liability) cashFlowSource;
                 Balance prevBalance = liability.getStartingBalance();
@@ -373,7 +336,7 @@ public class CashFlowCalendar {
             return columnDefinitions;
         }
 
-        public String getItemClass(Map<String, Object> item) { return (String) item.get("itemClass"); }
+        public String getItemCategory(Map<String, Object> item) { return (String) item.get("itemCategory"); }
         public String getItemType(Map<String, Object> item) { return (String) item.get("itemType"); }
         public String getItemName(Map<String, Object> item) { return (String) item.get("name"); }
     }
@@ -401,7 +364,7 @@ public class CashFlowCalendar {
             row.put("id", entity.getId());
             row.put("name", decorateName(itemType, entity.getId(), entity.getName()));
             row.put("itemType", itemType);
-            row.put("itemClass", entity.getClass().getSimpleName());
+            row.put("itemCategory", entity.getCategory());
             for (int year: getYears()) {
                 String link = String.join("/",
                         "scenario", this._scenario.getId(),
@@ -425,8 +388,8 @@ public class CashFlowCalendar {
             result = ((String) o1.getOrDefault("itemType", "")).
                     compareTo((String) o2.getOrDefault("itemType", ""));
             if (result == 0)
-                result = ((String) o1.getOrDefault("itemClass", "")).
-                        compareTo((String) o2.getOrDefault("itemClass", ""));
+                result = ((String) o1.getOrDefault("itemCategory", "")).
+                        compareTo((String) o2.getOrDefault("itemCategory", ""));
             if (result == 0)
                 result = ((String) o1.getOrDefault("name", "")).compareTo((String) o2.getOrDefault("name", ""));
             return result;
@@ -480,8 +443,8 @@ public class CashFlowCalendar {
         TableList tableList = getTableList();
 
         String itemType = "cashflow";
-        for (CashFlowSource cashFlowSource: this._cashFlowSources.values()) {
-            Map cashFlowSourceRow = createRow(cashFlowSource, itemType);
+        for (CashFlowEstimator cashFlowEstimator : this._cashFlowEstimators.values()) {
+            Map cashFlowSourceRow = createRow(cashFlowEstimator, itemType);
             tableList.add(cashFlowSourceRow);
         }
         Collections.sort(tableList, byTypeClassAndName);

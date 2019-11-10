@@ -62,4 +62,8 @@ public abstract class Entity {
     public String getId() {
         return id;
     }
+
+    public String getCategory() {
+        return getClass().getSimpleName();
+    }
 }

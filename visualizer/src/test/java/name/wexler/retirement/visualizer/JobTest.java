@@ -24,24 +24,22 @@
 package name.wexler.retirement.visualizer;
 
 
-import name.wexler.retirement.visualizer.CashFlowFrequency.Annual;
-import name.wexler.retirement.visualizer.CashFlowFrequency.Biweekly;
-import name.wexler.retirement.visualizer.CashFlowFrequency.SemiMonthly;
-import name.wexler.retirement.visualizer.CashFlowSource.Bonus;
-import name.wexler.retirement.visualizer.CashFlowSource.BonusAnnualPct;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.Salary;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowFrequency.*;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Bonus;
+import name.wexler.retirement.visualizer.CashFlowEstimator.BonusAnnualPct;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Salary;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Entity.Person;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Arrays;
 
 import java.math.BigDecimal;
@@ -78,10 +76,14 @@ public class JobTest {
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
 
-        job1 = new Job(context, "job1", company1, person1);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(person1.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
+        job1 = new Job(context, "job1", company1.getId(), person1.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2002, Month.AUGUST, 15));
-        job2 = new Job(context, "job2", company2, person2);
+        job2 = new Job(context, "job2", company2.getId(), person2.getId(), defaultSink.getId());
         job2.setStartDate(LocalDate.of(2001, Month.JUNE, 15));
         job2.setEndDate(LocalDate.of(2002, Month.MAY, 7));
 
@@ -98,7 +100,7 @@ public class JobTest {
                 new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         Bonus job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());
-        CashFlowSource[] job1IS = {job1Salary, job1Bonus};
+        CashFlowEstimator[] job1IS = {job1Salary, job1Bonus};
 
         LocalDate salary2FirstPaycheck = LocalDate.of(job1.getStartDate().getYear(), job1.getStartDate().getMonth(), 10);
         CashFlowFrequency job1SalarySource2 =
@@ -121,7 +123,7 @@ public class JobTest {
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         job2Salary = new Salary(context, "job2Salary", job2.getId(), job2SalarySource.getId(),
                 BigDecimal.valueOf(80000.00));
-        CashFlowSource[] job2IS = {job1Salary2, job1Bonus2, job2Salary};
+        CashFlowEstimator[] job2IS = {job1Salary2, job1Bonus2, job2Salary};
     }
 
     @After
@@ -181,19 +183,6 @@ public class JobTest {
     }
 
     @Test
-    public void getIncomeSources() {
-        List<CashFlowSource> incomeSources1 = job1.getIncomeSources();
-        List<CashFlowSource> incomeSources2 = job2.getIncomeSources();
-    }
-
-    @Test
-    public void setIncomeSources() {
-        CashFlowSource[] job2IS = {job1Salary2, job2Salary};
-
-        job2.setIncomeSources(Arrays.asList(job2IS));
-    }
-
-    @Test
     public void equals() {
         assertNotEquals(job1, job2);
     }
@@ -201,17 +190,17 @@ public class JobTest {
     @Test
     public void serialize() throws Exception {
         String job1Str = context.toJSON(job1);
-        assertEquals("{\"id\":\"job1\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}", job1Str);
+        assertEquals("{\"id\":\"job1\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\"}", job1Str);
 
         String job2Str = context.toJSON(job2);
-        assertEquals("{\"id\":\"job2\",\"startDate\":\"2001-06-15\",\"endDate\":\"2002-05-07\",\"incomeSources\":[],\"employer\":\"comp2\",\"employee\":\"jane1\"}", job2Str);
+        assertEquals("{\"id\":\"job2\",\"startDate\":\"2001-06-15\",\"endDate\":\"2002-05-07\",\"employer\":\"comp2\",\"employee\":\"jane1\"}", job2Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
-        String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"incomeSources\":[],\"employer\":\"comp1\",\"employee\":\"john1\"}";
+        String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\"}";
+        String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\"}";
 
         Job job1a = context.fromJSON(Job.class, job1aStr);
         assertEquals("job1a", job1a.getId());

@@ -2,8 +2,6 @@ package name.wexler.retirement.visualizer;
 
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
-import name.wexler.retirement.visualizer.CashFlowSource.AccountSource;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +28,6 @@ public class AccountTest {
         List<String> payors = new ArrayList<>();
         new Monthly(context, "a1", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource a1Source = new AccountSource(context, "a1", "a1", payees, payors, "other");
         String[] cashFlowSources = new String[0];
         String[] assets = new String[0];
         String[] liabilities = new String[0];

@@ -27,18 +27,12 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.CashFlowInstance.Account;
-import name.wexler.retirement.visualizer.CashFlowSource.SecuredLoan;
-import name.wexler.retirement.visualizer.Context;
-import name.wexler.retirement.visualizer.Scenario;
-import name.wexler.retirement.visualizer.Security;
-import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
-import name.wexler.retirement.visualizer.CashFlowSource.AccountSource;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
@@ -56,7 +50,6 @@ import java.util.stream.Collectors;
 public class AssetAccount extends Asset implements Account {
     private static final List<AssetAccount> accounts = new ArrayList<>();
 
-    private final AccountSource cashFlowSource;
     private final String accountName;
     private final Company company;
 
@@ -64,16 +57,26 @@ public class AssetAccount extends Asset implements Account {
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
     private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
 
+    private static final String assetAccountsPath = "assetAccounts.json";
+
+    static public void readAssetAccounts(Context context) throws IOException {
+        context.fromJSONFileList(Asset[].class, assetAccountsPath);
+    }
+
     @JsonIgnore
     private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
     static public void readAccounts(Context context) {
         try {
-            AccountReader accountReader = new AccountReader();
+            AccountReader accountReader = new AccountReader(context);
             accountReader.readCashFlowInstances(context);
         } catch (IOException ioe) {
             System.err.println(ioe);
         }
+    }
+
+    public boolean isOwner(Entity entity) {
+        return this.getOwners().contains(entity);
     }
 
     public class NotFoundException extends Exception {
@@ -98,10 +101,6 @@ public class AssetAccount extends Asset implements Account {
         if (this.company == null) {
             throw new NotFoundException(Company.class, companyId);
         }
-        this.cashFlowSource = context.getById(CashFlowSource.class, id);
-        if (cashFlowSource == null) {
-            throw new NotFoundException(CashFlowSource.class, id);
-        }
         for (String indicator : indicators) {
             context.put(AssetAccount.class, indicator, this);
         }
@@ -112,7 +111,6 @@ public class AssetAccount extends Asset implements Account {
         cashFlowInstances.addAll(instances);
         this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
         computeBalances(this.cashFlowInstances);
-        cashFlowSource.setCashFlowInstances(this.cashFlowInstances);
     }
 
     public String getId() {
@@ -121,10 +119,6 @@ public class AssetAccount extends Asset implements Account {
 
     public String getName() {
         return accountName;
-    }
-
-    public AccountSource getCashFlowSource() {
-        return cashFlowSource;
     }
 
     public Company getCompany() {
@@ -226,4 +220,8 @@ public class AssetAccount extends Asset implements Account {
    public String toString() {
         return this.accountName + " (" + this.company.getCompanyName() + ")";
    }
+
+   @Override public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) { }
+
+   @Override public void sinkCashFlowInstance(CashFlowInstance cashFlowInstance) { }
 }

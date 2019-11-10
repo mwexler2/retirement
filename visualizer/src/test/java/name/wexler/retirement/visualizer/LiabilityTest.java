@@ -1,13 +1,14 @@
 package name.wexler.retirement.visualizer;
 
 import name.wexler.retirement.visualizer.Asset.Asset;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Monthly;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.Liability;
-import name.wexler.retirement.visualizer.CashFlowSource.SecuredLoan;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
+import name.wexler.retirement.visualizer.CashFlowEstimator.SecuredLoan;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
 import org.junit.After;
@@ -53,11 +54,15 @@ public class LiabilityTest {
         CashFlowFrequency monthly =
                 new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(borrower.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
         liability = new SecuredLoan(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
-                BigDecimal.valueOf(500.00), BigDecimal.valueOf(473.33), monthly.getId(), Arrays.asList("foo"));
+                BigDecimal.valueOf(500.00), BigDecimal.valueOf(473.33), monthly.getId(), defaultSink.getId(), Arrays.asList("foo"));
     }
 
     @After
@@ -87,7 +92,7 @@ public class LiabilityTest {
     @Test
     public void deserialize() throws Exception {
         String expenseSource1aStr = "{\"type\":\"liability\",\"id\":\"liability1a\",\"source\":\"monthly-liability1\",\"borrowers\":[\"borrower1\"],\"job\":\"job1\",\"baseAnnualSalary\":100000.0,\"startDate\":\"2014-01-01\",\"term\":15,\"interestRate\":4.75,\"startingBalance\":42752.53,\"paymentAmount\":432.23,\"impoundAmount\":0.00}";
-        CashFlowSource expenseSource1a = context.fromJSON(CashFlowSource.class, expenseSource1aStr);
+        CashFlowEstimator expenseSource1a = context.fromJSON(CashFlowEstimator.class, expenseSource1aStr);
         assertEquals("liability1a", expenseSource1a.getId());
     }
 

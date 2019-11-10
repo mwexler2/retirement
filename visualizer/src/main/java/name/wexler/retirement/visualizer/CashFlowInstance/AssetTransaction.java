@@ -2,7 +2,8 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowSink;
+import name.wexler.retirement.visualizer.CashFlowSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,10 +16,12 @@ import java.time.LocalDate;
         @JsonSubTypes.Type(value = SecurityTransaction.class, name = "security")
 })
 public abstract class AssetTransaction extends CashFlowInstance {
-    public AssetTransaction(CashFlowSource cashFlowSource,
+    public AssetTransaction(boolean estimated,
+                            CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
+                            String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount,
                             BigDecimal balance) {
-        super(cashFlowSource, accrualStart, accrualEnd, cashFlowDate, amount, balance);
+        super(estimated, cashFlowSource, cashFlowSink, category, accrualStart, accrualEnd, cashFlowDate, amount, balance);
     }
 }

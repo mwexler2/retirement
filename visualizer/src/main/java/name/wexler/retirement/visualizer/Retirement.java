@@ -42,9 +42,10 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
+import name.wexler.retirement.visualizer.Expense.Expense;
 import org.sqlite.JDBC;
 
 
@@ -67,15 +68,15 @@ public class Retirement {
 
         try {
             this.people = Person.readPeople(context);
+            Expense.readExpenses(context);
             Company.readCompanies(context);
+            AssetAccount.readAssetAccounts(context);
             Job.readJobs(context);
             CashFlowFrequency.readCashFlowFrequencies(context);
             Security.readSecurities(context, ds);
-            CashFlowSource.readCashFlowSources(context);
+            CashFlowEstimator.readCashFlowSources(context);
             Asset.readAssets(context);
             AssetAccount.readAccounts(context);
-
-
 
             this.scenarios = Scenario.readScenarios(context);
         } catch (JsonGenerationException | JsonMappingException e) {

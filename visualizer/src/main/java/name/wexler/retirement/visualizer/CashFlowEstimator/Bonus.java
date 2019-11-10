@@ -21,7 +21,7 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Context;
@@ -33,7 +33,7 @@ import java.util.Collections;
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class Bonus extends CashFlowSource {
+public abstract class Bonus extends CashFlowEstimator {
     @JsonIgnore
     private Job job;
 
@@ -59,6 +59,11 @@ public abstract class Bonus extends CashFlowSource {
     }
     private void setJobId(@JacksonInject("context") Context context, @JsonProperty(value = "job", required = true) String jobId) {
         this.job = context.getById(Job.class, jobId);
+    }
+
+    @JsonIgnore
+    public Job getJob() {
+        return this.job;
     }
 
 }

@@ -21,51 +21,52 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "type", "id",  "job", "annualAmount", "cashFlow" })
-public class BonusPeriodicFixed extends Bonus {
-    @JsonIdentityReference(alwaysAsId = true)
-    private final BigDecimal annualAmount;
+public class RSU extends EquityCompensation {
 
-
-    public BonusPeriodicFixed(@JacksonInject("context") Context context,
-                              @JsonProperty(value = "id", required = true) String id,
-                              @JsonProperty(value = "job", required = true) String jobId,
-                              @JsonProperty(value = "annualAmount", required = true) BigDecimal annualAmount,
-                              @JsonProperty(value = "cashFlow", required = true) String cashFlowId)
-    throws DuplicateEntityException {
-        super(context, id, jobId, cashFlowId);
-        this.annualAmount = annualAmount;
+    public RSU(@JacksonInject("context") Context context,
+               @JsonProperty(value = "id", required = true) String id,
+               @JsonProperty(value = "job", required = true) String jobId,
+               @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
+               @JsonProperty(value = "security", required = true) String securityId,
+               @JsonProperty(value = "totalShares", required = true) int totalShares) throws DuplicateEntityException {
+        super(context, id, jobId, cashFlowId, securityId, totalShares);
     }
 
+
+    @JsonIgnore
+    public String getName() {
+        return getJob().getName() + " RSU";
+    }
 
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
         return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
-                    BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
-                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
-                }
-        );
+            BigDecimal sharePrice = getSecurity().getSharePriceAtDate(accrualEnd, calendar.getAssumptions());
+            BigDecimal shares = BigDecimal.valueOf(getTotalShares()).multiply(percent);
+            BigDecimal amount = sharePrice.multiply(shares);
+            BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
+            return new CashFlowInstance(true, this, getJob().getDefaultSink(),
+                    getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
+        });
     }
 
-    public BigDecimal getAnnualAmount() {
-        return annualAmount;
-    }
 }

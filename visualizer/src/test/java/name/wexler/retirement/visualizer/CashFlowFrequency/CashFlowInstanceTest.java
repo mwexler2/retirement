@@ -1,9 +1,11 @@
 package name.wexler.retirement.visualizer.CashFlowFrequency;
 
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.Salary;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Salary;
+import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
@@ -14,6 +16,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,16 +36,21 @@ public class CashFlowInstanceTest {
         context.setAssumptions(assumptions);
         Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62);
         Company company1 = new Company(context, "company1");
-        String[] incomeSourceIds = new String[0];
-        Job job1 = new Job(context, "job1", "employer1", "employee1", incomeSourceIds);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
+        Job job1 = new Job(context, "job1", "employer1", "employee1", defaultSink.getId());
         CashFlowFrequency salary1Freq = new Monthly(context, "salary1CashFlow",
                 job1.getStartDate(),
                 job1.getEndDate(),
                 LocalDate.of(2010, Month.APRIL, 15),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        CashFlowSource salary1 = new Salary(context, "salary1", "job1", "salary1CashFlow", BigDecimal.valueOf(42000.42));
-        cfi = new CashFlowInstance(
+        CashFlowEstimator salary1 = new Salary(context, "salary1", "job1", "salary1CashFlow", BigDecimal.valueOf(42000.42));
+        cfi = new CashFlowInstance(true,
                 salary1,
+                defaultSink,
+                "test",
                 LocalDate.of(2014, Month.MAY, 1),
                 LocalDate.of(2014, Month.MAY, 15),
                 LocalDate.of(2014, Month.MAY, 25),

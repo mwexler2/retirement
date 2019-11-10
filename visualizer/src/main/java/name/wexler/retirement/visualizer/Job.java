@@ -26,8 +26,8 @@ package name.wexler.retirement.visualizer;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.Entity.Company;
+import name.wexler.retirement.visualizer.Asset.Asset;
+import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Entity.Person;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
@@ -36,16 +36,13 @@ import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.MonthDay;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 
-@JsonPropertyOrder({ "id", "startDate", "endDate", "incomeSources", "employer", "employee" })
-public class Job extends Entity {
+@JsonPropertyOrder({ "id", "startDate", "endDate", "employer", "employee" })
+public class Job extends Entity implements CashFlowSource {
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate startDate;
@@ -53,12 +50,7 @@ public class Job extends Entity {
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate endDate;
     private MonthDay bonusDay;
-
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class,
-            property = "@id")
-    @JsonIdentityReference(alwaysAsId = true)
-    private List<CashFlowSource> incomeSources;
+    private CashFlowSink defaultSink;
 
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -84,26 +76,15 @@ public class Job extends Entity {
                @JsonProperty(value = "id", required = true) String id,
                @JsonProperty(value = "employer", required = true) String employer,
                @JsonProperty(value = "employee", required = true) String employee,
-               @JsonProperty("incomeSources") String[] incomeSourceIds) throws Exception {
+               @JsonProperty(value = "defaultSink", required = true) String defaultSinkId) throws Exception {
         super(context, id, Job.class);
         this.employer = context.getById(Entity.class, employer);
         this.employee = context.getById(Entity.class, employee);
-        this.setIncomeSources(context.getByIds(Entity.class, Arrays.asList(incomeSourceIds)));
-        this.init(context);
+        this.defaultSink = context.getById(Asset.class, defaultSinkId);
     }
 
-    public Job(Context context,
-               String id,
-               Company employer,
-               Person employee) throws Exception {
-        super(context, id, Job.class);
-        this.employer = employer;
-        this.employee = employee;
-        this.init(context);
-    }
-
-    private void init(Context context) throws Exception {
-        incomeSources = new ArrayList<>();
+    public boolean isPayee(Entity payee) {
+        return employee == payee;
     }
 
     @Override
@@ -117,7 +98,6 @@ public class Job extends Entity {
         if (!startDate.equals(job.startDate)) return false;
         if (!endDate.equals(job.endDate)) return false;
         if (!bonusDay.equals(job.bonusDay)) return false;
-        if (!incomeSources.equals(job.incomeSources)) return false;
         if (!employer.equals(job.employer)) return false;
         return employee.equals(job.employee);
 
@@ -129,7 +109,6 @@ public class Job extends Entity {
         result = 31 * result + startDate.hashCode();
         result = 31 * result + endDate.hashCode();
         result = 31 * result + bonusDay.hashCode();
-        result = 31 * result + incomeSources.hashCode();
         result = 31 * result + employer.hashCode();
         result = 31 * result + employee.hashCode();
         return result;
@@ -146,14 +125,6 @@ public class Job extends Entity {
 
     public void setEmployee(Person employee) {
         this.employee = employee;
-    }
-
-    public List<CashFlowSource> getIncomeSources() {
-        return incomeSources;
-    }
-
-    public void setIncomeSources(List<CashFlowSource> incomeSources) {
-        this.incomeSources = incomeSources;
     }
 
     public Entity getEmployer() {
@@ -178,5 +149,11 @@ public class Job extends Entity {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) {}
+
+    public CashFlowSink getDefaultSink() {
+        return defaultSink;
     }
 }

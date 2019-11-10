@@ -1,9 +1,11 @@
 package name.wexler.retirement.visualizer;
 
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Monthly;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
-import name.wexler.retirement.visualizer.CashFlowSource.Salary;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowEstimator.Salary;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
 import org.junit.After;
@@ -13,6 +15,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +33,11 @@ public class SalaryTest {
         context.setAssumptions(new Assumptions());
         Company employer = new Company(context, "employer1");
         Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77);
-        Job job1 = new Job(context, "job1", employer, employee);
+        Company bank = new Company(context, "bank1");
+        CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
+                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
+                "Checking account 1", bank.getId(), Collections.emptyList());
+        Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
         LocalDate job1FirstPaycheck = LocalDate.of(2015, Month.MAY, 17);
@@ -62,7 +70,7 @@ public class SalaryTest {
     @Test
     public void fromJSON() throws Exception {
         String incomeSource1aStr = "{\"type\":\"salary\",\"id\":\"salary1a\",\"cashFlow\":\"job1CashFlow1\",\"job\":\"job1\",\"baseAnnualSalary\":100000.0}";
-        CashFlowSource incomeSource1a = context.fromJSON(CashFlowSource.class, incomeSource1aStr);
+        CashFlowEstimator incomeSource1a = context.fromJSON(CashFlowEstimator.class, incomeSource1aStr);
         assertEquals("salary1a", incomeSource1a.getId());
     }
 

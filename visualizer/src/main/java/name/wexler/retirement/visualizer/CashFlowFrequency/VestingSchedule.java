@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowSource.CashFlowSource;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.Context;
 
 import java.math.BigDecimal;
@@ -66,7 +66,7 @@ public class VestingSchedule extends CashFlowFrequency {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowSource cashFlowSource, SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>(vestings.size());
 
         LocalDate thisAccrueStart = this.getAccrueStart();
@@ -74,7 +74,7 @@ public class VestingSchedule extends CashFlowFrequency {
         for (Vesting vesting : vestings) {
             LocalDate thisAccrueEnd = thisAccrueStart.plusMonths(vesting.getMonths()).minusDays(1);
             LocalDate cashFlowDate = thisAccrueEnd.plusDays(1);
-            CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowSource.getId(),
+            CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowEstimator.getId(),
                     thisAccrueStart, thisAccrueEnd, cashFlowDate,
                     vesting.getPercent(), prevCashFlowInstance);
             result.add(cashFlowInstance);

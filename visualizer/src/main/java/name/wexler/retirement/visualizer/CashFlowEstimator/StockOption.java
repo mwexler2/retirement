@@ -21,7 +21,7 @@
 *
 */
 
-package name.wexler.retirement.visualizer.CashFlowSource;
+package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -67,7 +67,8 @@ public class StockOption extends EquityCompensation {
             BigDecimal shares = BigDecimal.valueOf(getTotalShares()).multiply(percent);
             BigDecimal amount = sharePrice.subtract(strikePrice).multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-            return new CashFlowInstance(this, accrualStart, accrualEnd, cashFlowDate, amount, balance);
+            return new CashFlowInstance(true, this, getJob().getDefaultSink(),
+                    getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
         });
     }
 

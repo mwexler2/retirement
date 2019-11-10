@@ -100,7 +100,7 @@ Then your normal row would look something like:
         sort="external">
         <display:caption>Assets & Liabilities</display:caption>
         <display:column property="itemType" group="1" />
-        <display:column property="itemClass" group="2" />
+        <display:column property="itemCategory" group="2" />
         <c:forEach var="col" items="${assetsAndLiabilities.getColumnDefinitions()}">
             <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
                             property="${col.property}" decorator="${col.decorator}" style="text-align: right"
@@ -114,7 +114,7 @@ Then your normal row would look something like:
                    sort="external">
         <display:caption>Income and Expenses --- displaytag</display:caption>
         <display:column property="itemType" group="1" />
-        <display:column property="itemClass" group="2" />
+        <display:column property="itemCategory" group="2" />
         <c:forEach var="col" items="${cashFlows.getColumnDefinitions()}">
             <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
                             property="${col.property}" decorator="${col.decorator}" style="text-align: right"
