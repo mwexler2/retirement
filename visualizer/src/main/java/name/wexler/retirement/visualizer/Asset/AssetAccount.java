@@ -66,15 +66,6 @@ public class AssetAccount extends Asset implements Account {
     @JsonIgnore
     private final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
-    static public void readAccounts(Context context) {
-        try {
-            AccountReader accountReader = new AccountReader(context);
-            accountReader.readCashFlowInstances(context);
-        } catch (IOException ioe) {
-            System.err.println(ioe);
-        }
-    }
-
     public boolean isOwner(Entity entity) {
         return this.getOwners().contains(entity);
     }
@@ -224,4 +215,9 @@ public class AssetAccount extends Asset implements Account {
    @Override public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) { }
 
    @Override public void sinkCashFlowInstance(CashFlowInstance cashFlowInstance) { }
+
+   @Override
+    public String getItemType() {
+        return AssetAccount.class.getSimpleName();
+   }
 }

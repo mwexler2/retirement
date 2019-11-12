@@ -45,42 +45,35 @@ public class AccountReader {
         }
     }
 
-    public void readCashFlowInstances(Context context) throws IOException {
+    public List<CashFlowInstance> readCashFlowInstances(Context context) throws IOException {
+        List<CashFlowInstance> cashFlowInstances = null;
         DataStore ds = Retirement.getDataStore();
         try (ResultSet rs = ds.getTxnHistory().getTransactions()) {
-            Map<Account, List<CashFlowInstance>> cashFlowInstancesByAccount =
-                    readCashFlowInstancesFromResultSet(context, rs);
-            cashFlowInstancesByAccount.forEach((account, instances) -> account.addCashFlowInstances(instances));
+            cashFlowInstances = readCashFlowInstancesFromResultSet(context, rs);
+            return cashFlowInstances;
         } catch (SQLException sqle) {
             System.err.println(sqle);
         }
+        return cashFlowInstances;
     }
 
-    private Map<Account, List<CashFlowInstance>> readCashFlowInstancesFromResultSet (
+    private List<CashFlowInstance> readCashFlowInstancesFromResultSet (
             Context context,
             ResultSet rs) {
-        Map<Account, List<CashFlowInstance>> cashFlowInstancesByAccount = new HashMap<>();
+        List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
         try {
             while (rs.next()) {
-                AccountAndCashFlowInstance instance = getInstanceFromResultSet(context, rs);
-                if (instance == null)
-                    continue;
-                Account accountForInstance = instance.account;
-                List<CashFlowInstance> cashFlowInstancesForAccount = cashFlowInstancesByAccount.get(accountForInstance);
-                if (cashFlowInstancesForAccount == null) {
-                    cashFlowInstancesForAccount = new ArrayList<>();
-                    cashFlowInstancesByAccount.put(accountForInstance, cashFlowInstancesForAccount);
-                }
-                cashFlowInstancesForAccount.add(instance.cashFlowInstance);
+                CashFlowInstance instance = getInstanceFromResultSet(context, rs);
+                cashFlowInstances.add(instance);
             }
         } catch (SQLException sqle) {
             System.err.println(sqle);
         }
-        return cashFlowInstancesByAccount;
+        return cashFlowInstances;
     }
 
-    protected AccountAndCashFlowInstance getInstanceFromResultSet(
+    protected CashFlowInstance getInstanceFromResultSet(
             Context context,
             ResultSet rs)  {
         try {
@@ -148,7 +141,7 @@ public class AccountReader {
             instance.setCategory(category);
             instance.setNotes(notes);
             instance.setLabels(labels);
-            return new AccountAndCashFlowInstance(account, instance);
+            return instance;
         } catch (SQLException sqle) {
             System.err.println(sqle);
         } catch (AccountNotFoundException anfe) {

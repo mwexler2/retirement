@@ -24,6 +24,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Job;
 
@@ -64,6 +65,12 @@ public abstract class Bonus extends CashFlowEstimator {
     @JsonIgnore
     public Job getJob() {
         return this.job;
+    }
+
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.INCOME.name();
     }
 
 }

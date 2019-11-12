@@ -30,6 +30,8 @@ import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.Expense.Expense;
+import name.wexler.retirement.visualizer.Expense.Spending;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -108,6 +110,7 @@ public class Alimony extends CashFlowEstimator {
         List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
         Map<Integer, BigDecimal> remainingBalance = new HashMap<>();
         CashFlowInstance prevCashFlowInstance = null;
+        Spending spending = this.getContext().getById(Expense.class, "spending");
         for (CashFlowInstance instance : allAlimonyCashFlows) {
             Integer year = instance.getAccrualEnd().getYear();
             if (remainingBalance.get(year) == null) {
@@ -118,7 +121,7 @@ public class Alimony extends CashFlowEstimator {
                 amount = remainingBalance.get(year);
                 BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                 instance = new CashFlowInstance(
-                        true, this, defaultSink, getCategory(),
+                        true, spending, defaultSink, getCategory(),
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
@@ -177,5 +180,18 @@ public class Alimony extends CashFlowEstimator {
     @JsonProperty(value = "payee")
     public String getPayeeId() {
         return payee.getId();
+    }
+
+
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
+    }
+
+    @JsonIgnore
+    @Override
+    public int getPass() {
+        return 3;   // Need to calculate all other income before computing alimony, because alimony is computed from rest of income
     }
 }

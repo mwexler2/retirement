@@ -36,6 +36,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 
 import name.wexler.retirement.datastore.DataStore;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
@@ -76,7 +77,6 @@ public class Retirement {
             Security.readSecurities(context, ds);
             CashFlowEstimator.readCashFlowSources(context);
             Asset.readAssets(context);
-            AssetAccount.readAccounts(context);
 
             this.scenarios = Scenario.readScenarios(context);
         } catch (JsonGenerationException | JsonMappingException e) {
@@ -100,42 +100,6 @@ public class Retirement {
 
     static public DataStore getDataStore() { return ds; }
 
-    public Collection<Balance> getAssetValues(String scenarioId, String assetId) {
-        Scenario scenario = getScenario(scenarioId);
-        Collection<Balance> balances = Objects.requireNonNull(scenario).getAssetValues(assetId);
-        return balances;
-    }
-
-    public Collection<Balance> getAssetValues(String scenarioId, String assetId, int year) {
-        Scenario scenario = getScenario(scenarioId);
-        Collection<Balance> balances = Objects.requireNonNull(scenario).getAssetValues(assetId, year);
-        return balances;
-    }
-
-    public Collection<Balance> getLiabilityBalances(String scenarioId, String liabilityId) {
-        Scenario scenario = getScenario(scenarioId);
-        Collection<Balance> balances = Objects.requireNonNull(scenario).getLiabilityBalances(liabilityId);
-        return balances;
-    }
-
-    public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String scenarioId, String liabilityId) {
-        Scenario scenario = getScenario(scenarioId);
-        List<LiabilityCashFlowInstance> cashFlowInstances = Objects.requireNonNull(scenario).getLiabilityCashFlowInstances(liabilityId);
-        return cashFlowInstances;
-    }
-
-    public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId) {
-        Scenario scenario = getScenario(scenarioId);
-        List<CashFlowInstance> cashFlows = Objects.requireNonNull(scenario).getCashFlows(cashFlowId);
-        return cashFlows;
-    }
-
-    public List<CashFlowInstance> getCashFlows(String scenarioId, String cashFlowId, int year) {
-        Scenario scenario = getScenario(scenarioId);
-        List<CashFlowInstance> cashFlows = Objects.requireNonNull(scenario).getCashFlows(cashFlowId, year);
-        return cashFlows;
-    }
-
     public void setScenarios(List<Scenario> scenarios) {
         this.scenarios = scenarios;
     }
@@ -144,8 +108,9 @@ public class Retirement {
         return people;
     }
 
-    public void setPeople(List<Person> people) {
-        this.people = people;
+
+    public CashFlowCalendar getCashFlowCalendar(String scenarioId) {
+        return getScenario(scenarioId).getCashFlowCalendar();
     }
 
 

@@ -40,6 +40,11 @@
             <artifactId>displaytag</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections-api</artifactId>
+            <version>10.0.0.M2</version>
+        </dependency>
     </dependencies>
 
     <build>

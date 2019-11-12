@@ -100,18 +100,10 @@ public class CashFlowCalendarTest {
                 30 * 12, BigDecimal.valueOf(3.875/12), BigDecimal.valueOf(50000.0),
                 BigDecimal.valueOf(500.00), BigDecimal.ZERO, monthlyPayment.getId(), defaultSink.getId(), Arrays.asList("bar"));
         cashFlowEstimators.add(debt);
-        calendar.addCashFlowEstimators(cashFlowEstimators);
-
     }
 
     @After
     public void tearDown() {
-    }
-
-
-    @Test
-    public void addIncomeSources() {
-        calendar.addCashFlowEstimators(cashFlowEstimators);
     }
 
 

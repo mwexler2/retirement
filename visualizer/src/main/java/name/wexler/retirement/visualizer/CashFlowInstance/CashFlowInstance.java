@@ -48,7 +48,13 @@ public class CashFlowInstance {
 
     public void setAction(String action) { this.action = action; }
 
-    public String getCategory() { return category; }
+    public String getCategory() {
+        return category;
+    }
+
+    public String getItemType() {
+        return cashFlowSource.getItemType();
+    }
 
     public void setCategory(String category) { this.category = category; }
 
@@ -108,6 +114,13 @@ public class CashFlowInstance {
         return cashFlowDate;
     }
 
+    public int getYear() {
+        return cashFlowDate.getYear();
+    }
+
+    public String getCashFlowSourceId() {
+        return getCashFlowSource().getId();
+    }
 
     @Override
     public String toString() {

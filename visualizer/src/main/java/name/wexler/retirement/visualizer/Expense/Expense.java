@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowSource;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
@@ -29,5 +30,9 @@ abstract public class Expense extends Entity implements CashFlowSource {
 
     public String getName() {
         return getId();
+    }
+
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
     }
 }

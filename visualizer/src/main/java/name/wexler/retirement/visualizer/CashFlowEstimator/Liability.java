@@ -183,4 +183,10 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     public void sinkCashFlowInstance(CashFlowInstance cashFlowInstance) {
 
     }
+
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
+    }
 }

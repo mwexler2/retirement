@@ -28,20 +28,13 @@ import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Asset.Asset;
-import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mwexler on 6/28/16.
@@ -53,6 +46,7 @@ public class Scenario extends Entity {
     private final String name;
     private Assumptions _assumptions;
     private static final String scenariosPath = "scenarios.json";
+    private List<CashFlowEstimator> _cashFlowEstimators;
 
     @JsonIgnore
     private final CashFlowCalendar calendar;
@@ -66,7 +60,7 @@ public class Scenario extends Entity {
     public Scenario(@JacksonInject("context") Context context,
              @JsonProperty("id") String id,
              @JsonProperty("name") String name,
-             @JsonProperty("cashFlowSources") String[] cashFlowSources,
+             @JsonProperty("cashFlowSources") String[] cashFlowEstimators,
              @JsonProperty("assets") String[] assets,
              @JsonProperty("liabilities") String[] liabilities,
              @JsonProperty("accounts") String[] accounts,
@@ -74,23 +68,50 @@ public class Scenario extends Entity {
         super(context, id, Scenario.class);
         this.name = name;
         this._assumptions = assumptions;
+        _cashFlowEstimators = new ArrayList<>();
+
+        setCashFlowEstimators(context, cashFlowEstimators);
         calendar = new CashFlowCalendar(this, assumptions);
-        setCashFlowSourceIds(context, cashFlowSources);
+        for (int pass = 1; pass <= 3; ++pass) {
+            List<CashFlowInstance> cashFlowInstances = getCashFlowInstances(calendar, pass);
+            calendar.addCashFlowInstances(cashFlowInstances);
+        }
         setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);
         setAccountIds(context, accounts);
         context.put(Scenario.class, id, this);
     }
 
+    private List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, int pass) {
+        final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
+        _cashFlowEstimators.
+                stream().
+                filter(estimator -> estimator.getPass() == pass).
+                forEach(cashFlowSource -> {
+                    String id = cashFlowSource.getId();
+                    List<CashFlowInstance> estimatorInstances = cashFlowSource.getCashFlowInstances(calendar);
+                    cashFlowInstances.addAll(estimatorInstances);
+                });
+        return cashFlowInstances;
+    }
+
+    private List<CashFlowInstance> getHistoricalCashFlowInstances() {
+        try {
+            AccountReader accountReader = new AccountReader(getContext());
+            return accountReader.readCashFlowInstances(getContext());
+        } catch (IOException ioe) {
+            System.err.println(ioe);
+        }
+        return null;
+    }
+
 
     @JsonProperty(value = "cashFlowSources")
-    private void setCashFlowSourceIds(@JacksonInject("context") Context context,
-                                      @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowSourceIds) {
-        List<CashFlowEstimator> cashFlowEstimators = new ArrayList<>(cashFlowSourceIds.length);
+    private void setCashFlowEstimators(@JacksonInject("context") Context context,
+                                       @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowSourceIds) {
         for (String cashFlowSourceId : cashFlowSourceIds) {
-            cashFlowEstimators.add(context.getById(CashFlowEstimator.class, cashFlowSourceId));
+            _cashFlowEstimators.add(context.getById(CashFlowEstimator.class, cashFlowSourceId));
         }
-        calendar.addCashFlowEstimators(cashFlowEstimators);
     }
 
     @JsonProperty(value = "accounts")
@@ -137,36 +158,7 @@ public class Scenario extends Entity {
         return calendar.getYears();
     }
 
-
-    @JsonIgnore
-    public List<CashFlowInstance> getCashFlows(String cashFlowId) {
-        return calendar.getCashFlows(cashFlowId);
+    public CashFlowCalendar getCashFlowCalendar() {
+        return calendar;
     }
-
-    @JsonIgnore
-    public Collection<Balance> getAssetValues(String assetId) { return calendar.getAssetValues(assetId); }
-
-    @JsonIgnore
-    public Collection<Balance> getAssetValues(String assetId, int year) {
-        return calendar.getAssetValues(assetId, year);
-    }
-
-    @JsonIgnore
-    public Collection<Balance> getLiabilityBalances(String liabilityId) { return calendar.getLiabilityBalances(liabilityId); }
-
-    @JsonIgnore
-    public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String liabilityId) {
-        return calendar.getLiabilityCashFlowInstances(liabilityId);
-    }
-
-    @JsonIgnore
-    public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
-        return calendar.getCashFlows(cashFlowId, year);
-    }
-
-    public CashFlowCalendar.TableList getAssetsAndLiabilities() {
-        return calendar.getAssetsAndLiabilities();
-    }
-
-    public CashFlowCalendar.TableList getCashFlows() { return calendar.getCashFlows(); }
 }

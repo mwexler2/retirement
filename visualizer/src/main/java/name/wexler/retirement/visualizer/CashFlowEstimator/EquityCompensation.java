@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Job;
 import name.wexler.retirement.visualizer.Security;
@@ -65,5 +66,9 @@ abstract public class EquityCompensation extends CashFlowEstimator {
         return security;
     }
 
-
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.INCOME.name();
+    }
 }

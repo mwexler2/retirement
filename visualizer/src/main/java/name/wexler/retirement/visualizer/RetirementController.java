@@ -55,7 +55,7 @@ public class RetirementController {
         model.put("cashFlowId", cashFlowId);
         model.put("scenarioId", scenarioId);
         model.put("year", year);
-        List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId, year);
+        List<CashFlowInstance> cashFlows = retirement.getCashFlowCalendar(scenarioId).getCashFlows(cashFlowId, year);
         model.put("cashFlows", cashFlows);
         return new ModelAndView("yearCashFlows", model);
     }
@@ -65,7 +65,7 @@ public class RetirementController {
         Retirement retirement = new Retirement();
         model.put("cashFlowId", cashFlowId);
         model.put("scenarioId", scenarioId);
-        List<CashFlowInstance> cashFlows = retirement.getCashFlows(scenarioId, cashFlowId);
+        List<CashFlowInstance> cashFlows = retirement.getCashFlowCalendar(scenarioId).getCashFlows(cashFlowId);
         model.put("cashFlows", cashFlows);
         return new ModelAndView("cashFlows", model);
     }
@@ -80,9 +80,9 @@ public class RetirementController {
         model.put("assetId", assetId);
         model.put("scenarioId", scenarioId);
         model.put("year", year);
-        List<CashFlowInstance> cashFlowInstances = retirement.getCashFlows(scenarioId, assetId, year);
+        List<CashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getCashFlows(assetId, year);
         model.put("cashFlowInstances", cashFlowInstances);
-        Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId, year);
+        Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).getAssetValues(assetId, year);
         model.put("balances", balances);
         return new ModelAndView("asset", model);
     }
@@ -92,18 +92,42 @@ public class RetirementController {
         Retirement retirement = new Retirement();
         model.put("assetId", assetId);
         model.put("scenarioId", scenarioId);
-        Collection<Balance> balances = retirement.getAssetValues(scenarioId, assetId);
+        Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).getAssetValues(assetId);
         model.put("balances", balances);
         return new ModelAndView("asset", model);
     }
 
-    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}", method = RequestMethod.GET)
-    public ModelAndView retirementLiability(@PathVariable String liabilityId, @PathVariable String scenarioId, ModelMap model) {
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}/year/{year}", method = RequestMethod.GET)
+    public ModelAndView retirementLiability(@PathVariable String liabilityId,
+                                            @PathVariable String scenarioId,
+                                            @PathVariable int year,
+                                            ModelMap model) {
         Retirement retirement = new Retirement();
         model.put("assetId", liabilityId);
         model.put("scenarioId", scenarioId);
-        List<LiabilityCashFlowInstance> cashFlowInstances = retirement.getLiabilityCashFlowInstances(scenarioId, liabilityId);
-        Collection<Balance> balances = retirement.getLiabilityBalances(scenarioId, liabilityId);
+        model.put("year", year);
+        List<LiabilityCashFlowInstance> cashFlowInstances =
+                retirement.getCashFlowCalendar(scenarioId).
+                        getLiabilityCashFlowInstances(liabilityId, year);
+        Collection<Balance> balances = retirement.
+                getCashFlowCalendar(scenarioId).
+                getLiabilityBalances(liabilityId, year);
+        model.put("balances", balances);
+        model.put("cashFlows", cashFlowInstances);
+        return new ModelAndView("cashFlows", model);
+        /* return new ModelAndView("liability", model); */
+    }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}", method = RequestMethod.GET)
+    public ModelAndView retirementLiability(@PathVariable String liabilityId,
+                                            @PathVariable String scenarioId,
+                                            ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", liabilityId);
+        model.put("scenarioId", scenarioId);
+        List<LiabilityCashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getLiabilityCashFlowInstances(liabilityId);
+        Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).
+                getLiabilityBalances(liabilityId);
         model.put("balances", balances);
         model.put("cashFlowInstances", cashFlowInstances);
         return new ModelAndView("liability", model);

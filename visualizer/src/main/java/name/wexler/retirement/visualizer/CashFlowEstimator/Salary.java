@@ -127,4 +127,10 @@ public class Salary extends CashFlowEstimator {
         result = 31 * result + (baseAnnualSalary != null ? baseAnnualSalary.hashCode() : 0);
         return result;
     }
+
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.INCOME.name();
+    }
 }

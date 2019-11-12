@@ -43,6 +43,8 @@ import name.wexler.retirement.visualizer.Security;
         @JsonSubTypes.Type(value = Security.class, name = "security"),
         @JsonSubTypes.Type(value = Scenario.class, name="scenario")})
 public abstract class Entity {
+    private Context context;
+
     public class DuplicateEntityException extends Exception {
         public DuplicateEntityException(String id) {
             super("Key" + id + "already exists.");
@@ -52,6 +54,7 @@ public abstract class Entity {
 
     public Entity(Context context, @JsonProperty("id") String id, Class c) throws DuplicateEntityException {
         this.id = id;
+        this.context = context;
          if (context.getById(c, id) != null)
             throw new DuplicateEntityException(id);
         context.put(c, id, this);
@@ -65,5 +68,9 @@ public abstract class Entity {
 
     public String getCategory() {
         return getClass().getSimpleName();
+    }
+
+    public Context getContext() {
+        return this.context;
     }
 }

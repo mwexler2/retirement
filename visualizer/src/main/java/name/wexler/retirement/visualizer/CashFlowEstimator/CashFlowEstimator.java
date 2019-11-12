@@ -161,4 +161,15 @@ public abstract class CashFlowEstimator extends Entity implements CashFlowSource
     public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) {
 
     }
+
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowEstimator.class.getSimpleName();
+    }
+
+    @JsonIgnore
+    public int getPass() {
+        return 1;   // By default estimators run the first pass
+    }
 }

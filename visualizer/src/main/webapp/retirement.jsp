@@ -95,7 +95,7 @@ Then your normal row would look something like:
 </table>
 
 
-    <c:set var="assetsAndLiabilities" scope="page" value="${scenario.assetsAndLiabilities}"></c:set>
+    <c:set var="assetsAndLiabilities" scope="page" value="${scenario.cashFlowCalendar.assetsAndLiabilities}"></c:set>
     <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.MultilevelBigDecimalLinkTableDecorator"
         sort="external">
         <display:caption>Assets & Liabilities</display:caption>
@@ -109,7 +109,7 @@ Then your normal row would look something like:
 
     </display:table>
 
-    <c:set var="cashFlows" scope="page" value="${scenario.cashFlows}"></c:set>
+    <c:set var="cashFlows" scope="page" value="${scenario.cashFlowCalendar.cashFlows}"></c:set>
     <display:table uid="cashFlow" name="${cashFlows}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.MultilevelBigDecimalLinkTableDecorator"
                    sort="external">
         <display:caption>Income and Expenses --- displaytag</display:caption>

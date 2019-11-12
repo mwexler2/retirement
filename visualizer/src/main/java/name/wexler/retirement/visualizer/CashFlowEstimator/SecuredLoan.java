@@ -148,4 +148,10 @@ public class SecuredLoan extends Liability {
         BigDecimal principal = paymentAmount.subtract(interest).subtract(impoundAmount);
         return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
     }
+
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
+    }
 }

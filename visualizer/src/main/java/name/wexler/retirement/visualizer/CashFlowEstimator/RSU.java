@@ -69,4 +69,9 @@ public class RSU extends EquityCompensation {
         });
     }
 
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.INCOME.name();
+    }
 }

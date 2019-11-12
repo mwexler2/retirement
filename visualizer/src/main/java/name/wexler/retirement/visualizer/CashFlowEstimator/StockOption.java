@@ -72,4 +72,9 @@ public class StockOption extends EquityCompensation {
         });
     }
 
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.INCOME.name();
+    }
 }

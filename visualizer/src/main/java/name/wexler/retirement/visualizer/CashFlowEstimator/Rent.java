@@ -147,11 +147,9 @@ public class Rent extends CashFlowEstimator {
 
     public LocalDate getEndDate() { return endDate; }
 
-    public BigDecimal getPaymentAmount() {
-        return paymentAmount;
-    }
-
-    public void setPaymentAmount(BigDecimal paymentAmount) {
-        this.paymentAmount = paymentAmount;
+    @JsonIgnore
+    @Override
+    public String getItemType() {
+        return CashFlowCalendar.ITEM_TYPE.INCOME.name();
     }
 }

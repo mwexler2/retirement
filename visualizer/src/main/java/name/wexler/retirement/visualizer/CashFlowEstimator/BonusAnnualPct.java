@@ -77,4 +77,9 @@ public class BonusAnnualPct extends Bonus {
     public BigDecimal getBonusPct() {
         return bonusPct;
     }
+
+    @JsonIgnore
+    public int getPass() {
+        return 2;   // Calculated after Salary, because bonus is a percent of salary.
+    }
 }

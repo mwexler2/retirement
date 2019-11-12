@@ -156,4 +156,8 @@ public class Job extends Entity implements CashFlowSource {
     public CashFlowSink getDefaultSink() {
         return defaultSink;
     }
+
+    public String getItemType() {
+        return getClass().getSimpleName();
+    }
 }
