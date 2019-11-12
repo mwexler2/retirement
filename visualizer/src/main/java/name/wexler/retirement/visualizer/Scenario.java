@@ -72,17 +72,19 @@ public class Scenario extends Entity {
 
         setCashFlowEstimators(context, cashFlowEstimators);
         calendar = new CashFlowCalendar(this, assumptions);
+        calendar.addCashFlowInstances(getHistoricalCashFlowInstances());
         for (int pass = 1; pass <= 3; ++pass) {
-            List<CashFlowInstance> cashFlowInstances = getCashFlowInstances(calendar, pass);
+            List<CashFlowInstance> cashFlowInstances = getFutureCashFlowInstances(calendar, pass);
             calendar.addCashFlowInstances(cashFlowInstances);
         }
+
         setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);
         setAccountIds(context, accounts);
         context.put(Scenario.class, id, this);
     }
 
-    private List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, int pass) {
+    private List<CashFlowInstance> getFutureCashFlowInstances(CashFlowCalendar calendar, int pass) {
         final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
         _cashFlowEstimators.
                 stream().
@@ -121,7 +123,6 @@ public class Scenario extends Entity {
         for (String accountId : accountIds) {
             accounts.add(context.getById(Asset.class, accountId));
         }
-        calendar.addAccounts(accounts);
     }
 
     @JsonProperty(value = "assets")

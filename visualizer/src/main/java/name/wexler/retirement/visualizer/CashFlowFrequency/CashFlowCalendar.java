@@ -29,7 +29,6 @@ public class CashFlowCalendar {
     }
     private final Map<String, Asset> _assets;
     private final Map<String, Liability> _liabilities;
-    private final Map<String, AssetAccount> _accounts;
     private List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
     private final Assumptions _assumptions;
     private final Scenario _scenario;
@@ -44,7 +43,6 @@ public class CashFlowCalendar {
         _assumptions = assumptions;
         _assets = new HashMap<>();
         _liabilities = new HashMap<>();
-        _accounts = new HashMap<>();
     }
 
     public void addCashFlowInstances(List<CashFlowInstance> cashFlowInstances) {
@@ -57,10 +55,6 @@ public class CashFlowCalendar {
 
     public void addLiabilities(List<Liability> liabilities) {
         liabilities.forEach(item-> _liabilities.put(item.getId(), item));
-    }
-
-    public void addAccounts(List<AssetAccount> accounts) {
-        accounts.forEach(account->_accounts.put(account.getId(), account));
     }
 
     public List<Integer> getYears() {

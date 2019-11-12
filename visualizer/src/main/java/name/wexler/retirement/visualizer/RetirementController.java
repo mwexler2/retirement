@@ -44,7 +44,6 @@ public class RetirementController {
 
     private static final String VIEW_INDEX = "index";
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RetirementController.class);
-//    DataStore ds = new DataStore();
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/cashflow/{cashFlowId}/year/{year}", method = RequestMethod.GET)
     public ModelAndView retirementCashFlow(@PathVariable String cashFlowId,

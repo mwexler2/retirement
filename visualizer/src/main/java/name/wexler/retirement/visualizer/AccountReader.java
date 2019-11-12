@@ -35,16 +35,6 @@ public class AccountReader {
         }
     }
 
-    protected class AccountAndCashFlowInstance {
-        private final Account account;
-        private final CashFlowInstance cashFlowInstance;
-
-        AccountAndCashFlowInstance(Account account, CashFlowInstance cashFlowInstance) {
-            this.account = account;
-            this.cashFlowInstance = cashFlowInstance;
-        }
-    }
-
     public List<CashFlowInstance> readCashFlowInstances(Context context) throws IOException {
         List<CashFlowInstance> cashFlowInstances = null;
         DataStore ds = Retirement.getDataStore();
@@ -65,7 +55,8 @@ public class AccountReader {
         try {
             while (rs.next()) {
                 CashFlowInstance instance = getInstanceFromResultSet(context, rs);
-                cashFlowInstances.add(instance);
+                if (instance != null)
+                    cashFlowInstances.add(instance);
             }
         } catch (SQLException sqle) {
             System.err.println(sqle);
