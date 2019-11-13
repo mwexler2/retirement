@@ -60,8 +60,8 @@ public class StockOption extends EquityCompensation {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
+        return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
             BigDecimal sharePrice = getSecurity().getSharePriceAtDate(accrualEnd, calendar.getAssumptions());
             BigDecimal shares = BigDecimal.valueOf(getTotalShares()).multiply(percent);

@@ -58,9 +58,9 @@ public class Salary extends CashFlowEstimator {
                 Collections.singletonList(((Job) context.getById(Job.class, jobId)).getEmployer()));
         this.setJobId(context, jobId);
         this.baseAnnualSalary = baseAnnualSalary;
-        ChronoUnit payUnit = this.getCashFlow().getChronoUnit();
-        BigDecimal payUnitMultiplier = this.getCashFlow().getUnitMultiplier();
-        BigDecimal amountPerUnit = baseAnnualSalary.divide(getCashFlow().unitsPerYear(), 2, RoundingMode.HALF_UP);
+        ChronoUnit payUnit = this.getCashFlowFrequency().getChronoUnit();
+        BigDecimal payUnitMultiplier = this.getCashFlowFrequency().getUnitMultiplier();
+        BigDecimal amountPerUnit = baseAnnualSalary.divide(getCashFlowFrequency().unitsPerYear(), 2, RoundingMode.HALF_UP);
     }
 
     @JsonIgnore
@@ -97,8 +97,8 @@ public class Salary extends CashFlowEstimator {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
+        return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = baseAnnualSalary.multiply(percent).setScale(2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();

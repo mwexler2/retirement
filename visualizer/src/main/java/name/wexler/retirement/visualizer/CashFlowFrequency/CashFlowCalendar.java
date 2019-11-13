@@ -124,6 +124,7 @@ public class CashFlowCalendar {
         List<CashFlowInstance> cashFlows =
                 cashFlowInstances.stream().
                         filter(instance -> instance.getCashFlowId().equals(cashFlowId)).
+                        sorted().
                         collect(Collectors.toList());
         return cashFlows;
     }
@@ -131,11 +132,32 @@ public class CashFlowCalendar {
     public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
         List<CashFlowInstance> cashFlows =
             cashFlowInstances.stream().
-                filter(instance -> instance.getCashFlowId().equals(cashFlowId)).
-                filter(instance -> instance.getYear() == year).
-                collect(Collectors.toList());
+                    filter(instance -> instance.getCashFlowId().equals(cashFlowId)).
+                    filter(instance -> instance.getYear() == year).
+                    sorted().
+                    collect(Collectors.toList());
         return cashFlows;
     }
+
+    public List<CashFlowInstance> getCashFlowsBySink(String cashFlowId) {
+        List<CashFlowInstance> cashFlows =
+                cashFlowInstances.stream().
+                        filter(instance -> instance.getCashFlowSink().equals(cashFlowId)).
+                        sorted().
+                        collect(Collectors.toList());
+        return cashFlows;
+    }
+
+    public List<CashFlowInstance> getCashFlowsBySink(String cashFlowId, Integer year) {
+        List<CashFlowInstance> cashFlows =
+                cashFlowInstances.stream().
+                        filter(instance -> instance.getCashFlowSinkId().equals(cashFlowId)).
+                        filter(instance -> instance.getYear() == year).
+                        sorted().
+                        collect(Collectors.toList());
+        return cashFlows;
+    }
+
 
     public List<Balance> getAssetValues(String assetId) {
         List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario);
@@ -167,11 +189,11 @@ public class CashFlowCalendar {
     }
 
     public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String liabilityId) {
-        return (List<LiabilityCashFlowInstance>) (List<?>) getCashFlows(liabilityId);
+        return (List<LiabilityCashFlowInstance>) (List<?>) getCashFlowsBySink(liabilityId);
     }
 
     public List<LiabilityCashFlowInstance> getLiabilityCashFlowInstances(String liabilityId, int year) {
-        return (List<LiabilityCashFlowInstance>) (List<?>) getCashFlows(liabilityId, year);
+        return (List<LiabilityCashFlowInstance>) (List<?>) getCashFlowsBySink(liabilityId, year);
     }
 
 

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by mwexler on 11/29/16.
  */
-public class CashFlowInstance {
+public class CashFlowInstance implements Comparable<CashFlowInstance> {
     private final CashFlowSource cashFlowSource;
     private final LocalDate accrualStart;
     private final LocalDate accrualEnd;
@@ -42,6 +42,23 @@ public class CashFlowInstance {
         this.cashFlowSource = cashFlowSource;
         this.cashFlowSink = cashFlowSink;
         this.category = category;
+    }
+
+    public int compareTo(CashFlowInstance that) {
+        int result = 0;
+        result = this.cashFlowDate.compareTo(that.getCashFlowDate());
+        if (result != 0)
+            return result;
+        result = this.accrualStart.compareTo(that.accrualStart);
+        if (result != 0)
+            return result;
+        result = this.category.compareTo(that.category);
+        if (result != 0)
+            return result;
+        result = this.description.compareTo(that.description);
+        if (result != 0)
+            return result;
+        return result;
     }
 
     public String getAction() { return action; }
@@ -80,6 +97,10 @@ public class CashFlowInstance {
 
     public CashFlowSink getCashFlowSink() {
         return cashFlowSink;
+    }
+
+    public String getCashFlowSinkId() {
+        return cashFlowSink.getId();
     }
 
     public LocalDate getAccrualStart() {

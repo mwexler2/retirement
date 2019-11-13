@@ -84,6 +84,7 @@ public class MintCrawler {
             try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 result = input.lines().collect(Collectors.joining(System.lineSeparator()));
                 JSONArray txnList = getMintInfo(result);
+                txnHistory.deleteAllRows();
                 if (txnList != null)
                  processTxnListJSON(txnList, cmd);
             } catch (IOException ioe) {

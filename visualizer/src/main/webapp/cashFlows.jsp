@@ -13,6 +13,10 @@
         <th>Date</th>
         <th>Accrual Start</th>
         <th>Accrual End</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Labels</th>
+        <th>Notes</th>
         <th>Amount</th>
     </tr>
     <c:forEach var="cashFlow" items="${cashFlows}">
@@ -20,6 +24,10 @@
             <th>${cashFlow.cashFlowDate}</th>
             <td>${cashFlow.accrualStart}</td>
             <td>${cashFlow.accrualEnd}</td>
+            <td>${cashFlow.category}</td>
+            <td>${cashFlow.description}</td>
+            <td>${cashFlow.labels}</td>
+            <td>${cashFlow.notes}</td>
             <td>
                 <fmt:formatNumber value="${cashFlow.amount}" type="currency" />
             </td>

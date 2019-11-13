@@ -102,7 +102,7 @@ public class RetirementController {
                                             @PathVariable int year,
                                             ModelMap model) {
         Retirement retirement = new Retirement();
-        model.put("assetId", liabilityId);
+        model.put("cashFlowId", liabilityId);
         model.put("scenarioId", scenarioId);
         model.put("year", year);
         List<LiabilityCashFlowInstance> cashFlowInstances =

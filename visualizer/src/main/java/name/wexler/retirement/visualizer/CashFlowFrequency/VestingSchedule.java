@@ -66,7 +66,7 @@ public class VestingSchedule extends CashFlowFrequency {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getFutureCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>(vestings.size());
 
         LocalDate thisAccrueStart = this.getAccrueStart();

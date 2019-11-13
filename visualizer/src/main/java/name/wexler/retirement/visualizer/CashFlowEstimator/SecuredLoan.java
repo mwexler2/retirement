@@ -88,9 +88,9 @@ public class SecuredLoan extends Liability {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
 
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+        return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) ->
         {
             BigDecimal balance = getStartingBalance().getValue();
@@ -122,7 +122,7 @@ public class SecuredLoan extends Liability {
 
     @JsonProperty(value = "source")
     public String getSourceId() {
-        return this.getCashFlow().getId();
+        return this.getCashFlowFrequency().getId();
     }
 
 

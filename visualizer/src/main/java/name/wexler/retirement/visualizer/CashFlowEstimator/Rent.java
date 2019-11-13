@@ -86,8 +86,8 @@ public class Rent extends CashFlowEstimator {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        return getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
+        return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(true,this, defaultSink, getCategory(),
@@ -111,7 +111,7 @@ public class Rent extends CashFlowEstimator {
 
     @JsonProperty(value = "source")
     public String getSourceId() {
-        return this.getCashFlow().getId();
+        return this.getCashFlowFrequency().getId();
     }
 
 

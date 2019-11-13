@@ -91,7 +91,7 @@ public class Scenario extends Entity {
                 filter(estimator -> estimator.getPass() == pass).
                 forEach(cashFlowSource -> {
                     String id = cashFlowSource.getId();
-                    List<CashFlowInstance> estimatorInstances = cashFlowSource.getCashFlowInstances(calendar);
+                    List<CashFlowInstance> estimatorInstances = cashFlowSource.getEstimatedFutureCashFlows(calendar);
                     cashFlowInstances.addAll(estimatorInstances);
                 });
         return cashFlowInstances;

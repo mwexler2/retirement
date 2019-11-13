@@ -52,6 +52,16 @@ public class TxnHistory {
         }
     }
 
+    public void deleteAllRows() {
+        String sql = "DELETE FROM txnHistory";
+        try {
+            Statement stmt = conn.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql);
+        } catch (SQLException se) {
+            System.err.println(se);
+        }
+    }
+
     public void insertRow(Map<String, Object> line) {
         String sql = "INSERT INTO txnHistory \n"
                 + "(date, description, original_description, amount, txn_type, category, account_name, labels, notes) \n"

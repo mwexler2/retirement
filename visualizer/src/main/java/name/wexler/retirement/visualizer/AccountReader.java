@@ -76,7 +76,7 @@ public class AccountReader {
 
             String description = rs.getString("description");
             String category = rs.getString("category");
-            String notes = rs.getString("notes");
+            String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
             String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
             List<String> labels = Arrays.asList(labelsStr.split(","));
 
@@ -102,7 +102,8 @@ public class AccountReader {
                 }
                 if (cashFlowSource == null)
                     cashFlowSource = spending;
-                instance = new PaymentInstance(cashFlowSource, account, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+                instance = new PaymentInstance(cashFlowSource, account, category,
+                        accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);
             } else if (action.equals("credit") && category.equals("Paycheck")) {
                 if (company == null) {

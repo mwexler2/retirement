@@ -103,7 +103,7 @@ abstract public class Liability extends CashFlowEstimator implements Account {
 
     @JsonProperty(value = "source")
     public String getSourceId() {
-        return this.getCashFlow().getId();
+        return this.getCashFlowFrequency().getId();
     }
 
 
@@ -170,7 +170,7 @@ abstract public class Liability extends CashFlowEstimator implements Account {
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
         return cashFlowInstances;
     }
 

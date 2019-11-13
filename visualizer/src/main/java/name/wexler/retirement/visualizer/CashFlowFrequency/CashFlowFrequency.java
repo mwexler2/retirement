@@ -133,7 +133,7 @@ public abstract class CashFlowFrequency extends Entity {
 
     protected abstract List<CashFlowPeriod> getCashFlowPeriods();
 
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
+    public List<CashFlowInstance> getFutureCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
         BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
@@ -142,15 +142,12 @@ public abstract class CashFlowFrequency extends Entity {
         for (CashFlowPeriod period : cashFlowPeriods) {
             CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowEstimator.getId(),
                     period.accrualStart, period.accrualEnd, period.cashFlowDate, period.portion, prevCashFlowInstance);
-            result.add(cashFlowInstance);
+            if (cashFlowInstance.getCashFlowDate().isAfter(LocalDate.now()))
+                result.add(cashFlowInstance);
             prevCashFlowInstance = cashFlowInstance;
         }
 
         return result;
-    }
-
-    public ApportionmentPeriod getApportionmentPeriod() {
-        return apportionmentPeriod;
     }
 
     abstract public ChronoUnit getChronoUnit();

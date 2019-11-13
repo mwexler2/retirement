@@ -131,12 +131,12 @@ public abstract class CashFlowEstimator extends Entity implements CashFlowSource
         return result;
     }
 
-    public abstract List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar calendar);
+    public abstract List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar calendar);
 
     abstract public String getName();
 
     @JsonIgnore
-    public CashFlowFrequency getCashFlow() {
+    public CashFlowFrequency getCashFlowFrequency() {
         return cashFlow;
     }
 

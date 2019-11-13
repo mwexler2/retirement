@@ -24,6 +24,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowSink;
@@ -56,16 +57,16 @@ public class Alimony extends CashFlowEstimator {
 
     @JsonCreator
     public Alimony(@JacksonInject("context") Context context,
-                   @JsonProperty("id") String id,
-                   @JsonProperty("payee") String payeeId,
-                   @JsonProperty("payor") String payorId,
-                   @JsonProperty("baseIncome") BigDecimal baseIncome,
-                   @JsonProperty("baseAlimony") BigDecimal baseAlimony,
-                   @JsonProperty("smithOstlerRate") BigDecimal smithOstlerRate,
+                   @JsonProperty(value = "id", required = true) String id,
+                   @JsonProperty(value = "payee", required = true) String payeeId,
+                   @JsonProperty(value = "payor", required = true) String payorId,
+                   @JsonProperty(value = "baseIncome", required = true) BigDecimal baseIncome,
+                   @JsonProperty(value = "baseAlimony", required = true) BigDecimal baseAlimony,
+                   @JsonProperty(value = "smithOstlerRate", required = true) BigDecimal smithOstlerRate,
                    @JsonProperty("maxAlimony") BigDecimal maxAlimony,
                    @JsonProperty("baseCashFlow") String baseCashFlowId,
                    @JsonProperty("smithOstlerCashFlow") String smithOstlerCashFlowId,
-                   @JsonProperty("defaultSink") String defaultSinkId
+                   @JsonProperty(value = "defaultSink", required = true) String defaultSinkId
     ) throws DuplicateEntityException {
         super(context, id, baseCashFlowId,
                 context.getListById(Entity.class, payeeId),
@@ -77,21 +78,21 @@ public class Alimony extends CashFlowEstimator {
         this.smithOstlerRate = smithOstlerRate;
         this.maxAlimony = maxAlimony;
         setSmithOstlerCashFlowId(context, smithOstlerCashFlowId);
-        this.defaultSink = context.getById(CashFlowSink.class, defaultSinkId);
+        this.defaultSink = context.getById(Asset.class, defaultSinkId);
         context.put(Alimony.class, id, this);
     }
 
 
     @JsonIgnore
     @Override
-    public List<CashFlowInstance> getCashFlowInstances(CashFlowCalendar cashFlowCalendar) {
-        List<CashFlowInstance> baseCashFlows = getCashFlow().getCashFlowInstances(cashFlowCalendar, this,
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
+        List<CashFlowInstance> baseCashFlows = getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(true, this, defaultSink, getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance);
                 });
-        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getCashFlowInstances(cashFlowCalendar, this,
+        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
