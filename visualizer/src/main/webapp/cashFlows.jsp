@@ -28,7 +28,7 @@
 <body>
  <display:table uid="item" name="${command.cashFlows}" sort="external"
                 decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator">
-        <display:caption>Cash Flows for ${scenarioId}/${category}</display:caption>
+        <display:caption>Cash Flows for ${command.scenarioId}/${command.category}</display:caption>
         <display:column property="cashFlowDate" />
         <display:column property="accrualStart" />
         <display:column property="accrualEnd" />

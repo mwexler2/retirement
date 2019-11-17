@@ -46,29 +46,6 @@ public class RetirementController {
     private static final String VIEW_INDEX = "index";
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RetirementController.class);
 
-    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/cashflow/{cashFlowId}/year/{year}", method = RequestMethod.GET)
-    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId,
-                                           @PathVariable String scenarioId,
-                                           @PathVariable int year,
-                                           ModelMap model) {
-        Retirement retirement = new Retirement();
-        model.put("cashFlowId", cashFlowId);
-        model.put("scenarioId", scenarioId);
-        model.put("year", year);
-        List<CashFlowInstance> cashFlows = retirement.getCashFlowCalendar(scenarioId).getCashFlows(cashFlowId, year);
-        model.put("cashFlows", cashFlows);
-        return new ModelAndView("yearCashFlows", model);
-    }
-
-    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/cashflow/{cashFlowId}", method = RequestMethod.GET)
-    public ModelAndView retirementCashFlow(@PathVariable String cashFlowId, @PathVariable String scenarioId, ModelMap model) {
-        Retirement retirement = new Retirement();
-        model.put("cashFlowId", cashFlowId);
-        model.put("scenarioId", scenarioId);
-        List<CashFlowInstance> cashFlows = retirement.getCashFlowCalendar(scenarioId).getCashFlows(cashFlowId);
-        model.put("cashFlows", cashFlows);
-        return new ModelAndView("cashFlows", model);
-    }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/asset/{assetId}/year/{year}", method = RequestMethod.GET)
     public ModelAndView retirementAsset(@PathVariable String assetId,
@@ -81,10 +58,10 @@ public class RetirementController {
         model.put("scenarioId", scenarioId);
         model.put("year", year);
         List<CashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getCashFlows(assetId, year);
-        model.put("cashFlowInstances", cashFlowInstances);
+        model.put("cashFlows", cashFlowInstances);
         Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).getAssetValues(assetId, year);
         model.put("balances", balances);
-        return new ModelAndView("asset", model);
+        return new ModelAndView("asset", "command", model);
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
@@ -94,7 +71,7 @@ public class RetirementController {
         model.put("scenarioId", scenarioId);
         Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).getAssetValues(assetId);
         model.put("balances", balances);
-        return new ModelAndView("asset", model);
+        return new ModelAndView("asset", "command", model);
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}/year/{year}", method = RequestMethod.GET)
@@ -115,7 +92,6 @@ public class RetirementController {
         model.put("balances", balances);
         model.put("cashFlows", cashFlowInstances);
         return new ModelAndView("cashFlows", model);
-        /* return new ModelAndView("liability", model); */
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}", method = RequestMethod.GET)
@@ -131,7 +107,6 @@ public class RetirementController {
         model.put("balances", balances);
         model.put("cashFlows", cashFlowInstances);
         return new ModelAndView("cashFlows", model);
-        /* return new ModelAndView("liability", model); */
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/{grouping}/{category}/year/{year}", method = RequestMethod.GET)

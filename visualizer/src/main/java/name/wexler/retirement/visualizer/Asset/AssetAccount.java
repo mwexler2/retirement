@@ -98,12 +98,6 @@ public class AssetAccount extends Asset implements Account {
         accounts.add(this);
     }
 
-    public void addCashFlowInstances(List<CashFlowInstance> instances) {
-        cashFlowInstances.addAll(instances);
-        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
-        computeBalances(this.cashFlowInstances);
-    }
-
     public String getId() {
         return super.getId();
     }
@@ -116,18 +110,13 @@ public class AssetAccount extends Asset implements Account {
         return company;
     }
 
-    @Override @JsonIgnore
-    public List<Balance> getBalances(Scenario scenario) {
-        List<Balance> balances = new ArrayList<>(this.accountValueByDate.values());
-        balances.sort(Comparator.comparing(Balance::getBalanceDate));
-        return balances;
-    }
-
     // Return the total value of securities and cash at each point during the year where it cash or share quantity
     // changed.
     @Override
     @JsonIgnore
     public List<Balance> getBalances(Scenario scenario, int year) {
+        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
+        computeBalances(this.cashFlowInstances);
         List<Balance> balances =
                 accountValueByDate.keySet()
                         .stream()

@@ -7,8 +7,6 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import java.util.List;
 
 public interface Account extends CashFlowSource, CashFlowSink {
-    void addCashFlowInstances(List<CashFlowInstance> instances);
-
     Entity getCompany();
 
     String getName();

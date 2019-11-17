@@ -76,8 +76,14 @@ public class CashFlowCalendar {
 
     public BigDecimal getAssetValue(String assetId, Integer year) {
         Asset asset = _scenario.getContext().getById(Asset.class, assetId);
-        Balance balance = asset.getBalanceAtDate(_scenario, LocalDate.of(year, Month.JANUARY, 1));
-        return balance.getValue();
+        BigDecimal totalPriorCashFlowForAccount =
+                asset.getInitialBalanceAmount().add(
+                        cashFlowInstances.stream().
+                                filter(instance -> instance.getCashFlowDate().isBefore(LocalDate.of(year, Month.JANUARY, 1))).
+                                filter(instance -> instance.getCashFlowSink() == asset).
+                                collect(Collectors.mapping(instance -> instance.getAmount(),
+                                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))));
+        return totalPriorCashFlowForAccount;
     }
 
     public BigDecimal getLiabilityAmount(String id, Integer year) {
@@ -121,14 +127,6 @@ public class CashFlowCalendar {
         return _assumptions;
     }
 
-    public List<CashFlowInstance> getCashFlows(String cashFlowId) {
-        List<CashFlowInstance> cashFlows =
-                cashFlowInstances.stream().
-                        filter(instance -> instance.getCashFlowId().equals(cashFlowId)).
-                        sorted().
-                        collect(Collectors.toList());
-        return cashFlows;
-    }
 
     public List<CashFlowInstance> getCashFlows(String cashFlowId, Integer year) {
         List<CashFlowInstance> cashFlows =
@@ -161,12 +159,37 @@ public class CashFlowCalendar {
 
 
     public List<Balance> getAssetValues(String assetId) {
-        List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario);
+        Asset asset = _assets.get(assetId);
+        List<CashFlowInstance> cashFlows =
+                cashFlowInstances.stream().
+                        filter(instance -> instance.getCashFlowSink() == asset).
+                        sorted().
+                        collect(Collectors.toList());
+        BigDecimal runningTotal = asset.getInitialBalanceAmount();
+        List<Balance> assetValues = new ArrayList<>();
+        for (CashFlowInstance cashFlow: cashFlows) {
+            runningTotal = runningTotal.add(cashFlow.getAmount());
+            assetValues.add(new CashBalance(cashFlow.getCashFlowDate(), runningTotal));
+        }
         return assetValues;
     }
 
     public List<Balance> getAssetValues(String assetId, int year) {
-        List<Balance> assetValues = _assets.get(assetId).getBalances(_scenario, year);
+        Asset asset = _assets.get(assetId);
+        List<CashFlowInstance> cashFlows =
+            cashFlowInstances.stream().
+                    filter(instance -> instance.getCashFlowDate().isBefore(LocalDate.of(year + 1, Month.JANUARY, 1))).
+                    filter(instance -> instance.getCashFlowSink() == asset).
+                    sorted().
+                    collect(Collectors.toList());
+        BigDecimal runningTotal = asset.getInitialBalanceAmount();
+        List<Balance> assetValues = new ArrayList<>();
+        for (CashFlowInstance cashFlow: cashFlows) {
+            runningTotal = runningTotal.add(cashFlow.getAmount());
+            if (cashFlow.getCashFlowDate().getYear() == year) {
+                assetValues.add(new CashBalance(cashFlow.getCashFlowDate(), runningTotal));
+            }
+        }
         return assetValues;
     }
 
