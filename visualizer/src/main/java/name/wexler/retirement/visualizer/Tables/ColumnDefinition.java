@@ -1,4 +1,4 @@
-package name.wexler.retirement.visualizer.CashFlowFrequency;
+package name.wexler.retirement.visualizer.Tables;
 
 public class ColumnDefinition {
     private String name;

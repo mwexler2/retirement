@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Context;
 
@@ -68,7 +68,7 @@ public class StockOption extends EquityCompensation {
             BigDecimal amount = sharePrice.subtract(strikePrice).multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             return new CashFlowInstance(true, this, getJob().getDefaultSink(),
-                    getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    this.getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
         });
     }
 

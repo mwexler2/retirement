@@ -1,4 +1,4 @@
-package name.wexler.retirement.visualizer.CashFlowFrequency;
+package name.wexler.retirement.visualizer.Tables;
 
 import org.displaytag.decorator.DisplaytagColumnDecorator;
 import org.displaytag.exception.DecoratorException;

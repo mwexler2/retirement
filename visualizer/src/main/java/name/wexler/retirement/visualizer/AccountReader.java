@@ -78,6 +78,7 @@ public class AccountReader {
             String category = rs.getString("category");
             String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
             String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
+            String itemType = rs.getString("itemType");
             List<String> labels = Arrays.asList(labelsStr.split(","));
 
             Account account = getAccountFromResultSet(context, rs, txnDate);
@@ -110,7 +111,7 @@ public class AccountReader {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                Job job = context.getById(Job.class, description);
+                Job job = getJobFromDescription(context, description);
                 instance = new PaycheckInstance(account, job, category, accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO);
             } else if (action.equals("credit") && category.equals("Reimbursement")) {
@@ -118,12 +119,13 @@ public class AccountReader {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                Job job = context.getById(Job.class, description);
+                Job job = getJobFromDescription(context, description);
                 instance = new ReimbursementInstance(account, job.getDefaultSink(), category,
                         accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);
             } else {
-                instance = new CashFlowInstance(false, account, account, category,
+                instance = new CashFlowInstance(false, account, account,
+                        itemType, category,
                         accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO);
             }
@@ -142,6 +144,18 @@ public class AccountReader {
         return null;
     }
 
+    private Job getJobFromDescription(Context context, String description) {
+        String companyName = description;
+        if (description.toLowerCase().contains("amazon")) {
+            companyName = "Amazon.com";
+        } else if (description.toLowerCase().contains("yahoo")) {
+            companyName = "Yahoo";
+        } else if (description.toLowerCase().contains("invitae")) {
+            companyName = "Invitae";
+        }
+        Job job = context.getById(Job.class, companyName);
+        return job;
+    }
     private Account getAccountFromResultSet(Context context, ResultSet rs, LocalDate txnDate)
             throws AccountNotFoundException, SQLException {
         Account account = null;

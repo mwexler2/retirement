@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.visualizer.Asset.Asset;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
@@ -90,7 +90,8 @@ public class Rent extends CashFlowEstimator {
         return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true,this, defaultSink, getCategory(),
+                    return new CashFlowInstance(true,this, defaultSink,
+                            getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance);
                 });
     }

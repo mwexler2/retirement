@@ -17,13 +17,14 @@ public class SecurityTransaction extends AssetTransaction {
     public SecurityTransaction(
             Context context,
             AssetAccount account,
+            String itemType,
             String category,
             BigDecimal amount,
             ShareBalance shareChange) {
         super(false,
                 account,
                 account,
-                category,
+                itemType, category,
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(), amount, BigDecimal.ZERO);

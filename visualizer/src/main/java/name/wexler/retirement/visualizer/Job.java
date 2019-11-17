@@ -79,6 +79,8 @@ public class Job extends Entity implements CashFlowSource {
                @JsonProperty(value = "defaultSink", required = true) String defaultSinkId) throws Exception {
         super(context, id, Job.class);
         this.employer = context.getById(Entity.class, employer);
+        String employerName = this.employer.getName();
+        context.put(Job.class, employerName, this);
         this.employee = context.getById(Entity.class, employee);
         this.defaultSink = context.getById(Asset.class, defaultSinkId);
     }

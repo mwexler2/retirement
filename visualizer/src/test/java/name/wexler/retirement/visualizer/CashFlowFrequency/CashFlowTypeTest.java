@@ -7,6 +7,7 @@ import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Salary;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -145,7 +146,9 @@ public class CashFlowTypeTest {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                 BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(26), 2, RoundingMode.HALF_UP);
                 BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                return new CashFlowInstance(false, salary1, defaultSink, "test", accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                return new CashFlowInstance(false, salary1, defaultSink,
+                        CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
+                        accrualStart, accrualEnd, cashFlowDate, amount, balance);
                 });
         assertEquals(LocalDate.of(2010, Month.SEPTEMBER, 24), biweeklyCashFlows.get(0).getCashFlowDate());
         assertEquals(LocalDate.of(2014, Month.OCTOBER, 17), biweeklyCashFlows.get(biweeklyCashFlows.size() - 1).getCashFlowDate());
@@ -158,7 +161,8 @@ public class CashFlowTypeTest {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true, salary1, defaultSink, "test", accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    return new CashFlowInstance(true, salary1, defaultSink,
+                            CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(), "test", accrualStart, accrualEnd, cashFlowDate, amount, balance);
                 });
         assertEquals(LocalDate.of(1999, Month.MAY, 5), monthlyCashFlows.get(0).getCashFlowDate());
         assertEquals(LocalDate.of(2019, Month.MAY, 5), monthlyCashFlows.get(monthlyCashFlows.size() - 1).getCashFlowDate());
@@ -170,7 +174,9 @@ public class CashFlowTypeTest {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(24), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(false, salary1, defaultSink, "test", accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    return new CashFlowInstance(false, salary1, defaultSink,
+                            CashFlowCalendar.ITEM_TYPE.EXPENSE.toString(), "test",
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance);
                 });
         assertEquals(LocalDate.of(2016, Month.FEBRUARY, 19), semiMonthlyCashFlows.get(0).getCashFlowDate());
         assertEquals(LocalDate.of(2016, Month.MARCH, 7), semiMonthlyCashFlows.get(1).getCashFlowDate());
@@ -185,7 +191,8 @@ public class CashFlowTypeTest {
         List<CashFlowInstance> annualCashFlows = annual.getFutureCashFlowInstances(cashFlowCalendar, salary1,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(false, salary1, defaultSink, "test",
+                    return new CashFlowInstance(false, salary1, defaultSink,
+                            CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
                             accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
                 });
         assertEquals(2, annualCashFlows.size());
@@ -199,7 +206,9 @@ public class CashFlowTypeTest {
                 {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(4), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(false, salary1, defaultSink, "test", accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    return new CashFlowInstance(false, salary1, defaultSink,
+                            CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance);
                 });
         assertEquals(2, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());

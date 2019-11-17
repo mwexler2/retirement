@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowSink;

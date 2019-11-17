@@ -25,7 +25,7 @@ package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowSource;
 import name.wexler.retirement.visualizer.Context;

@@ -1,4 +1,4 @@
-<%@ page import="name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar" %>
+<%@ page import="name.wexler.retirement.visualizer.Tables.CashFlowCalendar" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="f"   uri="http://retirement.wexler.name.visualizer/functions" %>
@@ -9,7 +9,7 @@
 <html>
 <head>
     <title>Retirement Calculator</title>
-    <style>
+    <style type="text/css">
         td a {
             text-decoration-line: none;
         }
@@ -23,10 +23,17 @@
         tr.details {
             visibility: collapse;
         }
+        tr.even {
+            background-color: lightgray;
+        }
         tr.subtotal-header {
             visibility: collapse;
         }
+        td.money {
+            text-align: right;
+        }
     </style>
+
     <script type="application/javascript">
         function displayDetails(event) {
             children = document.getElementsByClassName(event.currentTarget.id);
@@ -96,21 +103,21 @@ Then your normal row would look something like:
 
 
     <c:set var="assetsAndLiabilities" scope="page" value="${scenario.cashFlowCalendar.assetsAndLiabilities}"></c:set>
-    <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.MultilevelBigDecimalLinkTableDecorator"
+    <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator"
         sort="external">
         <display:caption>Assets & Liabilities</display:caption>
         <display:column property="itemType" group="1" />
         <display:column property="itemCategory" group="2" />
         <c:forEach var="col" items="${assetsAndLiabilities.getColumnDefinitions()}">
             <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
-                            property="${col.property}" decorator="${col.decorator}" style="text-align: right"
+                            property="${col.property}" decorator="${col.decorator}" class="money"
                             total="${col.total}" />
         </c:forEach>
 
     </display:table>
 
     <c:set var="cashFlows" scope="page" value="${scenario.cashFlowCalendar.cashFlows}"></c:set>
-    <display:table uid="cashFlow" name="${cashFlows}" decorator="name.wexler.retirement.visualizer.CashFlowFrequency.MultilevelBigDecimalLinkTableDecorator"
+    <display:table uid="cashFlow" name="${cashFlows}" decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator"
                    sort="external">
         <display:caption>Income and Expenses --- displaytag</display:caption>
         <display:column property="itemType" group="1" />

@@ -1,21 +1,22 @@
-package name.wexler.retirement.visualizer.CashFlowFrequency;
+package name.wexler.retirement.visualizer.Tables;
 
-import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Assumptions;
+import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Scenario;
-import org.apache.commons.collections.ListUtils;
+import name.wexler.retirement.visualizer.Tables.ColumnDefinition;
+import name.wexler.retirement.visualizer.Tables.MoneyTableColumnDecorator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -142,7 +143,7 @@ public class CashFlowCalendar {
     public List<CashFlowInstance> getCashFlowsBySink(String cashFlowId) {
         List<CashFlowInstance> cashFlows =
                 cashFlowInstances.stream().
-                        filter(instance -> instance.getCashFlowSink().equals(cashFlowId)).
+                        filter(instance -> instance.getCashFlowSinkId().equals(cashFlowId)).
                         sorted().
                         collect(Collectors.toList());
         return cashFlows;
@@ -308,10 +309,6 @@ public class CashFlowCalendar {
         return tableList;
     }
 
-    private static CashFlowInstance cashFlowIdentity =
-            new CashFlowInstance(false, null, null, null,
-            null, null, null,BigDecimal.ZERO,BigDecimal.ZERO);
-
     public TableList createTableListFromNestedHash(Map<String, Map<String, Map<Integer, BigDecimal>>> nestedHash) {
         TableList tableList = getTableList();
 
@@ -319,13 +316,14 @@ public class CashFlowCalendar {
             String itemType = outerEntry.getKey();
             for (Map.Entry<String, Map<Integer, BigDecimal>> innerEntry: outerEntry.getValue().entrySet()) {
                 Map<String, Object> row = new HashMap<>();
-                row.put("itemCategory", innerEntry.getKey());
+                String itemCategory = innerEntry.getKey();
+                row.put("itemCategory", itemCategory);
                 row.put("itemType", itemType);
                 row.put("name", decorateName(itemType, innerEntry.getKey(), innerEntry.getKey()));
                 for (int year : getYears()) {
                     String link = String.join("/",
                             "scenario", this._scenario.getId(),
-                            itemType, itemType,
+                            itemType, itemCategory,
                             "year", Integer.toString(year));
                     row.put(Integer.toString(year),
                             new AmountAndLink(innerEntry.getValue().getOrDefault(year, BigDecimal.ZERO), link));
@@ -346,5 +344,9 @@ public class CashFlowCalendar {
                                 Collectors.mapping(instance -> instance.getAmount(),
                                         Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))));
         return createTableListFromNestedHash(categoryMap);
+    }
+
+    public List<CashFlowInstance> getCashFlowInstances() {
+        return cashFlowInstances;
     }
 }

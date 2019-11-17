@@ -23,13 +23,14 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     private String description = "";
     private String notes = "";
     private List<String> labels = Collections.emptyList();
+    public String itemType = "";
     private String category = "";
     private CashFlowSink cashFlowSink;
     private boolean estimated;
 
     public CashFlowInstance(boolean estimated,
                             CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
-                            String category,
+                            String itemType, String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount, BigDecimal balance) {
         this.estimated = estimated;
@@ -41,6 +42,7 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
         this.assetBalance = BigDecimal.ZERO;
         this.cashFlowSource = cashFlowSource;
         this.cashFlowSink = cashFlowSink;
+        this.itemType = itemType;
         this.category = category;
     }
 
@@ -70,7 +72,7 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     }
 
     public String getItemType() {
-        return cashFlowSource.getItemType();
+        return itemType;
     }
 
     public void setCategory(String category) { this.category = category; }

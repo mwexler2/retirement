@@ -24,7 +24,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 
@@ -60,7 +60,9 @@ public class BonusAnnualPct extends Bonus {
         return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-            return new CashFlowInstance(true,this, this.getJob().getDefaultSink(), getCategory(), accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
+            return new CashFlowInstance(true,this, this.getJob().getDefaultSink(),
+                    getItemType(), getCategory(),
+                    accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
                 });
     }
 

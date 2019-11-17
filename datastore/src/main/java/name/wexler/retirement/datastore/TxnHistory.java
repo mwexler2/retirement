@@ -105,8 +105,10 @@ public class TxnHistory {
 
     public ResultSet getTransactions() {
         String sql =
-                "SELECT date, description, original_description, amount, txn_type, category, account_name, labels, notes \n" +
-                        "FROM txnHistory \n";
+                "SELECT date, description, original_description, amount, txn_type, " +
+                        "itemType, cooked_category AS category, account_name, labels, notes \n" +
+                        "FROM txnHistory \n" +
+                        "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n";
         try {
             Statement stmt = conn.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql);

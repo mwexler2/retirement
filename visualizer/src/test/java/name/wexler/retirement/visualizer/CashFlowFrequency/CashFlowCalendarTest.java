@@ -7,6 +7,7 @@ import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.CashFlowEstimator.*;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

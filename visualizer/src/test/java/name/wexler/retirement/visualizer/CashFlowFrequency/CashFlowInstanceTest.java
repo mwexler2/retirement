@@ -10,6 +10,7 @@ import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
 import name.wexler.retirement.visualizer.Job;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,6 +51,7 @@ public class CashFlowInstanceTest {
         cfi = new CashFlowInstance(true,
                 salary1,
                 defaultSink,
+                CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(),
                 "test",
                 LocalDate.of(2014, Month.MAY, 1),
                 LocalDate.of(2014, Month.MAY, 15),

@@ -25,7 +25,7 @@ package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.Asset;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowCalendar;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
@@ -89,7 +89,8 @@ public class Alimony extends CashFlowEstimator {
         List<CashFlowInstance> baseCashFlows = getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true, this, defaultSink, getCategory(),
+                    return new CashFlowInstance(true, this, defaultSink,
+                            getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance);
                 });
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getFutureCashFlowInstances(cashFlowCalendar, this,
@@ -100,7 +101,8 @@ public class Alimony extends CashFlowEstimator {
                                 return instance.getCashFlowSink().isOwner(this.payor);
                             });
                     BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
-                    return new CashFlowInstance(true,this, defaultSink, getCategory(),
+                    return new CashFlowInstance(true,this, defaultSink,
+                            getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, alimony, balance);
                 });
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
@@ -122,7 +124,8 @@ public class Alimony extends CashFlowEstimator {
                 amount = remainingBalance.get(year);
                 BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                 instance = new CashFlowInstance(
-                        true, spending, defaultSink, getCategory(),
+                        true, spending, defaultSink,
+                        getItemType(), getCategory(),
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),

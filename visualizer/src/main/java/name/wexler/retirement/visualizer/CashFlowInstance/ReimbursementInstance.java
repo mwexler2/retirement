@@ -1,5 +1,6 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.CashFlowSource;
 import name.wexler.retirement.visualizer.Entity.Entity;
@@ -15,7 +16,8 @@ public class ReimbursementInstance extends CashFlowInstance {
                                  LocalDate accrualStart, LocalDate accrualEnd,
                                  LocalDate cashFlowDate, BigDecimal amount, BigDecimal balance,
                                  Entity employer) {
-        super(false, cashFlowSource, cashFlowSink, category,
+        super(false, cashFlowSource, cashFlowSink,
+                CashFlowCalendar.ITEM_TYPE.INCOME.toString(), category,
                 accrualStart, accrualEnd, cashFlowDate, amount, balance);
         this.employer = employer;
     }
