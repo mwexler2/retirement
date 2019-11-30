@@ -44,9 +44,7 @@ public class MintCrawler {
 
     private String _getMintResourceFilename() {
         String userHome = System.getProperty("user.home");
-        String mintResourceFilename = userHome + "/.retirement/resources/mint.json";
-
-        return mintResourceFilename;
+        return userHome + "/.retirement/resources/mint.json";
     }
 
     private JSONArray getMintInfo() {
@@ -57,7 +55,7 @@ public class MintCrawler {
             String jsonString = new String(Files.readAllBytes(Paths.get(_getMintResourceFilename())));
             result = getMintInfo(jsonString);
         } catch (IOException ioe) {
-            System.err.println(ioe);
+            System.err.println(ioe.getMessage());
         }
         return result;
     }
@@ -69,7 +67,7 @@ public class MintCrawler {
         try {
             result = (JSONArray) parser.parse(mintJSON);
         } catch (ParseException pe) {
-            System.err.println(pe);
+            System.err.println(pe.getMessage());
         }
         return result;
     }
@@ -77,21 +75,20 @@ public class MintCrawler {
 
     public void crawl() {
         String line;
-        String cmd = "/usr/local/bin/mintapi --keyring --headless --t mike.wexler@gmail.com --extended-transactions --include-investment";
+        String cmd = "/usr/local/bin/mintapi --keyring --headless --t mike.wexler@gmail.com --no_wait_for_sync --extended-transactions --include-investment";
         try {
             Process p = Runtime.getRuntime().exec(cmd);
-            String result = null;
             try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                result = input.lines().collect(Collectors.joining(System.lineSeparator()));
+                String result = input.lines().collect(Collectors.joining(System.lineSeparator()));
                 JSONArray txnList = getMintInfo(result);
                 txnHistory.deleteAllRows();
                 if (txnList != null)
                  processTxnListJSON(txnList, cmd);
             } catch (IOException ioe) {
-                System.err.println(ioe);
+                System.err.println(ioe.getMessage());
             }
         } catch (IOException ioe) {
-            System.out.println(ioe);
+            System.out.println(ioe.getMessage());
         }
     }
 
@@ -103,14 +100,14 @@ public class MintCrawler {
             Map<String, Object> fieldNameVals = new HashMap<>();
             // date, description, original_description, amount, txn_type, category, account_name, labels, notes
             fieldNameVals.put("date", ((JSONObject) txn).get("date").toString());
-            fieldNameVals.put("description", (String) ((JSONObject) txn).get("description"));
-            fieldNameVals.put("original_description", (String) ((JSONObject) txn).get("original_description"));
-            fieldNameVals.put("amount", (Double) ((JSONObject) txn).get("amount"));
-            fieldNameVals.put("txn_type", (String) ((JSONObject) txn).get("transaction_type"));
+            fieldNameVals.put("description", ((JSONObject) txn).get("description"));
+            fieldNameVals.put("original_description", ((JSONObject) txn).get("original_description"));
+            fieldNameVals.put("amount", ((JSONObject) txn).get("amount"));
+            fieldNameVals.put("txn_type", ((JSONObject) txn).get("transaction_type"));
             fieldNameVals.put("category", (String) ((JSONObject) txn).get("category"));
-            fieldNameVals.put("account_name", (String) ((JSONObject) txn).get("account_name"));
-            fieldNameVals.put("labels", (String) ((JSONObject) txn).getOrDefault("labels", ""));
-            fieldNameVals.put("notes", (String) ((JSONObject) txn).getOrDefault("notes", ""));
+            fieldNameVals.put("account_name",  ((JSONObject) txn).get("account_name"));
+            fieldNameVals.put("labels", ((JSONObject) txn).getOrDefault("labels", ""));
+            fieldNameVals.put("notes", ((JSONObject) txn).getOrDefault("notes", ""));
             txnHistory.insertRow(fieldNameVals);
         });
     }
@@ -138,13 +135,12 @@ public class MintCrawler {
     private URL getDownloadURL(long periodStart, long periodEnd, String interval, String event, String crumb) {
         try {
             URL base = new URL(yahooQueryBaseURL);
-            URL downloadURL = new URL(base,
+            return new URL(base,
                     "?period1=" + periodStart +
                     "&period2=" + periodEnd +
                     "&interval=" + interval +
                     "&event=" + event +
                     "&crumb=" + crumb);
-            return downloadURL;
         } catch (MalformedURLException mue) {
             throw new RuntimeException("can't create URL for " +
                     String.join(", " + Arrays.asList(periodStart, periodEnd, interval, crumb)));

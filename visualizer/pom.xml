@@ -58,6 +58,14 @@
                     <tomeeClassifier>plus</tomeeClassifier>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <path>/retirement</path>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
