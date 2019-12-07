@@ -19,6 +19,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
+import static java.util.Map.entry;
+
+
 public class AccountReader {
     private Spending spending;
 
@@ -64,6 +67,11 @@ public class AccountReader {
         return cashFlowInstances;
     }
 
+    Map<String, String> txnTypeMap = Map.ofEntries(
+            entry("0", "Debit"),
+            entry("1", "Credit"),
+            entry("2", "Transfer")
+    );
     protected CashFlowInstance getInstanceFromResultSet(
             Context context,
             ResultSet rs)  {
@@ -78,7 +86,23 @@ public class AccountReader {
             String category = rs.getString("category");
             String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
             String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
-            String itemType = rs.getString("itemType");
+            String itemType = txnTypeMap.get(rs.getString("itemType"));
+
+            Boolean isBuy = rs.getBoolean("isBuy");
+            Boolean isCheck = rs.getBoolean("isCheck");
+            Boolean isChild = rs.getBoolean("isChild");
+            Boolean isDebit = rs.getBoolean("isDebit");
+            Boolean isDuplicate = rs.getBoolean("isDuplicate");
+            Boolean isEdited = rs.getBoolean("isEdited");
+            Boolean isFirstDate = rs.getBoolean("isFirstDate");
+            Boolean isLinkedToRule = rs.getBoolean("isLinkedToRule");
+            Boolean isMatched = rs.getBoolean("isMatched");
+            Boolean isPending = rs.getBoolean("isPending");
+            Boolean isPercent = rs.getBoolean("isPercent");
+            Boolean isSell = rs.getBoolean("isSell");
+            Boolean isSpending = rs.getBoolean("isSpending");
+            Boolean isTransfer = rs.getBoolean("isTransfer");
+
             List<String> labels = Arrays.asList(labelsStr.split(","));
 
             Account account = getAccountFromResultSet(context, rs, txnDate);
@@ -87,7 +111,7 @@ public class AccountReader {
 
             try {
                 txnAmount = rs.getBigDecimal("amount");
-                if (action.equals("debit"))
+                if (isDebit)
                     txnAmount = txnAmount.negate();
             } catch (NumberFormatException nfe) {
                 return null;
@@ -96,7 +120,7 @@ public class AccountReader {
             CashFlowInstance instance;
             Entity company = account.getCompany();
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
-            if (action.equals("debit")) {
+            if (isDebit) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
@@ -106,7 +130,7 @@ public class AccountReader {
                 instance = new PaymentInstance(cashFlowSource, account, category,
                         accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);
-            } else if (action.equals("credit") && category.equals("Paycheck")) {
+            } else if (!isDebit && category.equals("Paycheck")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
@@ -114,7 +138,7 @@ public class AccountReader {
                 Job job = getJobFromDescription(context, description);
                 instance = new PaycheckInstance(account, job, category, accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO);
-            } else if (action.equals("credit") && category.equals("Reimbursement")) {
+            } else if (!isDebit && category.equals("Reimbursement")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
@@ -130,7 +154,6 @@ public class AccountReader {
                         BigDecimal.ZERO);
             }
 
-            instance.setAction(action);
             instance.setDescription(description);
             instance.setCategory(category);
             instance.setNotes(notes);

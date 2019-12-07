@@ -125,7 +125,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             containsTotaledColumns = containsTotaledColumns || headerCell.isTotaled();
             if (headerCell.getGroup() > 0)
             {
-                groupNumberToGroupTotal.put(new Integer(headerCell.getGroup()), new GroupTotals(headerCell
+                groupNumberToGroupTotal.put(Integer.valueOf(headerCell.getGroup()), new GroupTotals(headerCell
                     .getColumnNumber()));
                 if (headerCell.getGroup() > innermostGroup)
                 {
@@ -226,7 +226,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
                     append(getSubtotalHeaderClass()).
                     append(" group-").append(group).
                     append("\" >");
-            GroupTotals groupTotals = (GroupTotals) groupNumberToGroupTotal.get(new Integer(group));
+            GroupTotals groupTotals = (GroupTotals) groupNumberToGroupTotal.get(Integer.valueOf(group));
             int myColumnNumber = groupTotals.columnNumber;
             for (int i = 0; i < myColumnNumber; i++)
             {
@@ -303,7 +303,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
                 // Starting with the deepest group, print the current total and reset. Do not reset unaffected groups.
                 for (int i = innermostGroup; i >= deepestResetGroup; i--)
                 {
-                    Integer groupNumber = new Integer(i);
+                    Integer groupNumber = Integer.valueOf(i);
 
                     GroupTotals totals = (GroupTotals) groupNumberToGroupTotal.get(groupNumber);
                     if (totals == null)

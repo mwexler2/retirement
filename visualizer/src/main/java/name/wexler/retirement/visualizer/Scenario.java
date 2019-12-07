@@ -77,7 +77,7 @@ public class Scenario extends Entity {
             List<CashFlowInstance> cashFlowInstances = getFutureCashFlowInstances(calendar, pass);
             calendar.addCashFlowInstances(cashFlowInstances);
         }
-
+        calendar.computeBalances();
         setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);
         setAccountIds(context, accounts);

@@ -25,6 +25,7 @@ package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
@@ -47,6 +48,7 @@ public class CreditCardAccount extends Liability {
 
     private final String accountName;
     private final Company company;
+    private BigDecimal runningTotal;
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
@@ -75,6 +77,7 @@ public class CreditCardAccount extends Liability {
         this.company = context.getById(Entity.class, companyId);
         context.put(CreditCardAccount.class, indicator, this);
         accounts.add(this);
+        runningTotal = BigDecimal.ZERO;
     }
 
 
@@ -131,5 +134,12 @@ public class CreditCardAccount extends Liability {
 
     public boolean isOwner(Entity entity) {
         return this.getBorrowerIds().contains(entity);
+    }
+
+    @Override
+    @JsonIgnore
+    public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
+        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
+        cashFlowInstance.setCashBalance(runningTotal);
     }
 }

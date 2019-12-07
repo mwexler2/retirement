@@ -8,10 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -36,14 +33,30 @@ public class TxnHistory {
         String sql = "CREATE TABLE txnHistory (\n"
                 + " id integer PRIMARY KEY,\n"
                 + " notes TEXT,\n"
-                + " date DATE NOT NULL,\n"
+                + " date int NOT NULL,\n"
                 + " amount REAL NOT NULL,\n"
                 + " account_name TEXT NOT NULL,\n"
                 + " description TEXT,\n"
                 + " original_description TEXT,\n"
-                + " txn_type TEXT NOT NULL,\n"
+                + " txn_type INTEGER NOT NULL,\n"
                 + " category TEXT NOT NULL,\n"
-                + " labels TEXT\n"
+                + " labels TEXT,\n"
+                + " symbol TEXT,\n"
+                + " fi TEXT,\n" 
+                + " isBuy INTEGER,\n"
+                + " isCheck INTEGER,\n"
+                + " isChild INTEGER,\n"
+                + " isDebit INTEGER,\n"
+                + " isDuplicate INTEGER,\n"
+                + " isEdited INTEGER,\n"
+                + " isFirstDate INTEGER,\n"
+                + " isLinkedToRule INTEGER,\n"
+                + " isMatched INTEGER,\n"
+                + " isPending INTEGER,\n"
+                + " isPercent INTEGER,\n"
+                + " isSell INTEGER,\n"
+                + " isSpending INTEGER,\n"
+                + " isTransfer INTEGER\n"
                 + ");\n";
         try (Statement stmt = conn.getConnection().createStatement()) {
             stmt.execute(sql);
@@ -56,32 +69,69 @@ public class TxnHistory {
         String sql = "DELETE FROM txnHistory";
         try {
             Statement stmt = conn.getConnection().createStatement();
-             ResultSet rs = stmt.executeQuery(sql);
+            stmt.execute(sql);
         } catch (SQLException se) {
             System.err.println(se);
         }
     }
 
     public void insertRow(Map<String, Object> line) {
+        final String none = "none";
+
         String sql = "INSERT INTO txnHistory \n"
-                + "(date, description, original_description, amount, txn_type, category, account_name, labels, notes) \n"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);\n";
+                + "(date, description, original_description, amount, txn_type, category, account_name, labels, notes, " +
+                "   symbol, fi," +
+                "   isBuy, isCheck, isChild, isDebit, isDuplicate, isEdited, isFirstDate, isLinkedToRule, isMatched, isPending, isPercent, isSell, isSpending, isTransfer) \n"
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
+                "          ?, ?," +
+                "          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);\n";
 
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
-            pstmt.setString(1, (String) line.get("date"));
-            pstmt.setString(2, (String) line.get("description"));
-            pstmt.setString(3, (String) line.get("original_description"));
+            Object dateObj = line.get("odate");
+            if (dateObj instanceof Long) {
+                Long date = (Long) dateObj;
+                pstmt.setLong(1, date);
+            } else {
+                pstmt.setLong(1, 0);
+            }
+            pstmt.setString(2, (String) line.get("merchant"));
+            pstmt.setString(3, (String) line.get("omerchant"));
             pstmt.setDouble(4, (Double) line.get("amount"));
-            pstmt.setString(5, (String) line.get("txn_type"));
+            pstmt.setLong(5, (Long) line.get("txnType"));
             pstmt.setString(6, (String) line.get("category"));
-            pstmt.setString(7, (String) line.get("account_name"));
-            pstmt.setString(8, (String) line.get("labels"));
+            String accountName = (String) line.getOrDefault("account", none);
+            if (accountName == null)
+                accountName = none;
+            pstmt.setString(7, accountName);
+            pstmt.setString(8, line.get("labels").toString());
             pstmt.setString(9, (String) line.get("notes"));
+            pstmt.setString(10, (String) line.get("symbol"));
+            pstmt.setString(11, (String) line.get("fi"));
+            if (line.get("isBuy") instanceof Boolean)
+                pstmt.setBoolean( 12, (Boolean) line.get("isBuy"));
+            else
+                pstmt.setNull(12, Types.BOOLEAN);
+            pstmt.setBoolean( 13, (Boolean) line.get("isCheck"));
+            pstmt.setBoolean( 14, (Boolean) line.get("isChild"));
+            pstmt.setBoolean( 15, (Boolean) line.get("isDebit"));
+            pstmt.setBoolean( 16, (Boolean) line.get("isDuplicate"));
+            pstmt.setBoolean( 17, (Boolean) line.get("isEdited"));
+            pstmt.setBoolean( 18, (Boolean) line.get("isFirstDate"));
+            pstmt.setBoolean( 19, (Boolean) line.get("isLinkedToRule"));
+            pstmt.setBoolean( 20, (Boolean) line.get("isMatched"));
+            pstmt.setBoolean( 21, (Boolean) line.get("isPending"));
+            pstmt.setBoolean( 22, (Boolean) line.get("isPercent"));
+            if (line.get("isSell") instanceof Boolean)
+                pstmt.setBoolean( 23, (Boolean) line.get("isSell"));
+            else
+                pstmt.setNull(23, Types.BOOLEAN);
+            pstmt.setBoolean( 24, (Boolean) line.get("isSpending"));
+            pstmt.setBoolean( 25, (Boolean) line.get("isTransfer"));
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage() + ": " + line.toString());
         } catch (NumberFormatException nfe) {
-            System.out.println(nfe.getMessage());
+            System.out.println(nfe.getMessage() + ": " + line.toString());
         }
     }
 
@@ -106,7 +156,8 @@ public class TxnHistory {
     public ResultSet getTransactions() {
         String sql =
                 "SELECT date, description, original_description, amount, txn_type, " +
-                        "itemType, cooked_category AS category, account_name, labels, notes \n" +
+                        "itemType, cooked_category AS category, account_name, labels, notes, fi,\n" +
+                        "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer \n" +
                         "FROM txnHistory \n" +
                         "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n";
         try {

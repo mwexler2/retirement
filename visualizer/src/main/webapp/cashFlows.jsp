@@ -33,6 +33,7 @@
         <display:column property="accrualStart" />
         <display:column property="accrualEnd" />
         <display:column property="category" />
+        <display:column property="cashFlowSinkId" />
         <display:column property="description" />
         <display:column property="labels" />
         <display:column property="notes" />

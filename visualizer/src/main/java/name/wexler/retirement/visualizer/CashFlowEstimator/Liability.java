@@ -60,6 +60,7 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     private final BigDecimal periodicInterestRate;
     private final Balance _startingBalance;
     private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
+    private BigDecimal runningTotal;
 
     @JsonCreator
     public Liability(@JacksonInject("context") Context context,
@@ -84,6 +85,7 @@ abstract public class Liability extends CashFlowEstimator implements Account {
                 .divide(periodsPerYear, RoundingMode.HALF_UP)
                 .setScale(10, RoundingMode.HALF_UP);
         context.put(Liability.class, id, this);
+        this.runningTotal = startingBalance;
     }
 
 
@@ -179,9 +181,11 @@ abstract public class Liability extends CashFlowEstimator implements Account {
         return this;
     }
 
+    @Override
     @JsonIgnore
-    public void sinkCashFlowInstance(CashFlowInstance cashFlowInstance) {
-
+    public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
+        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
+        cashFlowInstance.setCashBalance(runningTotal);
     }
 
     @JsonIgnore

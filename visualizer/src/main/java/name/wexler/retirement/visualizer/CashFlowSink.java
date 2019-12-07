@@ -4,9 +4,7 @@ import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 public interface CashFlowSink {
-    void sinkCashFlowInstance(CashFlowInstance cashFlowInstance);
-
+    void updateRunningTotal(CashFlowInstance cashFlow);
     String getId();
-
     boolean isOwner(Entity entity);
 }

@@ -1,6 +1,7 @@
 package name.wexler.retirement.datastore;
 
 import com.opencsv.CSVReaderHeaderAware;
+import com.opencsv.exceptions.CsvValidationException;
 import name.wexler.retirement.jdbcDrivers.generic.JDBCDriverConnection;
 import org.springframework.cglib.core.Local;
 
@@ -76,6 +77,8 @@ public class TickerHistory {
             System.out.println(fnfe.getMessage());
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
+        } catch (CsvValidationException cve) {
+            System.out.println(cve.getMessage());
         }
     }
 

@@ -17,7 +17,6 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     private final LocalDate accrualEnd;
     private final LocalDate cashFlowDate;
     private final BigDecimal amount;
-    private String action;
     private BigDecimal cashBalance;
     private BigDecimal assetBalance;
     private String description = "";
@@ -63,9 +62,6 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
         return result;
     }
 
-    public String getAction() { return action; }
-
-    public void setAction(String action) { this.action = action; }
 
     public String getCategory() {
         return category;

@@ -2,6 +2,9 @@ package name.wexler.retirement.visualizer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
@@ -127,7 +130,13 @@ public class ScenarioTest {
 
     @Test
     public void serialize() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "type");
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator
+                .builder()
+                .allowIfBaseType(String.class)
+                .build();
+        ObjectMapper mapper = JsonMapper.builder()
+                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
+                .build();
         ObjectWriter writer = mapper.writer();
         String scenario1Str = context.toJSON(scenario1);
         assertEquals("{\"id\":\"scenario1\",\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);

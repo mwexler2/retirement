@@ -1,6 +1,7 @@
 package name.wexler.retirement.financeCrawler;
 
 import com.opencsv.CSVReaderHeaderAware;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -58,6 +59,8 @@ public class CitibankCrawler extends SiteCrawler {
         } catch (IOException e) {
             writeHeader = true;
             return minPeriodStart;
+        } catch (CsvValidationException cve) {
+            System.err.println(cve.getMessage());
         }
         return result;
     }

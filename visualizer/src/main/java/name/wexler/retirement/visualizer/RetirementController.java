@@ -59,8 +59,6 @@ public class RetirementController {
         model.put("year", year);
         List<CashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getCashFlows(assetId, year);
         model.put("cashFlows", cashFlowInstances);
-        Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).getAssetValues(assetId, year);
-        model.put("balances", balances);
         return new ModelAndView("asset", "command", model);
     }
 
@@ -69,8 +67,12 @@ public class RetirementController {
         Retirement retirement = new Retirement();
         model.put("assetId", assetId);
         model.put("scenarioId", scenarioId);
-        Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).getAssetValues(assetId);
-        model.put("balances", balances);
+        List<CashFlowInstance> selectedCashFlows =
+                retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
+                        filter(instance -> instance.getCashFlowSinkId().equals(assetId)).
+                        sorted().
+                        collect(Collectors.toList());
+        model.put("cashFlows", selectedCashFlows);
         return new ModelAndView("asset", "command", model);
     }
 

@@ -10,8 +10,6 @@ import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInsta
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Scenario;
-import name.wexler.retirement.visualizer.Tables.ColumnDefinition;
-import name.wexler.retirement.visualizer.Tables.MoneyTableColumnDecorator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,6 +46,13 @@ public class CashFlowCalendar {
 
     public void addCashFlowInstances(List<CashFlowInstance> cashFlowInstances) {
         this.cashFlowInstances.addAll(cashFlowInstances);
+    }
+
+    public void computeBalances() {
+        cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
+        for (CashFlowInstance cashFlow: cashFlowInstances) {
+            cashFlow.getCashFlowSink().updateRunningTotal(cashFlow);
+        }
     }
 
     public void addAssets(List<Asset> assets) {

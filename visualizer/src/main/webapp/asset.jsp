@@ -27,27 +27,6 @@
     </style>
 </head>
     <body>
-        <h1>Valuations &amp; Cash Flows for ${scenarioId}/${assetId}</h1>
-        
-        <table border="1">
-            <caption>Valuations</caption>
-            <tr>
-                <th>Date</th>
-                <th>Value</th>
-            </tr>
-            <c:forEach var="balance" items="${balances}">
-                <tr>
-                    <th>${balance.balanceDate}</th>
-                    <td>
-                        <fmt:formatNumber value="${balance.value}" type="currency" />
-                    </td>
-                </tr>
-            </c:forEach>
-        </table>
-
-        <table border="1">
-
-
         <display:table uid="item" name="${command.cashFlows}" sort="external"
                        decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator">
             <display:caption>Cash Flows for ${command.scenarioId}/${command.assetId}/${command.year}</display:caption>
@@ -60,9 +39,9 @@
             <display:column property="notes" />
             <display:column property="amount" class="money" total="true"
                             decorator="name.wexler.retirement.visualizer.Tables.MoneyTableColumnDecorator"/>
-            <display:column property="cashBalance" class="money" total="true"
+            <display:column property="cashBalance" class="money"
                             decorator="name.wexler.retirement.visualizer.Tables.MoneyTableColumnDecorator"/>
-            <display:column property="assetBalance" class="money" total="true"
+            <display:column property="assetBalance" class="money"
                             decorator="name.wexler.retirement.visualizer.Tables.MoneyTableColumnDecorator"/>
         </display:table>
     </body>

@@ -52,6 +52,7 @@ public class AssetAccount extends Asset implements Account {
 
     private final String accountName;
     private final Company company;
+    private BigDecimal runningTotal;
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
@@ -96,6 +97,7 @@ public class AssetAccount extends Asset implements Account {
             context.put(AssetAccount.class, indicator, this);
         }
         accounts.add(this);
+        this.runningTotal = initialBalance.getValue();
     }
 
     public String getId() {
@@ -203,10 +205,16 @@ public class AssetAccount extends Asset implements Account {
 
    @Override public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) { }
 
-   @Override public void sinkCashFlowInstance(CashFlowInstance cashFlowInstance) { }
 
    @Override
     public String getItemType() {
         return AssetAccount.class.getSimpleName();
    }
+
+    @Override
+    @JsonIgnore
+    public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
+        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
+        cashFlowInstance.setCashBalance(runningTotal);
+    }
 }

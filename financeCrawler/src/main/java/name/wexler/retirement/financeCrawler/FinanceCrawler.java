@@ -1,5 +1,6 @@
 package name.wexler.retirement.financeCrawler;
 
+import name.wexler.retirement.datastore.AccountTable;
 import name.wexler.retirement.datastore.DataStore;
 import name.wexler.retirement.datastore.TickerHistory;
 import name.wexler.retirement.datastore.TxnHistory;
@@ -24,7 +25,8 @@ public class FinanceCrawler
         // CitibankCrawler citiCrawler = new CitibankCrawler()
         if (true) {
             TxnHistory txnHistory = ds.getTxnHistory();
-            MintCrawler mintCrawler = new MintCrawler(txnHistory, txnHistory.getLastDate());
+            AccountTable accountTable = ds.getAccountTable();
+            MintCrawler mintCrawler = new MintCrawler(txnHistory, accountTable, txnHistory.getLastDate());
             mintCrawler.crawl();
         }
     }
