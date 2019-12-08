@@ -156,7 +156,7 @@ public class TxnHistory {
     public ResultSet getTransactions() {
         String sql =
                 "SELECT date, description, original_description, amount, txn_type, " +
-                        "itemType, cooked_category AS category, account_name, labels, notes, fi,\n" +
+                        "itemType, IFNULL(cooked_category, txnHistory.category) AS category, account_name, labels, notes, fi,\n" +
                         "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer \n" +
                         "FROM txnHistory \n" +
                         "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n";

@@ -19,7 +19,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -109,7 +110,7 @@ public class CashFlowTypeTest {
                     new Annual(context, "annual1", annualAccrueStart, annualAccrueEnd, annualFirstPayment,
                             CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         } catch (Exception e) {
-            assertThat(e, isA(Exception.class));
+            is(instanceOf(Exception.class));
         }
     }
 

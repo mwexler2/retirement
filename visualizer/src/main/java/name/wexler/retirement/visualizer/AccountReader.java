@@ -86,7 +86,7 @@ public class AccountReader {
             String category = rs.getString("category");
             String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
             String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
-            String itemType = txnTypeMap.get(rs.getString("itemType"));
+            String itemType = rs.getString("itemType");
 
             Boolean isBuy = rs.getBoolean("isBuy");
             Boolean isCheck = rs.getBoolean("isCheck");
@@ -120,6 +120,7 @@ public class AccountReader {
             CashFlowInstance instance;
             Entity company = account.getCompany();
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
+            Job job = getJobFromDescription(context, description);
             if (isDebit) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
@@ -130,20 +131,18 @@ public class AccountReader {
                 instance = new PaymentInstance(cashFlowSource, account, category,
                         accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);
-            } else if (!isDebit && category.equals("Paycheck")) {
+            } else if (job != null && !isDebit && category.equals("Paycheck")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                Job job = getJobFromDescription(context, description);
                 instance = new PaycheckInstance(account, job, category, accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO);
-            } else if (!isDebit && category.equals("Reimbursement")) {
+            } else if (job != null && !isDebit && category.equals("Reimbursement")) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                Job job = getJobFromDescription(context, description);
                 instance = new ReimbursementInstance(account, job.getDefaultSink(), category,
                         accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO, company);

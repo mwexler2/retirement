@@ -16,7 +16,6 @@
       <module name="datastore" target="11" />
       <module name="financeCrawler" target="11" />
       <module name="jdbcDrivers" target="11" />
-      <module name="retirement" target="11" />
       <module name="visualizer" target="11" />
     </bytecodeTargetLevel>
   </component>

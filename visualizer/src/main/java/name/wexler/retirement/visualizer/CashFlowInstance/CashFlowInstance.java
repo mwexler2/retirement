@@ -64,10 +64,14 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
 
 
     public String getCategory() {
+        if (category == null)
+            return "unknown";
         return category;
     }
 
     public String getItemType() {
+        if (itemType == null)
+            return "unknown";
         return itemType;
     }
 
