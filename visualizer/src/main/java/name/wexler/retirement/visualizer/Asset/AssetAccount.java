@@ -214,7 +214,7 @@ public class AssetAccount extends Asset implements Account {
     @Override
     @JsonIgnore
     public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
-        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
+        runningTotal = runningTotal.subtract(cashFlowInstance.getAmount());
         cashFlowInstance.setCashBalance(runningTotal);
     }
 }

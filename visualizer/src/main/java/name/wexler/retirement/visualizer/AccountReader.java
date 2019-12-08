@@ -109,6 +109,12 @@ public class AccountReader {
             if (account == null)
                 return null;
 
+            try {
+                txnAmount = rs.getBigDecimal("amount");
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
+
             CashFlowInstance instance;
             Entity company = account.getCompany();
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
