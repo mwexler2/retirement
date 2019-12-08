@@ -77,7 +77,7 @@ public class AccountReader {
             ResultSet rs)  {
         try {
             long dateMillis = rs.getLong("Date");
-            LocalDate txnDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate txnDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.of("UTC")).toLocalDate();
             LocalDate accrualEnd = txnDate;
             BigDecimal txnAmount = BigDecimal.ZERO;
             String action = rs.getString("txn_type");
@@ -109,14 +109,6 @@ public class AccountReader {
             if (account == null)
                 return null;
 
-            try {
-                txnAmount = rs.getBigDecimal("amount");
-                if (isDebit)
-                    txnAmount = txnAmount.negate();
-            } catch (NumberFormatException nfe) {
-                return null;
-            }
-
             CashFlowInstance instance;
             Entity company = account.getCompany();
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
@@ -136,7 +128,7 @@ public class AccountReader {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;
                 }
-                instance = new PaycheckInstance(account, job, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+                instance = new PaycheckInstance(job, account, category, accrualEnd, accrualEnd, txnDate, txnAmount,
                         BigDecimal.ZERO);
             } else if (job != null && !isDebit && category.equals("Reimbursement")) {
                 if (company == null) {
