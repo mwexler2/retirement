@@ -9,11 +9,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>name.wexler</groupId>
     <artifactId>jdbcDrivers</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <description>JDBC Drivers for Retirement Planning Systemr</description>
+    <packaging>jar</packaging>
+
+    <description>JDBC Drivers for Retirement Planning System</description>
 
     <dependencies>
         <dependency>
