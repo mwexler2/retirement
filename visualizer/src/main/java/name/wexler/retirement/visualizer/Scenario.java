@@ -34,6 +34,7 @@ import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -73,6 +74,7 @@ public class Scenario extends Entity {
         setCashFlowEstimators(context, cashFlowEstimators);
         calendar = new CashFlowCalendar(this, assumptions);
         calendar.addCashFlowInstances(getHistoricalCashFlowInstances());
+        calendar.addCurrentBalances(getCurrentBalances());
         for (int pass = 1; pass <= 3; ++pass) {
             List<CashFlowInstance> cashFlowInstances = getFutureCashFlowInstances(calendar, pass);
             calendar.addCashFlowInstances(cashFlowInstances);
@@ -101,6 +103,16 @@ public class Scenario extends Entity {
         try {
             AccountReader accountReader = new AccountReader(getContext());
             return accountReader.readCashFlowInstances(getContext());
+        } catch (IOException ioe) {
+            System.err.println(ioe);
+        }
+        return null;
+    }
+
+    private Map<String, BigDecimal> getCurrentBalances() {
+        try {
+            AccountReader accountReader = new AccountReader(getContext());
+            return accountReader.getAccountBalances(getContext());
         } catch (IOException ioe) {
             System.err.println(ioe);
         }

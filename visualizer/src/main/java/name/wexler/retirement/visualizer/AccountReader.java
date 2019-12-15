@@ -8,7 +8,9 @@ import name.wexler.retirement.visualizer.CashFlowEstimator.SecuredLoan;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Expense;
 import name.wexler.retirement.visualizer.Expense.Spending;
+import org.apache.activemq.util.IOExceptionHandler;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.openjpa.jdbc.kernel.exps.MapEntry;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -49,6 +51,24 @@ public class AccountReader {
         }
         return cashFlowInstances;
     }
+
+    public Map<String, BigDecimal> getAccountBalances(Context context) throws IOException {
+        Map<String, BigDecimal> currentBalances = new HashMap<>();
+        DataStore ds = Retirement.getDataStore();
+        try (ResultSet rs = ds.getAccountTable().getAccounts()) {
+            while (rs.next()) {
+                String accountName = rs.getString("userName");
+                if (accountName == null)
+                    accountName = rs.getString("yodleeName");
+                BigDecimal value = rs.getBigDecimal("value");
+                currentBalances.put(accountName, value);
+            }
+        } catch (SQLException sqle) {
+            System.err.println(sqle);
+        }
+        return currentBalances;
+    }
+
 
     private List<CashFlowInstance> readCashFlowInstancesFromResultSet (
             Context context,

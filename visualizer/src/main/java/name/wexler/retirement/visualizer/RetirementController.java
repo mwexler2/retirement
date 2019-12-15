@@ -57,8 +57,12 @@ public class RetirementController {
         model.put("assetId", assetId);
         model.put("scenarioId", scenarioId);
         model.put("year", year);
-        List<CashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getCashFlows(assetId, year);
-        model.put("cashFlows", cashFlowInstances);
+        List<CashFlowInstance> selectedCashFlows =
+                retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
+                        filter(instance -> instance.getCashFlowSinkId().equals(assetId)).
+                        filter(instance -> instance.getYear() == year).
+                        collect(Collectors.toList());
+        model.put("cashFlows", selectedCashFlows);
         return new ModelAndView("asset", "command", model);
     }
 
@@ -70,7 +74,6 @@ public class RetirementController {
         List<CashFlowInstance> selectedCashFlows =
                 retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
                         filter(instance -> instance.getCashFlowSinkId().equals(assetId)).
-                        sorted().
                         collect(Collectors.toList());
         model.put("cashFlows", selectedCashFlows);
         return new ModelAndView("asset", "command", model);
@@ -88,12 +91,8 @@ public class RetirementController {
         List<LiabilityCashFlowInstance> cashFlowInstances =
                 retirement.getCashFlowCalendar(scenarioId).
                         getLiabilityCashFlowInstances(liabilityId, year);
-        Collection<Balance> balances = retirement.
-                getCashFlowCalendar(scenarioId).
-                getLiabilityBalances(liabilityId, year);
-        model.put("balances", balances);
         model.put("cashFlows", cashFlowInstances);
-        return new ModelAndView("cashFlows", model);
+        return new ModelAndView("cashFlows", "command", model);
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}", method = RequestMethod.GET)
@@ -104,11 +103,8 @@ public class RetirementController {
         model.put("cashFlowId", liabilityId);
         model.put("scenarioId", scenarioId);
         List<LiabilityCashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getLiabilityCashFlowInstances(liabilityId);
-        Collection<Balance> balances = retirement.getCashFlowCalendar(scenarioId).
-                getLiabilityBalances(liabilityId);
-        model.put("balances", balances);
         model.put("cashFlows", cashFlowInstances);
-        return new ModelAndView("cashFlows", model);
+        return new ModelAndView("cashFlows", "command", model);
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/{grouping}/{category}/year/{year}", method = RequestMethod.GET)

@@ -243,10 +243,8 @@ public class AccountTable {
 
     public ResultSet getAccounts() {
         String sql =
-                "SELECT date, description, original_description, amount, txn_type, " +
-                        "itemType, cooked_category AS category, account_name, labels, notes \n" +
-                        "FROM accounts \n" +
-                        "LEFT JOIN categoryMapping ON categoryMapping.raw_category=accounts.category\n";
+                "SELECT name, accountName, userName, yodleeName, value " +
+                        "FROM accounts \n";
         try {
             Statement stmt = conn.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql);
