@@ -131,7 +131,6 @@ public class CashFlowTypeTest {
         Company company1 = new Company(context, "company1");
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
-                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
                 "Checking account 1", bank.getId(), Collections.emptyList());
         Job job1 = new Job(context, "job1", "employer1", "employee1", defaultSink.getId());
         job1.setStartDate(LocalDate.of(2010, Month.SEPTEMBER, 17));

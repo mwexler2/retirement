@@ -40,7 +40,6 @@ public class RSUTest {
         Person employee = new Person(context, "employee1", LocalDate.of(1776, Month.JULY, 4), 200);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
-                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
                 "Checking account 1", bank.getId(), Collections.emptyList());
         Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));

@@ -80,6 +80,10 @@ public class CreditCardAccount extends Liability {
         runningTotal = BigDecimal.ZERO;
     }
 
+    @JsonIgnore
+    public void setRunningTotal(BigDecimal bigDecimal) {
+        this.runningTotal = runningTotal;
+    }
 
     public String getId() {
         return super.getId();

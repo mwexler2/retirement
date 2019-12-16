@@ -50,6 +50,7 @@ public class SecuredLoan extends Liability {
     private BigDecimal paymentAmount;
     private final BigDecimal impoundAmount;
     private CashFlowSink defaultSink;
+    private BigDecimal runningTotal;
 
     @JsonCreator
     public SecuredLoan(@JacksonInject("context") Context context,
@@ -79,6 +80,11 @@ public class SecuredLoan extends Liability {
         for (String indicator : indicators) {
             context.put(SecuredLoan.class, indicator, this);
         }
+    }
+
+    @JsonIgnore
+    public void setRunningTotal(BigDecimal bigDecimal) {
+        this.runningTotal = runningTotal;
     }
 
     @JsonIgnore

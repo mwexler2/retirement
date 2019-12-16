@@ -26,6 +26,7 @@ package name.wexler.retirement.visualizer;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
@@ -74,7 +75,7 @@ public class Scenario extends Entity {
         setCashFlowEstimators(context, cashFlowEstimators);
         calendar = new CashFlowCalendar(this, assumptions);
         calendar.addCashFlowInstances(getHistoricalCashFlowInstances());
-        calendar.addCurrentBalances(getCurrentBalances());
+        setCurrentBalances();
         for (int pass = 1; pass <= 3; ++pass) {
             List<CashFlowInstance> cashFlowInstances = getFutureCashFlowInstances(calendar, pass);
             calendar.addCashFlowInstances(cashFlowInstances);
@@ -109,14 +110,25 @@ public class Scenario extends Entity {
         return null;
     }
 
-    private Map<String, BigDecimal> getCurrentBalances() {
+    private void setCurrentBalances() {
         try {
             AccountReader accountReader = new AccountReader(getContext());
-            return accountReader.getAccountBalances(getContext());
+            Map<String, BigDecimal> currentBalances = accountReader.getAccountBalances(getContext());
+            for (Map.Entry<String, BigDecimal> entry: currentBalances.entrySet()) {
+                if (entry.getValue() == null) {
+                    System.err.println("account: " + entry.getKey() + " has no current balance.");
+                    continue;
+                }
+                CashFlowSink sink = getContext().getById(Account.class, entry.getKey());
+                if (sink == null) {
+                    System.err.println("account: " + entry.getKey() + " has no corresponding account");
+                    continue;
+                }
+                sink.setRunningTotal(entry.getValue());
+            }
         } catch (IOException ioe) {
             System.err.println(ioe);
         }
-        return null;
     }
 
 

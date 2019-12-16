@@ -43,7 +43,6 @@ public class ScenarioTest {
         Company yahoo = new Company(context, "yahoo");
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(mike.getId()),
-                new CashBalance(LocalDate.of(2015, 10, 1), BigDecimal.ZERO), Collections.emptyList(),
                 "Checking account 1", bank.getId(), Collections.emptyList());
         Job job1 = new Job(context, "job1", "yahoo", "mike", defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.APRIL, 1));
@@ -79,10 +78,6 @@ public class ScenarioTest {
                 LocalDate.of(2012, Month.JUNE, 21), 360, BigDecimal.valueOf(0.375), BigDecimal.valueOf(50000.00) ,
                 BigDecimal.valueOf(200.00), BigDecimal.valueOf(42.35), liability1Monthly.getId(), defaultSink.getId(), Arrays.asList(""));
 
-        List<CashBalance> account1Cash = new ArrayList<>();
-        List<CashBalance> account2Cash = new ArrayList<>();
-        List<ShareBalance> account1Securities = new ArrayList<>();
-        List<ShareBalance> account2Securities = new ArrayList<>();
         List<String> account1Owners = Collections.singletonList("mike");
         List<String> account2Owners = Collections.singletonList("mike");
 
@@ -93,12 +88,9 @@ public class ScenarioTest {
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
 
         AssetAccount account1 = new AssetAccount(context, "account1", account1Owners,
-                new CashBalance(LocalDate.of(2015, Month.MARCH, 31), BigDecimal.ZERO),
-                account1Cash,
                 "My 401(k)","Bank of Nowhere", null);
         AssetAccount account2 = new AssetAccount(context, "account2", account2Owners,
-                new CashBalance(LocalDate.of(2014, Month.MARCH, 1), BigDecimal.ZERO),
-                account2Cash,"My Checking","Bank of Somewhere", null);
+                "My Checking","Bank of Somewhere", null);
         String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};

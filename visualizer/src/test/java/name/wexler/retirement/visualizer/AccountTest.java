@@ -34,11 +34,9 @@ public class AccountTest {
         String[] accounts = new String[0];
         scenario = new Scenario(context, "MyScenario", "My Scenario", cashFlowSources, assets, liabilities, accounts, assumptions);
         List<String> owners = Collections.singletonList("o1");
-        CashBalance initialBalance = new CashBalance(LocalDate.of(2017, Month.APRIL, 30), BigDecimal.ZERO);
-        List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2010, 12, 31), BigDecimal.valueOf(5.45)));
         List<ShareBalance> securities = Collections.singletonList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
-        a1 = new AssetAccount(context, "a1", owners, initialBalance,  interimBalances, "Test AssetAccount",
+        a1 = new AssetAccount(context, "a1", owners, "Test AssetAccount",
                 "Bank of Banking", null);
     }
 
@@ -51,9 +49,4 @@ public class AccountTest {
         assertEquals("Test AssetAccount", a1.getName());
     }
 
-
-    public void getAccountValue() {
-        Balance accountBalance = a1.getBalanceAtDate(scenario, LocalDate.of(2015, 10, 1));
-        assertEquals(BigDecimal.ZERO, accountBalance.getValue());
-    }
 }

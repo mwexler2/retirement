@@ -49,8 +49,6 @@ import name.wexler.retirement.visualizer.Entity.Entity;
         @JsonSubTypes.Type(value = AssetAccount.class, name = "account")
 })
 public abstract class Asset extends Entity {
-    private final CashBalance _initialBalance;
-    private final List<CashBalance> _interimBalances;
     private final Context context;
 
 
@@ -65,15 +63,10 @@ public abstract class Asset extends Entity {
     @JsonCreator
     protected Asset(@JacksonInject("context") Context context,
                 @JsonProperty("id") String id,
-                @JsonProperty("owners") List<String> ownerIds,
-                    @JsonProperty("initialBalance") CashBalance initialBalance,
-                    @JsonProperty("interimBalances") List<CashBalance> interimBalances) throws DuplicateEntityException {
+                @JsonProperty("owners") List<String> ownerIds) throws DuplicateEntityException {
         super(context, id, Asset.class);
         this.context = context;
         this._owners = context.getByIds(Entity.class, ownerIds);
-        this._initialBalance = initialBalance;
-        interimBalances.sort(Comparator.comparing(Balance::getBalanceDate));
-        _interimBalances = interimBalances;
         context.put(Asset.class, id, this);
     }
 
@@ -82,60 +75,6 @@ public abstract class Asset extends Entity {
     @JsonIgnore
     public Context getContext() {
         return context;
-    }
-
-    @JsonIgnore
-    public List<Balance> getBalances(Scenario scenario) {
-        List<Balance> balances = new ArrayList<>();
-
-        balances.add(getInitialBalance());
-        balances.addAll(_interimBalances);
-
-        return balances;
-    }
-
-    @JsonIgnore
-    public List<Balance> getBalances(Scenario scenario, int year) {
-        List<Balance> balances = new ArrayList<>();
-
-        balances.add(getInitialBalance());
-        balances.addAll(
-                _interimBalances.stream()
-                        .filter(balance -> year == balance.getBalanceDate().getYear())
-                        .collect(Collectors.toList()));
-
-        return balances;
-    }
-
-    public Balance getBalanceAtDate(Scenario scenario, LocalDate valueDate) {
-        if (valueDate.isBefore(this.getStartDate())) {
-            return new CashBalance(valueDate, BigDecimal.ZERO);
-        }
-        Balance recentBalance = _initialBalance;
-        List<Balance> balances = getBalances(scenario);
-        int i =  Collections.binarySearch(balances, new CashBalance(valueDate, BigDecimal.ZERO),
-                Comparator.comparing(Balance::getBalanceDate));
-        if (i >= 0) {
-            recentBalance = balances.get(i);
-        } else if (i < -1) {
-            recentBalance = balances.get(-i - 2);
-        }
-        return recentBalance;
-    }
-
-
-    public Balance getInitialBalance() {
-        return _initialBalance;
-    }
-
-    @JsonIgnore
-    public BigDecimal getInitialBalanceAmount() {
-        return _initialBalance.getValue();
-    }
-
-    @JsonIgnore
-    private LocalDate getStartDate() {
-        return _initialBalance.getBalanceDate();
     }
 
     public List<Entity> getOwners() {

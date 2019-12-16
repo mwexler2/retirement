@@ -52,7 +52,7 @@ public class AssetAccount extends Asset implements Account {
 
     private final String accountName;
     private final Company company;
-    private BigDecimal runningTotal;
+    private BigDecimal runningTotal = BigDecimal.ZERO;
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
@@ -81,13 +81,11 @@ public class AssetAccount extends Asset implements Account {
     public AssetAccount(@JacksonInject("context") Context context,
                         @JsonProperty(value = "id", required = true) String id,
                         @JsonProperty(value = "owners", required = true) List<String> ownerIds,
-                        @JsonProperty(value = "initialBalance", defaultValue = "0.00") CashBalance initialBalance,
-                        @JsonProperty(value = "interimBalances", required = true) List<CashBalance> interimBalances,
                         @JsonProperty(value = "accountName", required = true) String accountName,
                         @JsonProperty(value = "company", required = true) String companyId,
                         @JsonProperty(value = "indicators", required = true) List<String> indicators)
             throws NotFoundException, DuplicateEntityException {
-        super(context, id, ownerIds, initialBalance, interimBalances);
+        super(context, id, ownerIds);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
         if (this.company == null) {
@@ -97,9 +95,11 @@ public class AssetAccount extends Asset implements Account {
             context.put(AssetAccount.class, indicator, this);
         }
         accounts.add(this);
-        this.runningTotal = initialBalance.getValue();
     }
 
+    public void setRunningTotal(BigDecimal runningTotal) {
+        this.runningTotal = runningTotal;
+    }
     public String getId() {
         return super.getId();
     }
@@ -110,24 +110,6 @@ public class AssetAccount extends Asset implements Account {
 
     public Company getCompany() {
         return company;
-    }
-
-    // Return the total value of securities and cash at each point during the year where it cash or share quantity
-    // changed.
-    @Override
-    @JsonIgnore
-    public List<Balance> getBalances(Scenario scenario, int year) {
-        this.cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
-        computeBalances(this.cashFlowInstances);
-        List<Balance> balances =
-                accountValueByDate.keySet()
-                        .stream()
-                        .filter(date -> year == date.getYear())
-                        .sorted()
-                        .map(date -> accountValueByDate.get(date))
-                        .collect(Collectors.toList());
-
-        return balances;
     }
 
     private void processSecurityTransaction(SecurityTransaction txn,
@@ -178,27 +160,6 @@ public class AssetAccount extends Asset implements Account {
         return cashValue.add(shareValue).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private void computeBalances(List<CashFlowInstance> cashFlowInstances) {
-        // Running Balances for Cash and Securities
-        CashBalance cashBalance = new CashBalance(getInitialBalance().getBalanceDate(), getInitialBalanceAmount());
-        Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
-
-        cashFlowInstances.stream().
-                forEach(instance -> {
-                    cashBalance.applyChange(instance.getCashFlowDate(), instance.getAmount());
-                    if (instance instanceof SecurityTransaction) {
-                        processSecurityTransaction((SecurityTransaction) instance, shareBalancesBySymbol);
-
-                    }
-                    instance.setCashBalance(cashBalance.getValue());
-                    BigDecimal totalValue = calculateTotalValue(shareBalancesBySymbol, cashBalance);
-                    instance.setAssetBalance(totalValue);
-                    accountValueByDate.put(instance.getCashFlowDate(),
-                            new CashBalance(instance.getCashFlowDate(), totalValue));
-                });
-    }
-
-
    public String toString() {
         return this.accountName + " (" + this.company.getCompanyName() + ")";
    }
@@ -214,7 +175,7 @@ public class AssetAccount extends Asset implements Account {
     @Override
     @JsonIgnore
     public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
-        runningTotal = runningTotal.subtract(cashFlowInstance.getAmount());
         cashFlowInstance.setCashBalance(runningTotal);
+        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
     }
 }
