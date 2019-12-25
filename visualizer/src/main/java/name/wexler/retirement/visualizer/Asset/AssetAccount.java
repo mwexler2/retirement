@@ -57,6 +57,7 @@ public class AssetAccount extends Asset implements Account {
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
     private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
+    private String accountId = null;
 
     private static final String assetAccountsPath = "assetAccounts.json";
 
@@ -83,7 +84,8 @@ public class AssetAccount extends Asset implements Account {
                         @JsonProperty(value = "owners", required = true) List<String> ownerIds,
                         @JsonProperty(value = "accountName", required = true) String accountName,
                         @JsonProperty(value = "company", required = true) String companyId,
-                        @JsonProperty(value = "indicators", required = true) List<String> indicators)
+                        @JsonProperty(value = "indicators", required = true) List<String> indicators,
+                        @JsonProperty(value = "accountId") String accountId)
             throws NotFoundException, DuplicateEntityException {
         super(context, id, ownerIds);
         this.accountName = accountName;
@@ -94,6 +96,7 @@ public class AssetAccount extends Asset implements Account {
         for (String indicator : indicators) {
             context.put(AssetAccount.class, indicator, this);
         }
+        this.accountId = accountId;
         accounts.add(this);
     }
 
@@ -111,6 +114,8 @@ public class AssetAccount extends Asset implements Account {
     public Company getCompany() {
         return company;
     }
+
+    public String getAccountId() { return accountId; }
 
     private void processSecurityTransaction(SecurityTransaction txn,
                                             Map<String, ShareBalance> shareBalancesBySymbol) {

@@ -131,7 +131,6 @@ public class MintCrawler {
             Map<String, Object> fieldNameVals = new HashMap<>();
             for (Object key: ((JSONObject) account).keySet()) {
                 Object value =  ((JSONObject) account).getOrDefault(key, "");
-                System.out.println("key = " + key + ", value = " + value);
                 if (((String) key).equals("txn_type")) {
                     value = txnTypeMap.get(value);
                 }

@@ -7,12 +7,14 @@ public class DataStore {
     TickerHistory tickerHistory;
     TxnHistory txnHistory;
     AccountTable accountTable;
+    PositionHistory positionHistory;
 
     public DataStore() {
         conn = JDBCDriverConnection.driverFactory("sqlite", "retirement");
         tickerHistory = new TickerHistory(conn);
         txnHistory = new TxnHistory(conn);
         accountTable = new AccountTable(conn);
+        positionHistory = new PositionHistory(conn);
     }
 
     public TickerHistory getTickerHistory() {
@@ -22,4 +24,6 @@ public class DataStore {
     public TxnHistory getTxnHistory() { return txnHistory;}
 
     public AccountTable getAccountTable() { return accountTable; }
+
+    public PositionHistory getPositionHistory() { return positionHistory; }
 }

@@ -56,7 +56,7 @@ public class LiabilityTest {
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(borrower.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null);
         liability = new SecuredLoan(context, "liability1", lender.getId(), borrowers, asset,
                 LocalDate.of(2014, Month.OCTOBER, 10),
                 LocalDate.of(2030, Month.JUNE, 1),

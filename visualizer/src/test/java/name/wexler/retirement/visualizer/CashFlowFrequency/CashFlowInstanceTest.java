@@ -39,7 +39,7 @@ public class CashFlowInstanceTest {
         Company company1 = new Company(context, "company1");
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null);
         Job job1 = new Job(context, "job1", "employer1", "employee1", defaultSink.getId());
         CashFlowFrequency salary1Freq = new Monthly(context, "salary1CashFlow",
                 job1.getStartDate(),

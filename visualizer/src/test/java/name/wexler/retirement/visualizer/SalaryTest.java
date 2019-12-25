@@ -35,7 +35,7 @@ public class SalaryTest {
         Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null);
         Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));

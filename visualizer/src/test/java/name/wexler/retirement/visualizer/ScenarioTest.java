@@ -43,7 +43,7 @@ public class ScenarioTest {
         Company yahoo = new Company(context, "yahoo");
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(mike.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null);
         Job job1 = new Job(context, "job1", "yahoo", "mike", defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2015, Month.DECEMBER, 15));
@@ -88,9 +88,9 @@ public class ScenarioTest {
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
 
         AssetAccount account1 = new AssetAccount(context, "account1", account1Owners,
-                "My 401(k)","Bank of Nowhere", null);
+                "My 401(k)","Bank of Nowhere", null, null);
         AssetAccount account2 = new AssetAccount(context, "account2", account2Owners,
-                "My Checking","Bank of Somewhere", null);
+                "My Checking","Bank of Somewhere", null, null);
         String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};

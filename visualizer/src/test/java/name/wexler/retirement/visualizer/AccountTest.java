@@ -37,7 +37,7 @@ public class AccountTest {
         List<ShareBalance> securities = Collections.singletonList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
         a1 = new AssetAccount(context, "a1", owners, "Test AssetAccount",
-                "Bank of Banking", null);
+                "Bank of Banking", null, null);
     }
 
     @Test

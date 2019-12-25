@@ -78,7 +78,7 @@ public class JobTest {
 
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(person1.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null);
         job1 = new Job(context, "job1", company1.getId(), person1.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2002, Month.AUGUST, 15));
@@ -99,7 +99,6 @@ public class JobTest {
                 new Annual(context, "annual-bonus1", job1.getStartDate(), job1.getEndDate(), job1FirstBonusDay,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         Bonus job1Bonus = new BonusAnnualPct(context, "job1Bonus", "job1", "job1Salary", job1BonusPct, job1BonusSource.getId());
-        CashFlowEstimator[] job1IS = {job1Salary, job1Bonus};
 
         LocalDate salary2FirstPaycheck = LocalDate.of(job1.getStartDate().getYear(), job1.getStartDate().getMonth(), 10);
         CashFlowFrequency job1SalarySource2 =

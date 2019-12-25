@@ -46,7 +46,7 @@ public class AlimonyTest {
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null);
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),
                 BigDecimal.valueOf(50000.00), BigDecimal.valueOf(1200.00), BigDecimal.valueOf(0.33), BigDecimal.valueOf(102500.00), monthly.getId(),
                 quarterly.getId(), defaultSink.getId());
