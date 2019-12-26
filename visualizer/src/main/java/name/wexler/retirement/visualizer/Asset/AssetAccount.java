@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
@@ -56,9 +57,9 @@ public class AssetAccount extends Asset implements Account {
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
+    private final Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
     private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
     private String accountId = null;
-
     private static final String assetAccountsPath = "assetAccounts.json";
 
     static public void readAssetAccounts(Context context) throws IOException {
@@ -147,6 +148,24 @@ public class AssetAccount extends Asset implements Account {
 
             ShareBalance newBalance = oldBalance.applyChange(change);
             shareBalancesAtTxnDate.put(symbol, newShareBalance);
+        }
+    }
+
+    public void setPositions(Map<String, PositionHistory.Position> positions) {
+        for (Map.Entry<String, PositionHistory.Position> positionEntry : positions.entrySet()) {
+            // Update running share balance for this symbol, creating an entry if it doesn't already exist.
+
+            String symbol = positionEntry.getKey();
+            ShareBalance shareBalance = new ShareBalance(getContext(), positionEntry.getValue());
+            if (!shareBalancesBySymbol.containsKey(symbol))
+                shareBalancesBySymbol.put(symbol, shareBalance);
+
+            // Store the share balance by date and symbol
+            if (!shareBalancesByDateAndSymbol.containsKey(shareBalance.getBalanceDate())) {
+                shareBalancesByDateAndSymbol.put(shareBalance.getBalanceDate(),
+                        new HashMap<>());
+            }
+            shareBalancesByDateAndSymbol.get(shareBalance.getBalanceDate()).put(symbol, shareBalance);
         }
     }
 

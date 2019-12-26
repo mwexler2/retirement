@@ -1,7 +1,9 @@
 package name.wexler.retirement.visualizer;
 
 import name.wexler.retirement.datastore.DataStore;
+import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.*;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CreditCardAccount;
 import name.wexler.retirement.visualizer.CashFlowEstimator.SecuredLoan;
@@ -52,7 +54,7 @@ public class AccountReader {
         return cashFlowInstances;
     }
 
-    public Map<String, BigDecimal> getAccountBalances(Context context) throws IOException {
+    public void getAccountBalances(Context context) throws IOException {
         Map<String, BigDecimal> currentBalances = new HashMap<>();
         DataStore ds = Retirement.getDataStore();
         try (ResultSet rs = ds.getAccountTable().getAccounts()) {
@@ -61,12 +63,20 @@ public class AccountReader {
                 if (accountName == null)
                     accountName = rs.getString("yodleeName");
                 BigDecimal value = rs.getBigDecimal("value");
-                currentBalances.put(accountName, value);
+                CashFlowSink sink = context.getById(AssetAccount.class, accountName);
+                if (sink instanceof AssetAccount) {
+                    AssetAccount assetAccount = (AssetAccount) sink;
+                    sink.setRunningTotal(value);
+                    String accountId = assetAccount.getAccountId();
+                    Map<String, PositionHistory.Position> positions = ds.getPositionHistory().getAccountPositions(accountId);
+                    assetAccount.setPositions(positions);
+                }
+                else
+                    System.err.println("Skipping accountBalance for " + accountName + " not an asset account.");
             }
         } catch (SQLException sqle) {
             System.err.println(sqle);
         }
-        return currentBalances;
     }
 
 

@@ -113,19 +113,7 @@ public class Scenario extends Entity {
     private void setCurrentBalances() {
         try {
             AccountReader accountReader = new AccountReader(getContext());
-            Map<String, BigDecimal> currentBalances = accountReader.getAccountBalances(getContext());
-            for (Map.Entry<String, BigDecimal> entry: currentBalances.entrySet()) {
-                if (entry.getValue() == null) {
-                    System.err.println("account: " + entry.getKey() + " has no current balance.");
-                    continue;
-                }
-                CashFlowSink sink = getContext().getById(Account.class, entry.getKey());
-                if (sink == null) {
-                    System.err.println("account: " + entry.getKey() + " has no corresponding account");
-                    continue;
-                }
-                sink.setRunningTotal(entry.getValue());
-            }
+            accountReader.getAccountBalances(getContext());
         } catch (IOException ioe) {
             System.err.println(ioe);
         }

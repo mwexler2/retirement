@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import name.wexler.retirement.visualizer.Context;
@@ -12,6 +13,7 @@ import name.wexler.retirement.visualizer.Security;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * Created by mwexler on 11/29/16.
@@ -40,6 +42,13 @@ public class ShareBalance implements Balance  {
                         @JsonProperty(value = "sharePrice", required = true) BigDecimal sharePrice,
                         @JsonProperty(value = "security", required = true) String securityId) {
         this(balanceDate, shares, sharePrice, context.getById(Security.class, securityId));
+    }
+
+    public ShareBalance(Context context, PositionHistory.Position position) {
+        this(context, position.getDate().toInstant().atZone(ZoneId.of("GMT")).toLocalDate(),
+                position.getUnitPrice(),
+                position.getUnitPrice(),
+                position.getName());
     }
 
     public BigDecimal getValue() {
