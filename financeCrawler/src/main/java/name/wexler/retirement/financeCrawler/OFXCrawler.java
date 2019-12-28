@@ -37,42 +37,52 @@ public class OFXCrawler {
     }
 
     public void crawl() {
-        String cmd = "/usr/local/bin/ofxget stmt schwab-alt";
-        try {
-            Process p = Runtime.getRuntime().exec(cmd);
-            AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(ResponseEnvelope.class);
-            ResponseEnvelope responseEnvelope = unmarshaller.unmarshal(p.getInputStream());
+        final String[] serverList = {"schwab-alt", "vanguard", "netbenefits"};
+        for (String server: serverList) {
+            String cmd = "/usr/local/bin/ofxget stmt " + server;
+            try {
+                Process p = Runtime.getRuntime().exec(cmd);
+                AggregateUnmarshaller<ResponseEnvelope> unmarshaller = new AggregateUnmarshaller<ResponseEnvelope>(ResponseEnvelope.class);
+                ResponseEnvelope responseEnvelope = unmarshaller.unmarshal(p.getInputStream());
 
-            SecurityList securityList = ((SecurityListResponseMessageSet) responseEnvelope.getMessageSet(MessageSetType.investment_security)).getSecurityList();
-            Map<String, String> securityIdToTicker = new HashMap<>();
-            for (BaseSecurityInfo securityInfo : securityList.getSecurityInfos()) {
-                securityIdToTicker.put(securityInfo.getSecurityId().getUniqueId(), securityInfo.getTickerSymbol());
-            }
-            List<ResponseMessage> messages = responseEnvelope.getMessageSet(MessageSetType.investment).getResponseMessages();
-            positionHistory.deleteAllRows();
-            for (ResponseMessage message : messages) {
-                if (message instanceof InvestmentStatementResponseTransaction) {
-                    InvestmentStatementResponse response = ((InvestmentStatementResponseTransaction) message).getMessage();
-                    Date date = response.getDateOfStatement();
-                    InvestmentAccountDetails account = response.getAccount();
-                    final String accountId = account.getAccountNumber();
-                    if (response.getPositionList() != null) {
-                        response.getPositionList().getPositions().
-                                forEach(position -> positionHistory.insertRow(
-                                        date,
-                                        securityIdToTicker.get(position.getSecurityId().getUniqueId()),
-                                        accountId,
-                                        BigDecimal.valueOf(position.getUnits()),
-                                        position.getPositionType(),
-                                        BigDecimal.valueOf(position.getUnitPrice()),
-                                        BigDecimal.valueOf(position.getMarketValue())));
+                SecurityList securityList = ((SecurityListResponseMessageSet) responseEnvelope.getMessageSet(MessageSetType.investment_security)).getSecurityList();
+                Map<String, String> securityIdToTicker = new HashMap<>();
+                for (BaseSecurityInfo securityInfo : securityList.getSecurityInfos()) {
+                    String ticker = securityInfo.getTickerSymbol();
+                    if (ticker == null)
+                        ticker = securityInfo.getSecurityId().getUniqueId();
+                    securityIdToTicker.put(securityInfo.getSecurityId().getUniqueId(), ticker);
+                }
+                List<ResponseMessage> messages = responseEnvelope.getMessageSet(MessageSetType.investment).getResponseMessages();
+                positionHistory.deleteAllRows();
+                for (ResponseMessage message : messages) {
+                    if (message instanceof InvestmentStatementResponseTransaction) {
+                        InvestmentStatementResponse response = ((InvestmentStatementResponseTransaction) message).getMessage();
+                        Date date = response.getDateOfStatement();
+                        InvestmentAccountDetails account = response.getAccount();
+                        final String accountId = account.getAccountNumber();
+                        if (response.getPositionList() != null) {
+                            response.getPositionList().getPositions().
+                                    forEach(position -> {
+                                        String uniqueId = position.getSecurityId().getUniqueId();
+                                        positionHistory.insertRow(
+                                                        date.getTime(),
+                                                        securityIdToTicker.getOrDefault(uniqueId, uniqueId),
+                                                        accountId,
+                                                        BigDecimal.valueOf(position.getUnits()),
+                                                        position.getPositionType(),
+                                                        BigDecimal.valueOf(position.getUnitPrice()),
+                                                        BigDecimal.valueOf(position.getMarketValue()));
+                                            }
+                                    );
+                        }
                     }
                 }
+            } catch (OFXParseException ope) {
+                System.err.println(ope);
+            } catch (IOException ioe) {
+                System.err.println(ioe);
             }
-        } catch (OFXParseException ope) {
-            System.err.println(ope);
-        } catch (IOException ioe) {
-            System.err.println(ioe);
         }
     }
 }

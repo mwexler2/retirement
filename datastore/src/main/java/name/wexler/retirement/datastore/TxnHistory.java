@@ -42,6 +42,7 @@ public class TxnHistory {
                 + " category TEXT NOT NULL,\n"
                 + " labels TEXT,\n"
                 + " symbol TEXT,\n"
+                + " shares REAL,\n"
                 + " fi TEXT,\n" 
                 + " isBuy INTEGER,\n"
                 + " isCheck INTEGER,\n"
@@ -80,10 +81,10 @@ public class TxnHistory {
 
         String sql = "INSERT INTO txnHistory \n"
                 + "(date, description, original_description, amount, txn_type, category, account_name, labels, notes, " +
-                "   symbol, fi," +
+                "   symbol, shares, fi," +
                 "   isBuy, isCheck, isChild, isDebit, isDuplicate, isEdited, isFirstDate, isLinkedToRule, isMatched, isPending, isPercent, isSell, isSpending, isTransfer) \n"
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
-                "          ?, ?," +
+                "          ?, ?, ?," +
                 "          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);\n";
 
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
@@ -106,27 +107,31 @@ public class TxnHistory {
             pstmt.setString(8, line.get("labels").toString());
             pstmt.setString(9, (String) line.get("notes"));
             pstmt.setString(10, (String) line.get("symbol"));
-            pstmt.setString(11, (String) line.get("fi"));
+            if (line.get("shares") instanceof Double)
+                pstmt.setDouble(11, (Double) line.get("shares"));
+            else
+                pstmt.setNull(11, Types.DOUBLE);
+            pstmt.setString(12, (String) line.get("fi"));
             if (line.get("isBuy") instanceof Boolean)
-                pstmt.setBoolean( 12, (Boolean) line.get("isBuy"));
+                pstmt.setBoolean( 13, (Boolean) line.get("isBuy"));
             else
-                pstmt.setNull(12, Types.BOOLEAN);
-            pstmt.setBoolean( 13, (Boolean) line.get("isCheck"));
-            pstmt.setBoolean( 14, (Boolean) line.get("isChild"));
-            pstmt.setBoolean( 15, (Boolean) line.get("isDebit"));
-            pstmt.setBoolean( 16, (Boolean) line.get("isDuplicate"));
-            pstmt.setBoolean( 17, (Boolean) line.get("isEdited"));
-            pstmt.setBoolean( 18, (Boolean) line.get("isFirstDate"));
-            pstmt.setBoolean( 19, (Boolean) line.get("isLinkedToRule"));
-            pstmt.setBoolean( 20, (Boolean) line.get("isMatched"));
-            pstmt.setBoolean( 21, (Boolean) line.get("isPending"));
-            pstmt.setBoolean( 22, (Boolean) line.get("isPercent"));
+                pstmt.setNull(13, Types.BOOLEAN);
+            pstmt.setBoolean( 14, (Boolean) line.get("isCheck"));
+            pstmt.setBoolean( 15, (Boolean) line.get("isChild"));
+            pstmt.setBoolean( 16, (Boolean) line.get("isDebit"));
+            pstmt.setBoolean( 17, (Boolean) line.get("isDuplicate"));
+            pstmt.setBoolean( 18, (Boolean) line.get("isEdited"));
+            pstmt.setBoolean( 19, (Boolean) line.get("isFirstDate"));
+            pstmt.setBoolean( 20, (Boolean) line.get("isLinkedToRule"));
+            pstmt.setBoolean( 21, (Boolean) line.get("isMatched"));
+            pstmt.setBoolean( 22, (Boolean) line.get("isPending"));
+            pstmt.setBoolean( 23, (Boolean) line.get("isPercent"));
             if (line.get("isSell") instanceof Boolean)
-                pstmt.setBoolean( 23, (Boolean) line.get("isSell"));
+                pstmt.setBoolean( 24, (Boolean) line.get("isSell"));
             else
-                pstmt.setNull(23, Types.BOOLEAN);
-            pstmt.setBoolean( 24, (Boolean) line.get("isSpending"));
-            pstmt.setBoolean( 25, (Boolean) line.get("isTransfer"));
+                pstmt.setNull(24, Types.BOOLEAN);
+            pstmt.setBoolean( 25, (Boolean) line.get("isSpending"));
+            pstmt.setBoolean( 26, (Boolean) line.get("isTransfer"));
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage() + ": " + line.toString());
@@ -157,7 +162,8 @@ public class TxnHistory {
         String sql =
                 "SELECT date, description, original_description, amount, txn_type, " +
                         "itemType, IFNULL(cooked_category, txnHistory.category) AS category, account_name, labels, notes, fi,\n" +
-                        "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer \n" +
+                        "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer, \n" +
+                        "symbol, shares \n" +
                         "FROM txnHistory \n" +
                         "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n";
         try {

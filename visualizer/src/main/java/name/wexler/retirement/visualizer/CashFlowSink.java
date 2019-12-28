@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 public interface CashFlowSink {
     void updateRunningTotal(CashFlowInstance cashFlow);
-    void setRunningTotal(BigDecimal runningTotal);
     String getId();
     boolean isOwner(Entity entity);
 }

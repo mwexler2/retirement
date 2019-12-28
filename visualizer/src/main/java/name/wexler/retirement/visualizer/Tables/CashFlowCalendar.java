@@ -56,6 +56,8 @@ public class CashFlowCalendar {
 
         while (listIterator.hasPrevious()) {
             CashFlowInstance instance = listIterator.previous();
+            if (instance.isEstimate())
+                continue;   // We are counting back from actual balance, skip estimates
             instance.getCashFlowSink().updateRunningTotal(instance);
         }
     }

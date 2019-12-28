@@ -16,12 +16,15 @@ import org.apache.openjpa.jdbc.kernel.exps.MapEntry;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.Map.entry;
 
@@ -66,10 +69,9 @@ public class AccountReader {
                 CashFlowSink sink = context.getById(AssetAccount.class, accountName);
                 if (sink instanceof AssetAccount) {
                     AssetAccount assetAccount = (AssetAccount) sink;
-                    sink.setRunningTotal(value);
                     String accountId = assetAccount.getAccountId();
                     Map<String, PositionHistory.Position> positions = ds.getPositionHistory().getAccountPositions(accountId);
-                    assetAccount.setPositions(positions);
+                    assetAccount.setRunningTotal(value, positions);
                 }
                 else
                     System.err.println("Skipping accountBalance for " + accountName + " not an asset account.");
@@ -149,7 +151,51 @@ public class AccountReader {
             Entity company = account.getCompany();
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
             Job job = getJobFromDescription(context, description);
-            if (isDebit) {
+            if (account instanceof AssetAccount && (category.equals("Sell") || category.equals("Buy"))) {
+                AssetAccount assetAccount = (AssetAccount) account;
+                String symbol = rs.getString("symbol");
+                BigDecimal shares = rs.getBigDecimal("shares");
+                BigDecimal sharePrice = null;
+                Security security;
+                if (symbol == null || symbol.equals("")) {
+                    Pattern p1 = Pattern.compile("(\\d+(\\.\\d+)?) of ([^ ]+) @ \\$(\\d+\\.\\d+).*", Pattern.CASE_INSENSITIVE);
+                    Pattern p2 = Pattern.compile("YOU BOUGHT ([^ ]+).*");
+                    Matcher m = p1.matcher(description.replace(",", ""));
+                    if (m.matches()) {
+                        shares = BigDecimal.valueOf(Double.parseDouble(m.group(1)));
+                        if (category.equals("Buy"))
+                            shares = shares.negate();
+                        symbol = m.group(3);
+                        sharePrice = BigDecimal.valueOf(Double.parseDouble(m.group(4)));
+                    } else {
+                        m = p2.matcher(description);
+                        if (m.matches())
+                            symbol = m.group(1);
+                    }
+                }
+                if (symbol == null || symbol.equals("")) {
+                    System.err.println("No security specified in " + description);
+                    return null;
+                } else {
+                    security = context.getById(Security.class, symbol);
+                    try {
+                        if (security == null)
+                            security = new Security(context, symbol);
+                    } catch (Entity.DuplicateEntityException dee) {
+                        throw(new RuntimeException(dee));
+                    }
+                    if (sharePrice == null) {
+                        if (shares == null || shares.compareTo(BigDecimal.ZERO) == 0) {
+                            shares = BigDecimal.ZERO;
+                            sharePrice = BigDecimal.ZERO;
+                        } else {
+                            sharePrice = txnAmount.divide(shares, 2, RoundingMode.HALF_UP).abs();
+                        }
+                    }
+                    ShareBalance shareChange = new ShareBalance(txnDate, shares, sharePrice, security);
+                    instance = new SecurityTransaction(context, assetAccount, itemType, category, txnAmount, shareChange);
+                }
+            } else if (isDebit) {
                 if (company == null) {
                     System.err.println(new AccountNotFoundException(account.getName()));
                     return null;

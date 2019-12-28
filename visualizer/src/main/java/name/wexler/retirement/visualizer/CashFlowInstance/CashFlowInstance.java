@@ -62,6 +62,9 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
         return result;
     }
 
+    public boolean isEstimate() {
+        return estimated;
+    }
 
     public String getCategory() {
         if (category == null)

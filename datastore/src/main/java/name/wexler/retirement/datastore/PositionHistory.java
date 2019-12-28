@@ -1,12 +1,15 @@
 package name.wexler.retirement.datastore;
 
 import name.wexler.retirement.jdbcDrivers.generic.JDBCDriverConnection;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,7 +51,7 @@ public class PositionHistory {
             this.mktValue = mktValue;
         }
     }
-    
+
     JDBCDriverConnection conn = null;
 
     public PositionHistory(JDBCDriverConnection conn) {
@@ -65,7 +68,7 @@ public class PositionHistory {
                 + " id integer PRIMARY KEY,\n"
                 + " name text NOT NULL,\n"
                 + " account_id NOT NULL,"
-                + " date DATE,\n"
+                + " date integer,\n"
                 + " units REAL, \n"
                 + " pos_type text not null,\n"
                 + " unit_price REAL,\n"
@@ -88,7 +91,7 @@ public class PositionHistory {
         }
     }
 
-    public void insertRow(Date date, String ticker, String accountId, BigDecimal units, String posType, BigDecimal unitPrice, BigDecimal mktValue) {
+    public void insertRow(long date, String ticker, String accountId, BigDecimal units, String posType, BigDecimal unitPrice, BigDecimal mktValue) {
         String sql = "INSERT INTO positionHistory \n"
                 + "(account_id, name, date, units, pos_type, unit_price, mkt_value) \n"
                 + "VALUES (?, ?, ?, ?, ?, ?, ?);\n";
@@ -96,7 +99,7 @@ public class PositionHistory {
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, accountId);
             pstmt.setString(2, ticker);
-            pstmt.setString(3, date.toString());
+            pstmt.setLong(3, date);
             pstmt.setBigDecimal(4, units);
             pstmt.setString(5, posType);
             pstmt.setBigDecimal(6, unitPrice);
@@ -111,6 +114,7 @@ public class PositionHistory {
 
     public Map<String, Position> getAccountPositions(String accountId) {
         Map<String, Position> positions = new HashMap<>();
+        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.LONG);
 
         String sql = "SELECT name, date, units, pos_type, unit_price, mkt_value\n"
                 + "FROM positionHistory\n"
@@ -120,9 +124,11 @@ public class PositionHistory {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String name = rs.getString("name");
+                    String dateStr = rs.getString("date");
+                    Date date = new Date(rs.getLong("date"));
                     Position position = new Position(
                             name,
-                            rs.getDate("date"),
+                            date,
                             rs.getBigDecimal("units"),
                             rs.getBigDecimal("unit_price"),
                             rs.getBigDecimal("mkt_value"));

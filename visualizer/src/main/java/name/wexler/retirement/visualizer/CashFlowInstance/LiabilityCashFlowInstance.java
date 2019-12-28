@@ -18,7 +18,7 @@ public class LiabilityCashFlowInstance extends CashFlowInstance {
                                      LocalDate cashFlowDate,
                                      BigDecimal principal, BigDecimal interest, BigDecimal impounds,
                                      BigDecimal balance) {
-        super(false, cashFlowSource, cashFlowSink,
+        super(estimated, cashFlowSource, cashFlowSink,
                 CashFlowCalendar.ITEM_TYPE.EXPENSE.toString(), category,
                 accrualStart, accrualEnd, cashFlowDate,
                 principal.add(interest).add(impounds), balance);

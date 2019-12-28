@@ -53,7 +53,7 @@ public class AssetAccount extends Asset implements Account {
 
     private final String accountName;
     private final Company company;
-    private BigDecimal runningTotal = BigDecimal.ZERO;
+    private BigDecimal cashBalance = BigDecimal.ZERO;
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
@@ -101,9 +101,7 @@ public class AssetAccount extends Asset implements Account {
         accounts.add(this);
     }
 
-    public void setRunningTotal(BigDecimal runningTotal) {
-        this.runningTotal = runningTotal;
-    }
+
     public String getId() {
         return super.getId();
     }
@@ -151,7 +149,29 @@ public class AssetAccount extends Asset implements Account {
         }
     }
 
-    public void setPositions(Map<String, PositionHistory.Position> positions) {
+    private BigDecimal calculateAssetValue() {
+        BigDecimal assetValue = shareBalancesBySymbol
+                .values()
+                .stream()
+                .map(ShareBalance::getValue)
+                .reduce(BigDecimal.ZERO,
+                        (a, b) -> a.add(b));
+        return assetValue;
+    }
+
+   public String toString() {
+        return this.accountName + " (" + this.company.getCompanyName() + ")";
+   }
+
+   @Override public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) { }
+
+
+   @Override
+    public String getItemType() {
+        return AssetAccount.class.getSimpleName();
+   }
+
+    private void setPositions(Map<String, PositionHistory.Position> positions) {
         for (Map.Entry<String, PositionHistory.Position> positionEntry : positions.entrySet()) {
             // Update running share balance for this symbol, creating an entry if it doesn't already exist.
 
@@ -169,37 +189,31 @@ public class AssetAccount extends Asset implements Account {
         }
     }
 
-    private BigDecimal calculateTotalValue(Map<String, ShareBalance> shareBalancesBySymbol,
-                                           CashBalance cashBalance) {
-        // Calculate the total account value at the transaction date
-        BigDecimal cashValue = cashBalance.getValue();
-
-
+    public void setRunningTotal(BigDecimal runningTotal, Map<String, PositionHistory.Position> positions) {
+        this.setPositions(positions);
         BigDecimal shareValue = shareBalancesBySymbol
                 .values()
                 .stream()
                 .map(ShareBalance::getValue)
                 .reduce(BigDecimal.ZERO,
                         (a, b) -> a.add(b));
-        return cashValue.add(shareValue).setScale(2, RoundingMode.HALF_UP);
+        this.cashBalance = runningTotal.subtract(shareValue);
     }
-
-   public String toString() {
-        return this.accountName + " (" + this.company.getCompanyName() + ")";
-   }
-
-   @Override public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) { }
-
-
-   @Override
-    public String getItemType() {
-        return AssetAccount.class.getSimpleName();
-   }
 
     @Override
     @JsonIgnore
     public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
-        cashFlowInstance.setCashBalance(runningTotal);
-        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
+        cashFlowInstance.setCashBalance(cashBalance);
+        cashFlowInstance.setAssetBalance(calculateAssetValue());
+        cashBalance = cashBalance.add(cashFlowInstance.getAmount());
+        if (cashFlowInstance instanceof SecurityTransaction) {
+            SecurityTransaction securityTransaction = (SecurityTransaction) cashFlowInstance;
+            ShareBalance shareBalanceChange = securityTransaction.getChange();
+            String symbol = shareBalanceChange.getSecurity().getName();
+            ShareBalance currentBalance = shareBalancesBySymbol.getOrDefault(symbol, new ShareBalance(
+                    cashFlowInstance.getCashFlowDate(), BigDecimal.ZERO, BigDecimal.ZERO, shareBalanceChange.getSecurity()));
+            ShareBalance newBalance = currentBalance.applyChange(shareBalanceChange);
+            shareBalancesBySymbol.put(symbol, newBalance);
+        }
     }
 }
