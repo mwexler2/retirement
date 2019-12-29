@@ -1,0 +1,19 @@
+td a {
+    text-decoration-line: none;
+}
+th a {
+    text-decoration-line: none;
+}
+table, thead, tbody, tr, th, td {
+    border: solid thin;
+    border-collapse: collapse;
+}
+tr.even {
+    background-color: lightgray;
+}
+tr.subtotal-header {
+    border-top: solid thick;
+}
+td.money {
+    text-align: right;
+}

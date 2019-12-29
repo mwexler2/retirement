@@ -216,4 +216,8 @@ public class AssetAccount extends Asset implements Account {
             shareBalancesBySymbol.put(symbol, newBalance);
         }
     }
+
+    public Collection<ShareBalance> getCurrentShareBalances() {
+        return shareBalancesBySymbol.values();
+    }
 }

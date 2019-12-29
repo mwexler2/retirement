@@ -23,7 +23,9 @@
 
 package name.wexler.retirement.visualizer;
 
+import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
+import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.datastore.DataStore;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -65,6 +68,17 @@ public class RetirementController {
         model.put("cashFlows", selectedCashFlows);
         return new ModelAndView("asset", "command", model);
     }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/shareBalances", method = RequestMethod.GET)
+    public ModelAndView retirementSecurities(@PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("scenarioId", scenarioId);
+        List<Map<String, Object>> shareBalances =
+                retirement.getCashFlowCalendar(scenarioId).getCurrentShareBalances();
+        model.put("shareBalances", shareBalances);
+        return new ModelAndView("shareBalances", "command",  model);
+    }
+
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/asset/{assetId}", method = RequestMethod.GET)
     public ModelAndView retirementAsset(@PathVariable String assetId, @PathVariable String scenarioId, ModelMap model) {
@@ -149,11 +163,5 @@ public class RetirementController {
         return new ModelAndView("retirement", "command", new Retirement());
     }
 
-    @RequestMapping(value = "/visualizer/{name}", method = RequestMethod.GET)
-    public String updateRetirement(@PathVariable String name, ModelMap model) {
-        logger.debug("[updateRetirement]");
-        return VIEW_INDEX;
-
-    }
 
 }

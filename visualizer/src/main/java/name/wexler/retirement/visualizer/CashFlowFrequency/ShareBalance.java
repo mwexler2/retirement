@@ -76,6 +76,10 @@ public class ShareBalance implements Balance  {
         return new ShareBalance(this.getBalanceDate(), shares, change.sharePrice, change.getSecurity());
     }
 
+    public BigDecimal getShareValue() {
+        return shares.multiply(sharePrice);
+    }
+
     @Override
     public String toString() {
         return balanceDate.toString() + ": " + this.security.getId() + " - " +

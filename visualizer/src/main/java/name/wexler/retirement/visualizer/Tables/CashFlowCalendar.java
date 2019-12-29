@@ -1,10 +1,12 @@
 package name.wexler.retirement.visualizer.Tables;
 
 import name.wexler.retirement.visualizer.Asset.Asset;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
+import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
@@ -316,5 +318,42 @@ public class CashFlowCalendar {
 
     public List<CashFlowInstance> getCashFlowInstances() {
         return cashFlowInstances;
+    }
+
+    private Comparator<Map<String, Object>> byTickerCompanyAndAccount = new Comparator<Map<String, Object>>() {
+        @Override
+        public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+            int result = 0;
+            result = ((String) o1.getOrDefault("ticker", "")).
+                    compareTo((String) o2.getOrDefault("ticker", ""));
+            if (result == 0)
+                result = ((String) o1.getOrDefault("accountCompany", "")).
+                        compareTo((String) o2.getOrDefault("accountCompany", ""));
+            if (result == 0)
+                result = ((String) o1.getOrDefault("accountName", "")).compareTo((String) o2.getOrDefault("accountName", ""));
+            return result;
+        }
+    };
+
+    public List<Map<String, Object>> getCurrentShareBalances() {
+        List<Map<String, Object>> shareBalances = new ArrayList<>();
+        for (Asset asset : _assets.values()) {
+            if (asset instanceof AssetAccount) {
+                AssetAccount account = (AssetAccount) asset;
+                for (ShareBalance shareBalance : account.getCurrentShareBalances()) {
+                    Map<String, Object> shareBalanceMap = new HashMap<>();
+                    shareBalanceMap.put("balanceDate", shareBalance.getBalanceDate());
+                    shareBalanceMap.put("shares", shareBalance.getShares());
+                    shareBalanceMap.put("ticker", shareBalance.getSecurity().getName());
+                    shareBalanceMap.put("sharePrice", shareBalance.getSharePrice());
+                    shareBalanceMap.put("shareValue", shareBalance.getShareValue());
+                    shareBalanceMap.put("accountName", account.getName());
+                    shareBalanceMap.put("accountCompany", account.getCompany().getCompanyName());
+                    shareBalances.add(shareBalanceMap);
+                }
+            }
+        }
+        Collections.sort(shareBalances, byTickerCompanyAndAccount);
+        return shareBalances;
     }
 }
