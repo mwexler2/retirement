@@ -10,6 +10,7 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
+import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Scenario;
 
@@ -17,12 +18,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 12/30/16.
  */
 public class CashFlowCalendar {
+
     public static enum ITEM_TYPE {INCOME, EXPENSE, TRANSFER};
 
     public interface CashFlowChecker {
@@ -51,17 +54,29 @@ public class CashFlowCalendar {
         this.cashFlowInstances.addAll(cashFlowInstances);
     }
 
+    /**
+     * We assume that before we have been called each of the accounts has had its current balance retrieved.
+     * We then iterate backwards skipping estimates which, by definition, are in the future negating each transaction
+     * from both cash balances and positions. When we get to the end we have starting balances.
+     * Then we need to iterate forward over the estimated transactions to get the ending balances.
+     */
     public void computeBalances() {
+        // First we sort all the cash flow instances into date order.
         cashFlowInstances.sort(Comparator.comparing(CashFlowInstance::getCashFlowDate));
 
+        // Then we iterate backward
         ListIterator<CashFlowInstance> listIterator = cashFlowInstances.listIterator(cashFlowInstances.size());
 
+        Set<CashFlowSink> cashFlowSinks = new HashSet<>();
         while (listIterator.hasPrevious()) {
             CashFlowInstance instance = listIterator.previous();
             if (instance.isEstimate())
                 continue;   // We are counting back from actual balance, skip estimates
-            instance.getCashFlowSink().updateRunningTotal(instance);
+            CashFlowSink sink = instance.getCashFlowSink();
+            cashFlowSinks.add(sink);
+            sink.updateRunningTotal(instance, true);
         }
+        cashFlowSinks.forEach(sink -> sink.setStartingBalance());
     }
 
     public void addAssets(List<Asset> assets) {
@@ -335,12 +350,12 @@ public class CashFlowCalendar {
         }
     };
 
-    public List<Map<String, Object>> getCurrentShareBalances() {
+    public List<Map<String, Object>> getShareBalances(Function<AssetAccount, Collection<ShareBalance>> shareBalanceMethod) {
         List<Map<String, Object>> shareBalances = new ArrayList<>();
         for (Asset asset : _assets.values()) {
             if (asset instanceof AssetAccount) {
                 AssetAccount account = (AssetAccount) asset;
-                for (ShareBalance shareBalance : account.getCurrentShareBalances()) {
+                for (ShareBalance shareBalance : shareBalanceMethod.apply(account)) {
                     Map<String, Object> shareBalanceMap = new HashMap<>();
                     shareBalanceMap.put("balanceDate", shareBalance.getBalanceDate());
                     shareBalanceMap.put("shares", shareBalance.getShares());

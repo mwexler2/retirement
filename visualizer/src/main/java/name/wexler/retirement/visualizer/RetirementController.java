@@ -24,12 +24,14 @@
 package name.wexler.retirement.visualizer;
 
 import name.wexler.retirement.datastore.PositionHistory;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.datastore.DataStore;
 
+import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -69,12 +71,22 @@ public class RetirementController {
         return new ModelAndView("asset", "command", model);
     }
 
-    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/shareBalances", method = RequestMethod.GET)
-    public ModelAndView retirementSecurities(@PathVariable String scenarioId, ModelMap model) {
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/shareBalances/now", method = RequestMethod.GET)
+    public ModelAndView retirementSecuritiesNow(@PathVariable String scenarioId, ModelMap model) {
         Retirement retirement = new Retirement();
         model.put("scenarioId", scenarioId);
         List<Map<String, Object>> shareBalances =
-                retirement.getCashFlowCalendar(scenarioId).getCurrentShareBalances();
+                retirement.getCashFlowCalendar(scenarioId).getShareBalances(AssetAccount::getCurrentShareBalances);
+        model.put("shareBalances", shareBalances);
+        return new ModelAndView("shareBalances", "command",  model);
+    }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/shareBalances/start", method = RequestMethod.GET)
+    public ModelAndView retirementSecuritiesStart(@PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("scenarioId", scenarioId);
+        List<Map<String, Object>> shareBalances =
+                retirement.getCashFlowCalendar(scenarioId).getShareBalances(AssetAccount::getStartShareBalances);
         model.put("shareBalances", shareBalances);
         return new ModelAndView("shareBalances", "command",  model);
     }
@@ -91,6 +103,20 @@ public class RetirementController {
                         collect(Collectors.toList());
         model.put("cashFlows", selectedCashFlows);
         return new ModelAndView("asset", "command", model);
+    }
+
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/securities/{assetId}", method = RequestMethod.GET)
+    public ModelAndView retirementAssetAccountSecurities(@PathVariable String assetId, @PathVariable String scenarioId, ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("assetId", assetId);
+        model.put("scenarioId", scenarioId);
+        List<SecurityTransaction> selectedCashFlows =
+                retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
+                        filter(instance -> instance.getCashFlowSinkId().equals(assetId) && instance instanceof SecurityTransaction).
+                        map(instance -> (SecurityTransaction) instance).
+                        collect(Collectors.toList());
+        model.put("cashFlows", selectedCashFlows);
+        return new ModelAndView("securities", "command", model);
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/liability/{liabilityId}/year/{year}", method = RequestMethod.GET)
@@ -121,7 +147,7 @@ public class RetirementController {
         return new ModelAndView("cashFlows", "command", model);
     }
 
-    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/{grouping}/{category}/year/{year}", method = RequestMethod.GET)
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/grouping/{grouping}/{category}/year/{year}", method = RequestMethod.GET)
     public ModelAndView retirementExpensesByCategory(@PathVariable String category,
                                             @PathVariable String scenarioId,
                                             @PathVariable int year,
@@ -140,7 +166,7 @@ public class RetirementController {
         return new ModelAndView("cashFlows", "command", model);
     }
 
-    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/{grouping}/{category}", method = RequestMethod.GET)
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/grouping/{grouping}/{category}", method = RequestMethod.GET)
     public ModelAndView retirementExpensesByCategory(@PathVariable String category,
                                                       @PathVariable String scenarioId,
                                                       @PathVariable String grouping,

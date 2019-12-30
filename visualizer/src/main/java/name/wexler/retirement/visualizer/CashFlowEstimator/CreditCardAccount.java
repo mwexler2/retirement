@@ -142,7 +142,7 @@ public class CreditCardAccount extends Liability {
 
     @Override
     @JsonIgnore
-    public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
+    public void updateRunningTotal(CashFlowInstance cashFlowInstance, boolean negate) {
         runningTotal = runningTotal.add(cashFlowInstance.getAmount());
         cashFlowInstance.setCashBalance(runningTotal);
     }

@@ -183,7 +183,7 @@ abstract public class Liability extends CashFlowEstimator implements Account {
 
     @Override
     @JsonIgnore
-    public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
+    public void updateRunningTotal(CashFlowInstance cashFlowInstance, boolean negate) {
         runningTotal = runningTotal.add(cashFlowInstance.getAmount());
         cashFlowInstance.setCashBalance(runningTotal);
     }
@@ -192,5 +192,10 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     @Override
     public String getItemType() {
         return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
+    }
+
+    @Override
+    public void setStartingBalance() {
+
     }
 }

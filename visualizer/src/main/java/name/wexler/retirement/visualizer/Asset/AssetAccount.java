@@ -57,7 +57,10 @@ public class AssetAccount extends Asset implements Account {
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
-    private final Map<String, ShareBalance> shareBalancesBySymbol = new HashMap<>();
+    private final Map<String, ShareBalance> startingShareBalancesBySymbol = new HashMap<>();
+    private final Map<String, ShareBalance> currentShareBalancesBySymbol = new HashMap<>();
+    private final Map<String, ShareBalance> runningShareBalancesBySymbol = new HashMap<>();
+
     private final Map<LocalDate, CashBalance> accountValueByDate = new HashMap<>();
     private String accountId = null;
     private static final String assetAccountsPath = "assetAccounts.json";
@@ -116,40 +119,7 @@ public class AssetAccount extends Asset implements Account {
 
     public String getAccountId() { return accountId; }
 
-    private void processSecurityTransaction(SecurityTransaction txn,
-                                            Map<String, ShareBalance> shareBalancesBySymbol) {
-        ShareBalance change = txn.getChange();
-        Security security = change.getSecurity();
-        String symbol = security.getId();
-
-        // Update running share balance for this symbol, creating an entry if it doesn't already exist.
-        if (!shareBalancesBySymbol.containsKey(symbol)) {
-            shareBalancesBySymbol.put(symbol,
-                    new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security));
-        }
-
-
-        // Store the share balance by date and symbol
-        if (!shareBalancesByDateAndSymbol.containsKey(txn.getCashFlowDate())) {
-            shareBalancesByDateAndSymbol.put(txn.getCashFlowDate(),
-                    new HashMap<>());
-        }
-        Map<String, ShareBalance> shareBalancesAtTxnDate = shareBalancesByDateAndSymbol.get(txn.getCashFlowDate());
-        ShareBalance oldBalance = shareBalancesAtTxnDate.get(symbol);
-        if (oldBalance == null) {
-            oldBalance = new ShareBalance(LocalDate.now(), BigDecimal.ZERO, BigDecimal.ZERO, security);
-        }
-        if (!change.getShares().equals(BigDecimal.ZERO)) {
-            ShareBalance oldShareBalance = shareBalancesBySymbol.get(symbol);
-            ShareBalance newShareBalance = oldShareBalance.applyChange(change);
-            shareBalancesBySymbol.put(symbol, newShareBalance);
-
-            ShareBalance newBalance = oldBalance.applyChange(change);
-            shareBalancesAtTxnDate.put(symbol, newShareBalance);
-        }
-    }
-
-    private BigDecimal calculateAssetValue() {
+    private BigDecimal calculateAssetValue(Map<String, ShareBalance> shareBalancesBySymbol) {
         BigDecimal assetValue = shareBalancesBySymbol
                 .values()
                 .stream()
@@ -177,8 +147,8 @@ public class AssetAccount extends Asset implements Account {
 
             String symbol = positionEntry.getKey();
             ShareBalance shareBalance = new ShareBalance(getContext(), positionEntry.getValue());
-            if (!shareBalancesBySymbol.containsKey(symbol))
-                shareBalancesBySymbol.put(symbol, shareBalance);
+            if (!currentShareBalancesBySymbol.containsKey(symbol))
+                currentShareBalancesBySymbol.put(symbol, shareBalance);
 
             // Store the share balance by date and symbol
             if (!shareBalancesByDateAndSymbol.containsKey(shareBalance.getBalanceDate())) {
@@ -187,11 +157,16 @@ public class AssetAccount extends Asset implements Account {
             }
             shareBalancesByDateAndSymbol.get(shareBalance.getBalanceDate()).put(symbol, shareBalance);
         }
+        runningShareBalancesBySymbol.putAll(currentShareBalancesBySymbol);
+    }
+
+    public void setStartingBalance() {
+        startingShareBalancesBySymbol.putAll(currentShareBalancesBySymbol);
     }
 
     public void setRunningTotal(BigDecimal runningTotal, Map<String, PositionHistory.Position> positions) {
         this.setPositions(positions);
-        BigDecimal shareValue = shareBalancesBySymbol
+        BigDecimal shareValue = currentShareBalancesBySymbol
                 .values()
                 .stream()
                 .map(ShareBalance::getValue)
@@ -202,22 +177,26 @@ public class AssetAccount extends Asset implements Account {
 
     @Override
     @JsonIgnore
-    public void updateRunningTotal(CashFlowInstance cashFlowInstance) {
+    public void updateRunningTotal(CashFlowInstance cashFlowInstance, boolean negate) {
         cashFlowInstance.setCashBalance(cashBalance);
-        cashFlowInstance.setAssetBalance(calculateAssetValue());
+        cashFlowInstance.setAssetBalance(calculateAssetValue(runningShareBalancesBySymbol));
         cashBalance = cashBalance.add(cashFlowInstance.getAmount());
         if (cashFlowInstance instanceof SecurityTransaction) {
             SecurityTransaction securityTransaction = (SecurityTransaction) cashFlowInstance;
             ShareBalance shareBalanceChange = securityTransaction.getChange();
             String symbol = shareBalanceChange.getSecurity().getName();
-            ShareBalance currentBalance = shareBalancesBySymbol.getOrDefault(symbol, new ShareBalance(
+            ShareBalance currentBalance = runningShareBalancesBySymbol.getOrDefault(symbol, new ShareBalance(
                     cashFlowInstance.getCashFlowDate(), BigDecimal.ZERO, BigDecimal.ZERO, shareBalanceChange.getSecurity()));
-            ShareBalance newBalance = currentBalance.applyChange(shareBalanceChange);
-            shareBalancesBySymbol.put(symbol, newBalance);
+            ShareBalance newBalance = currentBalance.applyChange(shareBalanceChange, negate);
+            runningShareBalancesBySymbol.put(symbol, newBalance);
         }
     }
 
     public Collection<ShareBalance> getCurrentShareBalances() {
-        return shareBalancesBySymbol.values();
+        return currentShareBalancesBySymbol.values();
+    }
+
+    public Collection<ShareBalance> getStartShareBalances() {
+        return startingShareBalancesBySymbol.values();
     }
 }

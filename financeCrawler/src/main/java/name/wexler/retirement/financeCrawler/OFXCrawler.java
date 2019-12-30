@@ -38,6 +38,7 @@ public class OFXCrawler {
 
     public void crawl() {
         final String[] serverList = {"schwab-alt", "vanguard", "netbenefits"};
+        positionHistory.deleteAllRows();
         for (String server: serverList) {
             String cmd = "/usr/local/bin/ofxget stmt " + server;
             try {
@@ -54,7 +55,7 @@ public class OFXCrawler {
                     securityIdToTicker.put(securityInfo.getSecurityId().getUniqueId(), ticker);
                 }
                 List<ResponseMessage> messages = responseEnvelope.getMessageSet(MessageSetType.investment).getResponseMessages();
-                positionHistory.deleteAllRows();
+
                 for (ResponseMessage message : messages) {
                     if (message instanceof InvestmentStatementResponseTransaction) {
                         InvestmentStatementResponse response = ((InvestmentStatementResponseTransaction) message).getMessage();

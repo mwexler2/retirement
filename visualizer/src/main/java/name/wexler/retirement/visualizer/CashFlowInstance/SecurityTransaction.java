@@ -32,6 +32,18 @@ public class SecurityTransaction extends AssetTransaction {
         this.account = account;
     }
 
+    public String getSymbol() {
+        return change.getSecurity().getName();
+    }
+
+    public BigDecimal getUnits() {
+        return change.getShares();
+    }
+
+    public BigDecimal getUnitPrice() {
+        return change.getSharePrice();
+    }
+
     public ShareBalance getChange() {
         return change;
     }

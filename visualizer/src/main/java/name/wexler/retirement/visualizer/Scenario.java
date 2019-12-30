@@ -142,7 +142,11 @@ public class Scenario extends Entity {
                              @JsonProperty(value = "assets", required = true) String[] assetIds) {
         List<Asset> assets = new ArrayList<>(assetIds.length);
         for (String assetId : assetIds) {
-            assets.add(context.getById(Asset.class, assetId));
+            Asset asset = context.getById(Asset.class, assetId);
+            if (asset != null)
+                assets.add(asset);
+            else
+                System.err.println("Can't find asset: " + assetId);
         }
         calendar.addAssets(assets);
     }

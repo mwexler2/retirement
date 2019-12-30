@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import name.wexler.retirement.datastore.PositionHistory;
+import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import name.wexler.retirement.visualizer.Context;
@@ -45,10 +46,19 @@ public class ShareBalance implements Balance  {
     }
 
     public ShareBalance(Context context, PositionHistory.Position position) {
-        this(context, position.getDate().toInstant().atZone(ZoneId.of("GMT")).toLocalDate(),
-                position.getUnitPrice(),
-                position.getUnitPrice(),
-                position.getName());
+        this.balanceDate = position.getDate().toInstant().atZone(ZoneId.of("GMT")).toLocalDate();
+        this.shares = position.getUnits();
+        this.sharePrice = position.getUnitPrice();
+        final String securityId = position.getName();
+        Security security = context.getById(Security.class, securityId);
+        if (security == null) {
+            try {
+                security = new Security(context, securityId);
+            } catch (Entity.DuplicateEntityException dee) {
+                System.err.println(dee.getMessage());
+            }
+        }
+        this.security = security;
     }
 
     public BigDecimal getValue() {
@@ -71,7 +81,7 @@ public class ShareBalance implements Balance  {
 
     public Security getSecurity() { return security; }
 
-    public ShareBalance applyChange(ShareBalance change) {
+    public ShareBalance applyChange(ShareBalance change, boolean negate) {
         BigDecimal shares = this.shares.add(change.shares).setScale(2, RoundingMode.HALF_UP);
         return new ShareBalance(this.getBalanceDate(), shares, change.sharePrice, change.getSecurity());
     }
