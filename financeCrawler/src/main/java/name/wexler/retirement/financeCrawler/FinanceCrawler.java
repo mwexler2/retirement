@@ -23,12 +23,13 @@ public class FinanceCrawler
             });
         }
         // CitibankCrawler citiCrawler = new CitibankCrawler()
+        txnHistory.deleteAllRows();
         if (true) {
             MintCrawler mintCrawler = new MintCrawler(txnHistory, accountTable, txnHistory.getLastDate());
             mintCrawler.crawl();
         }
         if (true) {
-            OFXCrawler ofxCrawler = new OFXCrawler(positionHistory, accountTable);
+            OFXCrawler ofxCrawler = new OFXCrawler(positionHistory, accountTable, txnHistory);
             ofxCrawler.crawl();
         }
     }

@@ -19,6 +19,7 @@ public class TxnHistory {
     JDBCDriverConnection conn = null;
     private static final int initialTxns = 100;
     private static final int initialHistory = 1000;
+    public static final String source = "source";
 
     public TxnHistory(JDBCDriverConnection conn) {
         this.conn = conn;
@@ -32,13 +33,14 @@ public class TxnHistory {
         // SQL statement for creating a new table
         String sql = "CREATE TABLE txnHistory (\n"
                 + " id integer PRIMARY KEY,\n"
+                + " source TEXT,\n"
                 + " notes TEXT,\n"
                 + " date int NOT NULL,\n"
                 + " amount REAL NOT NULL,\n"
                 + " account_name TEXT NOT NULL,\n"
                 + " description TEXT,\n"
                 + " original_description TEXT,\n"
-                + " txn_type INTEGER NOT NULL,\n"
+                + " txn_type TEXT NOT NULL,\n"
                 + " category TEXT NOT NULL,\n"
                 + " labels TEXT,\n"
                 + " symbol TEXT,\n"
@@ -82,10 +84,12 @@ public class TxnHistory {
         String sql = "INSERT INTO txnHistory \n"
                 + "(date, description, original_description, amount, txn_type, category, account_name, labels, notes, " +
                 "   symbol, shares, fi," +
-                "   isBuy, isCheck, isChild, isDebit, isDuplicate, isEdited, isFirstDate, isLinkedToRule, isMatched, isPending, isPercent, isSell, isSpending, isTransfer) \n"
+                "   isBuy, isCheck, isChild, isDebit, isDuplicate, isEdited, isFirstDate, isLinkedToRule, isMatched, isPending, isPercent, isSell, isSpending, isTransfer," +
+                "   source) \n"
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 "          ?, ?, ?," +
-                "          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);\n";
+                "          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
+                "          ?);\n";
 
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
             Object dateObj = line.get("odate");
@@ -98,7 +102,7 @@ public class TxnHistory {
             pstmt.setString(2, (String) line.get("merchant"));
             pstmt.setString(3, (String) line.get("omerchant"));
             pstmt.setDouble(4, (Double) line.get("amount"));
-            pstmt.setLong(5, (Long) line.get("txnType"));
+            pstmt.setString(5, (String) line.get("txnType"));
             pstmt.setString(6, (String) line.get("category"));
             String accountName = (String) line.getOrDefault("account", none);
             if (accountName == null)
@@ -132,6 +136,7 @@ public class TxnHistory {
                 pstmt.setNull(24, Types.BOOLEAN);
             pstmt.setBoolean( 25, (Boolean) line.get("isSpending"));
             pstmt.setBoolean( 26, (Boolean) line.get("isTransfer"));
+            pstmt.setString( 27, (String) line.get(source));
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage() + ": " + line.toString());

@@ -39,6 +39,7 @@ public class MintCrawler {
     private boolean writeHeader = false;
     private TxnHistory txnHistory;
     private AccountTable accountTable;
+    private static final String mintSource = "mint";
 
     MintCrawler(TxnHistory txnHistory, AccountTable accountTable, LocalDate lastDate) {
         super();
@@ -75,7 +76,6 @@ public class MintCrawler {
             try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 result = input.lines().collect(Collectors.joining(System.lineSeparator()));
                 JSONArray txnList = getMintInfo(result);
-                txnHistory.deleteAllRows();
                 if (txnList != null)
                     processTxnListJSON(txnList, cmd);
             } catch (IOException ioe) {
@@ -108,22 +108,29 @@ public class MintCrawler {
     }
 
 
+    private final static String txnTypeMap[] =
+            {
+                    "debit",
+                    "transfer",
+                    "credit"
+            };
     private void processTxnListJSON(JSONArray txnList, String cmd) {
         System.out.println("Processing download file for '" + cmd + "'");
         txnList.forEach((txn) -> {
             Map<String, Object> fieldNameVals = new HashMap<>();
             for (Object key: ((JSONObject) txn).keySet()) {
-                System.out.println("key = " + key + ", value = " + ((JSONObject) txn).getOrDefault(key, ""));
-                fieldNameVals.put((String) key, ((JSONObject) txn).getOrDefault(key, ""));
+                Object value =  ((JSONObject) txn).getOrDefault(key, "");
+                if (((String) key).equals("txnType")) {
+                    value = txnTypeMap[((Long) value).intValue()];
+                }
+                fieldNameVals.put((String) key, value);
             }
+            fieldNameVals.put(TxnHistory.source, mintSource);
             txnHistory.insertRow(fieldNameVals);
         });
     }
 
-    static Map<String, String> txnTypeMap = Map.ofEntries(
-            Map.entry("0", "debit"),
-            Map.entry("1", "transfer"),
-            Map.entry("2", "credit"));
+
     private void processAccountListJSON(JSONArray accountList, String cmd) {
         System.out.println("Processing download file for '" + cmd + "'");
         accountList.forEach((account) -> {
@@ -131,9 +138,6 @@ public class MintCrawler {
             Map<String, Object> fieldNameVals = new HashMap<>();
             for (Object key: ((JSONObject) account).keySet()) {
                 Object value =  ((JSONObject) account).getOrDefault(key, "");
-                if (((String) key).equals("txn_type")) {
-                    value = txnTypeMap.get(value);
-                }
                 fieldNameVals.put((String) key, value);
             }
             accountTable.insertRow(fieldNameVals);
