@@ -243,7 +243,7 @@ public class AccountTable {
 
     public ResultSet getAccounts() {
         String sql =
-                "SELECT name, accountName, userName, yodleeName, value " +
+                "SELECT name, accountName, userName, yodleeName, value, lastUpdatedInDate " +
                         "FROM accounts \n";
         try {
             Statement stmt = conn.getConnection().createStatement();

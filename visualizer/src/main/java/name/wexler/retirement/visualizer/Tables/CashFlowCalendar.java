@@ -17,6 +17,7 @@ import name.wexler.retirement.visualizer.Scenario;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
  * Created by mwexler on 12/30/16.
  */
 public class CashFlowCalendar {
-
     public static enum ITEM_TYPE {INCOME, EXPENSE, TRANSFER};
 
     public interface CashFlowChecker {
@@ -112,7 +112,7 @@ public class CashFlowCalendar {
                         reduce((first, second) -> second);
         BigDecimal finalBalance = BigDecimal.ZERO;
         if (finalInstanceForYear.isPresent())
-            finalBalance = finalInstanceForYear.get().getCashBalance();
+            finalBalance = finalInstanceForYear.get().getCashBalance().add(finalInstanceForYear.get().getAssetBalance());
         return finalBalance;
     }
 

@@ -9,6 +9,7 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -21,6 +22,7 @@ public class Security extends Entity {
     private static Map<String, Map<LocalDate, BigDecimal>> historicalPrices = new HashMap<>();
     private static final String securitiesPath = "securities.json";
     private static TickerHistory tickerHistory = null;
+    private final static BigDecimal daysInYear = BigDecimal.valueOf(365.25);
 
     static public void readSecurities(Context context, DataStore ds) throws IOException {
         context.fromJSONFileList(Security[].class, securitiesPath);
@@ -63,9 +65,10 @@ public class Security extends Entity {
         LocalDate earliestDate = singleTickerHistory.keySet().stream().min(LocalDate::compareTo).get();
         LocalDate latestDate = singleTickerHistory.keySet().stream().max(LocalDate::compareTo).get();
         if (valueDate.isAfter(latestDate)) {
+
             long days = latestDate.until(valueDate, ChronoUnit.DAYS);
-            double growth = days/365.25 * assumptions.getLongTermInvestmentReturn() + 1;
-            sharePrice = singleTickerHistory.get(latestDate).multiply(BigDecimal.valueOf(growth));
+            BigDecimal growth = BigDecimal.valueOf(days).divide(daysInYear, RoundingMode.HALF_UP).multiply(assumptions.getLongTermInvestmentReturn().add(BigDecimal.ONE));
+            sharePrice = singleTickerHistory.get(latestDate).multiply(growth);
         }
         return sharePrice;
     }

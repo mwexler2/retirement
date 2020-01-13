@@ -64,13 +64,17 @@ public class RealProperty extends Asset {
                 @JsonProperty("country") String country,
                 @JsonProperty("interimBalances") List<CashBalance> interimBalances)
     throws DuplicateEntityException {
-        super(context, id, ownerIds);
+        super(context, id, ownerIds, initialBalance, interimBalances);
         this.address = address;
         this.city = city;
         this.county = county;
         this.state = state;
         this.zipCode = zipCode;
         this.country = country;
+    }
+
+    @Override
+    public void setStartingBalance() {
     }
 
     @JsonIgnore
@@ -101,5 +105,4 @@ public class RealProperty extends Asset {
     public String getCountry() {
         return country;
     }
-
 }

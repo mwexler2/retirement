@@ -24,6 +24,7 @@
 package name.wexler.retirement.visualizer;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * Created by mwexler on 6/28/16.
@@ -41,8 +42,8 @@ public class Assumptions {
         context.setAssumptions(assumptions);
     }
 
-    public double getLongTermInvestmentReturn() {
-        return longTermInvestmentReturn;
+    public BigDecimal getLongTermInvestmentReturn() {
+        return BigDecimal.valueOf(longTermInvestmentReturn);
     }
 
     public void setLongTermInvestmentReturn(double longTermInvestmentReturn) {

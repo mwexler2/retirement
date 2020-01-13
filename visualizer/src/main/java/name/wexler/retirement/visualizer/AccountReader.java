@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +59,7 @@ public class AccountReader {
     }
 
     public void getAccountBalances(Context context) throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Map<String, BigDecimal> currentBalances = new HashMap<>();
         DataStore ds = Retirement.getDataStore();
         try (ResultSet rs = ds.getAccountTable().getAccounts()) {
@@ -66,12 +68,14 @@ public class AccountReader {
                 if (accountName == null)
                     accountName = rs.getString("yodleeName");
                 BigDecimal value = rs.getBigDecimal("value");
+                String balanceDateStr = rs.getString("lastUpdatedInDate");
+                LocalDate balanceDate = LocalDate.parse(balanceDateStr, formatter);
                 CashFlowSink sink = context.getById(AssetAccount.class, accountName);
                 if (sink instanceof AssetAccount) {
                     AssetAccount assetAccount = (AssetAccount) sink;
                     String accountId = assetAccount.getAccountId();
                     Map<String, PositionHistory.Position> positions = ds.getPositionHistory().getAccountPositions(accountId);
-                    assetAccount.setRunningTotal(value, positions);
+                    assetAccount.setRunningTotal(balanceDate, value, positions);
                 }
                 else
                     System.err.println("Skipping accountBalance for " + accountName + " not an asset account.");

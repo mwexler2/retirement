@@ -4,8 +4,6 @@ import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 public interface CashFlowSource {
-    void sourceCashFlowInstance(CashFlowInstance cashFlowInstance);
-
     String getId();
 
     public String getItemType();

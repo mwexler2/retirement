@@ -53,7 +53,7 @@ public class AssetAccount extends Asset implements Account {
 
     private final String accountName;
     private final Company company;
-    private BigDecimal cashBalance = BigDecimal.ZERO;
+    private Balance cashBalance = new CashBalance(LocalDate.ofEpochDay(0), BigDecimal.ZERO);
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
@@ -91,7 +91,7 @@ public class AssetAccount extends Asset implements Account {
                         @JsonProperty(value = "indicators", required = true) List<String> indicators,
                         @JsonProperty(value = "accountId") String accountId)
             throws NotFoundException, DuplicateEntityException {
-        super(context, id, ownerIds);
+        super(context, id, ownerIds, null, Collections.EMPTY_LIST);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
         if (this.company == null) {
@@ -133,7 +133,6 @@ public class AssetAccount extends Asset implements Account {
         return this.accountName + " (" + this.company.getCompanyName() + ")";
    }
 
-   @Override public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) { }
 
 
    @Override
@@ -162,9 +161,10 @@ public class AssetAccount extends Asset implements Account {
 
     public void setStartingBalance() {
         startingShareBalancesBySymbol.putAll(currentShareBalancesBySymbol);
+        this.prependBalance(this.cashBalance);
     }
 
-    public void setRunningTotal(BigDecimal runningTotal, Map<String, PositionHistory.Position> positions) {
+    public void setRunningTotal(LocalDate balanceDate, BigDecimal runningTotal, Map<String, PositionHistory.Position> positions) {
         this.setPositions(positions);
         BigDecimal shareValue = currentShareBalancesBySymbol
                 .values()
@@ -172,15 +172,15 @@ public class AssetAccount extends Asset implements Account {
                 .map(ShareBalance::getValue)
                 .reduce(BigDecimal.ZERO,
                         (a, b) -> a.add(b));
-        this.cashBalance = runningTotal.subtract(shareValue);
+        this.cashBalance = new CashBalance(balanceDate, runningTotal.subtract(shareValue));
     }
 
     @Override
     @JsonIgnore
     public void updateRunningTotal(CashFlowInstance cashFlowInstance, boolean negate) {
-        cashFlowInstance.setCashBalance(cashBalance);
+        cashFlowInstance.setCashBalance(cashBalance.getValue());
         cashFlowInstance.setAssetBalance(calculateAssetValue(runningShareBalancesBySymbol));
-        cashBalance = cashBalance.add(cashFlowInstance.getAmount());
+        cashBalance = new CashBalance(cashFlowInstance.getCashFlowDate(), cashBalance.getValue().add(cashFlowInstance.getAmount()));
         if (cashFlowInstance instanceof SecurityTransaction) {
             SecurityTransaction securityTransaction = (SecurityTransaction) cashFlowInstance;
             ShareBalance shareBalanceChange = securityTransaction.getChange();

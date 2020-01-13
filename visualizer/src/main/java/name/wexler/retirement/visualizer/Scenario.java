@@ -74,17 +74,29 @@ public class Scenario extends Entity {
 
         setCashFlowEstimators(context, cashFlowEstimators);
         calendar = new CashFlowCalendar(this, assumptions);
+        List<Asset> assetList = setAssetIds(context, assets);
         calendar.addCashFlowInstances(getHistoricalCashFlowInstances());
+        calendar.addCashFlowInstances(getEstimatedAssetValues(assetList));
         setCurrentBalances();
         for (int pass = 1; pass <= 3; ++pass) {
             List<CashFlowInstance> cashFlowInstances = getFutureCashFlowInstances(calendar, pass);
             calendar.addCashFlowInstances(cashFlowInstances);
         }
         calendar.computeBalances();
-        setAssetIds(context, assets);
         setLiabilityIds(context, liabilities);
         setAccountIds(context, accounts);
         context.put(Scenario.class, id, this);
+    }
+
+    private List<CashFlowInstance> getEstimatedAssetValues(List<Asset> assets) {
+        final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
+        assets.
+                stream().
+                forEach(asset -> {
+                    List<CashFlowInstance> estimatorInstances = asset.getEstimatedAssetValues(getAssumptions());
+                    cashFlowInstances.addAll(estimatorInstances);
+                });
+        return cashFlowInstances;
     }
 
     private List<CashFlowInstance> getFutureCashFlowInstances(CashFlowCalendar calendar, int pass) {
@@ -138,7 +150,7 @@ public class Scenario extends Entity {
     }
 
     @JsonProperty(value = "assets")
-    private void setAssetIds(@JacksonInject("context") Context context,
+    private List<Asset> setAssetIds(@JacksonInject("context") Context context,
                              @JsonProperty(value = "assets", required = true) String[] assetIds) {
         List<Asset> assets = new ArrayList<>(assetIds.length);
         for (String assetId : assetIds) {
@@ -149,6 +161,7 @@ public class Scenario extends Entity {
                 System.err.println("Can't find asset: " + assetId);
         }
         calendar.addAssets(assets);
+        return assets;
     }
 
     @JsonProperty(value = "liabilities")
