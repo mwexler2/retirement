@@ -2,6 +2,7 @@ package name.wexler.retirement.visualizer;
 
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.*;
+import name.wexler.retirement.visualizer.Entity.Company;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,8 +37,9 @@ public class AccountTest {
         List<String> owners = Collections.singletonList("o1");
         List<ShareBalance> securities = Collections.singletonList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
+        Company bob = new Company(context, "Bank of Banking");
         a1 = new AssetAccount(context, "a1", owners, "Test AssetAccount",
-                "Bank of Banking", null, null);
+                bob.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
     }
 
     @Test

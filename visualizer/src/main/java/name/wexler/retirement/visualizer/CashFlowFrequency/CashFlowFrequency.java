@@ -137,7 +137,6 @@ public abstract class CashFlowFrequency extends Entity {
     public List<CashFlowInstance> getFutureCashFlowInstances(CashFlowCalendar calendar, CashFlowEstimator cashFlowEstimator, SingleCashFlowGenerator generator) {
         ArrayList<CashFlowInstance> result = new ArrayList<>();
 
-        BigDecimal totalDays = BigDecimal.valueOf(getAccrueStart().until(getAccrueEnd(), ChronoUnit.DAYS));
         List<CashFlowPeriod> cashFlowPeriods = getCashFlowPeriods();
         CashFlowInstance prevCashFlowInstance = null;
         for (CashFlowPeriod period : cashFlowPeriods) {

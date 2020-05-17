@@ -78,7 +78,7 @@ public class JobTest {
 
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(person1.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList(), null);
+                "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         job1 = new Job(context, "job1", company1.getId(), person1.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2001, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2002, Month.AUGUST, 15));
@@ -186,19 +186,9 @@ public class JobTest {
     }
 
     @Test
-    public void serialize() throws Exception {
-        String job1Str = context.toJSON(job1);
-        assertEquals("{\"id\":\"job1\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\"}", job1Str);
-
-        String job2Str = context.toJSON(job2);
-        assertEquals("{\"id\":\"job2\",\"startDate\":\"2001-06-15\",\"endDate\":\"2002-05-07\",\"employer\":\"comp2\",\"employee\":\"jane1\"}", job2Str);
-    }
-
-
-    @Test
     public void deserialize() throws Exception {
-        String job1aStr = "{\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\"}";
-        String job2aStr = "{\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\"}";
+        String job1aStr = "{\"type\":\"job\",\"id\":\"job1a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\",\"defaultSink\":\"sunk\"}";
+        String job2aStr = "{\"type\":\"job\",\"id\":\"job2a\",\"startDate\":\"2001-04-01\",\"endDate\":\"2002-08-15\",\"employer\":\"comp1\",\"employee\":\"john1\",\"defaultSink\":\"sunk\"}";
 
         Job job1a = context.fromJSON(Job.class, job1aStr);
         assertEquals("job1a", job1a.getId());

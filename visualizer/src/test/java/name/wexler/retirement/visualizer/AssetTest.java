@@ -55,12 +55,6 @@ public class AssetTest {
         assertEquals(asset, asset);
     }
 
-    @Test
-    public void toJSON() throws Exception {
-        String asset1Str = context.toJSON(asset);
-        assertEquals("{\"type\":\"real-property\",\"id\":\"real-property1\",\"owners\":[\"owner1\"],\"initialBalance\":{\"balanceDate\":\"2010-04-15\",\"value\":100000.0},\"address\":[\"123 Main Street\"],\"city\":\"Anytown\",\"county\":\"Count County\",\"state\":\"AS\",\"zipCode\":\"01234\",\"country\":\"US\"}", asset1Str);
-    }
-
 
     @Test
     public void deserialize() throws Exception {

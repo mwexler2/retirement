@@ -70,6 +70,7 @@ public abstract class Entity {
         return getClass().getSimpleName();
     }
 
+    @JsonIgnore
     public Context getContext() {
         return this.context;
     }

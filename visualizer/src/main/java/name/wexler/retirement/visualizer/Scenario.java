@@ -188,6 +188,7 @@ public class Scenario extends Entity {
         return calendar.getYears();
     }
 
+    @JsonIgnore
     public CashFlowCalendar getCashFlowCalendar() {
         return calendar;
     }

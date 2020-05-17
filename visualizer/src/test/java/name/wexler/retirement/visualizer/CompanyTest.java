@@ -59,15 +59,6 @@ public class CompanyTest {
         assertNotEquals(company1, company2);
     }
 
-    @Test
-    public void serialize() throws Exception {
-        String company1Str = context.toJSON(company1);
-        assertEquals("{\"type\":\"company\",\"id\":\"comp1\",\"companyName\":\"IBM\"}", company1Str);
-
-        String company2Str = context.toJSON(company2);
-        assertEquals("{\"type\":\"company\",\"id\":\"comp2\",\"companyName\":\"Xerox\"}", company2Str);
-    }
-
 
     @Test
     public void deserialize() throws Exception {

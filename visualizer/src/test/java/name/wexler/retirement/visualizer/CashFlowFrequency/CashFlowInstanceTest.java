@@ -1,15 +1,12 @@
 package name.wexler.retirement.visualizer.CashFlowFrequency;
 
+import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Salary;
-import name.wexler.retirement.visualizer.CashFlowSink;
-import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Person;
-import name.wexler.retirement.visualizer.Job;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +33,11 @@ public class CashFlowInstanceTest {
         Context context = new Context();
         context.setAssumptions(assumptions);
         Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62);
-        Company company1 = new Company(context, "company1");
+        Company employer1 = new Company(context, "employer1");
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList(), null);
-        Job job1 = new Job(context, "job1", "employer1", "employee1", defaultSink.getId());
+                "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
+        Job job1 = new Job(context, "job1", employer1.getId(), employee1.getId(), defaultSink.getId());
         CashFlowFrequency salary1Freq = new Monthly(context, "salary1CashFlow",
                 job1.getStartDate(),
                 job1.getEndDate(),

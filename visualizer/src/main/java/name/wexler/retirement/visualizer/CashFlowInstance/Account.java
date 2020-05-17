@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface Account extends CashFlowSource, CashFlowSink {
     Entity getCompany();
+    String getTxnSource();
 
     String getName();
 }

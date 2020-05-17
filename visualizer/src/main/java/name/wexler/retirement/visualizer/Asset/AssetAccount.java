@@ -53,6 +53,7 @@ public class AssetAccount extends Asset implements Account {
 
     private final String accountName;
     private final Company company;
+    private final String txnSource;
     private Balance cashBalance = new CashBalance(LocalDate.ofEpochDay(0), BigDecimal.ZERO);
 
     // History of balances for Cash and Securities
@@ -89,21 +90,28 @@ public class AssetAccount extends Asset implements Account {
                         @JsonProperty(value = "accountName", required = true) String accountName,
                         @JsonProperty(value = "company", required = true) String companyId,
                         @JsonProperty(value = "indicators", required = true) List<String> indicators,
-                        @JsonProperty(value = "accountId") String accountId)
+                        @JsonProperty(value = "accountId") String accountId,
+                        @JsonProperty(value = "txnSource", defaultValue = AccountReader.mintTxnSource) String txnSource)
             throws NotFoundException, DuplicateEntityException {
         super(context, id, ownerIds, null, Collections.EMPTY_LIST);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
+        this.txnSource = txnSource;
         if (this.company == null) {
             throw new NotFoundException(Company.class, companyId);
         }
         for (String indicator : indicators) {
             context.put(AssetAccount.class, indicator, this);
         }
+        context.put(AssetAccount.class, accountId, this);
         this.accountId = accountId;
         accounts.add(this);
     }
 
+    @Override
+    public String getTxnSource() {
+        return txnSource;
+    }
 
     public String getId() {
         return super.getId();
@@ -180,7 +188,10 @@ public class AssetAccount extends Asset implements Account {
     public void updateRunningTotal(CashFlowInstance cashFlowInstance, boolean negate) {
         cashFlowInstance.setCashBalance(cashBalance.getValue());
         cashFlowInstance.setAssetBalance(calculateAssetValue(runningShareBalancesBySymbol));
-        cashBalance = new CashBalance(cashFlowInstance.getCashFlowDate(), cashBalance.getValue().add(cashFlowInstance.getAmount()));
+        BigDecimal cashFlowAmount = cashFlowInstance.getAmount();
+        if (negate)
+            cashFlowAmount = cashFlowAmount.negate();
+        cashBalance = new CashBalance(cashFlowInstance.getCashFlowDate(), cashBalance.getValue().add(cashFlowAmount));
         if (cashFlowInstance instanceof SecurityTransaction) {
             SecurityTransaction securityTransaction = (SecurityTransaction) cashFlowInstance;
             ShareBalance shareBalanceChange = securityTransaction.getChange();

@@ -20,6 +20,7 @@ public class TxnHistory {
     private static final int initialTxns = 100;
     private static final int initialHistory = 1000;
     public static final String source = "source";
+    public static final String txnId = "txnId";
 
     public TxnHistory(JDBCDriverConnection conn) {
         this.conn = conn;
@@ -60,6 +61,8 @@ public class TxnHistory {
                 + " isSell INTEGER,\n"
                 + " isSpending INTEGER,\n"
                 + " isTransfer INTEGER\n"
+                + " txnId TEXT\n"
+                + " maturity_date INTEGER\n"
                 + ");\n";
         try (Statement stmt = conn.getConnection().createStatement()) {
             stmt.execute(sql);
@@ -68,40 +71,27 @@ public class TxnHistory {
         }
     }
 
-    public void deleteAllRows() {
-        String sql = "DELETE FROM txnHistory";
-        try {
-            Statement stmt = conn.getConnection().createStatement();
-            stmt.execute(sql);
-        } catch (SQLException se) {
-            System.err.println(se);
-        }
-    }
-
     public void insertRow(Map<String, Object> line) {
         final String none = "none";
 
-        String sql = "INSERT INTO txnHistory \n"
+        String sql = "INSERT OR REPLACE INTO txnHistory \n"
                 + "(date, description, original_description, amount, txn_type, category, account_name, labels, notes, " +
                 "   symbol, shares, fi," +
                 "   isBuy, isCheck, isChild, isDebit, isDuplicate, isEdited, isFirstDate, isLinkedToRule, isMatched, isPending, isPercent, isSell, isSpending, isTransfer," +
-                "   source) \n"
+                "   source, txnId, maturity_date) \n"
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 "          ?, ?, ?," +
                 "          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
-                "          ?);\n";
+                "          ?, ?, ?);\n";
 
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
-            Object dateObj = line.get("odate");
-            if (dateObj instanceof Long) {
-                Long date = (Long) dateObj;
-                pstmt.setLong(1, date);
-            } else {
-                pstmt.setLong(1, 0);
-            }
+            pstmt.setLong(1, getOptionalLong(line, "odate"));
             pstmt.setString(2, (String) line.get("merchant"));
             pstmt.setString(3, (String) line.get("omerchant"));
-            pstmt.setDouble(4, (Double) line.get("amount"));
+            if (line.get("amount") instanceof Double)
+                pstmt.setDouble( 4, (Double) line.get("amount"));
+            else
+                pstmt.setNull(4, Types.DOUBLE);
             pstmt.setString(5, (String) line.get("txnType"));
             pstmt.setString(6, (String) line.get("category"));
             String accountName = (String) line.getOrDefault("account", none);
@@ -137,12 +127,22 @@ public class TxnHistory {
             pstmt.setBoolean( 25, (Boolean) line.get("isSpending"));
             pstmt.setBoolean( 26, (Boolean) line.get("isTransfer"));
             pstmt.setString( 27, (String) line.get(source));
+            pstmt.setString(28, (String) line.get(TxnHistory.txnId));
+            pstmt.setLong(29, getOptionalLong(line, "maturityDate"));
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage() + ": " + line.toString());
         } catch (NumberFormatException nfe) {
             System.out.println(nfe.getMessage() + ": " + line.toString());
         }
+    }
+
+    private Long getOptionalLong(Map<String, Object> line, String field) {
+        Object o = line.get(field);
+        if (o instanceof Long) {
+            return (Long) o;
+        }
+        return 0L;
     }
 
     public LocalDate getLastDate() {
@@ -166,9 +166,9 @@ public class TxnHistory {
     public ResultSet getTransactions() {
         String sql =
                 "SELECT date, description, original_description, amount, txn_type, " +
-                        "itemType, IFNULL(cooked_category, txnHistory.category) AS category, account_name, labels, notes, fi,\n" +
+                        "itemType, IFNULL(cooked_category, txnHistory.category) AS category, TRIM(account_name) AS account_name, labels, notes, fi,\n" +
                         "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer, \n" +
-                        "symbol, shares \n" +
+                        "symbol, shares, source \n" +
                         "FROM txnHistory \n" +
                         "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n";
         try {

@@ -125,6 +125,7 @@ public class MintCrawler {
                 }
                 fieldNameVals.put((String) key, value);
             }
+            fieldNameVals.put(TxnHistory.txnId, fieldNameVals.get("id").toString());
             fieldNameVals.put(TxnHistory.source, mintSource);
             txnHistory.insertRow(fieldNameVals);
         });

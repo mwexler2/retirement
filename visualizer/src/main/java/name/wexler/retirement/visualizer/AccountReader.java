@@ -31,10 +31,14 @@ import static java.util.Map.entry;
 
 
 public class AccountReader {
+    public static final String mintTxnSource = "mint";
+    public static final String ofxTxnSource = "OFX";
     private Spending spending;
 
     public AccountReader(Context context) {
+
         spending = context.getById(Expense.class, "spending");
+
     }
 
     public class AccountNotFoundException extends Exception {
@@ -117,33 +121,22 @@ public class AccountReader {
             LocalDate accrualEnd = txnDate;
             BigDecimal txnAmount = BigDecimal.ZERO;
             String action = rs.getString("txn_type");
-
+            String txnSource = rs.getString("source");
             String description = rs.getString("description");
             String category = rs.getString("category");
             String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
             String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
             String itemType = rs.getString("itemType");
-
-            Boolean isBuy = rs.getBoolean("isBuy");
-            Boolean isCheck = rs.getBoolean("isCheck");
-            Boolean isChild = rs.getBoolean("isChild");
             Boolean isDebit = rs.getBoolean("isDebit");
-            Boolean isDuplicate = rs.getBoolean("isDuplicate");
-            Boolean isEdited = rs.getBoolean("isEdited");
-            Boolean isFirstDate = rs.getBoolean("isFirstDate");
-            Boolean isLinkedToRule = rs.getBoolean("isLinkedToRule");
-            Boolean isMatched = rs.getBoolean("isMatched");
-            Boolean isPending = rs.getBoolean("isPending");
-            Boolean isPercent = rs.getBoolean("isPercent");
-            Boolean isSell = rs.getBoolean("isSell");
-            Boolean isSpending = rs.getBoolean("isSpending");
-            Boolean isTransfer = rs.getBoolean("isTransfer");
+
 
             List<String> labels = Arrays.asList(labelsStr.split(","));
 
             Account account = getAccountFromResultSet(context, rs, txnDate);
             if (account == null)
                 return null;
+            if (!txnSource.equalsIgnoreCase(account.getTxnSource()))
+                return null;    // Skip transactions from the non-authoritative source.
 
             try {
                 txnAmount = rs.getBigDecimal("amount");
@@ -155,9 +148,9 @@ public class AccountReader {
             Entity company = account.getCompany();
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
             Job job = getJobFromDescription(context, description);
-            if (account instanceof AssetAccount && (category.equals("Sell") || category.equals("Buy"))) {
+            String symbol = rs.getString("symbol");
+            if (account instanceof AssetAccount && symbol != null && symbol.length() > 0) {
                 AssetAccount assetAccount = (AssetAccount) account;
-                String symbol = rs.getString("symbol");
                 BigDecimal shares = rs.getBigDecimal("shares");
                 BigDecimal sharePrice = null;
                 Security security;

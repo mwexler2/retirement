@@ -26,6 +26,7 @@ package name.wexler.retirement.visualizer.CashFlowEstimator;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.Context;
@@ -88,6 +89,12 @@ abstract public class Liability extends CashFlowEstimator implements Account {
         this.runningTotal = startingBalance;
     }
 
+
+    @JsonIgnore
+    @Override
+    public String getTxnSource() {
+        return AccountReader.mintTxnSource;
+    }
 
     @JsonIgnore
     @Override

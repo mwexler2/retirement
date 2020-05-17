@@ -16,8 +16,7 @@
         <dependency>
             <groupId>com.webcohesion.ofx4j</groupId>
             <artifactId>ofx4j</artifactId>
-            <version>1.18</version>
-            <type>bundle</type>
+            <version>1.26</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -23,7 +23,6 @@ public class FinanceCrawler
             });
         }
         // CitibankCrawler citiCrawler = new CitibankCrawler()
-        txnHistory.deleteAllRows();
         if (true) {
             MintCrawler mintCrawler = new MintCrawler(txnHistory, accountTable, txnHistory.getLastDate());
             mintCrawler.crawl();

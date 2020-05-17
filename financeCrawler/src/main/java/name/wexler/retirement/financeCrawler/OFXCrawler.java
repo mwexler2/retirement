@@ -27,8 +27,13 @@ import name.wexler.retirement.datastore.TxnHistory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OFXCrawler {
     private PositionHistory positionHistory;
@@ -74,6 +79,8 @@ public class OFXCrawler {
                 final String accountId = account.getAccountNumber();
                 processPositions(response, accountId, statementDate);
                 processTransactions(response, accountId, statementDate);
+            } else {
+                System.out.println(message.getResponseMessageName());
             }
         }
     }
@@ -122,9 +129,10 @@ public class OFXCrawler {
                 TransactionType txnType = txn.getTransactionType();
                 line.put("account", accountId);
                 line.put("labels", "");
-                line.put("txnType", "debit");
+                line.put("txnType", txnType.toString());
                 line.put("category", txn.getTransactionType().name());
                 line.put("merchant", invTxn.getMemo());
+                String memo = invTxn.getMemo();
                 if (invTxn.getSettlementDate() == null) {
                     if (invTxn.getTradeDate() == null) {
                         System.err.println("No settlement date specified.");
@@ -134,7 +142,7 @@ public class OFXCrawler {
                 } else
                     line.put("odate", invTxn.getSettlementDate().getTime());
                 line.put("tradeDate", invTxn.getTradeDate());
-                line.put("txnId", invTxn.getTransactionId());
+                line.put(TxnHistory.txnId, invTxn.getTransactionId());
                 line.put("isBuy", false);
                 line.put("isCheck", false);
                 line.put("isChild", false);
@@ -172,6 +180,7 @@ public class OFXCrawler {
                     line.put("load", buyInvestTxn.getLoad());
                     line.put("markup", buyInvestTxn.getMarkup());
                     line.put("taxes", buyInvestTxn.getTaxes());
+                    line.put("maturityDate", getMaturityDateFromMemo(buyInvestTxn.getMemo()));
                 } else if (txnType.name().equals("BUY_MUTUAL_FUND")) {
                     BuyMutualFundTransaction buyMutualFundTxn = (BuyMutualFundTransaction) txn;
                     line.put("commission", buyMutualFundTxn.getCommission());
@@ -225,6 +234,14 @@ public class OFXCrawler {
                 } else if (txnType.name().equals("MARGIN_INTEREST")) {
                     MarginInterestTransaction marginInterestTxn = (MarginInterestTransaction) txn;
                     line.put("amount", marginInterestTxn.getTotal());
+                } else if (txnType.name().equals("TRANSFER")) {
+                    TransferInvestmentTransaction transferTxn = (TransferInvestmentTransaction) txn;
+                    line.put("shares", transferTxn.getUnits());
+                    line.put("sharePrice", transferTxn.getUnitPrice());
+                    updateTicker(line, transferTxn.getSecurityId().getUniqueId());
+                    line.put("401(k) source", transferTxn.get401kSource());
+                    line.put("category", transferTxn.getTransferAction());
+                    line.put("amount", 0.00);
                 } else {
                     System.err.println("Can't process txnType: " + txnType);
                 }
@@ -247,6 +264,7 @@ public class OFXCrawler {
                 com.webcohesion.ofx4j.domain.data.common.TransactionType txnType = bankTxn.getTransactionType();
                 String txnRefNum = bankTxn.getReferenceNumber();
                 line.put("odate", datePosted.getTime());
+                line.put(TxnHistory.txnId, bankTxn.getId());
                 line.put("checkNumber", checkNumber);
                 line.put("omerchant", bankTxn.getPayeeId());
                 line.put("amount", bankTxn.getAmount());
@@ -272,5 +290,19 @@ public class OFXCrawler {
                 line.put("category", "Investment");
                 txnHistory.insertRow(line);
             }
+    }
+
+    private Long getMaturityDateFromMemo(String memo) {
+        // Example: "US TREASURY       BILL18U S T BILL  DUE 10/11/18"
+        Pattern p1 = Pattern.compile(".* DUE +(\\d+)/(\\d+)/(\\d+).*", Pattern.CASE_INSENSITIVE);
+        Matcher m = p1.matcher(memo);
+        if (m.matches()) {
+            int month = Integer.parseInt(m.group(1));
+            int day = Integer.parseInt(m.group(2));
+            int year = Integer.parseInt(m.group(3)) + 2000;
+            LocalDate date = LocalDate.of(year, month, day);
+            return date.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC);
+        }
+        return 0L;
     }
 }

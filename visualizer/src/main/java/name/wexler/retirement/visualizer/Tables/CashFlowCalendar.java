@@ -13,6 +13,7 @@ import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Scenario;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -70,7 +71,7 @@ public class CashFlowCalendar {
         Set<CashFlowSink> cashFlowSinks = new HashSet<>();
         while (listIterator.hasPrevious()) {
             CashFlowInstance instance = listIterator.previous();
-            if (instance.isEstimate())
+            if (instance.isEstimate() && !instance.getCashFlowDate().isAfter(LocalDate.now()))
                 continue;   // We are counting back from actual balance, skip estimates
             CashFlowSink sink = instance.getCashFlowSink();
             cashFlowSinks.add(sink);
@@ -254,6 +255,8 @@ public class CashFlowCalendar {
         }
     };
 
+    @org.jetbrains.annotations.NotNull
+    @org.jetbrains.annotations.Contract(" -> new")
     private TableList getTableList() {
         List<ColumnDefinition> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(ColumnDefinition.Builder.newInstance().
@@ -294,7 +297,7 @@ public class CashFlowCalendar {
         return tableList;
     }
 
-    public TableList createTableListFromNestedHash(Map<String, Map<String, Map<Integer, BigDecimal>>> nestedHash) {
+    public TableList createTableListFromNestedHash(@NotNull Map<String, Map<String, Map<Integer, BigDecimal>>> nestedHash) {
         TableList tableList = getTableList();
 
         for (Map.Entry<String, Map<String, Map<Integer, BigDecimal>>> outerEntry: nestedHash.entrySet()) {
@@ -325,12 +328,11 @@ public class CashFlowCalendar {
                 cashFlowInstances.stream().
                         collect(Collectors.groupingBy(CashFlowInstance::getItemType,
                                 Collectors.groupingBy(CashFlowInstance::getCategory,
-                                Collectors.groupingBy(CashFlowInstance::getYear,
-                                Collectors.mapping(instance -> instance.getAmount(),
-                                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))));
+                                        Collectors.groupingBy(CashFlowInstance::getYear,
+                                                Collectors.mapping(instance -> instance.getAmount(),
+                                                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))));
         return createTableListFromNestedHash(categoryMap);
     }
-
     public List<CashFlowInstance> getCashFlowInstances() {
         return cashFlowInstances;
     }

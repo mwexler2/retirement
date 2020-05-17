@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,7 +44,7 @@ public class ScenarioTest {
         Company yahoo = new Company(context, "yahoo");
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(mike.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList(), null);
+                "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", "yahoo", "mike", defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.APRIL, 1));
         job1.setEndDate(LocalDate.of(2015, Month.DECEMBER, 15));
@@ -87,10 +88,12 @@ public class ScenarioTest {
         new Monthly(context, "account2", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
 
+        Company bonw = new Company(context, "Bank of Nowhere");
+        Company bosw = new Company(context, "Bank of Somewhere");
         AssetAccount account1 = new AssetAccount(context, "account1", account1Owners,
-                "My 401(k)","Bank of Nowhere", null, null);
+                "My 401(k)",bonw.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         AssetAccount account2 = new AssetAccount(context, "account2", account2Owners,
-                "My Checking","Bank of Somewhere", null, null);
+                "My Checking",bosw.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         String[] is = {"salary1", "liability1"};
         String[] assets = {"main"};
         String[] liabilities = {"liability1"};
@@ -120,28 +123,11 @@ public class ScenarioTest {
         assertNotEquals(scenario1, scenario2);
     }
 
-    @Test
-    public void serialize() throws Exception {
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator
-                .builder()
-                .allowIfBaseType(String.class)
-                .build();
-        ObjectMapper mapper = JsonMapper.builder()
-                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
-                .build();
-        ObjectWriter writer = mapper.writer();
-        String scenario1Str = context.toJSON(scenario1);
-        assertEquals("{\"id\":\"scenario1\",\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 1\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario1Str);
-
-        String scenario2Str = context.toJSON(scenario2);
-        assertEquals("{\"id\":\"scenario2\",\"assumptions\":{\"longTermInvestmentReturn\":0.07,\"shortTermInvestmentReturn\":0.03,\"inflation\":0.04,\"yearsInShortTerm\":10},\"name\":\"Scenario 2\",\"cashFlowSources\":[\"salary1\",\"liability1\"],\"assets\":[\"main\"],\"liabilities\":[\"liability1\"]}", scenario2Str);
-    }
-
 
     @Test
     public void deserialize() throws Exception {
-        String scenario1aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
-        String scenario2aStr = "{\"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
+        String scenario1aStr = "{\"type\": \"scenario\", \"id\": \"s1a\", \"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
+        String scenario2aStr = "{\"type\": \"scenario\", \"id\": \"s2a\", \"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
 
         Scenario scenario1a = context.fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());

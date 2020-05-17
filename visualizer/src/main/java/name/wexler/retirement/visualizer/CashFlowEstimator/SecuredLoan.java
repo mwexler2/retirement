@@ -24,6 +24,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
@@ -80,6 +81,12 @@ public class SecuredLoan extends Liability {
         for (String indicator : indicators) {
             context.put(SecuredLoan.class, indicator, this);
         }
+    }
+
+    @JsonIgnore
+    @Override
+    public String getTxnSource() {
+        return AccountReader.mintTxnSource;
     }
 
     @JsonIgnore

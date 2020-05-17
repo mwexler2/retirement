@@ -38,7 +38,7 @@ public class BonusTest {
         Person employee = new Person(context, "employee1", LocalDate.of(1976, Month.MARCH, 28), 65);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList(), null);
+                "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
@@ -88,17 +88,6 @@ public class BonusTest {
     public void equals() {
         assertNotEquals(salary, bonusAnnualPct);
     }
-
-    @Test
-    public void toJSON() throws Exception {
-        String bonusAnnualPctStr = context.toJSON(bonusAnnualPct);
-        assertEquals("{\"type\":\"bonusAnnualPct\",\"id\":\"bonusAnnualPct1\",\"job\":\"job1\",\"salary\":\"salary1\",\"bonusPct\":10.0,\"cashFlow\":\"job1BonusSource1\"}",
-                bonusAnnualPctStr);
-        String bonusPeriodicFixedStr = context.toJSON(bonusPeriodicFixed);
-        assertEquals("{\"type\":\"bonusPeriodicFixed\",\"id\":\"bonusPeriodicFixed1\",\"job\":\"job1\",\"annualAmount\":17000.0,\"cashFlow\":\"biweekly1\"}",
-                bonusPeriodicFixedStr);
-    }
-
 
     @Test
     public void fromJSON() throws Exception {

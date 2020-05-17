@@ -40,7 +40,7 @@ public class RSUTest {
         Person employee = new Person(context, "employee1", LocalDate.of(1776, Month.JULY, 4), 200);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList(), null);
+                "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
         job1.setStartDate(LocalDate.of(2015, Month.MAY, 1));
         job1.setEndDate(LocalDate.of(2016, Month.DECEMBER, 31));
@@ -105,15 +105,6 @@ public class RSUTest {
     @Test
     public void equals() {
         assertNotEquals(salary, rsu2);
-    }
-
-    @Test
-    public void toJSON() throws Exception {
-        String rsuVestingScheduleStr = context.toJSON(rsu1);
-        assertEquals("{\"type\":\"RSU\",\"id\":\"rsu1\",\"job\":\"job1\",\"cashFlow\":\"vestingSchedule1\"," +
-                        "\"security\":\"AAPL\",\"totalShares\":1000}",
-                rsuVestingScheduleStr);
-
     }
 
 

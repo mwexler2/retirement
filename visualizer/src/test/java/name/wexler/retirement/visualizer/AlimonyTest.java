@@ -46,7 +46,7 @@ public class AlimonyTest {
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
         Company bank = new Company(context, "bank1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
-                "Checking account 1", bank.getId(), Collections.emptyList(), null);
+                "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),
                 BigDecimal.valueOf(50000.00), BigDecimal.valueOf(1200.00), BigDecimal.valueOf(0.33), BigDecimal.valueOf(102500.00), monthly.getId(),
                 quarterly.getId(), defaultSink.getId());
@@ -72,13 +72,13 @@ public class AlimonyTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(alimony);
-        assertEquals("{\"type\":\"alimony\",\"id\":\"alimony1\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"alimony\",\"id\":\"alimony1\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\",\"category\":\"Alimony\"}", expenseSource1Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"alimony\",\"id\":\"alimony1a\",\"baseCashFlow\":\"monthly-alimony1\",\"payee\":\"payee1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\"}";
+        String expenseSource1aStr = "{\"type\":\"alimony\",\"id\":\"alimony1a\",\"baseCashFlow\":\"monthly-alimony1\",\"baseIncome\":100.00,\"baseAlimony\":10.00,\"smithOstlerRate\":15.00,\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"monthly-alimony1\",\"smithOstlerCashFlowType\":\"quarterly-alimony1\",\"defaultSink\":\"orSwim\",\"category\":\"Alimony\"}";
         CashFlowEstimator expenseSource1a = context.fromJSON(CashFlowEstimator.class, expenseSource1aStr);
         assertEquals("alimony1a", expenseSource1a.getId());
     }

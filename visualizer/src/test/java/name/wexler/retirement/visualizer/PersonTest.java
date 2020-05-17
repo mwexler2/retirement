@@ -94,16 +94,6 @@ public class PersonTest {
     }
 
     @Test
-    public void toJSON() throws Exception {
-        String person1Str = context.toJSON(person1);
-        assertEquals("{\"type\":\"person\",\"id\":\"john1\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1999-12-25\",\"retirementAge\":70}", person1Str);
-
-        String person2Str = context.toJSON(person2);
-        assertEquals("{\"type\":\"person\",\"id\":\"jane1\",\"firstName\":\"Jane\",\"lastName\":\"Doe\",\"birthDate\":\"1969-12-31\",\"retirementAge\":40}", person2Str);
-    }
-
-
-    @Test
     public void deserialize() throws Exception {
 
         String person1Str = "{\"type\":\"person\",\"id\":\"john1a\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"birthDate\":\"1970-01-01\",\"retirementAge\":65}";
