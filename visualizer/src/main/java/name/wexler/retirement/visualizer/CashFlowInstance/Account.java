@@ -1,14 +1,126 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
-import name.wexler.retirement.visualizer.CashFlowSink;
-import name.wexler.retirement.visualizer.CashFlowSource;
+import name.wexler.retirement.visualizer.*;
+import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Entity.Entity;
+import name.wexler.retirement.visualizer.Expense.Expense;
+import name.wexler.retirement.visualizer.Expense.Spending;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.openjpa.kernel.FillStrategy;
 
-import java.util.List;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParserFactory;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface Account extends CashFlowSource, CashFlowSink {
+
     Entity getCompany();
     String getTxnSource();
-
     String getName();
+    BigDecimal adjustAmount(BigDecimal amount);
+    CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
+                                          BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount);
+
+    public default CashFlowInstance getInstance(Context context,
+                                                Spending spending,
+                                                ResultSet rs,
+                                                CashFlowSource cashFlowSource,
+                                                String description,
+                                                Job job) throws SQLException {
+        CashFlowInstance instance = null;
+
+        long dateMillis = rs.getLong("Date");
+        LocalDate txnDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.of("UTC")).toLocalDate();
+        LocalDate accrualEnd = txnDate;
+        BigDecimal txnAmount = BigDecimal.ZERO;
+        String category = rs.getString("category");
+        String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
+        String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
+        List<String> names = new ArrayList<>();
+        if (labelsStr != null && !labelsStr.isEmpty()) {
+            try (JsonParser parser = Json.createParserFactory((Map<String, ?>) Collections.EMPTY_MAP).createParser(new StringReader(labelsStr))) {
+                JsonArray labels = parser.getArray();
+                labels.forEach(label -> {
+                    JsonObject obj = label.asJsonObject();
+                    String name = obj.getString("name");
+                    names.add(name);
+                });
+            }
+        }
+        String itemType = rs.getString("itemType");
+        Boolean isDebit = rs.getBoolean("isDebit");
+        Entity company = this.getCompany();
+        String symbol = rs.getString("symbol");
+
+        try {
+            txnAmount = rs.getBigDecimal("amount");
+        } catch (NumberFormatException nfe) {
+            return null;
+        }
+        txnAmount = this.adjustAmount(txnAmount);
+        if (symbol != null && symbol.length() > 0) {
+            BigDecimal shares = rs.getBigDecimal("shares");
+            instance = processSymbol(context, symbol, description, category, itemType, shares, txnDate, txnAmount);
+        }
+        if (instance != null) {
+        } else if (isDebit) {
+            if (company == null) {
+                System.err.println(new Account.AccountNotFoundException(this.getName()));
+                return null;
+            }
+            if (cashFlowSource == null)
+                cashFlowSource = spending;
+            instance = new PaymentInstance(cashFlowSource, this, category,
+                    accrualEnd, accrualEnd, txnDate, txnAmount,
+                    BigDecimal.ZERO, company);
+        } else if (job != null && !isDebit && category.equals("Paycheck")) {
+            if (company == null) {
+                System.err.println(new AccountNotFoundException(this.getName()));
+                return null;
+            }
+            instance = new PaycheckInstance(job, this, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+                    BigDecimal.ZERO);
+        } else if (job != null && !isDebit && category.equals("Reimbursement")) {
+            if (company == null) {
+                System.err.println(new AccountNotFoundException(this.getName()));
+                return null;
+            }
+            instance = new ReimbursementInstance(this, job.getDefaultSink(), category,
+                    accrualEnd, accrualEnd, txnDate, txnAmount,
+                    BigDecimal.ZERO, company);
+        } else {
+            instance = new CashFlowInstance(false, this, this,
+                    itemType, category,
+                    accrualEnd, accrualEnd, txnDate, txnAmount,
+                    BigDecimal.ZERO);
+        }
+        instance.setDescription(description);
+        instance.setCategory(category);
+        instance.setNotes(notes);
+        instance.setLabels(names);
+        return instance;
+    }
+
+    public class AccountNotFoundException extends Exception {
+        private final String accountName;
+
+        public AccountNotFoundException(String accountName) {
+            super("AssetAccount " + accountName + " not found");
+            this.accountName = accountName;
+        }
+    }
 }

@@ -8,11 +8,14 @@ table, thead, tbody, tr, th, td {
     border: solid thin;
     border-collapse: collapse;
 }
+tr.details {
+    visibility: collapse;
+}
 tr.even {
     background-color: lightgray;
 }
 tr.subtotal-header {
-    border-top: solid thick;
+    visibility: collapse;
 }
 td.money {
     text-align: right;

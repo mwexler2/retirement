@@ -36,6 +36,8 @@ import name.wexler.retirement.visualizer.Expense.Spending;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 
 /**
@@ -54,6 +56,7 @@ public class Alimony extends CashFlowEstimator {
     private final BigDecimal maxAlimony;
     private CashFlowFrequency smithOstlerCashFlow;
     private CashFlowSink defaultSink;
+    private static String ALIMONY = "Alimony";
 
     @JsonCreator
     public Alimony(@JacksonInject("context") Context context,
@@ -100,7 +103,23 @@ public class Alimony extends CashFlowEstimator {
                             (instance) -> {
                                 return instance.getCashFlowSink().isOwner(this.payor);
                             });
-                    BigDecimal alimony = income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
+                    BigDecimal ytdAlimony = calendar.sumMatchingCashFlowForPeriod(
+                            LocalDate.of(accrualStart.getYear(), Month.JANUARY, 1),
+                            LocalDate.of(accrualEnd.getYear(), Month.DECEMBER, 31),
+                            (instance) -> {
+                                boolean match = instance.getCategory().equals(ALIMONY);
+                                if (instance.getAmount().compareTo(BigDecimal.valueOf(100000)) > 0 ||
+                                        instance.getAmount().compareTo(BigDecimal.valueOf(-100000)) < 0) {
+                                    System.out.println("big item, amount = " + instance.getAmount() + ", category = " + instance.getCategory());
+                                }
+                                if (match) System.out.println("category = " + instance.getCategory() + ", match = " + match);
+                                return match;
+                            });
+                    BigDecimal alimony = income.compareTo(baseIncome) <= 0 ? BigDecimal.ZERO : income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
+                    if (accrualStart.getYear() == 2020) {
+                        System.out.println("income = " + income + ", ytdAlimony = " + ytdAlimony + ", alimony = " + alimony);
+                    }
+                    alimony = alimony.max(this.maxAlimony.subtract(ytdAlimony));
                     return new CashFlowInstance(true,this, defaultSink,
                             getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, alimony, balance);

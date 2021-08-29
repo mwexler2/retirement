@@ -13,3 +13,4 @@ window.addEventListener("DOMContentLoaded", function() {
         subTotal.onclick = displayDetails;
     }
 }, false);
+

@@ -99,7 +99,7 @@ public class AccountTable {
     }
 
     public void insertRow(Map<String, Object> line) {
-        String sql = "INSERT INTO accounts (\n"
+        String sql = "REPLACE INTO accounts (\n"
                 + " addAccountDate, fiLoginDisplayName, dueDate, isTerminal, \n"
                 + " isActive, lastUpdated, rateType, fiName, origAmount, klass, accountTypeInt, id, fiLoginId, \n"
                 + " accountType, currentBalance, fiLoginStatus, origDate, linkStatus, accountId, \n"

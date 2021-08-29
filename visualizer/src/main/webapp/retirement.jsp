@@ -9,59 +9,14 @@
 <html>
 <head>
     <title>Retirement Calculator</title>
-    <style type="text/css">
-        td a {
-            text-decoration-line: none;
-        }
-        th a {
-            text-decoration-line: none;
-        }
-        table, thead, tbody, tr, th, td {
-            border: solid thin;
-            border-collapse: collapse;
-        }
-        tr.details {
-            visibility: collapse;
-        }
-        tr.even {
-            background-color: lightgray;
-        }
-        tr.subtotal-header {
-            visibility: collapse;
-        }
-        td.money {
-            text-align: right;
-        }
-    </style>
-
-    <script type="application/javascript">
-        function displayDetails(event) {
-            children = document.getElementsByClassName(event.currentTarget.id);
-            for (let child of children) {
-                if (child.style.visibility == "visible")
-                    child.style.visibility = "collapse";
-                else
-                    child.style.visibility = "visible";
-            }
-        }
-        window.addEventListener("DOMContentLoaded", function() {
-            var subTotals = document.getElementsByClassName("subtotal");
-            for (let subTotal of subTotals) {
-                subTotal.onclick = displayDetails;
-            }
-        }, false);
-    </script>
+    <link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+    <script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
 </head>
-<!--
 
-Then your normal row would look something like:
-
-<tr id='row1'><td> .... </td><td><a href="#" onClick="displayDetails('row1')">Details</a><
--->
 
 <body>
-<h1>Retirement Calculator</h1>
 
+<h1>Retirement Calculator</h1>
 
 <display:table name="${command.people}" >
     <display:caption>People</display:caption>

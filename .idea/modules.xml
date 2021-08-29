@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/datastore/datastore.iml" filepath="$PROJECT_DIR$/datastore/datastore.iml" />
       <module fileurl="file://$PROJECT_DIR$/financeCrawler/financeCrawler.iml" filepath="$PROJECT_DIR$/financeCrawler/financeCrawler.iml" />
       <module fileurl="file://$PROJECT_DIR$/jdbcDrivers/jdbcDrivers.iml" filepath="$PROJECT_DIR$/jdbcDrivers/jdbcDrivers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/retirement.iml" filepath="$PROJECT_DIR$/retirement.iml" />
       <module fileurl="file://$PROJECT_DIR$/visualizer/visualizer.iml" filepath="$PROJECT_DIR$/visualizer/visualizer.iml" />
     </modules>
   </component>

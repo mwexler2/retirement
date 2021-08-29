@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
  * Created by mwexler on 12/30/16.
  */
 public class CashFlowCalendar {
+    private static String SCENARIO_PATH_ELEM = "scenario";
+    private static String GROUPING_PATH_ELEM = "grouping";
     public static enum ITEM_TYPE {INCOME, EXPENSE, TRANSFER};
 
     public interface CashFlowChecker {
@@ -71,13 +73,22 @@ public class CashFlowCalendar {
         Set<CashFlowSink> cashFlowSinks = new HashSet<>();
         while (listIterator.hasPrevious()) {
             CashFlowInstance instance = listIterator.previous();
-            if (instance.isEstimate() && !instance.getCashFlowDate().isAfter(LocalDate.now()))
+            if (instance.isEstimate() && instance.getCashFlowDate().isAfter(LocalDate.now()))
                 continue;   // We are counting back from actual balance, skip estimates
             CashFlowSink sink = instance.getCashFlowSink();
             cashFlowSinks.add(sink);
             sink.updateRunningTotal(instance, true);
         }
         cashFlowSinks.forEach(sink -> sink.setStartingBalance());
+
+        listIterator = cashFlowInstances.listIterator();
+        while (listIterator.hasNext()) {
+            CashFlowInstance instance = listIterator.next();
+            if (!instance.isEstimate() || instance.getCashFlowDate().isBefore(LocalDate.now()))
+                continue;   // We are counting forward from actual balance, already applied non-estimates
+            CashFlowSink sink = instance.getCashFlowSink();
+            sink.updateRunningTotal(instance, false);
+        }
     }
 
     public void addAssets(List<Asset> assets) {
@@ -310,7 +321,9 @@ public class CashFlowCalendar {
                 row.put("name", decorateName(itemType, innerEntry.getKey(), innerEntry.getKey()));
                 for (int year : getYears()) {
                     String link = String.join("/",
-                            "scenario", this._scenario.getId(),
+                            SCENARIO_PATH_ELEM,
+                            this._scenario.getId(),
+                            GROUPING_PATH_ELEM,
                             itemType, itemCategory,
                             "year", Integer.toString(year));
                     row.put(Integer.toString(year),

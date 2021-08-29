@@ -205,4 +205,16 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     public void setStartingBalance() {
 
     }
+
+    @Override
+    @JsonIgnore
+    public BigDecimal adjustAmount(BigDecimal txnAmount) {
+        return txnAmount;
+    }
+
+    @Override
+    public CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
+                                          BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount) {
+        return null;
+    }
 }

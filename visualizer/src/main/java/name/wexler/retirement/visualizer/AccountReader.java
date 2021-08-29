@@ -36,18 +36,7 @@ public class AccountReader {
     private Spending spending;
 
     public AccountReader(Context context) {
-
         spending = context.getById(Expense.class, "spending");
-
-    }
-
-    public class AccountNotFoundException extends Exception {
-        private final String accountName;
-
-        public AccountNotFoundException(String accountName) {
-            super("AssetAccount " + accountName + " not found");
-            this.accountName = accountName;
-        }
     }
 
     public List<CashFlowInstance> readCashFlowInstances(Context context) throws IOException {
@@ -112,127 +101,30 @@ public class AccountReader {
             entry("1", "Credit"),
             entry("2", "Transfer")
     );
+
     protected CashFlowInstance getInstanceFromResultSet(
             Context context,
             ResultSet rs)  {
         try {
-            long dateMillis = rs.getLong("Date");
-            LocalDate txnDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.of("UTC")).toLocalDate();
-            LocalDate accrualEnd = txnDate;
-            BigDecimal txnAmount = BigDecimal.ZERO;
-            String action = rs.getString("txn_type");
-            String txnSource = rs.getString("source");
-            String description = rs.getString("description");
-            String category = rs.getString("category");
-            String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
-            String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
-            String itemType = rs.getString("itemType");
-            Boolean isDebit = rs.getBoolean("isDebit");
-
-
-            List<String> labels = Arrays.asList(labelsStr.split(","));
-
-            Account account = getAccountFromResultSet(context, rs, txnDate);
+            Account account = getAccountFromResultSet(context, rs);
             if (account == null)
                 return null;
+            String txnSource = rs.getString("source");
             if (!txnSource.equalsIgnoreCase(account.getTxnSource()))
                 return null;    // Skip transactions from the non-authoritative source.
 
-            try {
-                txnAmount = rs.getBigDecimal("amount");
-            } catch (NumberFormatException nfe) {
-                return null;
-            }
-
-            CashFlowInstance instance;
-            Entity company = account.getCompany();
+            String description = rs.getString("description");
             CashFlowSource cashFlowSource = context.getById(Account.class, description);
+            if (cashFlowSource == null)
+                cashFlowSource = spending;
             Job job = getJobFromDescription(context, description);
-            String symbol = rs.getString("symbol");
-            if (account instanceof AssetAccount && symbol != null && symbol.length() > 0) {
-                AssetAccount assetAccount = (AssetAccount) account;
-                BigDecimal shares = rs.getBigDecimal("shares");
-                BigDecimal sharePrice = null;
-                Security security;
-                if (symbol == null || symbol.equals("")) {
-                    Pattern p1 = Pattern.compile("(\\d+(\\.\\d+)?) of ([^ ]+) @ \\$(\\d+\\.\\d+).*", Pattern.CASE_INSENSITIVE);
-                    Pattern p2 = Pattern.compile("YOU BOUGHT ([^ ]+).*");
-                    Matcher m = p1.matcher(description.replace(",", ""));
-                    if (m.matches()) {
-                        shares = BigDecimal.valueOf(Double.parseDouble(m.group(1)));
-                        if (category.equals("Buy"))
-                            shares = shares.negate();
-                        symbol = m.group(3);
-                        sharePrice = BigDecimal.valueOf(Double.parseDouble(m.group(4)));
-                    } else {
-                        m = p2.matcher(description);
-                        if (m.matches())
-                            symbol = m.group(1);
-                    }
-                }
-                if (symbol == null || symbol.equals("")) {
-                    System.err.println("No security specified in " + description);
-                    return null;
-                } else {
-                    security = context.getById(Security.class, symbol);
-                    try {
-                        if (security == null)
-                            security = new Security(context, symbol);
-                    } catch (Entity.DuplicateEntityException dee) {
-                        throw(new RuntimeException(dee));
-                    }
-                    if (sharePrice == null) {
-                        if (shares == null || shares.compareTo(BigDecimal.ZERO) == 0) {
-                            shares = BigDecimal.ZERO;
-                            sharePrice = BigDecimal.ZERO;
-                        } else {
-                            sharePrice = txnAmount.divide(shares, 2, RoundingMode.HALF_UP).abs();
-                        }
-                    }
-                    ShareBalance shareChange = new ShareBalance(txnDate, shares, sharePrice, security);
-                    instance = new SecurityTransaction(context, assetAccount, itemType, category, txnAmount, shareChange);
-                }
-            } else if (isDebit) {
-                if (company == null) {
-                    System.err.println(new AccountNotFoundException(account.getName()));
-                    return null;
-                }
-                if (cashFlowSource == null)
-                    cashFlowSource = spending;
-                instance = new PaymentInstance(cashFlowSource, account, category,
-                        accrualEnd, accrualEnd, txnDate, txnAmount,
-                        BigDecimal.ZERO, company);
-            } else if (job != null && !isDebit && category.equals("Paycheck")) {
-                if (company == null) {
-                    System.err.println(new AccountNotFoundException(account.getName()));
-                    return null;
-                }
-                instance = new PaycheckInstance(job, account, category, accrualEnd, accrualEnd, txnDate, txnAmount,
-                        BigDecimal.ZERO);
-            } else if (job != null && !isDebit && category.equals("Reimbursement")) {
-                if (company == null) {
-                    System.err.println(new AccountNotFoundException(account.getName()));
-                    return null;
-                }
-                instance = new ReimbursementInstance(account, job.getDefaultSink(), category,
-                        accrualEnd, accrualEnd, txnDate, txnAmount,
-                        BigDecimal.ZERO, company);
-            } else {
-                instance = new CashFlowInstance(false, account, account,
-                        itemType, category,
-                        accrualEnd, accrualEnd, txnDate, txnAmount,
-                        BigDecimal.ZERO);
-            }
 
-            instance.setDescription(description);
-            instance.setCategory(category);
-            instance.setNotes(notes);
-            instance.setLabels(labels);
+            CashFlowInstance instance =
+                    account.getInstance(context, spending, rs, cashFlowSource, description, job);
+
             return instance;
         } catch (SQLException sqle) {
             System.err.println(sqle);
-        } catch (AccountNotFoundException anfe) {
-            System.err.println(anfe);
         }
         return null;
     }
@@ -249,10 +141,13 @@ public class AccountReader {
         Job job = context.getById(Job.class, companyName);
         return job;
     }
-    private Account getAccountFromResultSet(Context context, ResultSet rs, LocalDate txnDate)
-            throws AccountNotFoundException, SQLException {
+    private Account getAccountFromResultSet(Context context, ResultSet rs)
+            throws SQLException {
         Account account = null;
         String accountName = rs.getString("account_name").trim();
+        if (accountName.equals("Investor Checking")) {
+            System.out.println("Investor Checking!");
+        }
         CreditCardAccount creditCardAccount = context.getById(CreditCardAccount.class, accountName);
         SecuredLoan securedLoan = context.getById(SecuredLoan.class, accountName);
         if (creditCardAccount != null) {
