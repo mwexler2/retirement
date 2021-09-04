@@ -92,9 +92,12 @@ public class Alimony extends CashFlowEstimator {
         List<CashFlowInstance> baseCashFlows = getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true, this, defaultSink,
+                    CashFlowInstance cashFlowInstance =
+                            new CashFlowInstance(true, this, defaultSink,
                             getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance);
+                    cashFlowInstance.setDescription(payee.getName());
+                    return cashFlowInstance;
                 });
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
@@ -120,9 +123,12 @@ public class Alimony extends CashFlowEstimator {
                         System.out.println("income = " + income + ", ytdAlimony = " + ytdAlimony + ", alimony = " + alimony);
                     }
                     alimony = alimony.max(this.maxAlimony.subtract(ytdAlimony));
-                    return new CashFlowInstance(true,this, defaultSink,
+                    CashFlowInstance cashFlowInstance =
+                            new CashFlowInstance(true,this, defaultSink,
                             getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, alimony, balance);
+                    cashFlowInstance.setDescription("Smith Ostler for " + this.payee.getName());
+                    return cashFlowInstance;
                 });
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
@@ -149,6 +155,7 @@ public class Alimony extends CashFlowEstimator {
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
                         amount, balance);
+                instance.setDescription("Remaining balance for " + this.payee.getName());
             }
             result.add(instance);
             remainingBalance.put(year, remainingBalance.get(year).subtract(amount));

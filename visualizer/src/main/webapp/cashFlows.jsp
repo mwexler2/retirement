@@ -3,32 +3,14 @@
 <%@ taglib prefix="display" uri="http://displaytag.sf.net" %>
 <%@ page isELIgnored="false" %>
 
-<style type="text/css">
-    td a {
-        text-decoration-line: none;
-    }
-    th a {
-        text-decoration-line: none;
-    }
-    table, thead, tbody, tr, th, td {
-        border: solid thin;
-        border-collapse: collapse;
-    }
-    tr.even {
-        background-color: lightgray;
-    }
-    tr.subtotal-header {
-        visibility: collapse;
-    }
-    td.money {
-        text-align: right;
-    }
-</style>
+<link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+<script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
 <html>
 <body>
  <display:table uid="item" name="${command.cashFlows}" sort="external"
                 decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator">
-        <display:caption>Cash Flows for ${command.scenarioId}/${command.category}</display:caption>
+        <display:caption>Cash Flows for ${command.scenarioId}/${command.category}/{$command.year}</display:caption>
+        <display:column property="itemType" group="1" />
         <display:column property="cashFlowDate" />
         <display:column property="accrualStart" />
         <display:column property="accrualEnd" />

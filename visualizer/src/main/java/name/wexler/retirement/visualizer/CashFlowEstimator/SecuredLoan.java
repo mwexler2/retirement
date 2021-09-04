@@ -114,9 +114,12 @@ public class SecuredLoan extends Liability {
             if (principal.compareTo(balance) >= 1)
                 principal = balance;
             balance = balance.subtract(principal);
-            return new LiabilityCashFlowInstance(true,this, defaultSink,
+            CashFlowInstance cashFlowInstance =
+                    new LiabilityCashFlowInstance(true,this, defaultSink,
                     getCategory(), accrualStart, accrualEnd, cashFlowDate,
                     principal, interest, impoundAmount, balance);
+            cashFlowInstance.setDescription(this.getPayees().get(0).getName());
+            return cashFlowInstance;
         });
     }
 

@@ -265,10 +265,9 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         classes.add("details");
         groupNumberToGroupTotal.forEach((groupNumber, total) -> {
             int columnNumber = ((GroupTotals) total).columnNumber;
-            HashMap<Integer, String> currentRow = (HashMap) getCurrentRowObject();
             HeaderCell headerCell = (HeaderCell) tableModel.getHeaderCellList().get(columnNumber);
             String beanPropertyName = headerCell.getBeanPropertyName();
-            classes.add(currentRow.get(beanPropertyName));
+            classes.add((String) evaluate(beanPropertyName));
         });
         return String.join(" ", classes);
     }

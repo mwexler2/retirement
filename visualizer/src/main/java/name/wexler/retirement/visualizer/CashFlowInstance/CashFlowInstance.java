@@ -2,15 +2,17 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.CashFlowSource;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by mwexler on 11/29/16.
  */
+
 public class CashFlowInstance implements Comparable<CashFlowInstance> {
     private final CashFlowSource cashFlowSource;
     private final LocalDate accrualStart;

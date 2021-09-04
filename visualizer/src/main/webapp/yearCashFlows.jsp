@@ -4,6 +4,8 @@
 <html>
 <head>
     <title>${year} Cash Flows for ${cashFlowId}</title>
+    <link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+    <script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
 </head>
 <body>
 <h1>${scenarioId}</h1>

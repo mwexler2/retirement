@@ -3,8 +3,8 @@
 <%@ taglib prefix="display" uri="http://displaytag.sf.net" %>
 <%@ page isELIgnored="false" %>
 
-<script src="/js/retirement.js" type="application/javascript" ></script>
-<link rel="stylesheet" href="/css/retirement.css" />
+<link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+<script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
 
 <html>
 <body>

@@ -4,27 +4,8 @@
 <%@ page isELIgnored="false" %>
 <html>
 <head>
-    <style type="text/css">
-        td a {
-            text-decoration-line: none;
-        }
-        th a {
-            text-decoration-line: none;
-        }
-        table, thead, tbody, tr, th, td {
-            border: solid thin;
-            border-collapse: collapse;
-        }
-        tr.even {
-            background-color: lightgray;
-        }
-        tr.subtotal-header {
-            visibility: collapse;
-        }
-        td.money {
-            text-align: right;
-        }
-    </style>
+    <link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+    <script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
 </head>
     <body>
         <display:table uid="item" name="${command.cashFlows}" sort="external"

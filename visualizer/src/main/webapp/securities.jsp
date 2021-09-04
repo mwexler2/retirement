@@ -4,8 +4,8 @@
 <%@ page isELIgnored="false" %>
 <html>
 <head>
-    <script src="/js/retirement.js" type="application/javascript" ></script>
-    <link rel="stylesheet" href="/css/retirement.css" />
+    <link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+    <script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
 </head>
     <body>
         <display:table uid="item" name="${command.cashFlows}" sort="external"

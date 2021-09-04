@@ -2,6 +2,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page isELIgnored="false" %>
 <html>
+<head>
+    <link href="<%=request.getContextPath()%>/css/retirement.css" rel="stylesheet" />
+    <script type="application/javascript" src="<%=request.getContextPath()%>/js/retirement.js" ></script>
+</head>
 <body>
 <h1>Valuations for ${scenarioId}/${assetId}</h1>
 
