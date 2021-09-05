@@ -164,7 +164,7 @@ public class CashFlowTypeTest {
                 });
         assertEquals(BigDecimal.valueOf(83.33), monthlyCashFlows.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(83.33), monthlyCashFlows.get(monthlyCashFlows.size() - 1).getAmount());
-        assertEquals(28, monthlyCashFlows.size());
+        assertEquals(29, monthlyCashFlows.size());
 
         List<CashFlowInstance> semiMonthlyCashFlows = semiMonthly.getFutureCashFlowInstances(cashFlowCalendar, salary1,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
