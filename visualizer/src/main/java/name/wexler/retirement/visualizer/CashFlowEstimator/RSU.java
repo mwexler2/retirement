@@ -33,12 +33,14 @@ import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/5/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RSU extends EquityCompensation {
+    private static final String RSUS = "RSUs";
 
     public RSU(@JacksonInject("context") Context context,
                @JsonProperty(value = "id", required = true) String id,
@@ -64,14 +66,26 @@ public class RSU extends EquityCompensation {
             BigDecimal shares = BigDecimal.valueOf(getTotalShares()).multiply(percent);
             BigDecimal amount = sharePrice.multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-            return new CashFlowInstance(true, this, getJob().getDefaultSink(),
+            CashFlowInstance instance =
+                    new CashFlowInstance(true, this, getJob().getDefaultSink(),
                     getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
+            instance.setDescription(getDescription(shares, sharePrice));
+            return instance;
         });
     }
 
+    @JsonIgnore
+    private String getDescription(BigDecimal shares, BigDecimal sharePrice) {
+        return String.join(", ", getPayers().stream().map(entity -> entity.getName()).collect(Collectors.toList())) + ":" +
+                shares + " shares @ $" + sharePrice;
+    }
     @JsonIgnore
     @Override
     public String getItemType() {
         return CashFlowCalendar.ITEM_TYPE.INCOME.name();
     }
+
+    @JsonIgnore
+    @Override
+    public String getCategory() { return RSUS; }
 }

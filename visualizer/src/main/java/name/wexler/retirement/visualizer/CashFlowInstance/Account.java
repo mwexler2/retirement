@@ -3,6 +3,7 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
+import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Expense;
 import name.wexler.retirement.visualizer.Expense.Spending;
@@ -61,7 +62,8 @@ public interface Account extends CashFlowSource, CashFlowSink {
                 });
             }
         }
-        String itemType = rs.getString("itemType");
+        Category c = context.getById(Category.class, category);
+        String itemType = c.getItemType();
         Boolean isDebit = rs.getBoolean("isDebit");
         Entity company = this.getCompany();
         String symbol = rs.getString("symbol");

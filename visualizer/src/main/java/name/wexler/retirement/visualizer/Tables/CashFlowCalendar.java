@@ -247,7 +247,7 @@ public class CashFlowCalendar {
     }
 
     public String decorateName(String itemType, String id, String name) {
-        return "<a href='scenario/" + this._scenario.getId() + "/" + itemType + "/" + id + "'>" +
+        return "<a href='scenario/" + this._scenario.getId() + "/grouping/" + itemType + "/" + id + "'>" +
                 name + "</a>";
     }
 

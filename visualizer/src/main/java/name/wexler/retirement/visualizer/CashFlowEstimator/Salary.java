@@ -34,6 +34,7 @@ import java.math.RoundingMode;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -46,6 +47,7 @@ public class Salary extends CashFlowEstimator {
     @JsonIgnore
     private Job job;
     private final BigDecimal baseAnnualSalary;
+    private static final String PAYCHECK = "Paycheck";
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
@@ -102,9 +104,12 @@ public class Salary extends CashFlowEstimator {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = baseAnnualSalary.multiply(percent).setScale(2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true, this, getJob().getDefaultSink(),
+                    CashFlowInstance instance =
+                            new CashFlowInstance(true, this, getJob().getDefaultSink(),
                             getItemType(), this.getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    instance.setDescription(String.join(", ", getPayers().stream().map(e -> e.getName()).collect(Collectors.toList())));
+                    return instance;
                 }
         );
     }
@@ -134,5 +139,11 @@ public class Salary extends CashFlowEstimator {
     @Override
     public String getItemType() {
         return CashFlowCalendar.ITEM_TYPE.INCOME.name();
+    }
+
+    @JsonIgnore
+    @Override
+    public String getCategory() {
+        return PAYCHECK;
     }
 }

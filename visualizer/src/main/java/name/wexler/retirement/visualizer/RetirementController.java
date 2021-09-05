@@ -177,6 +177,7 @@ public class RetirementController {
         model.put("scenarioId", scenarioId);
         model.put("category", "All");
         model.put("grouping", grouping);
+        model.put("year", year);
         List<CashFlowInstance> selectedCashFlows =
                 retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
                         filter(instance -> instance.getCashFlowDate().getYear() == year).

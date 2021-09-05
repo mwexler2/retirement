@@ -26,7 +26,7 @@ package name.wexler.retirement.visualizer;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.CashFlowInstance.Account;
+import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
@@ -35,7 +35,6 @@ import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Entity.Entity;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -55,6 +54,7 @@ public class Scenario extends Entity {
 
     static public List<Scenario> readScenarios(Context context) throws IOException {
         Assumptions.readAssumptions(context);
+        Category.readCategories(context);
         return context.fromJSONFileList(Scenario[].class, scenariosPath);
     }
 

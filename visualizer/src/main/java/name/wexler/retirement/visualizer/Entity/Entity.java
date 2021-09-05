@@ -38,6 +38,7 @@ import name.wexler.retirement.visualizer.Security;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Person.class, name = "person"),
+        @JsonSubTypes.Type(value = Category.class, name = "category"),
         @JsonSubTypes.Type(value = Company.class, name = "company"),
         @JsonSubTypes.Type(value = Job.class, name = "job"),
         @JsonSubTypes.Type(value = Security.class, name = "security"),

@@ -58,6 +58,7 @@ public class Rent extends CashFlowEstimator {
     private BigDecimal periodsPerYear = BigDecimal.valueOf(12);
     private CashFlowSink defaultCashFlowSink;
     private CashFlowSink defaultSink;
+    private static final String RENTAL_INCOME = "Rental Income";
 
 
     @JsonCreator
@@ -90,9 +91,11 @@ public class Rent extends CashFlowEstimator {
         return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true,this, defaultSink,
+                    CashFlowInstance instance = new CashFlowInstance(true,this, defaultSink,
                             getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance);
+                    instance.setDescription(getPayees().get(0).getName());
+                    return instance;
                 });
     }
 
@@ -152,5 +155,11 @@ public class Rent extends CashFlowEstimator {
     @Override
     public String getItemType() {
         return CashFlowCalendar.ITEM_TYPE.INCOME.name();
+    }
+
+    @JsonIgnore
+    @Override
+    public String getCategory() {
+        return RENTAL_INCOME;
     }
 }
