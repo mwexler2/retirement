@@ -111,17 +111,9 @@ public class Alimony extends CashFlowEstimator {
                             LocalDate.of(accrualEnd.getYear(), Month.DECEMBER, 31),
                             (instance) -> {
                                 boolean match = instance.getCategory().equals(ALIMONY);
-                                if (instance.getAmount().compareTo(BigDecimal.valueOf(100000)) > 0 ||
-                                        instance.getAmount().compareTo(BigDecimal.valueOf(-100000)) < 0) {
-                                    System.out.println("big item, amount = " + instance.getAmount() + ", category = " + instance.getCategory());
-                                }
-                                if (match) System.out.println("category = " + instance.getCategory() + ", match = " + match);
                                 return match;
                             });
                     BigDecimal alimony = income.compareTo(baseIncome) <= 0 ? BigDecimal.ZERO : income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
-                    if (accrualStart.getYear() == 2020) {
-                        System.out.println("income = " + income + ", ytdAlimony = " + ytdAlimony + ", alimony = " + alimony);
-                    }
                     alimony = alimony.max(this.maxAlimony.subtract(ytdAlimony));
                     CashFlowInstance cashFlowInstance =
                             new CashFlowInstance(true,this, defaultSink,
