@@ -1,8 +1,10 @@
-package name.wexler.retirement.visualizer;
+package name.wexler.retirement.visualizer.Asset;
 
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
+import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
+import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Person;
 import org.junit.After;
 import org.junit.Before;

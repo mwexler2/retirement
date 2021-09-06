@@ -1,5 +1,7 @@
-package name.wexler.retirement.visualizer;
+package name.wexler.retirement.visualizer.Entity;
 
+import name.wexler.retirement.visualizer.Assumptions;
+import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import org.junit.After;
