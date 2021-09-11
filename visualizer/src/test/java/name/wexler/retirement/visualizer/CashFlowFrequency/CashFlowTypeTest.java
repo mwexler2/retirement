@@ -128,8 +128,8 @@ public class CashFlowTypeTest {
     public void getFlowInstances()  throws Exception {
         BigDecimal annualAmount = BigDecimal.valueOf(1000.00);
         Person employee1 = new Person(context, "employee1", LocalDate.of(2004, Month.MARCH, 31), 65);
-        Company employer1 = new Company(context, "employer1");
-        Company bank = new Company(context, "bank1");
+        Company employer1 = new Company(context, "employer1", "Employer 1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", employer1.getId(), employee1.getId(), defaultSink.getId());
@@ -176,7 +176,7 @@ public class CashFlowTypeTest {
                 });
         assertEquals(BigDecimal.valueOf(41.67), semiMonthlyCashFlows.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(41.67), semiMonthlyCashFlows.get(semiMonthlyCashFlows.size() - 1).getAmount());
-        assertEquals(16, semiMonthlyCashFlows.size());
+        assertEquals(15, semiMonthlyCashFlows.size());
         System.out.println("semiMonthly:");
         System.out.println(semiMonthlyCashFlows);
         System.out.println("");

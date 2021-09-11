@@ -41,8 +41,8 @@ public class ScenarioTest {
         context = new Context();
         context.setAssumptions(new Assumptions());
         Person mike = new Person(context, "mike", LocalDate.of(1984, Month.APRIL, 1), 45);
-        Company yahoo = new Company(context, "yahoo");
-        Company bank = new Company(context, "bank1");
+        Company yahoo = new Company(context, "yahoo", "Yahoo");
+        Company bank = new Company(context, "bank1", "Bank 1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(mike.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", "yahoo", "mike", defaultSink.getId());
@@ -56,7 +56,7 @@ public class ScenarioTest {
         Salary salary1 = new Salary(context, "salary1", "job1", biweekly.getId(),
                 BigDecimal.valueOf(27000.00));
 
-        Company bankOfNowhere = new Company(context, "bon1");
+        Company bankOfNowhere = new Company(context, "bon1", "Bank of Nobody #1");
         Monthly liability1Monthly =
                 new Monthly(context, "liability1CashFlowSource1",
                 LocalDate.of(2015, Month.FEBRUARY, 1),
@@ -88,8 +88,8 @@ public class ScenarioTest {
         new Monthly(context, "account2", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
 
-        Company bonw = new Company(context, "Bank of Nowhere");
-        Company bosw = new Company(context, "Bank of Somewhere");
+        Company bonw = new Company(context, "bon", "Bank of Nowhere");
+        Company bosw = new Company(context, "bos", "Bank of Somewhere");
         AssetAccount account1 = new AssetAccount(context, "account1", account1Owners,
                 "My 401(k)",bonw.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         AssetAccount account2 = new AssetAccount(context, "account2", account2Owners,

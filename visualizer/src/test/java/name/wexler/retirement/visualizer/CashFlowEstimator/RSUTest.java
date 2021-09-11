@@ -37,9 +37,9 @@ public class RSUTest {
         context = new Context();
         context.setAssumptions(new Assumptions());
 
-        Company employer = new Company(context, "employer1");
+        Company employer = new Company(context, "employer1", "Employer #1");
         Person employee = new Person(context, "employee1", LocalDate.of(1776, Month.JULY, 4), 200);
-        Company bank = new Company(context, "bank1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());

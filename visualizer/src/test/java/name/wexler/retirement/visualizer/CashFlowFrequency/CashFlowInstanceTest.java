@@ -33,8 +33,8 @@ public class CashFlowInstanceTest {
         Context context = new Context();
         context.setAssumptions(assumptions);
         Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62);
-        Company employer1 = new Company(context, "employer1");
-        Company bank = new Company(context, "bank1");
+        Company employer1 = new Company(context, "employer1", "Employer #1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", employer1.getId(), employee1.getId(), defaultSink.getId());

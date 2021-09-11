@@ -40,8 +40,11 @@ public class Company extends Entity {
     }
 
     @JsonCreator
-    public Company(@JacksonInject("context") Context context, @JsonProperty("id") String id) throws DuplicateEntityException {
+    public Company(@JacksonInject("context") Context context,
+                   @JsonProperty("id") String id,
+                   @JsonProperty(value = "companyName", defaultValue = "") String companyName) throws DuplicateEntityException {
         super(context, id, Entity.class);
+        this.companyName = companyName;
     }
 
     @Override

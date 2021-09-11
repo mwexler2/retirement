@@ -27,6 +27,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -44,9 +45,14 @@ public class IncomeTaxTest {
         context = new Context();
         assumptions = new Assumptions();
         context.setAssumptions(assumptions);
-        Person payor = new Person(context, "payor1", LocalDate.of(1976, Month.JULY, 4), 65);
-        Company irsPayee = new Company(context, "irs");
-        Company ftbPayee = new Company(context, "ftb");
+        Person payor = new Person(
+                context, "payor1",
+                LocalDate.of(1976, Month.JULY, 4),
+                65);
+        payor.setFirstName("Payor");
+        payor.setLastName("1");
+        Company irsPayee = new Company(context, "irs", "Internal Revenue Service");
+        Company ftbPayee = new Company(context, "ftb", "Franchise Tax Board");
         LocalDate now = LocalDate.now();
         int nextYear = now.getYear() + 1;
         LocalDate accrueStart = LocalDate.of(nextYear, Month.JANUARY, 1);
@@ -55,7 +61,7 @@ public class IncomeTaxTest {
         CashFlowFrequency quarterly =
                 new Quarterly(context, "quarterly-incomeTax1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        Company bank = new Company(context, "bank1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         federalIncomeTax = new IncomeTax(context, "federalIncomeTax", irsPayee.getId(), payor.getId(), quarterly.getId(), defaultSink.getId());
@@ -112,8 +118,7 @@ public class IncomeTaxTest {
         String[] liabilities = new String[] {};
         String[] accounts = new String[] {};
         Assumptions assumptions = new Assumptions();
-        Scenario scenario = new Scenario(context, "incomeTaxScenario","Income Tax Scenario",
-                cashFlowEstimators, assets, liabilities, accounts, assumptions);
+        Scenario scenario = mock(Scenario.class);
         CashFlowCalendar cashFlowCalendar = new CashFlowCalendar(scenario, assumptions);
         List<CashFlowInstance> federalIncomeTaxCashFlows = federalIncomeTax.getEstimatedFutureCashFlows(cashFlowCalendar);
         assertEquals(4, federalIncomeTaxCashFlows.size());
@@ -123,5 +128,17 @@ public class IncomeTaxTest {
         assertEquals(4, medicareTaxCashFlows.size());
         List<CashFlowInstance> socialSecurityTaxCashFlows = socialSecurityTax.getEstimatedFutureCashFlows(cashFlowCalendar);
         assertEquals(4, socialSecurityTaxCashFlows.size());
+    }
+
+
+    @Test
+    public void getName() {
+        assertEquals("Payor 1(Internal Revenue Service)",
+                federalIncomeTax.getName());
+    }
+
+    @Test
+    public void getPass() {
+        assertEquals(3, federalIncomeTax.getPass());
     }
 }

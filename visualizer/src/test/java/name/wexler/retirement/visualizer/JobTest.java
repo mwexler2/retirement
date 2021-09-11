@@ -63,10 +63,8 @@ public class JobTest {
         Assumptions assumptions = new Assumptions();
         context = new Context();
         context.setAssumptions(assumptions);
-        company1 = new Company(context, "comp1");
-        company1.setCompanyName("IBM");
-        company2 = new Company(context, "comp2");
-        company2.setCompanyName("Xerox");
+        company1 = new Company(context, "comp1", "Company #1");
+        company2 = new Company(context, "comp2", "Company #2");
 
         Person person1 = new Person(context, "john1", LocalDate.of(1900, 12, 25),
                 67);
@@ -76,7 +74,7 @@ public class JobTest {
         person2.setFirstName("Jane");
         person2.setLastName("Doe");
 
-        Company bank = new Company(context, "bank1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(person1.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         job1 = new Job(context, "job1", company1.getId(), person1.getId(), defaultSink.getId());
@@ -131,9 +129,9 @@ public class JobTest {
     @Test
     public void getName() {
         String name1 = job1.getName();
-        assertEquals(name1, "IBM");
+        assertEquals(name1, "Company #1");
         String name2 = job2.getName();
-        assertEquals(name2, "Xerox");
+        assertEquals(name2, "Company #2");
     }
 
     @Test

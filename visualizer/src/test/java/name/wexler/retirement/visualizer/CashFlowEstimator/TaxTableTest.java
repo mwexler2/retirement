@@ -7,6 +7,8 @@ import org.junit.runners.Parameterized;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
+import static org.junit.Assert.assertThrows;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
@@ -17,6 +19,7 @@ public class TaxTableTest {
     int year;
     BigDecimal income;
     BigDecimal expectedTax;
+    Class<Exception> expectedException;
 
     @Before
     public void setUp() throws Exception {
@@ -36,27 +39,35 @@ public class TaxTableTest {
         ));
     }
 
-    public TaxTableTest(int year, BigDecimal income, BigDecimal expectedTax) {
+    public TaxTableTest(int year, BigDecimal income, BigDecimal expectedTax, Class<Exception> expectedException) {
         this.year = year;
         this.income = income;
         this.expectedTax = expectedTax;
+        this.expectedException = expectedException;
     }
 
     @Test
-    public void computeTax() {
-        assertThat(taxTable.computeTax(year, income), closeTo(expectedTax, BigDecimal.valueOf(0.001)));
+    public void computeTax() throws TaxTable.TaxYearNotFoundException {
+        if (expectedException != null)
+            assertThrows(expectedException, () -> taxTable.computeTax(year, income));
+        else {
+            BigDecimal actualTax = taxTable.computeTax(year, income);
+            assertThat(actualTax, closeTo(expectedTax, BigDecimal.valueOf(0.001)));
+        }
     }
 
-    @Parameterized.Parameters(name = "{index}: Test with year={0}, income={1}, expectedTax: {2}")
+    @Parameterized.Parameters(name = "{index}: Test with year={0}, income={1}, expectedTax: {2}, exception: {3}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {2021, BigDecimal.ZERO, BigDecimal.ZERO},
-                {2021, BigDecimal.ONE, BigDecimal.valueOf(0.10)},
-                {2021, BigDecimal.valueOf(19900.00), BigDecimal.valueOf(1990.00)},
-                {2021, BigDecimal.valueOf(172751.00), BigDecimal.valueOf(1990.12)},
-                {2021, BigDecimal.valueOf(329851.00), BigDecimal.valueOf(1990.12)},
-                {2021, BigDecimal.valueOf(418850.00), BigDecimal.valueOf(1990.12)},
-                {2021, BigDecimal.valueOf(628301.00), BigDecimal.valueOf(1990.12)}
+                {2021, BigDecimal.ZERO, BigDecimal.ZERO, null},
+                {2021, BigDecimal.ONE, BigDecimal.valueOf(0.10), null},
+                {2021, BigDecimal.valueOf(19900.00), BigDecimal.valueOf(1990.00), null},
+                {2021, BigDecimal.valueOf(172751.00), BigDecimal.valueOf(29502.24), null},
+                {2021, BigDecimal.valueOf(329851.00), BigDecimal.valueOf(67206.32), null},
+                {2021, BigDecimal.valueOf(418850.00), BigDecimal.valueOf(95686.00), null},
+                {2021, BigDecimal.valueOf(628301.00), BigDecimal.valueOf(168993.87), null},
+                {2020, BigDecimal.valueOf(628301.00), BigDecimal.valueOf(168993.87), TaxTable.TaxYearNotFoundException.class},
+                {2022, BigDecimal.valueOf(628301.00), BigDecimal.valueOf(168993.87), TaxTable.TaxYearNotFoundException.class}
         });
     }
 }

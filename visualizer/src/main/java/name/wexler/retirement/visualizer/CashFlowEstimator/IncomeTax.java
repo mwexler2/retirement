@@ -83,16 +83,7 @@ public class IncomeTax extends CashFlowEstimator {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
-                            (instance) -> {
-                                return instance.getCashFlowSink().isOwner(this.payor);
-                            });
-                    BigDecimal ytdIncomeTax = calendar.sumMatchingCashFlowForPeriod(
-                            LocalDate.of(accrualStart.getYear(), Month.JANUARY, 1),
-                            LocalDate.of(accrualEnd.getYear(), Month.DECEMBER, 31),
-                            (instance) -> {
-                                boolean match = instance.getCategory().equals(INCOME_TAX);
-                                return match;
-                            });
+                            (instance) -> instance.getCashFlowSink().isOwner(this.payor));
                     BigDecimal incomeTax = income.multiply(INCOME_TAX_RATE).setScale(2, RoundingMode.HALF_UP);
                     CashFlowInstance cashFlowInstance =
                             new CashFlowInstance(true,this, defaultSink,
@@ -107,9 +98,7 @@ public class IncomeTax extends CashFlowEstimator {
     @JsonIgnore
     @Override
     public String getName() {
-        String result;
-        result = payor.getName() + "(" + payee.getName() + ")";
-        return result;
+        return payor.getName() + "(" + payee.getName() + ")";
     }
 
     private void setPayeeId(@JacksonInject("context") Context context,
@@ -117,23 +106,13 @@ public class IncomeTax extends CashFlowEstimator {
         this.payee = context.getById(Entity.class, payeeId);
     }
 
-    public void setPayee(Entity payee) {
-        this.payee = payee;
-    }
-
-    @JsonProperty(value = "payor")
-    public String getPayorId() {
-        return payor.getId();
-    }
-
     private void setPayorId(@JacksonInject("context") Context context,
                             @JsonProperty(value = "payor", required = true) String payorId) {
         this.payor = context.getById(Entity.class, payorId);
     }
 
-    public void setPayor(Entity payor) {
-        this.payor = payor;
-    }
+    @JsonProperty(value = "payor")
+    public String getPayor() { return payor.getId(); }
 
     @JsonProperty(value = "payee")
     public String getPayeeId() {

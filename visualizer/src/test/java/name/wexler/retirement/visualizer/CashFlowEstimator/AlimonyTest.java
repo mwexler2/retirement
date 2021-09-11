@@ -48,7 +48,7 @@ public class AlimonyTest {
         CashFlowFrequency quarterly =
                 new Quarterly(context, "quarterly-alimony1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        Company bank = new Company(context, "bank1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         alimony = new Alimony(context, "alimony1", payee.getId(), payor.getId(),

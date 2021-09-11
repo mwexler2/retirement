@@ -22,9 +22,9 @@ public class CompanyTest {
     public void setUp() throws Exception {
         context = new Context();
         context.setAssumptions(new Assumptions());
-        company1 = new Company(context, "comp1");
+        company1 = new Company(context, "comp1", "Company #1");
         company1.setCompanyName("IBM");
-        company2 = new Company(context, "comp2");
+        company2 = new Company(context, "comp2", "Company #2");
         company2.setCompanyName("Xerox");
     }
 

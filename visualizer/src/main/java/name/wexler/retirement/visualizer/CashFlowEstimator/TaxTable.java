@@ -114,7 +114,24 @@ public class TaxTable {
         this.taxRateMap = taxRateMap;
     }
 
-    public BigDecimal computeTax(int year, BigDecimal income) {
+    public BigDecimal computeTax(int year, BigDecimal income) throws TaxYearNotFoundException {
+        if (!taxRateMap.containsKey(year))
+            throw new TaxYearNotFoundException(year);
         return taxRateMap.get(year).computeTax(income);
+    }
+
+    public class TaxYearNotFoundException extends Exception {
+        private int year;
+
+        @Override
+        public String toString() {
+            return "TaxYearNotFoundException{" +
+                    "year=" + year +
+                    '}';
+        }
+
+        public TaxYearNotFoundException(int year) {
+            this.year = year;
+        }
     }
 }

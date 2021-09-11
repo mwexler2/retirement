@@ -40,7 +40,7 @@ public class LiabilityTest {
     public void setUp() throws Exception {
         context = new Context();
         context.setAssumptions(new Assumptions());
-        Company lender = new Company(context, "lender1");
+        Company lender = new Company(context, "lender1", "Lender 1");
         Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80);
         String[] streetAddress = {"123 Main Street"};
         List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
@@ -58,7 +58,7 @@ public class LiabilityTest {
         CashFlowFrequency monthly =
                 new Monthly(context, "monthly-liability1", accrueStart, accrueEnd, firstPaymentDate,
                         CashFlowFrequency.ApportionmentPeriod.ANNUAL);
-        Company bank = new Company(context, "bank1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(borrower.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         liability = new SecuredLoan(context, "liability1", lender.getId(), borrowers, asset,

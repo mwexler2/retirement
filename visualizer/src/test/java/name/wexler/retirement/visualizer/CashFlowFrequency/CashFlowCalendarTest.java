@@ -20,7 +20,6 @@ import java.math.RoundingMode;
 import java.time.*;
 import java.util.*;
 
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
 
 /**
@@ -44,10 +43,10 @@ public class CashFlowCalendarTest {
         calendar = new CashFlowCalendar(mockedScenario, assumptions);
         cashFlowEstimators = new ArrayList<>();
 
-        Company employer = new Company(context, "employer1");
+        Company employer = new Company(context, "employer1", "Employer 1");
         employer.setCompanyName("Employment Co");
         Person employee = new Person(context, "employee1", LocalDate.of(1966, Month.APRIL, 1), 62);
-        Company bank = new Company(context, "bank1");
+        Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
         Job job1 = new Job(context, "job1", employer.getId(), employee.getId(), defaultSink.getId());
@@ -79,7 +78,7 @@ public class CashFlowCalendarTest {
                 biweeklySource.getId());
         cashFlowEstimators.add(bonusPeriodicFixed);
 
-        Company lender = new Company(context, "lender1");
+        Company lender = new Company(context, "lender1", "Lender 1");
         lender.setCompanyName("Lender's Bank");
         Person borrower = new Person(context, "borrower1", LocalDate.of(2000, Month.JANUARY, 1), 70);
         List<String> borrowerIds = Collections.singletonList(borrower.getId());

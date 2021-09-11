@@ -37,7 +37,7 @@ public class AccountTest {
         List<String> owners = Collections.singletonList("o1");
         List<ShareBalance> securities = Collections.singletonList(new ShareBalance(context, LocalDate.of(2014, 10, 31), BigDecimal.ONE, BigDecimal.TEN, "s1"));
 
-        Company bob = new Company(context, "Bank of Banking");
+        Company bob = new Company(context, "BoB", "Bank of Banking");
         a1 = new AssetAccount(context, "a1", owners, "Test AssetAccount",
                 bob.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
     }
