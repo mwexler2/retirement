@@ -48,7 +48,7 @@ public class Salary extends CashFlowEstimator {
     @JsonIgnore
     private Job job;
     private final BigDecimal baseAnnualSalary;
-    private static final String PAYCHECK = "Paycheck";
+    public static final String PAYCHECK = "Paycheck";
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,

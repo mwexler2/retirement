@@ -174,7 +174,7 @@ public class Alimony extends CashFlowEstimator {
     @Override
     public String getName() {
         String result;
-        result = payor.getName() + "(" + payee.getName() + ")";
+        result = this.getId() + ": " + payor.getName() + "(" + payee.getName() + ")";
         return result;
     }
 
@@ -195,10 +195,6 @@ public class Alimony extends CashFlowEstimator {
         this.payee = context.getById(Entity.class, payeeId);
     }
 
-    public void setPayee(Entity payee) {
-        this.payee = payee;
-    }
-
     @JsonProperty(value = "payor")
     public String getPayorId() {
         return payor.getId();
@@ -209,15 +205,10 @@ public class Alimony extends CashFlowEstimator {
         this.payor = context.getById(Entity.class, payorId);
     }
 
-    public void setPayor(Entity payor) {
-        this.payor = payor;
-    }
-
     @JsonProperty(value = "payee")
     public String getPayeeId() {
         return payee.getId();
     }
-
 
     @JsonIgnore
     @Override
@@ -232,7 +223,7 @@ public class Alimony extends CashFlowEstimator {
 
     @JsonIgnore
     @Override
-    public int getPass() {
-        return 3;   // Need to calculate all other income before computing alimony, because alimony is computed from rest of income
+    public CASH_ESTIMATE_PASS getPass() {
+        return CASH_ESTIMATE_PASS.DERIVED_EXPENSES;   // Need to calculate all income before computing alimony, because alimony is computed from rest of income
     }
 }

@@ -1,13 +1,9 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import name.wexler.retirement.visualizer.*;
-import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
-import name.wexler.retirement.visualizer.CashFlowEstimator.IncomeTax;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Quarterly;
-import name.wexler.retirement.visualizer.CashFlowInstance.Account;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
@@ -17,7 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.internal.util.collections.ListUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -176,6 +171,9 @@ public class IncomeTaxTest {
 
     @Test
     public void getPass() {
-        assertEquals(3, federalIncomeTax.getPass());
+        assertEquals(
+                CASH_ESTIMATE_PASS.TAXES,
+                federalIncomeTax.getPass()
+        );
     }
 }

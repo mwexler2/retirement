@@ -59,6 +59,7 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
         @JsonSubTypes.Type(value = StockOption.class, name="stockOption")})
 public abstract class CashFlowEstimator extends Entity implements CashFlowSource {
+    ;
     private final List<Entity> payers;
     private final List<Entity> payees;
     private CashFlowFrequency cashFlow;
@@ -170,7 +171,7 @@ public abstract class CashFlowEstimator extends Entity implements CashFlowSource
     }
 
     @JsonIgnore
-    public int getPass() {
-        return 1;   // By default estimators run the first pass
+    public CASH_ESTIMATE_PASS getPass() {
+        return CASH_ESTIMATE_PASS.BASE_CASH_FLOWS;   // By default estimators run the first pass
     }
 }

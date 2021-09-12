@@ -26,6 +26,7 @@ package name.wexler.retirement.visualizer;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.CashFlowEstimator.CASH_ESTIMATE_PASS;
 import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Asset.Asset;
@@ -78,7 +79,10 @@ public class Scenario extends Entity {
         calendar.addCashFlowInstances(getHistoricalCashFlowInstances());
         calendar.addCashFlowInstances(getEstimatedAssetValues(assetList));
         setCurrentBalances();
-        for (int pass = 1; pass <= 3; ++pass) {
+        Iterator<CASH_ESTIMATE_PASS> passIterator =
+                CASH_ESTIMATE_PASS.BASE_CASH_FLOWS.iterator();
+        while (passIterator.hasNext()) {
+            CASH_ESTIMATE_PASS pass = passIterator.next();
             List<CashFlowInstance> cashFlowInstances = getFutureCashFlowInstances(calendar, pass);
             calendar.addCashFlowInstances(cashFlowInstances);
         }
@@ -99,7 +103,11 @@ public class Scenario extends Entity {
         return cashFlowInstances;
     }
 
-    private List<CashFlowInstance> getFutureCashFlowInstances(CashFlowCalendar calendar, int pass) {
+    private List<CashFlowInstance> getFutureCashFlowInstances
+            (
+                    CashFlowCalendar calendar,
+                    CASH_ESTIMATE_PASS pass
+            ) {
         final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
         _cashFlowEstimators.
                 stream().

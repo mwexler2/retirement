@@ -82,8 +82,8 @@ public class BonusAnnualPct extends Bonus {
     }
 
     @JsonIgnore
-    public int getPass() {
-        return 2;   // Calculated after Salary, because bonus is a percent of salary.
+    public CASH_ESTIMATE_PASS getPass() {
+        return CASH_ESTIMATE_PASS.DERIVED_INCOME;   // Calculated after Salary, because bonus is a percent of salary.
     }
 
     @Override

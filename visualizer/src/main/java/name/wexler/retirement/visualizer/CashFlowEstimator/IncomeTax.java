@@ -115,7 +115,7 @@ public class IncomeTax extends CashFlowEstimator {
 
     @JsonIgnore
     @Override
-    public int getPass() {
-        return 3;   // Need to calculate all other income before computing alimony, because alimony is computed from rest of income
+    public CASH_ESTIMATE_PASS getPass() {
+        return CASH_ESTIMATE_PASS.TAXES;   // Need to calculate all income and expenses before computing taxes
     }
 }
