@@ -48,9 +48,7 @@ public class IncomeTaxTest {
         Person payor = new Person(
                 context, "payor1",
                 LocalDate.of(1976, Month.JULY, 4),
-                65);
-        payor.setFirstName("Payor");
-        payor.setLastName("1");
+                65, "Payor", "1");
         Company irsPayee = new Company(context, "irs", "Internal Revenue Service");
         Company ftbPayee = new Company(context, "ftb", "Franchise Tax Board");
         LocalDate now = LocalDate.now();
@@ -64,10 +62,29 @@ public class IncomeTaxTest {
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
-        federalIncomeTax = new IncomeTax(context, "federalIncomeTax", irsPayee.getId(), payor.getId(), quarterly.getId(), defaultSink.getId());
-        stateIncomeTax = new IncomeTax(context, "stateIncomeTax", ftbPayee.getId(), payor.getId(), quarterly.getId(), defaultSink.getId());
-        medicareTax = new IncomeTax(context, "medicareTax", irsPayee.getId(), payor.getId(), quarterly.getId(), defaultSink.getId());
-        socialSecurityTax = new IncomeTax(context, "socialSecurityTax", irsPayee.getId(), payor.getId(), quarterly.getId(), defaultSink.getId());
+        TaxTable taxTable = mock(TaxTable.class);
+        federalIncomeTax = new IncomeTax(
+                context,
+                "federalIncomeTax",
+                irsPayee.getId(),
+                Arrays.asList(payor.getId()),
+                quarterly.getId(),
+                defaultSink.getId(), taxTable);
+        stateIncomeTax = new IncomeTax(context, "stateIncomeTax",
+                ftbPayee.getId(),
+                Arrays.asList(payor.getId()),
+                quarterly.getId(),
+                defaultSink.getId(),
+                taxTable);
+        medicareTax = new IncomeTax(context, "medicareTax",
+                irsPayee.getId(),
+                Arrays.asList(payor.getId()),
+                quarterly.getId(),
+                defaultSink.getId(),
+                taxTable);
+        socialSecurityTax = new IncomeTax(context, "socialSecurityTax", irsPayee.getId(),
+                Arrays.asList(payor.getId()), quarterly.getId(), defaultSink.getId(),
+                taxTable);
     }
 
     @After
@@ -95,13 +112,15 @@ public class IncomeTaxTest {
     @Test
     public void toJSON() throws Exception {
         String expenseSource1Str = context.toJSON(federalIncomeTax);
-        assertEquals("{\"type\":\"incomeTax\",\"id\":\"federalIncomeTax\",\"payee\":\"irs\",\"payor\":\"payor1\",\"cashFlow\":\"quarterly-incomeTax1\",\"category\":\"" + federalIncomeTax.INCOME_TAX + "\"}", expenseSource1Str);
+        assertEquals("{\"type\":\"incomeTax\",\"id\":\"federalIncomeTax\",\"cashFlow\":\"quarterly-incomeTax1\",\"category\":\"" + federalIncomeTax.INCOME_TAX + "\"}", expenseSource1Str);
     }
 
 
     @Test
     public void deserialize() throws Exception {
-        String expenseSource1aStr = "{\"type\":\"incomeTax\",\"id\":\"incomeTax1a\",\"payee\":\"payee1\",\"payor\":\"payor1\",\"cashFlow\":\"quarterly-incomeTax1\",\"defaultSink\":\"orSwim\",\"category\":\"" + federalIncomeTax.INCOME_TAX + "\"}";
+        String expenseSource1aStr = "{\"type\":\"incomeTax\",\"id\":\"incomeTax1a\",\"payors\":[\"payor1\"],\"payee\":\"payee1\",\"cashFlow\":\"quarterly-incomeTax1\",\"defaultSink\":\"orSwim\",\"category\":\"" +
+                federalIncomeTax.INCOME_TAX + "\"" +
+                ",\"taxTable\": {\"taxRateMap\": {}}" +"}";
         CashFlowEstimator expenseSource1a = context.fromJSON(CashFlowEstimator.class, expenseSource1aStr);
         assertEquals("incomeTax1a", expenseSource1a.getId());
     }
@@ -133,7 +152,7 @@ public class IncomeTaxTest {
 
     @Test
     public void getName() {
-        assertEquals("Payor 1(Internal Revenue Service)",
+        assertEquals("federalIncomeTax for Payor 1/Internal Revenue Service",
                 federalIncomeTax.getName());
     }
 

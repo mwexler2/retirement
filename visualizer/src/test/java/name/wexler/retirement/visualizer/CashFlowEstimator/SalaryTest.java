@@ -33,7 +33,8 @@ public class SalaryTest {
         context = new Context();
         context.setAssumptions(new Assumptions());
         Company employer = new Company(context, "employer1", "Employer #1");
-        Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77);
+        Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77,
+                "Employee", "Doe");
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);

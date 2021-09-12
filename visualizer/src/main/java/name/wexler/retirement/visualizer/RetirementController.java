@@ -160,7 +160,7 @@ public class RetirementController {
                 retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
                         filter(instance -> instance.getItemType().equals(grouping)).
                         filter(instance -> instance.getCategory().equals(category)).
-                        filter(instance -> instance.getCashFlowDate().getYear() == year).
+                        filter(instance -> instance.getAccrualEnd().getYear() == year).
                         sorted().
                         collect(Collectors.toList());
         model.put("cashFlows", selectedCashFlows);

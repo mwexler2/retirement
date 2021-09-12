@@ -24,6 +24,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
@@ -83,5 +84,10 @@ public class BonusAnnualPct extends Bonus {
     @JsonIgnore
     public int getPass() {
         return 2;   // Calculated after Salary, because bonus is a percent of salary.
+    }
+
+    @Override
+    public boolean isOwner(Entity entity) {
+        return this.isPayee(entity);
     }
 }

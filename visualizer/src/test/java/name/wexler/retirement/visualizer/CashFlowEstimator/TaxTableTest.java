@@ -25,7 +25,7 @@ public class TaxTableTest {
     public void setUp() throws Exception {
         TaxTable.TaxYearTable.TaxBracket bracket1 = new TaxTable.TaxYearTable.TaxBracket(BigDecimal.ZERO, BigDecimal.valueOf(0.0));
         taxTable = new TaxTable(Map.of(
-                Integer.valueOf(2021),
+                "2021",
                         new TaxTable.TaxYearTable(Arrays.asList(
                                 new TaxTable.TaxYearTable.TaxBracket(BigDecimal.ZERO, BigDecimal.valueOf(0.10)),
                                 new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(19900.00), BigDecimal.valueOf(0.12)),

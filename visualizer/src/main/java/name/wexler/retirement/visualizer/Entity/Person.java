@@ -54,10 +54,14 @@ public class Person extends Entity {
     public Person(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
                   @JsonProperty(value="birthDate", required=true) LocalDate birthDate,
-                  @JsonProperty(value="retirementAge", required=true) int retirementAge) throws Exception {
+                  @JsonProperty(value="retirementAge", required=true) int retirementAge,
+                  @JsonProperty(value = "firstName", required=true) String firstName,
+                  @JsonProperty(value = "lastName", required=true) String lastName) throws Exception {
         super(context, id, Entity.class);
         this.birthDate = birthDate;
         this.retirementAge = retirementAge;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @JsonIgnore

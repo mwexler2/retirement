@@ -23,9 +23,7 @@ public class CompanyTest {
         context = new Context();
         context.setAssumptions(new Assumptions());
         company1 = new Company(context, "comp1", "Company #1");
-        company1.setCompanyName("IBM");
         company2 = new Company(context, "comp2", "Company #2");
-        company2.setCompanyName("Xerox");
     }
 
     @After
@@ -35,26 +33,18 @@ public class CompanyTest {
     @Test
     public void getName() {
         String name1 = company1.getName();
-        assertEquals(name1, "IBM");
+        assertEquals(name1, "Company #1");
         String name2 = company2.getName();
-        assertEquals(name2, "Xerox");
+        assertEquals(name2, "Company #2");
     }
 
     @Test
     public void getCompanyName() {
         String name1 = company1.getCompanyName();
-        assertEquals(name1, "IBM");
+        assertEquals(name1, "Company #1");
         String name2 = company2.getCompanyName();
-        assertEquals(name2, "Xerox");
+        assertEquals(name2, "Company #2");
     }
-
-    @Test
-    public void setCompanyName() {
-        company1.setCompanyName("International Business Machines");
-        assertEquals(company1.getCompanyName(), "International Business Machines");
-    }
-    
-
 
     @Test
     public void equals() {

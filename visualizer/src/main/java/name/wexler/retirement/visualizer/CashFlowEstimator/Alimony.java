@@ -89,6 +89,10 @@ public class Alimony extends CashFlowEstimator {
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
+        // The base income is specified monthly but smith/ostler is calculated quarterly (we should parameterize this)
+        BigDecimal quarterlyBaseIncome = baseIncome.multiply(BigDecimal.valueOf(3));
+
+        // Calculate any unpaid base alimony for the rest of the year.
         List<CashFlowInstance> baseCashFlows = getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
@@ -99,59 +103,69 @@ public class Alimony extends CashFlowEstimator {
                     cashFlowInstance.setDescription(payee.getName());
                     return cashFlowInstance;
                 });
+
+        // Calculate Smith/Ostler payments for the rest of the year.
         List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
-                    BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (instance) -> {
-                                return instance.getCashFlowSink().isOwner(this.payor);
+                                boolean matches = instance.getItemType().equals("INCOME") &&
+                                        instance.getCashFlowSource().isOwner(this.getPayers().get(0));
+                                return matches;
                             });
-                    BigDecimal ytdAlimony = calendar.sumMatchingCashFlowForPeriod(
-                            LocalDate.of(accrualStart.getYear(), Month.JANUARY, 1),
-                            LocalDate.of(accrualEnd.getYear(), Month.DECEMBER, 31),
-                            (instance) -> {
-                                boolean match = instance.getCategory().equals(ALIMONY);
-                                return match;
-                            });
-                    BigDecimal alimony = income.compareTo(baseIncome) <= 0 ? BigDecimal.ZERO : income.subtract(baseIncome).multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
-                    alimony = alimony.max(this.maxAlimony.subtract(ytdAlimony));
-                    CashFlowInstance cashFlowInstance =
-                            new CashFlowInstance(true,this, defaultSink,
-                            getItemType(), getCategory(),
-                            accrualStart, accrualEnd, cashFlowDate, alimony, balance);
-                    cashFlowInstance.setDescription("Smith Ostler for " + this.payee.getName());
-                    return cashFlowInstance;
+                    BigDecimal smithOstlerIncome = income.compareTo(quarterlyBaseIncome) <= 0
+                            ? BigDecimal.ZERO
+                            : income.subtract(quarterlyBaseIncome);
+                    BigDecimal alimony = smithOstlerIncome.multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
+                    if (alimony.compareTo(BigDecimal.ZERO) < 0) {
+                        CashFlowInstance cashFlowInstance =
+                                new CashFlowInstance(true, this, defaultSink,
+                                        getItemType(), getCategory(),
+                                        accrualStart, accrualEnd, cashFlowDate, alimony, BigDecimal.ZERO);
+                        cashFlowInstance.setDescription("Smith Ostler for " + this.payee.getName());
+                        return cashFlowInstance;
+                    } else {
+                        return null;
+                    }
                 });
+
+        // Combine the base cashflows and Smith/Ostler into a single list and remove everything over the max alimony for the year.
         List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
         allAlimonyCashFlows.addAll(baseCashFlows);
         allAlimonyCashFlows.addAll(smithOstlerCashFlows);
         allAlimonyCashFlows.sort((final CashFlowInstance instance1, final CashFlowInstance instance2) ->
             instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
         List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
-        Map<Integer, BigDecimal> remainingBalance = new HashMap<>();
-        CashFlowInstance prevCashFlowInstance = null;
+        Map<Integer, BigDecimal> ytdAlimonies = new HashMap<>();
         Spending spending = this.getContext().getById(Expense.class, "spending");
         for (CashFlowInstance instance : allAlimonyCashFlows) {
-            Integer year = instance.getAccrualEnd().getYear();
-            if (remainingBalance.get(year) == null) {
-                remainingBalance.put(year, maxAlimony);
-            }
             BigDecimal amount = instance.getAmount();
-            if (amount.compareTo(remainingBalance.get(year)) < 0) {
-                amount = remainingBalance.get(year);
-                BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                instance = new CashFlowInstance(
+            int accrualYear = instance.getAccrualEnd().getYear();
+            if (!ytdAlimonies.containsKey(accrualYear))
+                ytdAlimonies.put(accrualYear, cashFlowCalendar.sumMatchingCashFlowForPeriod(
+                        LocalDate.of(accrualYear, Month.JANUARY, 1),
+                        LocalDate.of(accrualYear, Month.DECEMBER, 31),
+                        (calendarInstance) -> calendarInstance.getCategory().equals(ALIMONY)
+                ));
+            BigDecimal ytdAlimony = ytdAlimonies.get(accrualYear);
+            BigDecimal remainingBalance = this.maxAlimony.subtract(ytdAlimony).min(BigDecimal.ZERO);
+            if (amount.compareTo(remainingBalance) < 0) {
+                 amount = remainingBalance;
+                 CashFlowInstance remainingBalanceInstance = new CashFlowInstance(
                         true, spending, defaultSink,
                         getItemType(), getCategory(),
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
-                        amount, balance);
-                instance.setDescription("Remaining balance for " + this.payee.getName());
+                        amount, BigDecimal.ZERO);
+                remainingBalanceInstance.setDescription("Remaining balance for " + this.payee.getName());
+                result.add(remainingBalanceInstance);
+                ytdAlimonies.replace(accrualYear, ytdAlimony);
+            } else if (instance.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+                result.add(instance);
+                ytdAlimony = ytdAlimony.add(amount);
+                ytdAlimonies.replace(accrualYear, ytdAlimony);
             }
-            result.add(instance);
-            remainingBalance.put(year, remainingBalance.get(year).subtract(amount));
-            prevCashFlowInstance = instance;
         }
         return result;
     }
@@ -209,6 +223,11 @@ public class Alimony extends CashFlowEstimator {
     @Override
     public String getItemType() {
         return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
+    }
+
+    @Override
+    public boolean isOwner(Entity entity) {
+        return this.payor.getId().equals(entity.getId());
     }
 
     @JsonIgnore

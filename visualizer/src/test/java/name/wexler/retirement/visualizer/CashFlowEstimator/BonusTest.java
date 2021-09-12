@@ -36,7 +36,8 @@ public class BonusTest {
         context.setAssumptions(new Assumptions());
 
         Company employer = new Company(context, "employer1", "Employer 1");
-        Person employee = new Person(context, "employee1", LocalDate.of(1976, Month.MARCH, 28), 65);
+        Person employee = new Person(context, "employee1", LocalDate.of(1976, Month.MARCH, 28), 65,
+                "Employee", "1");
         Company bank = new Company(context, "bank1", "Bank 1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);

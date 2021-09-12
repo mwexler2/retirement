@@ -40,8 +40,9 @@ public class ScenarioTest {
     public void setUp() throws Exception {
         context = new Context();
         context.setAssumptions(new Assumptions());
-        Person mike = new Person(context, "mike", LocalDate.of(1984, Month.APRIL, 1), 45);
-        Company yahoo = new Company(context, "yahoo", "Yahoo");
+        Person mike = new Person(context, "mike", LocalDate.of(1984, Month.APRIL, 1), 45,
+                "Mike", "W");
+        new Company(context, "yahoo", "Yahoo!");
         Company bank = new Company(context, "bank1", "Bank 1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(mike.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);

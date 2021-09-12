@@ -113,7 +113,7 @@ public class SecuredLoan extends Liability {
             BigDecimal principal = paymentAmount.subtract(impoundAmount).subtract(interest).setScale(2, RoundingMode.HALF_UP);
             if (principal.compareTo(balance) >= 1)
                 principal = balance;
-            balance = balance.subtract(principal);
+            balance = balance.add(principal);
             CashFlowInstance cashFlowInstance =
                     new LiabilityCashFlowInstance(true,this, defaultSink,
                     getCategory(), accrualStart, accrualEnd, cashFlowDate,

@@ -162,4 +162,9 @@ public class Job extends Entity implements CashFlowSource {
     public String getItemType() {
         return getClass().getSimpleName();
     }
+
+    @Override
+    public boolean isOwner(Entity entity) {
+        return this.isPayee(entity);
+    }
 }

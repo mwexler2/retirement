@@ -7,4 +7,5 @@ public interface CashFlowSource {
     String getId();
 
     public String getItemType();
+    public boolean isOwner(Entity entity);
 }

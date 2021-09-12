@@ -170,7 +170,8 @@ public class TxnHistory {
                         "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer, \n" +
                         "symbol, shares, source \n" +
                         "FROM txnHistory \n" +
-                        "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n";
+                        "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n" +
+                        "WHERE isDuplicate=0\n";
         try {
             Statement stmt = conn.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql);

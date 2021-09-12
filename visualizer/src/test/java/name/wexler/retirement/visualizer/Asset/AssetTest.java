@@ -29,7 +29,8 @@ public class AssetTest {
     public void setUp() throws Exception {
         context = new Context();
         context.setAssumptions(new Assumptions());
-        Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75);
+        Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75,
+                "Owner", "1");
         List<String> ownerIds = Collections.singletonList(owner.getId());
         String[] streetAddress = {"123 Main Street"};
         List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 1), BigDecimal.valueOf(25334.02)));

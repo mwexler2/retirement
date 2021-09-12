@@ -157,6 +157,11 @@ public class Rent extends CashFlowEstimator {
         return CashFlowCalendar.ITEM_TYPE.INCOME.name();
     }
 
+    @Override
+    public boolean isOwner(Entity entity) {
+        return this.isPayee(entity);
+    }
+
     @JsonIgnore
     @Override
     public String getCategory() {

@@ -25,23 +25,15 @@ package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.Asset;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
-import name.wexler.retirement.visualizer.Expense.Expense;
-import name.wexler.retirement.visualizer.Expense.Spending;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -49,10 +41,9 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "startDate", "endDate", "payee", "payor", "cashFlow" })
 public class IncomeTax extends CashFlowEstimator {
-    @JsonIgnore
-    private Entity payee;
-    @JsonIgnore
-    private Entity payor;
+
+
+    TaxTable taxTable;
 
     private CashFlowSink defaultSink;
     public static String INCOME_TAX = "Income Tax";
@@ -62,16 +53,16 @@ public class IncomeTax extends CashFlowEstimator {
     public IncomeTax(@JacksonInject("context") Context context,
                      @JsonProperty(value = "id", required = true) String id,
                      @JsonProperty(value = "payee", required = true) String payeeId,
-                     @JsonProperty(value = "payor", required = true) String payorId,
+                     @JsonProperty(value = "payors", required = true) List<String> payorIds,
                      @JsonProperty(value = "cashFlow", required = true) String cashFlowId,
-                     @JsonProperty(value = "defaultSink", required = true) String defaultSinkId
+                     @JsonProperty(value = "defaultSink", required = true) String defaultSinkId,
+                     @JsonProperty(value = "taxTable", required = true) TaxTable taxTable
     ) throws DuplicateEntityException {
         super(context, id, cashFlowId,
                 context.getListById(Entity.class, payeeId),
-                context.getListById(Entity.class, payorId));
-        this.setPayeeId(context, payeeId);
-        this.setPayorId(context, payorId);
+                context.getByIds(Entity.class, payorIds));
         this.defaultSink = context.getById(Asset.class, defaultSinkId);
+        this.taxTable = taxTable;
         context.put(IncomeTax.class, id, this);
     }
 
@@ -83,14 +74,18 @@ public class IncomeTax extends CashFlowEstimator {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
-                            (instance) -> instance.getCashFlowSink().isOwner(this.payor));
-                    BigDecimal incomeTax = income.multiply(INCOME_TAX_RATE).setScale(2, RoundingMode.HALF_UP);
-                    CashFlowInstance cashFlowInstance =
-                            new CashFlowInstance(true,this, defaultSink,
-                            getItemType(), getCategory(),
-                            accrualStart, accrualEnd, cashFlowDate, incomeTax, balance);
-                    cashFlowInstance.setDescription("Smith Ostler for " + this.payee.getName());
-                    return cashFlowInstance;
+                            (instance) -> true);
+                    try {
+                        BigDecimal incomeTax = taxTable.computeTax(accrualEnd.getYear(), income).negate();
+                        CashFlowInstance cashFlowInstance =
+                                new CashFlowInstance(true, this, defaultSink,
+                                        getItemType(), getCategory(),
+                                        accrualStart, accrualEnd, cashFlowDate, incomeTax, balance);
+                        cashFlowInstance.setDescription(this.getName());
+                        return cashFlowInstance;
+                    } catch (TaxTable.TaxYearNotFoundException tynfe) {
+                        return null;
+                    }
                 });
         return incomeTaxCashFlows;
     }
@@ -98,32 +93,19 @@ public class IncomeTax extends CashFlowEstimator {
     @JsonIgnore
     @Override
     public String getName() {
-        return payor.getName() + "(" + payee.getName() + ")";
+        return this.getId() + " for " + getPayers().stream().map((payer) -> payer.getName()).collect(Collectors.joining(",")) + "/" +
+                getPayees().stream().map((payee) -> payee.getName()).collect(Collectors.joining(","));
     }
-
-    private void setPayeeId(@JacksonInject("context") Context context,
-                            @JsonProperty(value = "payee", required = true) String payeeId) {
-        this.payee = context.getById(Entity.class, payeeId);
-    }
-
-    private void setPayorId(@JacksonInject("context") Context context,
-                            @JsonProperty(value = "payor", required = true) String payorId) {
-        this.payor = context.getById(Entity.class, payorId);
-    }
-
-    @JsonProperty(value = "payor")
-    public String getPayor() { return payor.getId(); }
-
-    @JsonProperty(value = "payee")
-    public String getPayeeId() {
-        return payee.getId();
-    }
-
 
     @JsonIgnore
     @Override
     public String getItemType() {
         return CashFlowCalendar.ITEM_TYPE.EXPENSE.name();
+    }
+
+    @Override
+    public boolean isOwner(Entity entity) {
+        return this.isPayer(entity);
     }
 
     @Override

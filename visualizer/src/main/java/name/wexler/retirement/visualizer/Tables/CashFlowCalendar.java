@@ -155,8 +155,8 @@ public class CashFlowCalendar {
         BigDecimal sum = BigDecimal.ZERO;
         for (CashFlowInstance cashFlowInstance : this.cashFlowInstances) {
             cashFlowInstance.getCashFlowSource();
-            if (checker.check(cashFlowInstance)) {
-                if (cashFlowInstance.isPaidInDateRange(accrualStart, accrualEnd)) {
+            if (cashFlowInstance.isPaidInDateRange(accrualStart, accrualEnd)) {
+                if (checker.check(cashFlowInstance)) {
                     sum = sum.add(cashFlowInstance.getAmount());
                 }
             }

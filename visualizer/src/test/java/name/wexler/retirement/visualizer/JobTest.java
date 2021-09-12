@@ -67,12 +67,10 @@ public class JobTest {
         company2 = new Company(context, "comp2", "Company #2");
 
         Person person1 = new Person(context, "john1", LocalDate.of(1900, 12, 25),
-                67);
-        person1.setFirstName("John");
-        person1.setLastName("Doe");
-        Person person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40);
-        person2.setFirstName("Jane");
-        person2.setLastName("Doe");
+                67, "John", "Doe");
+        Person person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40,
+                "Jane", "Doe");
+
 
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(person1.getId()),

@@ -24,6 +24,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
+import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
@@ -69,5 +70,10 @@ public class BonusPeriodicFixed extends Bonus {
 
     public BigDecimal getAnnualAmount() {
         return annualAmount;
+    }
+
+    @Override
+    public boolean isOwner(Entity entity) {
+        return this.isPayee(entity);
     }
 }

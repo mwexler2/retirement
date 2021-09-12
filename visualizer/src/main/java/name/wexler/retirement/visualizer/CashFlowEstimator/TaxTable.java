@@ -105,19 +105,20 @@ public class TaxTable {
             return tax;
         }
     }
-    Map<Integer, TaxYearTable> taxRateMap;  // Map year to a TaxYearTable
+    Map<String, TaxYearTable> taxRateMap;  // Map year to a TaxYearTable
 
     @JsonCreator
     public TaxTable(
-                     @JsonProperty(value = "taxRateMap", required = true) Map<Integer, TaxYearTable> taxRateMap
+                     @JsonProperty(value = "taxRateMap", required = true) Map<String, TaxYearTable> taxRateMap
     ) throws Entity.DuplicateEntityException {
         this.taxRateMap = taxRateMap;
     }
 
     public BigDecimal computeTax(int year, BigDecimal income) throws TaxYearNotFoundException {
-        if (!taxRateMap.containsKey(year))
+        String yearString = Integer.toString(year);
+        if (!taxRateMap.containsKey(yearString))
             throw new TaxYearNotFoundException(year);
-        return taxRateMap.get(year).computeTax(income);
+        return taxRateMap.get(yearString).computeTax(income);
     }
 
     public class TaxYearNotFoundException extends Exception {

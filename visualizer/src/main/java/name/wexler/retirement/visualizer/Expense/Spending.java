@@ -23,4 +23,9 @@ public class Spending extends Expense {
     public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) {
 
     }
+
+    @Override
+    public boolean isOwner(Entity entity) {
+        return false;
+    }
 }

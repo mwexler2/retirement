@@ -140,13 +140,21 @@ public abstract class CashFlowFrequency extends Entity {
         List<CashFlowPeriod> cashFlowPeriods = getCashFlowPeriods();
         CashFlowInstance prevCashFlowInstance = null;
         for (CashFlowPeriod period : cashFlowPeriods) {
+            if (period.accrualEnd.compareTo(LocalDate.now()) < 0)
+                continue;   // Skip any periods that have already ended
+            LocalDate accrualStart = period.accrualStart;
+            if (period.accrualStart.compareTo(LocalDate.now()) < 0) {
+                accrualStart = LocalDate.now(); // If the beginning of the period is in the past, only include the part in the future
+            }
             CashFlowInstance cashFlowInstance = generator.getSingleCashFlowAmount(calendar, cashFlowEstimator.getId(),
-                    period.accrualStart, period.accrualEnd, period.cashFlowDate, period.portion, prevCashFlowInstance);
-            if (cashFlowInstance.getCashFlowDate().isAfter(LocalDate.now()))
-                result.add(cashFlowInstance);
-            prevCashFlowInstance = cashFlowInstance;
+                    accrualStart, period.accrualEnd, period.cashFlowDate, period.portion, prevCashFlowInstance
+            );
+            if (cashFlowInstance != null) {
+                if (cashFlowInstance.getCashFlowDate().isAfter(LocalDate.now()))
+                    result.add(cashFlowInstance);
+                prevCashFlowInstance = cashFlowInstance;
+            }
         }
-
         return result;
     }
 

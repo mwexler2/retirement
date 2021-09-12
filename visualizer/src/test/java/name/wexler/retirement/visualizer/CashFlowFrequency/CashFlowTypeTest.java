@@ -127,7 +127,8 @@ public class CashFlowTypeTest {
     @Test()
     public void getFlowInstances()  throws Exception {
         BigDecimal annualAmount = BigDecimal.valueOf(1000.00);
-        Person employee1 = new Person(context, "employee1", LocalDate.of(2004, Month.MARCH, 31), 65);
+        Person employee1 = new Person(context, "employee1", LocalDate.of(2004, Month.MARCH, 31), 65,
+                "Employee", "1");
         Company employer1 = new Company(context, "employer1", "Employer 1");
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),

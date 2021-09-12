@@ -41,7 +41,8 @@ public class LiabilityTest {
         context = new Context();
         context.setAssumptions(new Assumptions());
         Company lender = new Company(context, "lender1", "Lender 1");
-        Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80);
+        Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80,
+                "Borrower", "Doe");
         String[] streetAddress = {"123 Main Street"};
         List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2014, Month.JANUARY, 15), BigDecimal.valueOf(42.00)));
         CashBalance initialBalance = new CashBalance(LocalDate.of(2010, Month.APRIL, 15), BigDecimal.valueOf(100000.00));

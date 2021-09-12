@@ -23,12 +23,10 @@ public class PersonTest {
     public void setUp() throws Exception {
         context = new Context();
         context.setAssumptions(new Assumptions());
-        person1 = new Person(context, "john1", LocalDate.of(1999, Month.DECEMBER, 25), 70);
+        person1 = new Person(context, "john1", LocalDate.of(1999, Month.DECEMBER, 25), 70, "John", "Doe");
         person1.setFirstName("John");
         person1.setLastName("Doe");
-        person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40);
-        person2.setFirstName("Jane");
-        person2.setLastName("Doe");
+        person2 = new Person(context, "jane1", LocalDate.of(1969, Month.DECEMBER, 31), 40, "Jane", "Doe");
     }
 
     @After
@@ -51,11 +49,7 @@ public class PersonTest {
         assertEquals(name2, "Jane");
     }
 
-    @Test
-    public void setFirstName() {
-        person1.setFirstName("Johnny");
-        assertEquals(person1.getFirstName(), "Johnny");
-    }
+
 
     @Test
     public void getLastName() {
@@ -63,12 +57,6 @@ public class PersonTest {
         assertEquals(name1, "Doe");
         String name2 = person2.getLastName();
         assertEquals(name2, "Doe");
-    }
-
-    @Test
-    public void setLastName() {
-        person1.setLastName("Dough");
-        assertEquals(person1.getLastName(), "Dough");
     }
 
     @Test
@@ -86,9 +74,8 @@ public class PersonTest {
 
     @Test
     public void equals() throws Exception {
-        Person person1a = new Person(context, "john1a", LocalDate.of(1970, Month.JANUARY, 1), 65);
-        person1a.setFirstName("John");
-        person1a.setLastName("Doe");
+        Person person1a = new Person(context, "john1a", LocalDate.of(1970, Month.JANUARY, 1), 65,
+                "John", "Doe");
         assertNotEquals(person1, person1a);
         assertNotEquals(person1, person2);
     }

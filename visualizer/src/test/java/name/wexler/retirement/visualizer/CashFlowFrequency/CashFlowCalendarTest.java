@@ -44,8 +44,8 @@ public class CashFlowCalendarTest {
         cashFlowEstimators = new ArrayList<>();
 
         Company employer = new Company(context, "employer1", "Employer 1");
-        employer.setCompanyName("Employment Co");
-        Person employee = new Person(context, "employee1", LocalDate.of(1966, Month.APRIL, 1), 62);
+        Person employee = new Person(context, "employee1", LocalDate.of(1966, Month.APRIL, 1), 62,
+                "Employee", "Doe");
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
@@ -79,8 +79,8 @@ public class CashFlowCalendarTest {
         cashFlowEstimators.add(bonusPeriodicFixed);
 
         Company lender = new Company(context, "lender1", "Lender 1");
-        lender.setCompanyName("Lender's Bank");
-        Person borrower = new Person(context, "borrower1", LocalDate.of(2000, Month.JANUARY, 1), 70);
+        Person borrower = new Person(context, "borrower1", LocalDate.of(2000, Month.JANUARY, 1), 70,
+                "Borrower", "Doe");
         List<String> borrowerIds = Collections.singletonList(borrower.getId());
         String[] streetAddress = {"123 Main Street"};
         List<CashBalance> interimBalances = Collections.singletonList(new CashBalance(LocalDate.of(2017, 7, 4), BigDecimal.valueOf(42000.42)));

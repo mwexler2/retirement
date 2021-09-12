@@ -21,7 +21,7 @@ public class LiabilityCashFlowInstance extends CashFlowInstance {
         super(estimated, cashFlowSource, cashFlowSink,
                 CashFlowCalendar.ITEM_TYPE.EXPENSE.toString(), category,
                 accrualStart, accrualEnd, cashFlowDate,
-                principal.add(interest).add(impounds), balance);
+                principal.add(interest).add(impounds).negate(), balance);
         this.principal = principal;
         this.interest = interest;
         this.impounds = impounds;

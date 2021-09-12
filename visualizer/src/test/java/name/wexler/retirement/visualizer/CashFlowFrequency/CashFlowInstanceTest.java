@@ -32,7 +32,8 @@ public class CashFlowInstanceTest {
         Assumptions assumptions = new Assumptions();
         Context context = new Context();
         context.setAssumptions(assumptions);
-        Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62);
+        Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62,
+                "Employee", "1");
         Company employer1 = new Company(context, "employer1", "Employer #1");
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(employee1.getId()),
