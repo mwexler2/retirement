@@ -99,7 +99,8 @@ public class IncomeTaxTest {
                         new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(329850.00), BigDecimal.valueOf(0.32)),
                         new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(418850.00), BigDecimal.valueOf(0.35)),
                         new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(628300.00), BigDecimal.valueOf(0.37))
-                ))
+                ),
+                        BigDecimal.valueOf(24800.00))
 
         ));
     }

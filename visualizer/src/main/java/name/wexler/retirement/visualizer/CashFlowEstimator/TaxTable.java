@@ -79,12 +79,15 @@ public class TaxTable {
         }
 
         private List<TaxBracket> taxBracketList;
+        private BigDecimal standardDeduction;
 
         @JsonCreator
         public TaxYearTable(
-                        @JsonProperty(value = "taxBracketList", required = true) List<TaxBracket> taxBracketList
+            @JsonProperty(value = "taxBracketList", required = true) List<TaxBracket> taxBracketList,
+            @JsonProperty(value = "standardDeduction", required = true) BigDecimal standardDeduction
         ) {
             this.taxBracketList = taxBracketList;
+            this.standardDeduction = standardDeduction;
             taxBracketList.sort(null);
         }
 
@@ -114,11 +117,21 @@ public class TaxTable {
         this.taxRateMap = taxRateMap;
     }
 
-    public BigDecimal computeTax(int year, BigDecimal income) throws TaxYearNotFoundException {
+    private BigDecimal calculateAdjustedGrossIncome(
+            TaxYearTable taxYearTable,
+            BigDecimal grossIncome) {
+        BigDecimal agi = grossIncome.subtract(taxYearTable.standardDeduction);
+        return agi;
+    }
+
+    public BigDecimal computeTax(int year, BigDecimal grossIncome) throws TaxYearNotFoundException {
+
         String yearString = Integer.toString(year);
         if (!taxRateMap.containsKey(yearString))
             throw new TaxYearNotFoundException(year);
-        return taxRateMap.get(yearString).computeTax(income);
+        TaxYearTable taxYearTable = taxRateMap.get(yearString);
+        BigDecimal agi = calculateAdjustedGrossIncome(taxYearTable, grossIncome);
+        return taxYearTable.computeTax(agi);
     }
 
     public class TaxYearNotFoundException extends Exception {
