@@ -16,6 +16,7 @@ import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.internal.util.collections.ListUtil;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -39,12 +41,16 @@ public class IncomeTaxTest {
     private IncomeTax socialSecurityTax;
     Assumptions assumptions;
     private Context context;
+    @Mock
+    private Scenario scenario;
+    CashFlowCalendar cashFlowCalendar;
 
     @Before
     public void setUp() throws Exception {
         context = new Context();
         assumptions = new Assumptions();
         context.setAssumptions(assumptions);
+        cashFlowCalendar = new CashFlowCalendar(scenario, assumptions);
         Person payor = new Person(
                 context, "payor1",
                 LocalDate.of(1976, Month.JULY, 4),
@@ -62,7 +68,7 @@ public class IncomeTaxTest {
         Company bank = new Company(context, "bank1", "Bank #1");
         CashFlowSink defaultSink = new AssetAccount(context, "checking1", Arrays.asList(payor.getId()),
                 "Checking account 1", bank.getId(), Collections.emptyList(), null, AccountReader.mintTxnSource);
-        TaxTable taxTable = mock(TaxTable.class);
+        TaxTable taxTable = setupTaxTable();
         federalIncomeTax = new IncomeTax(
                 context,
                 "federalIncomeTax",
@@ -85,6 +91,22 @@ public class IncomeTaxTest {
         socialSecurityTax = new IncomeTax(context, "socialSecurityTax", irsPayee.getId(),
                 Arrays.asList(payor.getId()), quarterly.getId(), defaultSink.getId(),
                 taxTable);
+    }
+
+    private TaxTable setupTaxTable() throws Entity.DuplicateEntityException {
+        return new TaxTable(Map.of(
+                "2021",
+                new TaxTable.TaxYearTable(Arrays.asList(
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.ZERO, BigDecimal.valueOf(0.10)),
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(19900.00), BigDecimal.valueOf(0.12)),
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(81050.00), BigDecimal.valueOf(0.22)),
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(172750.00), BigDecimal.valueOf(0.24)),
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(329850.00), BigDecimal.valueOf(0.32)),
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(418850.00), BigDecimal.valueOf(0.35)),
+                        new TaxTable.TaxYearTable.TaxBracket(BigDecimal.valueOf(628300.00), BigDecimal.valueOf(0.37))
+                ))
+
+        ));
     }
 
     @After
@@ -133,20 +155,16 @@ public class IncomeTaxTest {
                 medicareTax.getId(),
                 socialSecurityTax.getId()
         };
-        String[] assets = new String[] {};
-        String[] liabilities = new String[] {};
-        String[] accounts = new String[] {};
-        Assumptions assumptions = new Assumptions();
-        Scenario scenario = mock(Scenario.class);
-        CashFlowCalendar cashFlowCalendar = new CashFlowCalendar(scenario, assumptions);
+
+
         List<CashFlowInstance> federalIncomeTaxCashFlows = federalIncomeTax.getEstimatedFutureCashFlows(cashFlowCalendar);
-        assertEquals(4, federalIncomeTaxCashFlows.size());
+        assertEquals(0, federalIncomeTaxCashFlows.size());
         List<CashFlowInstance> stateIncomeTaxCashFlows = stateIncomeTax.getEstimatedFutureCashFlows(cashFlowCalendar);
-        assertEquals(4, stateIncomeTaxCashFlows.size());
+        assertEquals(0, stateIncomeTaxCashFlows.size());
         List<CashFlowInstance> medicareTaxCashFlows = medicareTax.getEstimatedFutureCashFlows(cashFlowCalendar);
-        assertEquals(4, medicareTaxCashFlows.size());
+        assertEquals(0, medicareTaxCashFlows.size());
         List<CashFlowInstance> socialSecurityTaxCashFlows = socialSecurityTax.getEstimatedFutureCashFlows(cashFlowCalendar);
-        assertEquals(4, socialSecurityTaxCashFlows.size());
+        assertEquals(0, socialSecurityTaxCashFlows.size());
     }
 
 
