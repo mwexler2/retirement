@@ -99,8 +99,8 @@ public class Alimony extends CashFlowEstimator {
                     CashFlowInstance cashFlowInstance =
                             new CashFlowInstance(true, this, defaultSink,
                             getItemType(), getCategory(),
-                            accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance);
-                    cashFlowInstance.setDescription(payee.getName());
+                            accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance,
+                                    payee.getName());
                     return cashFlowInstance;
                 });
 
@@ -118,12 +118,13 @@ public class Alimony extends CashFlowEstimator {
                             : income.subtract(quarterlyBaseIncome);
                     BigDecimal alimony = smithOstlerIncome.multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
                     if (alimony.compareTo(BigDecimal.ZERO) < 0) {
-                        CashFlowInstance cashFlowInstance =
-                                new CashFlowInstance(true, this, defaultSink,
+                        String description = "Estimated Smith Ostler for " + this.payee.getName();
+                        return new CashFlowInstance(
+                                true, this, defaultSink,
                                         getItemType(), getCategory(),
-                                        accrualStart, accrualEnd, cashFlowDate, alimony, BigDecimal.ZERO);
-                        cashFlowInstance.setDescription("Smith Ostler for " + this.payee.getName());
-                        return cashFlowInstance;
+                                        accrualStart, accrualEnd, cashFlowDate,
+                                alimony, BigDecimal.ZERO,
+                                description);
                     } else {
                         return null;
                     }
@@ -151,14 +152,14 @@ public class Alimony extends CashFlowEstimator {
             BigDecimal remainingBalance = this.maxAlimony.subtract(ytdAlimony).min(BigDecimal.ZERO);
             if (amount.compareTo(remainingBalance) < 0) {
                  amount = remainingBalance;
+                 String description = "Estimated " + instance.getDescription();
                  CashFlowInstance remainingBalanceInstance = new CashFlowInstance(
                         true, spending, defaultSink,
                         getItemType(), getCategory(),
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
-                        amount, BigDecimal.ZERO);
-                remainingBalanceInstance.setDescription("Remaining balance for " + this.payee.getName());
+                        amount, BigDecimal.ZERO, description);
                 result.add(remainingBalanceInstance);
                 ytdAlimonies.replace(accrualYear, ytdAlimony);
             } else if (instance.getAmount().compareTo(BigDecimal.ZERO) < 0) {

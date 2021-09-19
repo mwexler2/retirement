@@ -7,7 +7,6 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.Monthly;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Quarterly;
 import name.wexler.retirement.visualizer.CashFlowFrequency.SemiMonthly;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
@@ -94,7 +93,7 @@ public class AlimonyTest {
                         LocalDate.of(1999, Month.DECEMBER, 31),
                         LocalDate.of(2000, Month.JANUARY, 15),
                         BigDecimal.ONE,
-                        BigDecimal.ZERO)
+                        BigDecimal.ZERO, "Estimated Alimony")
         );
         new Company(context,
                 "company1",
@@ -129,8 +128,8 @@ public class AlimonyTest {
                         LocalDate.of(1999, Month.OCTOBER, 15),
                         LocalDate.of(1999, Month.OCTOBER, 22),
                         BigDecimal.valueOf(500.00),
-                        BigDecimal.ZERO
-                )
+                        BigDecimal.ZERO,
+                        "Estimated Salary")
         );
         LocalDate now = LocalDate.now();
         Month firstMonthOfQuarter = now.getMonth().firstMonthOfQuarter();
@@ -147,8 +146,8 @@ public class AlimonyTest {
                                 lastMonthOfQuarter.length(false)),
                         now.plusDays(14),
                         baseIncome.multiply(BigDecimal.valueOf(4)),
-                        BigDecimal.ZERO
-                )
+                        BigDecimal.ZERO,
+                        "Estimated paycheck")
         );
         cashFlowCalendar.addCashFlowInstances(cashFlowInstances);
         return cashFlowCalendar;

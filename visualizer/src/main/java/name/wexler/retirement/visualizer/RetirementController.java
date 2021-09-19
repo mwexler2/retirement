@@ -128,6 +128,7 @@ public class RetirementController {
         model.put("cashFlowId", liabilityId);
         model.put("scenarioId", scenarioId);
         model.put("year", year);
+        model.put("groupBy", "");
         List<LiabilityCashFlowInstance> cashFlowInstances =
                 retirement.getCashFlowCalendar(scenarioId).
                         getLiabilityCashFlowInstances(liabilityId, year);
@@ -142,6 +143,7 @@ public class RetirementController {
         Retirement retirement = new Retirement();
         model.put("cashFlowId", liabilityId);
         model.put("scenarioId", scenarioId);
+        model.put("groupBy", "");
         List<LiabilityCashFlowInstance> cashFlowInstances = retirement.getCashFlowCalendar(scenarioId).getLiabilityCashFlowInstances(liabilityId);
         model.put("cashFlows", cashFlowInstances);
         return new ModelAndView("cashFlows", "command", model);
@@ -156,6 +158,7 @@ public class RetirementController {
         Retirement retirement = new Retirement();
         model.put("category", category);
         model.put("scenarioId", scenarioId);
+        model.put("groupBy", "");
         List<CashFlowInstance> selectedCashFlows =
                 retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
                         filter(instance -> instance.getItemType().equals(grouping)).
@@ -188,14 +191,36 @@ public class RetirementController {
         return new ModelAndView("cashFlows", "command", model);
     }
 
+    @RequestMapping(value = "/visualizer/scenario/{scenarioId}/year/{year}", method = RequestMethod.GET)
+    public ModelAndView retirementExpensesByYear(
+            @PathVariable String scenarioId,
+            @PathVariable int year,
+            ModelMap model) {
+        Retirement retirement = new Retirement();
+        model.put("scenarioId", scenarioId);
+        model.put("category", "All");
+        model.put("grouping", "All");
+        model.put("year", year);
+        List<CashFlowInstance> selectedCashFlows =
+                retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
+                        filter(instance -> instance.getCashFlowDate().getYear() == year).
+                        sorted().
+                        collect(Collectors.toList());
+        model.put("cashFlows", selectedCashFlows);
+        return new ModelAndView("cashFlows", "command", model);
+    }
+
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/grouping/{grouping}/{category}", method = RequestMethod.GET)
-    public ModelAndView retirementExpensesByCategory(@PathVariable String category,
+    public ModelAndView retirementCashFlowsByYear(@PathVariable String category,
                                                       @PathVariable String scenarioId,
                                                       @PathVariable String grouping,
                                                       ModelMap model) {
         Retirement retirement = new Retirement();
         model.put("category", category);
         model.put("scenarioId", scenarioId);
+        model.put("groupBy", "");
+
+
         List<CashFlowInstance> selectedCashFlows =
                 retirement.getCashFlowCalendar(scenarioId).getCashFlowInstances().stream().
                         filter(instance -> instance.getCategory().equals(category)).

@@ -105,11 +105,11 @@ public class Salary extends CashFlowEstimator {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = baseAnnualSalary.multiply(percent).setScale(2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
+                    String description = String.join(", ", getPayers().stream().map(e -> e.getName()).collect(Collectors.toList()));
                     CashFlowInstance instance =
                             new CashFlowInstance(true, this, getJob().getDefaultSink(),
                             getItemType(), this.getCategory(),
-                            accrualStart, accrualEnd, cashFlowDate, amount, balance);
-                    instance.setDescription(String.join(", ", getPayers().stream().map(e -> e.getName()).collect(Collectors.toList())));
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                     return instance;
                 }
         );

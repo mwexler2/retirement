@@ -1,9 +1,6 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Context;
 
@@ -20,14 +17,16 @@ public class SecurityTransaction extends AssetTransaction {
             String itemType,
             String category,
             BigDecimal amount,
-            ShareBalance shareChange) {
+            ShareBalance shareChange,
+            String description) {
         super(false,
                 account,
                 account,
                 itemType, category,
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(),
-                shareChange.getBalanceDate(), amount, BigDecimal.ZERO);
+                shareChange.getBalanceDate(), amount, BigDecimal.ZERO,
+                description);
         change = shareChange;
         this.account = account;
     }

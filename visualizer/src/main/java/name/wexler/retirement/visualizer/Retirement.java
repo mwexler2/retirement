@@ -50,11 +50,7 @@ import org.sqlite.JDBC;
  */
 public class Retirement {
     private List<Scenario> scenarios;
-    private List<Job> jobs;
     private List<Person> people;
-    private List<SecurityTransaction> securityTxns;
-    private String cashFlowId;
-    private String scenarioId;
     static private DataStore ds;
 
 

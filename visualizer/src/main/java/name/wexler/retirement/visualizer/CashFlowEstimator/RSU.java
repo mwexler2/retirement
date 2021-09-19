@@ -69,8 +69,8 @@ public class RSU extends EquityCompensation {
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             CashFlowInstance instance =
                     new CashFlowInstance(true, this, getJob().getDefaultSink(),
-                    getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
-            instance.setDescription(getDescription(shares, sharePrice));
+                    getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                    getDescription(shares, sharePrice));
             return instance;
         });
     }

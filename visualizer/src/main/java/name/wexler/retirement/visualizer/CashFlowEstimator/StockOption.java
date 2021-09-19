@@ -68,8 +68,10 @@ public class StockOption extends EquityCompensation {
             BigDecimal shares = BigDecimal.valueOf(getTotalShares()).multiply(percent);
             BigDecimal amount = sharePrice.subtract(strikePrice).multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
+            String description =  "Estimated option vest: " + shares + " of " + getSecurity() + " @" + strikePrice;
             return new CashFlowInstance(true, this, getJob().getDefaultSink(),
-                    this.getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                    this.getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                   description);
         });
     }
 

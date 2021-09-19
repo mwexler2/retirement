@@ -117,8 +117,8 @@ public class SecuredLoan extends Liability {
             CashFlowInstance cashFlowInstance =
                     new LiabilityCashFlowInstance(true,this, defaultSink,
                     getCategory(), accrualStart, accrualEnd, cashFlowDate,
-                    principal, interest, impoundAmount, balance);
-            cashFlowInstance.setDescription(this.getPayees().get(0).getName());
+                    principal, interest, impoundAmount, balance,
+                            this.getPayees().get(0).getName());
             return cashFlowInstance;
         });
     }

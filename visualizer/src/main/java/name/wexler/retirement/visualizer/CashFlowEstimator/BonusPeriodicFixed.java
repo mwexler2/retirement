@@ -61,9 +61,10 @@ public class BonusPeriodicFixed extends Bonus {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
+                    String description = "Estimated bonus for " + getJob().getName();
                     return new CashFlowInstance(true, this.getJob(), this.getJob().getDefaultSink(),
                             getItemType(), getCategory(),
-                            accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                 }
         );
     }

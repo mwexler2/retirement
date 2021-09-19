@@ -45,7 +45,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by mwexler on 7/9/16.
@@ -260,7 +259,8 @@ public class AssetAccount extends Asset implements Account {
                 }
             }
             ShareBalance shareChange = new ShareBalance(txnDate, shares, sharePrice, security);
-            instance = new SecurityTransaction(context, assetAccount, itemType, category, txnAmount, shareChange);
+            instance = new SecurityTransaction(context, assetAccount, itemType, category, txnAmount, shareChange,
+                    description);
         }
         return instance;
     }

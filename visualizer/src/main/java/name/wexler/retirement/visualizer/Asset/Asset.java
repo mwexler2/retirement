@@ -177,7 +177,8 @@ public abstract class Asset extends Entity implements CashFlowSource, CashFlowSi
                             true, this, this, "interimBalance", "balance",
                             balance.getBalanceDate(),
                             balance.getBalanceDate(),
-                            balance.getBalanceDate(), BigDecimal.ZERO, BigDecimal.ZERO) {
+                            balance.getBalanceDate(), BigDecimal.ZERO, BigDecimal.ZERO,
+                            "Estimated balance for " + this.getName() ) {
                     };
                     instance.setAssetBalance(balance.getValue());
                     cashFlowInstances.add(instance);

@@ -2,8 +2,6 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.CashFlowSource;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +31,7 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
                             CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
                             String itemType, String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
-                            BigDecimal amount, BigDecimal balance) {
+                            BigDecimal amount, BigDecimal balance, String description) {
         this.estimated = estimated;
         this.accrualStart = accrualStart;
         this.accrualEnd = accrualEnd;
@@ -45,6 +43,7 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
         this.cashFlowSink = cashFlowSink;
         this.itemType = itemType;
         this.category = category;
+        this.description = description;
     }
 
     public int compareTo(CashFlowInstance that) {
@@ -91,8 +90,6 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     public void setLabels(List<String> labels) { this.labels = labels; }
 
     public String getDescription() { return description; }
-
-    public void setDescription(String description) { this.description = description; }
 
     public String getCashFlowId() {
         return cashFlowSource.getId();

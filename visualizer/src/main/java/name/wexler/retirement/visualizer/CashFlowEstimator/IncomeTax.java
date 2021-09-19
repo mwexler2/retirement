@@ -77,12 +77,10 @@ public class IncomeTax extends CashFlowEstimator {
                             (instance) -> true);
                     try {
                         BigDecimal incomeTax = taxTable.computeTax(accrualEnd.getYear(), income).negate();
-                        CashFlowInstance cashFlowInstance =
-                                new CashFlowInstance(true, this, defaultSink,
-                                        getItemType(), getCategory(),
-                                        accrualStart, accrualEnd, cashFlowDate, incomeTax, balance);
-                        cashFlowInstance.setDescription(this.getName());
-                        return cashFlowInstance;
+                        String description = "Estimated " + this.getName();
+                        return new CashFlowInstance(true, this, defaultSink,
+                                    getItemType(), getCategory(),
+                                    accrualStart, accrualEnd, cashFlowDate, incomeTax, balance, description);
                     } catch (TaxTable.TaxYearNotFoundException tynfe) {
                         return null;
                     }

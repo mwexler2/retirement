@@ -1,31 +1,23 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
 import name.wexler.retirement.visualizer.*;
-import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
-import name.wexler.retirement.visualizer.Expense.Expense;
 import name.wexler.retirement.visualizer.Expense.Spending;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.openjpa.kernel.FillStrategy;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParserFactory;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public interface Account extends CashFlowSource, CashFlowSink {
 
@@ -88,14 +80,14 @@ public interface Account extends CashFlowSource, CashFlowSink {
                 cashFlowSource = spending;
             instance = new PaymentInstance(cashFlowSource, this, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
-                    BigDecimal.ZERO, company);
+                    BigDecimal.ZERO, company, description);
         } else if (job != null && !isDebit && category.equals("Paycheck")) {
             if (company == null) {
                 System.err.println(new AccountNotFoundException(this.getName()));
                 return null;
             }
             instance = new PaycheckInstance(job, this, category, accrualEnd, accrualEnd, txnDate, txnAmount,
-                    BigDecimal.ZERO);
+                    BigDecimal.ZERO, description);
         } else if (job != null && !isDebit && category.equals("Reimbursement")) {
             if (company == null) {
                 System.err.println(new AccountNotFoundException(this.getName()));
@@ -103,14 +95,14 @@ public interface Account extends CashFlowSource, CashFlowSink {
             }
             instance = new ReimbursementInstance(this, job.getDefaultSink(), category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
-                    BigDecimal.ZERO, company);
+                    BigDecimal.ZERO, company,
+                    description);
         } else {
             instance = new CashFlowInstance(false, this, this,
                     itemType, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
-                    BigDecimal.ZERO);
+                    BigDecimal.ZERO, description);
         }
-        instance.setDescription(description);
         instance.setCategory(category);
         instance.setNotes(notes);
         instance.setLabels(names);

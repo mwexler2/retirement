@@ -15,10 +15,10 @@ public class ReimbursementInstance extends CashFlowInstance {
                                  String category,
                                  LocalDate accrualStart, LocalDate accrualEnd,
                                  LocalDate cashFlowDate, BigDecimal amount, BigDecimal balance,
-                                 Entity employer) {
+                                 Entity employer, String description) {
         super(false, cashFlowSource, cashFlowSink,
                 CashFlowCalendar.ITEM_TYPE.INCOME.toString(), category,
-                accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
         this.employer = employer;
     }
 }

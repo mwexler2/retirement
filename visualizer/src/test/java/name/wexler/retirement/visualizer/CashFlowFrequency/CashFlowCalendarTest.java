@@ -16,7 +16,6 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.*;
 import java.util.*;
 
@@ -105,10 +104,12 @@ public class CashFlowCalendarTest {
 
         List<CashFlowInstance> cashFlowInstances = new ArrayList<CashFlowInstance>();
         cashFlowInstances.add(new CashFlowInstance(true,job1, defaultSink, "itemType", "category" ,accrueStart,
-                        accrueEnd, LocalDate.of(2020, Month.MAY, 17),BigDecimal.ONE, BigDecimal.TEN));
+                        accrueEnd, LocalDate.of(2020, Month.MAY, 17),BigDecimal.ONE, BigDecimal.TEN,
+                "Estiimated cash flow"));
         cashFlowInstances.add(new LiabilityCashFlowInstance(false, debt, defaultSink,"category",
                 accrueStart, accrueEnd, LocalDate.of(2015, Month.JANUARY, 31),
-                BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ONE));
+                BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ONE,
+                "Liability cashflow"));
         calendar.addCashFlowInstances(cashFlowInstances);
     }
 

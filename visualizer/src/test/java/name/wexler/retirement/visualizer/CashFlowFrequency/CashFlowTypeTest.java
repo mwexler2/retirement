@@ -149,7 +149,7 @@ public class CashFlowTypeTest {
                 BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                 return new CashFlowInstance(false, salary1, defaultSink,
                         CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
-                        accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                        accrualStart, accrualEnd, cashFlowDate, amount, balance, "salary for " + salary1.getName());
                 });
         assertEquals(BigDecimal.valueOf(38.46), biweeklyCashFlows.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(38.46), biweeklyCashFlows.get(biweeklyCashFlows.size() - 1).getAmount());
@@ -161,7 +161,8 @@ public class CashFlowTypeTest {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(true, salary1, defaultSink,
-                            CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(), "test", accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                            CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(), "test", accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                            "Estimated salary for " + salary1.getName());
                 });
         assertEquals(BigDecimal.valueOf(83.33), monthlyCashFlows.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(83.33), monthlyCashFlows.get(monthlyCashFlows.size() - 1).getAmount());
@@ -173,7 +174,8 @@ public class CashFlowTypeTest {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(false, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.EXPENSE.toString(), "test",
-                            accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                            "Salary for " + salary1.getName());
                 });
         assertEquals(BigDecimal.valueOf(41.67), semiMonthlyCashFlows.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(41.67), semiMonthlyCashFlows.get(semiMonthlyCashFlows.size() - 1).getAmount());
@@ -187,7 +189,8 @@ public class CashFlowTypeTest {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(false, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
-                            accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
+                            accrualStart, accrualEnd, cashFlowDate, annualAmount, balance,
+                            "Salary for " + salary1.getName());
                 });
         assertEquals(2, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());
@@ -200,7 +203,8 @@ public class CashFlowTypeTest {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     return new CashFlowInstance(false, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
-                            accrualStart, accrualEnd, cashFlowDate, amount, balance);
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                            "Salary for " + salary1.getName());
                 });
         assertEquals(2, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());

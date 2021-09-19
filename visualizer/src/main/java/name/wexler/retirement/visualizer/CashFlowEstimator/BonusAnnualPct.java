@@ -61,9 +61,11 @@ public class BonusAnnualPct extends Bonus {
         return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-            return new CashFlowInstance(true,this, this.getJob().getDefaultSink(),
+                String description = "Estimated bonus for " + getJob().getName();
+                return new CashFlowInstance(true,this, this.getJob().getDefaultSink(),
                     getItemType(), getCategory(),
-                    accrualStart, accrualEnd, cashFlowDate, annualAmount, balance);
+                    accrualStart, accrualEnd, cashFlowDate, annualAmount, balance,
+                    description);
                 });
     }
 

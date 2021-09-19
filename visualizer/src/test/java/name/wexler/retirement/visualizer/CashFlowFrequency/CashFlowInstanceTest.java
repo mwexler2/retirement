@@ -54,8 +54,8 @@ public class CashFlowInstanceTest {
                 LocalDate.of(2014, Month.MAY, 15),
                 LocalDate.of(2014, Month.MAY, 25),
                 thousand,
-                BigDecimal.ZERO
-        );
+                BigDecimal.ZERO,
+                "Estimated salary for " + salary1.getName());
 
     }
 
