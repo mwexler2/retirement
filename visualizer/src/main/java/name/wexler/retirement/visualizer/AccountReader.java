@@ -3,16 +3,13 @@ package name.wexler.retirement.visualizer;
 import name.wexler.retirement.datastore.DataStore;
 import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.*;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CreditCardAccount;
 import name.wexler.retirement.visualizer.CashFlowEstimator.SecuredLoan;
-import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Expense;
 import name.wexler.retirement.visualizer.Expense.Spending;
-import org.apache.activemq.util.IOExceptionHandler;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.openjpa.jdbc.kernel.exps.MapEntry;
+import org.jetbrains.annotations.NotNull;
+
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -49,6 +46,18 @@ public class AccountReader {
             System.err.println(sqle);
         }
         return cashFlowInstances;
+    }
+
+    public @NotNull
+    List<Budget> readBudgets(Context context) throws IOException {
+        List<Budget> budgets;
+        DataStore ds = Retirement.getDataStore();
+        try (ResultSet rs = ds.getBudgets().getBudgets()) {
+            budgets = readBudgetsFromResultSet(context, rs);
+            return budgets;
+        } catch (SQLException sqle) {
+            throw new RuntimeException("readBugets", sqle);
+        }
     }
 
     public void getAccountBalances(Context context) throws IOException {
@@ -163,5 +172,47 @@ public class AccountReader {
             account = assetAccount;
         }
         return account;
+    }
+
+    private @NotNull List<Budget> readBudgetsFromResultSet (
+            Context context,
+            ResultSet rs) {
+        List<Budget> budgets = new ArrayList<>();
+
+        try {
+            while (rs.next()) {
+                Budget budget = getBudgetFromResultSet(context, rs);
+                if (budget != null)
+                    budgets.add(budget);
+            }
+        } catch (SQLException sqle) {
+            throw new RuntimeException("readBudgetsFromResultSet", sqle);
+        }
+        return budgets;
+    }
+
+
+    protected @NotNull
+    Budget getBudgetFromResultSet(
+            Context context,
+            ResultSet rs)  {
+        try {
+            Boolean isIncome = rs.getBoolean("isIncome");
+            Boolean isTransfer = rs.getBoolean("isTransfer");
+            Boolean isExpense = rs.getBoolean("isExpense");
+            BigDecimal amount = rs.getBigDecimal("amt");
+            BigDecimal budget = rs.getBigDecimal("bgt");
+            BigDecimal rBal = rs.getBigDecimal("rbal");
+            String category = rs.getString("cat");
+            String grouping = rs.getString("grouping");
+            String parentCategory = rs.getString("parent");
+
+            Budget budgetEntry =
+                    new Budget(context, grouping, isIncome, isTransfer, isExpense, amount, budget, rBal, parentCategory, category);
+
+            return budgetEntry;
+        } catch (SQLException sqle) {
+            throw new RuntimeException("getBudgetFromResultSet", sqle);
+        }
     }
 }

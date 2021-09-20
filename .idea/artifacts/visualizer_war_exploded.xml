@@ -53,6 +53,7 @@
           <element id="library" level="project" name="Maven: org.apache.geronimo.specs:geronimo-j2ee-connector_1.6_spec:1.0" />
           <element id="library" level="project" name="Maven: org.apache.geronimo.components:geronimo-transaction:3.1.4" />
           <element id="library" level="project" name="Maven: org.objectweb.howl:howl:1.0.1-1" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.9.3" />
           <element id="library" level="project" name="Maven: org.apache.geronimo.javamail:geronimo-javamail_1.4_mail:1.9.0-alpha-2" />
           <element id="library" level="project" name="Maven: org.apache.xbean:xbean-naming:4.14" />
           <element id="library" level="project" name="Maven: org.apache.xbean:xbean-bundleutils:4.14" />
@@ -105,6 +106,8 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-context:5.2.6.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-expression:5.2.6.RELEASE" />
           <element id="library" level="project" name="Maven: jstl:jstl:1.2" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.13.0-rc2" />
+          <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.0-rc2" />
           <element id="library" level="project" name="Maven: javax.activation:activation:1.1.1" />
         </element>
       </element>

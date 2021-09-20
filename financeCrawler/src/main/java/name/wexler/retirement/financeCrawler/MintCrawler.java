@@ -1,61 +1,56 @@
 package name.wexler.retirement.financeCrawler;
 
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import name.wexler.retirement.datastore.AccountTable;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import name.wexler.retirement.datastore.TxnHistory;
+import name.wexler.retirement.datastore.Budgets;
 import org.json.simple.JSONObject;
-import name.wexler.retirement.datastore.TickerHistory;
 import org.json.simple.parser.ParseException;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MintCrawler {
-    private static final String loginURL = "https://accounts.intuit.com/access_client/sign_in";
-    private static final String yahooFinanceBaseURL = "https://finance.yahoo.com/";
-    private static final String yahooQueryBaseURL = "https://query1.finance.yahoo.com/v7/finance/download/";
-    private static final int minSleepMilliseconds = 2000;
-    private static final int sleepMillisecondsBound = 3000;
-    private long periodStart;
-    private final long periodEnd = (System.currentTimeMillis() / 1000L);
-    private Random random = new Random();
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private boolean writeHeader = false;
-    private TxnHistory txnHistory;
-    private AccountTable accountTable;
+    private final boolean writeHeader = false;
+    private final TxnHistory txnHistory;
+    private final Budgets budgets;
+    private final AccountTable accountTable;
     private static final String mintSource = "mint";
 
-    MintCrawler(TxnHistory txnHistory, AccountTable accountTable, LocalDate lastDate) {
+    MintCrawler(TxnHistory txnHistory, AccountTable accountTable, Budgets budgets, LocalDate lastDate) {
         super();
         this.txnHistory = txnHistory;
+        this.budgets = budgets;
         this.accountTable = accountTable;
-        this.periodStart = lastDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
     }
 
-    private JSONArray getMintInfo(String mintJSON) {
+    private JSONArray getMintInfoArray(String mintJSON) {
         JSONParser parser = new JSONParser();
         JSONArray result = null;
 
         try {
             result = (JSONArray) parser.parse(mintJSON);
         } catch (ParseException pe) {
-            System.err.println(pe);
+            throw new RuntimeException("getMintInfoArray", pe);
+        }
+        return result;
+    }
+
+    private JSONObject getMintInfoObject(String mintJSON) {
+        JSONParser parser = new JSONParser();
+        JSONObject result = null;
+
+        try {
+            result = (JSONObject) parser.parse(mintJSON);
+        } catch (ParseException pe) {
+            throw new RuntimeException(pe);
         }
         return result;
     }
@@ -64,6 +59,7 @@ public class MintCrawler {
     public void crawl() {
         crawlAccounts();
         crawlTransactions();
+        crawlBudgets();
     }
 
 
@@ -75,14 +71,32 @@ public class MintCrawler {
             String result = null;
             try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 result = input.lines().collect(Collectors.joining(System.lineSeparator()));
-                JSONArray txnList = getMintInfo(result);
+                JSONArray txnList = getMintInfoArray(result);
                 if (txnList != null)
                     processTxnListJSON(txnList, cmd);
             } catch (IOException ioe) {
-                System.err.println(ioe);
+                throw new RuntimeException(ioe);
             }
         } catch (IOException ioe) {
-            System.out.println(ioe);
+            throw new RuntimeException(ioe);
+        }
+    }
+
+    private void crawlBudgets() {
+        String cmd = "/usr/local/bin/mintapi --keyring mike.wexler@gmail.com --headless --no_wait_for_sync --budgets";
+        try {
+            Process p = Runtime.getRuntime().exec(cmd);
+            String result = null;
+            try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                result = input.lines().collect(Collectors.joining(System.lineSeparator()));
+                JSONObject budgets = getMintInfoObject(result);
+                if (budgets != null)
+                    processBudgetsJSON(budgets, cmd);
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
         }
     }
 
@@ -95,7 +109,7 @@ public class MintCrawler {
             String result = null;
             try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 result = input.lines().collect(Collectors.joining(System.lineSeparator()));
-                JSONArray txnList = getMintInfo(result);
+                JSONArray txnList = getMintInfoArray(result);
                 if (accountTable != null)
                     processAccountListJSON(txnList, cmd);
             } catch (IOException ioe) {
@@ -127,6 +141,21 @@ public class MintCrawler {
             fieldNameVals.put(TxnHistory.txnId, fieldNameVals.get("id").toString());
             fieldNameVals.put(TxnHistory.source, mintSource);
             txnHistory.insertRow(fieldNameVals);
+        });
+    }
+
+    private void processBudgetsJSON(JSONObject budgetEntries, String cmd) {
+        System.out.println("Processing download file for '" + cmd + "'");
+        budgetEntries.forEach((grouping, entries) -> {
+            ((JSONArray) entries).forEach((budgetEntry) -> {
+                Map<String, Object> fieldNameVals = new HashMap<>();
+                for (Object key : ((JSONObject) budgetEntry).keySet()) {
+                    Object value = ((JSONObject) budgetEntry).getOrDefault(key, "");
+                    fieldNameVals.put((String) key, value);
+                }
+                fieldNameVals.put(TxnHistory.source, mintSource);
+                budgets.insertRow((String) grouping, fieldNameVals);
+            });
         });
     }
 

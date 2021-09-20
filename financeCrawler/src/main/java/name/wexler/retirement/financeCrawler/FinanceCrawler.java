@@ -12,6 +12,7 @@ public class FinanceCrawler
         DataStore ds = new DataStore();
         TickerHistory tickerHistory = ds.getTickerHistory();
         TxnHistory txnHistory = ds.getTxnHistory();
+        Budgets budgets = ds.getBudgets();
         AccountTable accountTable = ds.getAccountTable();
         PositionHistory positionHistory = ds.getPositionHistory();
 
@@ -24,7 +25,7 @@ public class FinanceCrawler
         }
         // CitibankCrawler citiCrawler = new CitibankCrawler()
         if (true) {
-            MintCrawler mintCrawler = new MintCrawler(txnHistory, accountTable, txnHistory.getLastDate());
+            MintCrawler mintCrawler = new MintCrawler(txnHistory, accountTable, budgets, txnHistory.getLastDate());
             mintCrawler.crawl();
         }
         if (true) {

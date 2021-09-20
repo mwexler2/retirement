@@ -6,6 +6,7 @@ public class DataStore {
     JDBCDriverConnection conn = null;
     TickerHistory tickerHistory;
     TxnHistory txnHistory;
+    Budgets budgets;
     AccountTable accountTable;
     PositionHistory positionHistory;
 
@@ -13,6 +14,7 @@ public class DataStore {
         conn = JDBCDriverConnection.driverFactory("sqlite", "retirement");
         tickerHistory = new TickerHistory(conn);
         txnHistory = new TxnHistory(conn);
+        budgets = new Budgets(conn);
         accountTable = new AccountTable(conn);
         positionHistory = new PositionHistory(conn);
     }
@@ -22,6 +24,8 @@ public class DataStore {
     }
 
     public TxnHistory getTxnHistory() { return txnHistory;}
+
+    public Budgets getBudgets() { return budgets;}
 
     public AccountTable getAccountTable() { return accountTable; }
 

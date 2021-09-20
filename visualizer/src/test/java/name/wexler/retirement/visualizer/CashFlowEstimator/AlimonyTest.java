@@ -73,7 +73,7 @@ public class AlimonyTest {
         cashFlowCalendar = setupCashFlowCalendar(scenario, assumptions, alimony, defaultSink);
     }
 
-    CashFlowCalendar setupCashFlowCalendar(
+    private CashFlowCalendar setupCashFlowCalendar(
             Scenario scenario,
             Assumptions assumptions,
             Alimony alimony,

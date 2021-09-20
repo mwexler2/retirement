@@ -25,6 +25,7 @@ package name.wexler.retirement.visualizer;
 
 
 import com.fasterxml.jackson.annotation.*;
+import com.sun.istack.NotNull;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CASH_ESTIMATE_PASS;
 import name.wexler.retirement.visualizer.Entity.Category;
@@ -78,6 +79,7 @@ public class Scenario extends Entity {
         List<Asset> assetList = setAssetIds(context, assets);
         calendar.addCashFlowInstances(getHistoricalCashFlowInstances());
         calendar.addCashFlowInstances(getEstimatedAssetValues(assetList));
+        calendar.addBudgets(getBudgets());
         setCurrentBalances();
         Iterator<CASH_ESTIMATE_PASS> passIterator =
                 CASH_ESTIMATE_PASS.BASE_CASH_FLOWS.iterator();
@@ -120,22 +122,33 @@ public class Scenario extends Entity {
         return cashFlowInstances;
     }
 
-    private List<CashFlowInstance> getHistoricalCashFlowInstances() {
+    private @NotNull
+    List<CashFlowInstance> getHistoricalCashFlowInstances() {
         try {
             AccountReader accountReader = new AccountReader(getContext());
             return accountReader.readCashFlowInstances(getContext());
         } catch (IOException ioe) {
-            System.err.println(ioe);
+            throw new RuntimeException("Can't getHistoricalCashFlowInstances", ioe);
         }
-        return null;
     }
 
-    private void setCurrentBalances() {
+    private @NotNull
+    List<Budget> getBudgets() {
+        try {
+            AccountReader accountReader = new AccountReader(getContext());
+            return accountReader.readBudgets(getContext());
+        } catch (IOException ioe) {
+            throw new RuntimeException("Can't getBudgets", ioe);
+        }
+    }
+
+    private @NotNull
+    void setCurrentBalances() {
         try {
             AccountReader accountReader = new AccountReader(getContext());
             accountReader.getAccountBalances(getContext());
         } catch (IOException ioe) {
-            System.err.println(ioe);
+            throw new RuntimeException("Can't setCurrentBalances", ioe);
         }
     }
 

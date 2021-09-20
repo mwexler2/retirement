@@ -58,6 +58,7 @@ public class Alimony extends CashFlowEstimator {
     private CashFlowSink defaultSink;
     private static String ALIMONY = "Alimony";
 
+
     @JsonCreator
     public Alimony(@JacksonInject("context") Context context,
                    @JsonProperty(value = "id", required = true) String id,
@@ -86,26 +87,28 @@ public class Alimony extends CashFlowEstimator {
     }
 
 
-    @JsonIgnore
-    @Override
-    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
-        // The base income is specified monthly but smith/ostler is calculated quarterly (we should parameterize this)
-        BigDecimal quarterlyBaseIncome = baseIncome.multiply(BigDecimal.valueOf(3));
-
-        // Calculate any unpaid base alimony for the rest of the year.
-        List<CashFlowInstance> baseCashFlows = getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
+    // Calculate any unpaid base alimony for the rest of the year.
+    private List<CashFlowInstance> calculateUnpaidBaseAlimony(CashFlowCalendar cashFlowCalendar) {
+        return getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     CashFlowInstance cashFlowInstance =
                             new CashFlowInstance(true, this, defaultSink,
-                            getItemType(), getCategory(),
-                            accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance,
+                                    getItemType(), getCategory(),
+                                    accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance,
                                     payee.getName());
                     return cashFlowInstance;
                 });
+    }
 
-        // Calculate Smith/Ostler payments for the rest of the year.
-        List<CashFlowInstance> smithOstlerCashFlows = smithOstlerCashFlow.getFutureCashFlowInstances(cashFlowCalendar, this,
+    // Calculate Smith/Ostler payments for the rest of the year.
+    private List<CashFlowInstance> calculateSmithOstler(
+            CashFlowCalendar cashFlowCalendar
+    ) {
+        // The base income is specified monthly but smith/ostler is calculated quarterly (we should parameterize this)
+        BigDecimal quarterlyBaseIncome = baseIncome.multiply(BigDecimal.valueOf(3));
+
+        return smithOstlerCashFlow.getFutureCashFlowInstances(cashFlowCalendar, this,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (instance) -> {
@@ -121,21 +124,20 @@ public class Alimony extends CashFlowEstimator {
                         String description = "Estimated Smith Ostler for " + this.payee.getName();
                         return new CashFlowInstance(
                                 true, this, defaultSink,
-                                        getItemType(), getCategory(),
-                                        accrualStart, accrualEnd, cashFlowDate,
+                                getItemType(), getCategory(),
+                                accrualStart, accrualEnd, cashFlowDate,
                                 alimony, BigDecimal.ZERO,
                                 description);
                     } else {
                         return null;
                     }
                 });
+    }
 
-        // Combine the base cashflows and Smith/Ostler into a single list and remove everything over the max alimony for the year.
-        List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
-        allAlimonyCashFlows.addAll(baseCashFlows);
-        allAlimonyCashFlows.addAll(smithOstlerCashFlows);
-        allAlimonyCashFlows.sort((final CashFlowInstance instance1, final CashFlowInstance instance2) ->
-            instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
+    // remove everything over the max alimony for the year.
+    private List<CashFlowInstance> removeCashFlowsOverMax(
+            CashFlowCalendar cashFlowCalendar, List<CashFlowInstance> allAlimonyCashFlows
+    ) {
         List<CashFlowInstance> result = new ArrayList<>(allAlimonyCashFlows.size());
         Map<Integer, BigDecimal> ytdAlimonies = new HashMap<>();
         Spending spending = this.getContext().getById(Expense.class, "spending");
@@ -151,9 +153,9 @@ public class Alimony extends CashFlowEstimator {
             BigDecimal ytdAlimony = ytdAlimonies.get(accrualYear);
             BigDecimal remainingBalance = this.maxAlimony.subtract(ytdAlimony).min(BigDecimal.ZERO);
             if (amount.compareTo(remainingBalance) < 0) {
-                 amount = remainingBalance;
-                 String description = "Estimated " + instance.getDescription();
-                 CashFlowInstance remainingBalanceInstance = new CashFlowInstance(
+                amount = remainingBalance;
+                String description = "Estimated " + instance.getDescription();
+                CashFlowInstance remainingBalanceInstance = new CashFlowInstance(
                         true, spending, defaultSink,
                         getItemType(), getCategory(),
                         instance.getAccrualStart(),
@@ -169,6 +171,22 @@ public class Alimony extends CashFlowEstimator {
             }
         }
         return result;
+    }
+
+    @JsonIgnore
+    @Override
+    public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
+        List<CashFlowInstance> baseCashFlows = calculateUnpaidBaseAlimony(cashFlowCalendar);
+        List<CashFlowInstance> smithOstlerCashFlows = calculateSmithOstler(cashFlowCalendar);
+
+        // Combine the base cashflows and Smith/Ostler into a single list
+        List<CashFlowInstance> allAlimonyCashFlows = new ArrayList<>(baseCashFlows.size() + smithOstlerCashFlows.size());
+        allAlimonyCashFlows.addAll(baseCashFlows);
+        allAlimonyCashFlows.addAll(smithOstlerCashFlows);
+        allAlimonyCashFlows.sort((final CashFlowInstance instance1, final CashFlowInstance instance2) ->
+            instance1.getCashFlowDate().compareTo(instance2.getAccrualEnd()));
+
+        return removeCashFlowsOverMax(cashFlowCalendar, allAlimonyCashFlows);
     }
 
     @JsonIgnore

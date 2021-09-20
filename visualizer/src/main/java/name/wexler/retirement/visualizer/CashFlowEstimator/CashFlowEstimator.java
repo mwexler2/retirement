@@ -57,7 +57,9 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = Alimony.class, name = "alimony"),
         @JsonSubTypes.Type(value = IncomeTax.class, name = "incomeTax"),
         @JsonSubTypes.Type(value = RSU.class, name="RSU"),
-        @JsonSubTypes.Type(value = StockOption.class, name="stockOption")})
+        @JsonSubTypes.Type(value = StockOption.class, name="stockOption"),
+        @JsonSubTypes.Type(value = Budget.class, name="budgets")
+})
 public abstract class CashFlowEstimator extends Entity implements CashFlowSource {
     ;
     private final List<Entity> payers;

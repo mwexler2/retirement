@@ -2,6 +2,7 @@ package name.wexler.retirement.visualizer.Tables;
 
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
+import name.wexler.retirement.visualizer.Budget;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
@@ -29,11 +30,17 @@ import java.util.stream.Collectors;
 public class CashFlowCalendar {
     private static String SCENARIO_PATH_ELEM = "scenario";
     private static String GROUPING_PATH_ELEM = "grouping";
+
+
+
+
     public static enum ITEM_TYPE {INCOME, EXPENSE, TRANSFER};
 
     public interface CashFlowChecker {
         boolean check(CashFlowInstance source);
     }
+
+    private List<Budget> budgets;
     private final Map<String, Asset> _assets;
     private final Map<String, Liability> _liabilities;
     private List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
@@ -55,6 +62,14 @@ public class CashFlowCalendar {
 
     public void addCashFlowInstances(List<CashFlowInstance> cashFlowInstances) {
         this.cashFlowInstances.addAll(cashFlowInstances);
+    }
+
+    public void addBudgets(List<Budget> budgets) {
+        this.budgets = budgets;
+    }
+
+    public List<Budget> getBudgets() {
+        return budgets;
     }
 
     /**
