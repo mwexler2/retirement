@@ -25,7 +25,6 @@ package name.wexler.retirement.visualizer;
 
 
 import com.fasterxml.jackson.annotation.*;
-import com.sun.istack.NotNull;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CASH_ESTIMATE_PASS;
 import name.wexler.retirement.visualizer.Entity.Category;
@@ -35,6 +34,7 @@ import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -54,7 +54,8 @@ public class Scenario extends Entity {
     @JsonIgnore
     private final CashFlowCalendar calendar;
 
-    static public List<Scenario> readScenarios(Context context) throws IOException {
+    static public @NotNull
+    List<Scenario> readScenarios(@NotNull Context context) throws IOException {
         Assumptions.readAssumptions(context);
         Category.readCategories(context);
         return context.fromJSONFileList(Scenario[].class, scenariosPath);
@@ -62,13 +63,13 @@ public class Scenario extends Entity {
 
     @JsonCreator
     public Scenario(@JacksonInject("context") Context context,
-             @JsonProperty("id") String id,
-             @JsonProperty("name") String name,
-             @JsonProperty("cashFlowSources") String[] cashFlowEstimators,
-             @JsonProperty("assets") String[] assets,
-             @JsonProperty("liabilities") String[] liabilities,
-             @JsonProperty("accounts") String[] accounts,
-             @JsonProperty("assumptions") Assumptions assumptions) throws DuplicateEntityException {
+             @JsonProperty(value = "id", required = true) String id,
+             @JsonProperty(value = "name", required = true) String name,
+             @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowEstimators,
+             @JsonProperty(value = "assets", required = true) String[] assets,
+             @JsonProperty(value = "liabilities", required = true) String[] liabilities,
+             @JsonProperty(value = "accounts", required = true) String[] accounts,
+             @JsonProperty(value = "assumptions", required = true) Assumptions assumptions) throws DuplicateEntityException {
         super(context, id, Scenario.class);
         this.name = name;
         this._assumptions = assumptions;
@@ -94,7 +95,8 @@ public class Scenario extends Entity {
         context.put(Scenario.class, id, this);
     }
 
-    private List<CashFlowInstance> getEstimatedAssetValues(List<Asset> assets) {
+    private @NotNull
+    List<CashFlowInstance> getEstimatedAssetValues(@NotNull List<Asset> assets) {
         final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
         assets.
                 stream().
@@ -105,10 +107,11 @@ public class Scenario extends Entity {
         return cashFlowInstances;
     }
 
-    private List<CashFlowInstance> getFutureCashFlowInstances
+    private @NotNull
+    List<CashFlowInstance> getFutureCashFlowInstances
             (
-                    CashFlowCalendar calendar,
-                    CASH_ESTIMATE_PASS pass
+                    @NotNull CashFlowCalendar calendar,
+                    @NotNull CASH_ESTIMATE_PASS pass
             ) {
         final List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
         _cashFlowEstimators.
@@ -196,20 +199,17 @@ public class Scenario extends Entity {
     }
 
     @JsonProperty(value = "assumptions")
-    public Assumptions getAssumptions() {
+    public @NotNull
+    Assumptions getAssumptions() {
         return _assumptions;
     }
 
-    public String getName() {
+    public @NotNull
+    String getName() {
         return name;
     }
 
-    @JsonIgnore
-    public List<Integer> getYears() {
-        return calendar.getYears();
-    }
-
-    @JsonIgnore
+    @JsonIgnore @NotNull
     public CashFlowCalendar getCashFlowCalendar() {
         return calendar;
     }
