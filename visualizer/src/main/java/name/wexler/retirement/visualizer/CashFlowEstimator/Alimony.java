@@ -40,6 +40,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -93,7 +95,7 @@ public class Alimony extends CashFlowEstimator {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     CashFlowInstance cashFlowInstance =
-                            new CashFlowInstance(true, this, defaultSink,
+                            new CashFlowInstance(NO_ID, true, this, defaultSink,
                                     getItemType(), getCategory(),
                                     accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance,
                                     payee.getName());
@@ -122,7 +124,7 @@ public class Alimony extends CashFlowEstimator {
                     BigDecimal alimony = smithOstlerIncome.multiply(smithOstlerRate).setScale(2, RoundingMode.HALF_UP);
                     if (alimony.compareTo(BigDecimal.ZERO) < 0) {
                         String description = "Estimated Smith Ostler for " + this.payee.getName();
-                        return new CashFlowInstance(
+                        return new CashFlowInstance(NO_ID,
                                 true, this, defaultSink,
                                 getItemType(), getCategory(),
                                 accrualStart, accrualEnd, cashFlowDate,
@@ -156,6 +158,7 @@ public class Alimony extends CashFlowEstimator {
                 amount = remainingBalance;
                 String description = "Estimated " + instance.getDescription();
                 CashFlowInstance remainingBalanceInstance = new CashFlowInstance(
+                        NO_ID,
                         true, spending, defaultSink,
                         getItemType(), getCategory(),
                         instance.getAccrualStart(),

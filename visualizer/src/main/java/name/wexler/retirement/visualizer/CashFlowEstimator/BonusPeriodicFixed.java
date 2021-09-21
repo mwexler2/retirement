@@ -33,6 +33,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -62,7 +64,7 @@ public class BonusPeriodicFixed extends Bonus {
                     BigDecimal amount = annualAmount.multiply(percent).setScale(2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     String description = "Estimated bonus for " + getJob().getName();
-                    return new CashFlowInstance(true, this.getJob(), this.getJob().getDefaultSink(),
+                    return new CashFlowInstance(NO_ID, true, this.getJob(), this.getJob().getDefaultSink(),
                             getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                 }

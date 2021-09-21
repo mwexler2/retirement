@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -147,7 +148,7 @@ public class CashFlowTypeTest {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                 BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(26), 2, RoundingMode.HALF_UP);
                 BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                return new CashFlowInstance(false, salary1, defaultSink,
+                return new CashFlowInstance(NO_ID, false, salary1, defaultSink,
                         CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
                         accrualStart, accrualEnd, cashFlowDate, amount, balance, "salary for " + salary1.getName());
                 });
@@ -160,7 +161,7 @@ public class CashFlowTypeTest {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(true, salary1, defaultSink,
+                    return new CashFlowInstance(NO_ID, true, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(), "test", accrualStart, accrualEnd, cashFlowDate, amount, balance,
                             "Estimated salary for " + salary1.getName());
                 });
@@ -172,7 +173,7 @@ public class CashFlowTypeTest {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(24), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(false, salary1, defaultSink,
+                    return new CashFlowInstance(NO_ID, false, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.EXPENSE.toString(), "test",
                             accrualStart, accrualEnd, cashFlowDate, amount, balance,
                             "Salary for " + salary1.getName());
@@ -187,7 +188,7 @@ public class CashFlowTypeTest {
         List<CashFlowInstance> annualCashFlows = annual.getFutureCashFlowInstances(cashFlowCalendar, salary1,
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(false, salary1, defaultSink,
+                    return new CashFlowInstance(NO_ID, false, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
                             accrualStart, accrualEnd, cashFlowDate, annualAmount, balance,
                             "Salary for " + salary1.getName());
@@ -201,7 +202,7 @@ public class CashFlowTypeTest {
                 {
                     BigDecimal amount = annualAmount.divide(BigDecimal.valueOf(4), 2, RoundingMode.HALF_UP);
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
-                    return new CashFlowInstance(false, salary1, defaultSink,
+                    return new CashFlowInstance(NO_ID, false, salary1, defaultSink,
                             CashFlowCalendar.ITEM_TYPE.INCOME.toString(), "test",
                             accrualStart, accrualEnd, cashFlowDate, amount, balance,
                             "Salary for " + salary1.getName());

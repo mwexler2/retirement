@@ -22,6 +22,6 @@ public abstract class AssetTransaction extends CashFlowInstance {
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount,
                             BigDecimal balance, String description) {
-        super(estimated, cashFlowSource, cashFlowSink, itemType, category, accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
+        super(NO_ID, estimated, cashFlowSource, cashFlowSink, itemType, category, accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
     }
 }

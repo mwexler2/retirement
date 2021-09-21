@@ -92,7 +92,7 @@ public class Rent extends CashFlowEstimator {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     String description = "Estimated rent for " + getPayees().get(0).getName();
-                    CashFlowInstance instance = new CashFlowInstance(true,this, defaultSink,
+                    CashFlowInstance instance = new CashFlowInstance(CashFlowInstance.NO_ID, true,this, defaultSink,
                             getItemType(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance, description);
                     return instance;

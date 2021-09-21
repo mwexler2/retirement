@@ -36,6 +36,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -68,7 +70,7 @@ public class RSU extends EquityCompensation {
             BigDecimal amount = sharePrice.multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             CashFlowInstance instance =
-                    new CashFlowInstance(true, this, getJob().getDefaultSink(),
+                    new CashFlowInstance(NO_ID, true, this, getJob().getDefaultSink(),
                     getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
                     getDescription(shares, sharePrice));
             return instance;

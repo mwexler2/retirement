@@ -12,13 +12,14 @@ public class LiabilityCashFlowInstance extends CashFlowInstance {
     private final BigDecimal interest;
     private final BigDecimal impounds;
 
-    public LiabilityCashFlowInstance(boolean estimated, CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
+    public LiabilityCashFlowInstance(long id,
+                                     boolean estimated, CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
                                      String category,
                                      LocalDate accrualStart, LocalDate accrualEnd,
                                      LocalDate cashFlowDate,
                                      BigDecimal principal, BigDecimal interest, BigDecimal impounds,
                                      BigDecimal balance, String description) {
-        super(estimated, cashFlowSource, cashFlowSink,
+        super(id, estimated, cashFlowSource, cashFlowSink,
                 CashFlowCalendar.ITEM_TYPE.EXPENSE.toString(), category,
                 accrualStart, accrualEnd, cashFlowDate,
                 principal.add(interest).add(impounds).negate(), balance, description);

@@ -32,6 +32,8 @@ import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -62,7 +64,7 @@ public class BonusAnnualPct extends Bonus {
                 (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                 String description = "Estimated bonus for " + getJob().getName();
-                return new CashFlowInstance(true,this, this.getJob().getDefaultSink(),
+                return new CashFlowInstance(NO_ID, true,this, this.getJob().getDefaultSink(),
                     getItemType(), getCategory(),
                     accrualStart, accrualEnd, cashFlowDate, annualAmount, balance,
                     description);

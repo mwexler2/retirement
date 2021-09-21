@@ -13,6 +13,8 @@ import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
@@ -103,10 +105,10 @@ public class CashFlowCalendarTest {
         cashFlowEstimators.add(debt);
 
         List<CashFlowInstance> cashFlowInstances = new ArrayList<CashFlowInstance>();
-        cashFlowInstances.add(new CashFlowInstance(true,job1, defaultSink, "itemType", "category" ,accrueStart,
+        cashFlowInstances.add(new CashFlowInstance(NO_ID, true,job1, defaultSink, "itemType", "category" ,accrueStart,
                         accrueEnd, LocalDate.of(2020, Month.MAY, 17),BigDecimal.ONE, BigDecimal.TEN,
                 "Estiimated cash flow"));
-        cashFlowInstances.add(new LiabilityCashFlowInstance(false, debt, defaultSink,"category",
+        cashFlowInstances.add(new LiabilityCashFlowInstance(NO_ID,false, debt, defaultSink,"category",
                 accrueStart, accrueEnd, LocalDate.of(2015, Month.JANUARY, 31),
                 BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ONE,
                 "Liability cashflow"));

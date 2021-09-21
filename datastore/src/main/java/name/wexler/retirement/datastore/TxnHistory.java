@@ -165,7 +165,7 @@ public class TxnHistory {
 
     public ResultSet getTransactions() {
         String sql =
-                "SELECT date, description, original_description, amount, txn_type, " +
+                "SELECT id, date, description, original_description, amount, txn_type, " +
                         "itemType, IFNULL(cooked_category, txnHistory.category) AS category, TRIM(account_name) AS account_name, labels, notes, fi,\n" +
                         "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer, \n" +
                         "symbol, shares, source \n" +

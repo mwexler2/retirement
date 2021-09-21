@@ -111,7 +111,8 @@ public class AccountReader {
             entry("2", "Transfer")
     );
 
-    protected CashFlowInstance getInstanceFromResultSet(
+    protected
+    CashFlowInstance getInstanceFromResultSet(
             Context context,
             ResultSet rs)  {
         try {
@@ -133,12 +134,14 @@ public class AccountReader {
 
             return instance;
         } catch (SQLException sqle) {
-            System.err.println(sqle);
+            throw new RuntimeException(sqle);
+        } catch (Account.AccountNotFoundException anfe) {
+            throw new RuntimeException(anfe);
         }
-        return null;
     }
 
-    private Job getJobFromDescription(Context context, String description) {
+    private
+    Job getJobFromDescription(Context context, String description) {
         String companyName = description;
         if (description.toLowerCase().contains("amazon")) {
             companyName = "Amazon.com";
@@ -154,9 +157,6 @@ public class AccountReader {
             throws SQLException {
         Account account = null;
         String accountName = rs.getString("account_name").trim();
-        if (accountName.equals("Investor Checking")) {
-            System.out.println("Investor Checking!");
-        }
         CreditCardAccount creditCardAccount = context.getById(CreditCardAccount.class, accountName);
         SecuredLoan securedLoan = context.getById(SecuredLoan.class, accountName);
         if (creditCardAccount != null) {

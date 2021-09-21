@@ -11,12 +11,12 @@ import java.time.LocalDate;
 public class ReimbursementInstance extends CashFlowInstance {
     private Entity employer;
 
-    public ReimbursementInstance(CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
+    public ReimbursementInstance(long id, CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
                                  String category,
                                  LocalDate accrualStart, LocalDate accrualEnd,
                                  LocalDate cashFlowDate, BigDecimal amount, BigDecimal balance,
                                  Entity employer, String description) {
-        super(false, cashFlowSource, cashFlowSink,
+        super(id, false, cashFlowSource, cashFlowSink,
                 CashFlowCalendar.ITEM_TYPE.INCOME.toString(), category,
                 accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
         this.employer = employer;

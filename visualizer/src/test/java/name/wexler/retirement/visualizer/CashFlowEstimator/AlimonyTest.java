@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -84,7 +85,7 @@ public class AlimonyTest {
 
         cashFlowInstances.add(
                 new CashFlowInstance(
-                        true,
+                        NO_ID, true,
                         alimony,
                         defaultSink,
                         alimony.getItemType(),
@@ -119,7 +120,7 @@ public class AlimonyTest {
                 BigDecimal.valueOf(1000.00));
         cashFlowInstances.add(
                 new CashFlowInstance(
-                        false,
+                        NO_ID, false,
                         salary,
                         defaultSink,
                         salary.getItemType(),
@@ -136,7 +137,7 @@ public class AlimonyTest {
         Month lastMonthOfQuarter = now.getMonth().firstMonthOfQuarter().plus(2);
         cashFlowInstances.add(
                 new CashFlowInstance(
-                        true,
+                        NO_ID, true,
                         salary,
                         defaultSink,
                         salary.getItemType(),

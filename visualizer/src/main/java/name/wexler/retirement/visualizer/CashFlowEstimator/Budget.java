@@ -40,6 +40,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -105,7 +107,7 @@ public class Budget extends CashFlowEstimator {
                                 BigDecimal amount = budget.getBudget();
                                 if (budget.getItemType().equals(Category.EXPENSE))
                                     amount = amount.negate();
-                                CashFlowInstance instance = new CashFlowInstance(true, this, defaultSink,
+                                CashFlowInstance instance = new CashFlowInstance(NO_ID, true, this, defaultSink,
                                         budget.getItemType(), budget.getCategory(),
                                         accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                                 return instance;

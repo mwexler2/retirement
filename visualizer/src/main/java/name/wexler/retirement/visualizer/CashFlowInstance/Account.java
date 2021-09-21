@@ -5,6 +5,7 @@ import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Spending;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -24,22 +25,24 @@ public interface Account extends CashFlowSource, CashFlowSink {
     Entity getCompany();
     String getTxnSource();
     String getName();
-    BigDecimal adjustAmount(BigDecimal amount);
     CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount);
 
-    public default CashFlowInstance getInstance(Context context,
+    public @NotNull
+    default CashFlowInstance getInstance(Context context,
                                                 Spending spending,
                                                 ResultSet rs,
                                                 CashFlowSource cashFlowSource,
                                                 String description,
-                                                Job job) throws SQLException {
+                                                Job job
+    ) throws SQLException, AccountNotFoundException {
         CashFlowInstance instance = null;
 
         long dateMillis = rs.getLong("Date");
         LocalDate txnDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.of("UTC")).toLocalDate();
         LocalDate accrualEnd = txnDate;
         BigDecimal txnAmount = BigDecimal.ZERO;
+        long id = rs.getLong("id");
         String category = rs.getString("category");
         String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
         String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
@@ -65,40 +68,36 @@ public interface Account extends CashFlowSource, CashFlowSink {
         } catch (NumberFormatException nfe) {
             return null;
         }
-        txnAmount = this.adjustAmount(txnAmount);
         if (symbol != null && symbol.length() > 0) {
             BigDecimal shares = rs.getBigDecimal("shares");
             instance = processSymbol(context, symbol, description, category, itemType, shares, txnDate, txnAmount);
         }
         if (instance != null) {
-        } else if (isDebit) {
+        } else if (isDebit && !itemType.equals("TRANSFER")) {
             if (company == null) {
-                System.err.println(new Account.AccountNotFoundException(this.getName()));
-                return null;
+                throw new Account.AccountNotFoundException(this.getName());
             }
             if (cashFlowSource == null)
                 cashFlowSource = spending;
-            instance = new PaymentInstance(cashFlowSource, this, category,
+            instance = new PaymentInstance(id, cashFlowSource, this, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, company, description);
         } else if (job != null && !isDebit && category.equals("Paycheck")) {
             if (company == null) {
-                System.err.println(new AccountNotFoundException(this.getName()));
-                return null;
+                throw new AccountNotFoundException(this.getName());
             }
-            instance = new PaycheckInstance(job, this, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+            instance = new PaycheckInstance(id, job, this, category, accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, description);
         } else if (job != null && !isDebit && category.equals("Reimbursement")) {
             if (company == null) {
-                System.err.println(new AccountNotFoundException(this.getName()));
-                return null;
+                throw new AccountNotFoundException(this.getName());
             }
-            instance = new ReimbursementInstance(this, job.getDefaultSink(), category,
+            instance = new ReimbursementInstance(id, this, job.getDefaultSink(), category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, company,
                     description);
         } else {
-            instance = new CashFlowInstance(false, this, this,
+            instance = new CashFlowInstance(id, false, this, this,
                     itemType, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, description);

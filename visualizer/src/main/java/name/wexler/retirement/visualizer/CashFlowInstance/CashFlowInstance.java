@@ -26,12 +26,15 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     private String category = "";
     private CashFlowSink cashFlowSink;
     private boolean estimated;
+    private long id;
+    public static long NO_ID = 2102102102;
 
-    public CashFlowInstance(boolean estimated,
+    public CashFlowInstance(long id, boolean estimated,
                             CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
                             String itemType, String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount, BigDecimal balance, String description) {
+        this.id = id;
         this.estimated = estimated;
         this.accrualStart = accrualStart;
         this.accrualEnd = accrualEnd;
@@ -63,6 +66,9 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
         return result;
     }
 
+    public long getId() {
+        return this.id;
+    }
     public boolean isEstimate() {
         return estimated;
     }

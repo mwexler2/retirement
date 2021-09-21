@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -107,7 +109,7 @@ public class Salary extends CashFlowEstimator {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     String description = String.join(", ", getPayers().stream().map(e -> e.getName()).collect(Collectors.toList()));
                     CashFlowInstance instance =
-                            new CashFlowInstance(true, this, getJob().getDefaultSink(),
+                            new CashFlowInstance(NO_ID, true, this, getJob().getDefaultSink(),
                             getItemType(), this.getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                     return instance;

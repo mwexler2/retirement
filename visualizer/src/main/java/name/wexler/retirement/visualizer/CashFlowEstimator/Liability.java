@@ -207,12 +207,6 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     }
 
     @Override
-    @JsonIgnore
-    public BigDecimal adjustAmount(BigDecimal txnAmount) {
-        return txnAmount;
-    }
-
-    @Override
     public CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount) {
         return null;

@@ -211,7 +211,7 @@ public class RetirementController {
     }
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/grouping/{grouping}/{category}", method = RequestMethod.GET)
-    public ModelAndView retirementCashFlowsByYear(@PathVariable String category,
+    public ModelAndView retirementCashFlowsCategory(@PathVariable String category,
                                                       @PathVariable String scenarioId,
                                                       @PathVariable String grouping,
                                                       ModelMap model) {

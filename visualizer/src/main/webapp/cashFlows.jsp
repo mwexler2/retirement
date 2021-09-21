@@ -16,6 +16,7 @@
                       <display:column property="groupBy" group="1" />
                </c:when>
         </c:choose>
+        <display:column property="id" />
         <display:column property="cashFlowDate" />
         <display:column property="accrualStart" />
         <display:column property="accrualEnd" />

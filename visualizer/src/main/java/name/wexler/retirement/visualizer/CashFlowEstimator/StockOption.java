@@ -35,6 +35,8 @@ import name.wexler.retirement.visualizer.Context;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -69,7 +71,7 @@ public class StockOption extends EquityCompensation {
             BigDecimal amount = sharePrice.subtract(strikePrice).multiply(shares);
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             String description =  "Estimated option vest: " + shares + " of " + getSecurity() + " @" + strikePrice;
-            return new CashFlowInstance(true, this, getJob().getDefaultSink(),
+            return new CashFlowInstance(NO_ID, true, this, getJob().getDefaultSink(),
                     this.getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
                    description);
         });

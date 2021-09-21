@@ -12,12 +12,13 @@ public class PaycheckInstance extends CashFlowInstance {
     private Entity employer;
 
     public PaycheckInstance(
+            long id,
             Job job,
             CashFlowSink sink,
             String category,
             LocalDate accrualStart, LocalDate accrualEnd,
             LocalDate cashFlowDate, BigDecimal amount, BigDecimal balance, String description) {
-        super(false, job, sink,
+        super(id, false, job, sink,
                 CashFlowCalendar.ITEM_TYPE.INCOME.toString(), category,
                 accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
         this.employer = job.getEmployer();

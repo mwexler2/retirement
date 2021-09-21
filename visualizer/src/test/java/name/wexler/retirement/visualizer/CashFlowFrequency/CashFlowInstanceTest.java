@@ -17,6 +17,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -45,7 +46,7 @@ public class CashFlowInstanceTest {
                 LocalDate.of(2010, Month.APRIL, 15),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
         CashFlowEstimator salary1 = new Salary(context, "salary1", "job1", "salary1CashFlow", BigDecimal.valueOf(42000.42));
-        cfi = new CashFlowInstance(true,
+        cfi = new CashFlowInstance(NO_ID, true,
                 salary1,
                 defaultSink,
                 CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(),

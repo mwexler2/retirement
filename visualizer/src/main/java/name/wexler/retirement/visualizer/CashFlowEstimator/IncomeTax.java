@@ -35,6 +35,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+
 /**
  * Created by mwexler on 7/5/16.
  */
@@ -78,7 +80,7 @@ public class IncomeTax extends CashFlowEstimator {
                     try {
                         BigDecimal incomeTax = taxTable.computeTax(accrualEnd.getYear(), income).negate();
                         String description = "Estimated " + this.getName();
-                        return new CashFlowInstance(true, this, defaultSink,
+                        return new CashFlowInstance(NO_ID, true, this, defaultSink,
                                     getItemType(), getCategory(),
                                     accrualStart, accrualEnd, cashFlowDate, incomeTax, balance, description);
                     } catch (TaxTable.TaxYearNotFoundException tynfe) {

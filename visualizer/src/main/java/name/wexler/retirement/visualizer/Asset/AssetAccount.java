@@ -212,10 +212,6 @@ public class AssetAccount extends Asset implements Account {
         return startingShareBalancesBySymbol.values();
     }
 
-    public BigDecimal adjustAmount(BigDecimal txnAmount) {
-        return txnAmount.negate();
-    }
-
     @Override
     public CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount) {

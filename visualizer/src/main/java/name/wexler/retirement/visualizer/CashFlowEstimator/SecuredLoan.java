@@ -28,8 +28,8 @@ import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
@@ -39,6 +39,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+
+import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -115,7 +117,7 @@ public class SecuredLoan extends Liability {
                 principal = balance;
             balance = balance.add(principal);
             CashFlowInstance cashFlowInstance =
-                    new LiabilityCashFlowInstance(true,this, defaultSink,
+                    new LiabilityCashFlowInstance(NO_ID,true,this, defaultSink,
                     getCategory(), accrualStart, accrualEnd, cashFlowDate,
                     principal, interest, impoundAmount, balance,
                             this.getPayees().get(0).getName());
