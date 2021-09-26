@@ -58,32 +58,37 @@
 
 
     <c:set var="assetsAndLiabilities" scope="page" value="${scenario.cashFlowCalendar.assetsAndLiabilities}"></c:set>
-    <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator"
-        sort="external">
-        <display:caption>Assets & Liabilities</display:caption>
-        <display:column property="itemType" group="1" />
-        <display:column property="itemCategory" group="2" />
-        <c:forEach var="col" items="${assetsAndLiabilities.getColumnDefinitions()}">
-            <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
-                            property="${col.property}" decorator="${col.decorator}" class="money"
-                            total="${col.total}" />
-        </c:forEach>
+    <div class="table-scroll">
+        <display:table uid="item" name="${assetsAndLiabilities}" decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator"
+            sort="external">
+            <display:caption>Assets & Liabilities</display:caption>
+            <display:column property="itemType" group="1" class="fixed-column" headerClass="fixed-column" />
+            <display:column property="itemCategory" group="2" class="fixed-column" headerClass="fixed-column" />
+            <c:forEach var="col" items="${assetsAndLiabilities.getColumnDefinitions()}">
+                <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
+                                property="${col.property}" decorator="${col.decorator}" class="${col.className}"
+                                headerClass="${col.headerClassName}"
+                                total="${col.total}" />
+            </c:forEach>
 
-    </display:table>
+        </display:table>
+    </div>
 
     <c:set var="cashFlows" scope="page" value="${scenario.cashFlowCalendar.cashFlows}"></c:set>
-    <display:table uid="cashFlow" name="${cashFlows}" decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator"
-                   sort="external">
-        <display:caption>Income and Expenses --- displaytag</display:caption>
-        <display:column property="itemType" group="1" />
-        <display:column property="itemCategory" group="2" />
-        <c:forEach var="col" items="${cashFlows.getColumnDefinitions()}">
-            <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
-                            property="${col.property}" decorator="${col.decorator}" style="text-align: right"
-                            total="${col.total}" />
-        </c:forEach>
+    <div class="table-scroll">
+        <display:table uid="cashFlow" name="${cashFlows}" decorator="name.wexler.retirement.visualizer.Tables.MultilevelBigDecimalLinkTableDecorator"
+                       sort="external">
+            <display:caption>Income and Expenses --- displaytag</display:caption>
+            <display:column property="itemType" group="1" class="fixed-column" headerClass="fixed-column" />
+            <display:column property="itemCategory" group="2" class="fixed-column"  headerClass="fixed-column" />
+            <c:forEach var="col" items="${cashFlows.getColumnDefinitions()}">
+                <display:column title="${col.name}" href="${col.href}" paramProperty="${col.paramProperty}"
+                                property="${col.property}" decorator="${col.decorator}" style="text-align: right"
+                                class="${col.className}" headerClass="${col.headerClassName}" total="${col.total}" />
+            </c:forEach>
 
-    </display:table>
+        </display:table>
+    </div>
 </c:forEach>
 </body>
 </html>

@@ -223,7 +223,6 @@ public class CashFlowCalendar {
 
         public String getItemCategory(Map<String, Object> item) { return (String) item.get("itemCategory"); }
         public String getItemType(Map<String, Object> item) { return (String) item.get("itemType"); }
-        public String getItemName(Map<String, Object> item) { return (String) item.get("name"); }
     }
 
     public class AmountAndLink {
@@ -288,12 +287,15 @@ public class CashFlowCalendar {
         columnDefinitions.add(ColumnDefinition.Builder.newInstance().
                 setName("").
                 setProperty("name").
+                setClassName("fixed-column").
+                setHeaderClassName("fixed-column").
                 setTotal(false).
                 build());
         for (int year : this.getYears()) {
             columnDefinitions.add(ColumnDefinition.Builder.newInstance().
                     setName(Integer.toString(year)).
                     setParamName("key").
+                    setClassName("money").
                     setProperty(Integer.toString(year)).
                     setDecorator(MoneyTableColumnDecorator.class.getName()).
                     setTotal(true).

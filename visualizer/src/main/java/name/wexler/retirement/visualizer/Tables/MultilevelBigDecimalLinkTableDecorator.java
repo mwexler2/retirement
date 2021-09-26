@@ -20,6 +20,9 @@ import org.displaytag.decorator.TableDecorator;
 import org.displaytag.exception.DecoratorException;
 import org.displaytag.exception.ObjectLookupException;
 import org.displaytag.model.*;
+import org.displaytag.util.HtmlAttributeMap;
+import org.displaytag.util.HtmlTagUtil;
+import org.displaytag.util.MultipleHtmlAttribute;
 import org.displaytag.util.TagConstants;
 
 import javax.servlet.jsp.PageContext;
@@ -114,6 +117,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
      */
     private List headerRows = new ArrayList(5);
 
+    @Override
     public void init(PageContext context, Object decorated, TableModel model)
     {
         super.init(context, decorated, model);
@@ -140,22 +144,6 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return grandTotalDescription;
     }
 
-    public void setGrandTotalDescription(String grandTotalDescription)
-    {
-        this.grandTotalDescription = grandTotalDescription;
-    }
-
-    /**
-     * The pattern to use to generate the subtotal labels.  The grouping value of the cell will be the first arg.
-     * The default value is "{0} Total".
-     * @param pattern
-     * @param locale
-     */
-    public void setSubtotalLabel(String pattern, Locale locale)
-    {
-        this.subtotalDesc = new MessageFormat(pattern, locale);
-    }
-
     public String getGrandTotalLabel()
     {
         return grandTotalLabel;
@@ -171,29 +159,9 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return grandTotalNoSum;
     }
 
-    public void setGrandTotalNoSum(String grandTotalNoSum) 
-    {
-        this.grandTotalNoSum = grandTotalNoSum;
-    }
-
-    public void setGrandTotalSum(String grandTotalSum)
-    {
-        this.grandTotalSum = grandTotalSum;
-    }
-
-    public void setGrandTotalLabel(String grandTotalLabel)
-    {
-        this.grandTotalLabel = grandTotalLabel;
-    }
-
     public String getSubtotalValueClass()
     {
         return subtotalValueClass;
-    }
-
-    public void setSubtotalValueClass(String subtotalValueClass)
-    {
-        this.subtotalValueClass = subtotalValueClass;
     }
 
     public String getSubtotalLabelClass()
@@ -201,52 +169,59 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return subtotalLabelClass;
     }
 
-    public void setSubtotalLabelClass(String subtotalLabelClass)
-    {
-        this.subtotalLabelClass = subtotalLabelClass;
-    }
-
     public String getSubtotalHeaderClass()
     {
         return subtotalHeaderClass;
     }
 
-    public void setSubtotalHeaderClass(String subtotalHeaderClass)
-    {
-        this.subtotalHeaderClass = subtotalHeaderClass;
-    }
-
+    @Override
     public void startOfGroup(String value, int group)
     {
         if (containsTotaledColumns)
         {
+            List<HeaderCell> headerCells = tableModel.getHeaderCellList();
             StringBuffer tr = new StringBuffer();
-            tr.append("<tr class=\"").
+            tr.append(TagConstants.TAG_OPEN).
+                    append(TagConstants.TAGNAME_ROW).
+                    append(" ").
+                    append(TagConstants.ATTRIBUTE_CLASS).
+                    append("=\"").
                     append(value).append(" ").
                     append(getSubtotalHeaderClass()).
                     append(" group-").append(group).
-                    append("\" >");
+                    append("\" ").
+                    append(TagConstants.TAG_CLOSE);
             GroupTotals groupTotals = (GroupTotals) groupNumberToGroupTotal.get(Integer.valueOf(group));
             int myColumnNumber = groupTotals.columnNumber;
+
             for (int i = 0; i < myColumnNumber; i++)
             {
-                tr.append("<td></td>\n");
+                tr.append(HtmlTagUtil.createOpenTagString(TagConstants.TAGNAME_COLUMN,
+                                headerCells.get(i).getHtmlAttributes())).
+                        append(TagConstants.TAG_TD_CLOSE).append("\n");
             }
-            tr.append("<td class=\"").
-                    append(getSubtotalHeaderClass()).
-                    append(" group-").append(group).
-                    append("\" >");
-            tr.append(value).append("</td>\n");
-            List headerCells = tableModel.getHeaderCellList();
-            for (int i = myColumnNumber; i < headerCells.size() - 1; i++)
+            HtmlAttributeMap attrs = new HtmlAttributeMap();
+            attrs.putAll(headerCells.get(0).getHtmlAttributes());
+            if (attrs.containsKey(TagConstants.ATTRIBUTE_CLASS)) {
+                ((MultipleHtmlAttribute) attrs.get(TagConstants.ATTRIBUTE_CLASS)).addAttributeValue(getSubtotalHeaderClass());
+            } else {
+                attrs.put(TagConstants.ATTRIBUTE_CLASS, new MultipleHtmlAttribute(getSubtotalHeaderClass()));
+            }
+            ((MultipleHtmlAttribute) attrs.get(TagConstants.ATTRIBUTE_CLASS)).addAttributeValue("group-" + group);
+            tr.append(HtmlTagUtil.createOpenTagString(TagConstants.TAGNAME_COLUMN, attrs)).
+                    append(value).append(TagConstants.TAG_TD_CLOSE);
+            for (int i = myColumnNumber + 1; i < headerCells.size(); i++)
             {
-                tr.append("<td></td>\n");
+                tr.append(HtmlTagUtil.createOpenTagString(TagConstants.TAGNAME_COLUMN,
+                                headerCells.get(i).getHtmlAttributes())).
+                        append(TagConstants.TAG_TD_CLOSE).append("\n");
             }
-            tr.append("</tr>\n");
+            tr.append(TagConstants.TAG_TR_CLOSE).append("\n");
             headerRows.add(tr);
         }
     }
 
+    @Override
     public String displayGroupedValue(String value, short groupingStatus, int columnNumber)
     {
 //        if (groupingStatus == TableWriterTemplate.GROUP_START_AND_END && columnNumber > 1)
@@ -259,6 +234,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
 //        }
     }
 
+    @Override
     public String addRowClass()
     {
         List<String> classes = new ArrayList<>(this.groupNumberToGroupTotal.size() + 1);
@@ -272,6 +248,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return String.join(" ", classes);
     }
 
+    @Override
     public String startRow()
     {
         StringBuffer sb = new StringBuffer();
@@ -283,6 +260,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return sb.toString();
     }
 
+    @Override
     public void endOfGroup(String value, int groupNumber)
     {
         if (deepestResetGroup > groupNumber)
@@ -291,6 +269,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         }
     }
 
+    @Override
     public String finishRow()
     {
         String returnValue = "";
@@ -600,19 +579,10 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             return totalLabelClass;
         }
 
-        public void setTotalLabelClass(String totalLabelClass)
-        {
-            this.totalLabelClass = totalLabelClass;
-        }
-
         public String getTotalValueClass()
         {
             return totalValueClass;
         }
 
-        public void setTotalValueClass(String totalValueClass)
-        {
-            this.totalValueClass = totalValueClass;
-        }
     }
 }
