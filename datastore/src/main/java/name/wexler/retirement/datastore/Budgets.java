@@ -24,16 +24,20 @@ public class Budgets {
                 + " id integer PRIMARY KEY,\n"
                 + " grouping TEXT NOT NULL,\n"
                 + " st INTEGER,\n"
+                + " period INTEGER,\n"
                 + " ramt INTEGER,\n"
                 + " isIncome BOOLEAN int NOT NULL,\n"
                 + " isTransfer BOOLEAN int NOT NULL,\n"
                 + " isExpense BOOLEAN int NOT NULL,\n"
-                + " amt REAL NOT NULL,\n"
+                + " amt REAL,\n"
                 + " pid INTEGER NOT NULL,\n"
+                + " aamt INTEGER,\n"
                 + " type INTEGER NOT NULL,\n"
                 + " bgt REAL NOT NULL,\n"
+                + " tbgt REAL,\n"
                 + " rbal REAL NOT NULL,\n"
                 + " ex BOOLEAN NOT NULL,\n"
+                + " isLast BOOLEAN,\n"
                 + " cat TEXT NOT NULL,\n"
                 + " catName TEXT NOT NULL,\n"
                 + " catTypeFilter TEXT NOT NULL,\n"
@@ -42,7 +46,7 @@ public class Budgets {
         try (Statement stmt = conn.getConnection().createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -54,56 +58,73 @@ public class Budgets {
         String sql = "INSERT OR REPLACE INTO budgets \n"
                 + "(st, ramt, isIncome, isTransfer, isExpense, amt, pid, type, bgt, " +
                 "   rbal, ex, cat," +
-                "   catName, id, catTypeFilter, parent, grouping) \n"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
+                "   catName, id, catTypeFilter, parent, grouping," +
+                "   period, aamt, tbgt, isLast" +
+                ") \n" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 "          ?, ?, ?," +
-                "          ?, ?, ?, ?, ?);\n";
+                "          ?, ?, ?, ?, ?," +
+                "          ?, ?, ?, ?);\n";
 
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
             pstmt.setLong(1, getOptionalLong(line, "st"));
             pstmt.setLong(2, getOptionalLong(line, "ramt"));
-            if (line.get("isIncome") instanceof Boolean)
-                pstmt.setBoolean( 3, (Boolean) line.get("isIncome"));
-            else
-                pstmt.setNull(3, Types.BOOLEAN);
-            if (line.get("isTransfer") instanceof Boolean)
-                pstmt.setBoolean( 4, (Boolean) line.get("isTransfer"));
-            else
-                pstmt.setNull(4, Types.BOOLEAN);
-            if (line.get("isExpense") instanceof Boolean)
-                pstmt.setBoolean( 5, (Boolean) line.get("isExpense"));
-            else
-                pstmt.setNull(5, Types.BOOLEAN);
-            if (line.get("amt") instanceof Double)
-                pstmt.setDouble( 6, (Double) line.get("amt"));
-            else
-                pstmt.setNull(6, Types.DOUBLE);
+            setOptionalBoolean(pstmt, 3, "isIncome", line);
+            setOptionalBoolean(pstmt, 4, "isTransfer", line);
+            setOptionalBoolean(pstmt, 5, "isIncome", line);
+
+            setOptionalDouble(pstmt, 6, "amt", line);
             pstmt.setLong(7, getOptionalLong(line, "pid"));
             pstmt.setLong(8, getOptionalLong(line, "type"));
-            if (line.get("bgt") instanceof Double)
-                pstmt.setDouble(9, (Double) line.get("bgt"));
-            else
-                pstmt.setNull(9, Types.DOUBLE);
-            if (line.get("rbal") instanceof Double)
-                pstmt.setDouble(10, (Double) line.get("rbal"));
-            else
-                pstmt.setNull(10, Types.DOUBLE);
-            if (line.get("ex") instanceof Boolean)
-                pstmt.setBoolean( 11, (Boolean) line.get("ex"));
-            else
-                pstmt.setNull(11, Types.BOOLEAN);
+            setOptionalDouble(pstmt, 9, "bgt", line);
+            setOptionalDouble(pstmt, 10, "rbal", line);
+            setOptionalBoolean(pstmt, 11,"ex", line);
             pstmt.setString( 12, (String) line.get("cat"));
             pstmt.setString( 13, (String) line.get("catName"));
             pstmt.setLong( 14, (long) line.get("id"));
             pstmt.setString( 15, (String) line.get("catTypeFilter"));
             pstmt.setString( 16, (String) line.get("parent"));
             pstmt.setString(17, grouping);
+            setOptionalLong(pstmt, 18, "period",  line);
+            setOptionalDouble(pstmt, 19, "aamt", line);
+            setOptionalDouble(pstmt, 20, "tbgt", line);
+            setOptionalBoolean(pstmt, 21,"isLast", line);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage() + ": " + line.toString());
+            throw new RuntimeException(e);
         } catch (NumberFormatException nfe) {
-            System.out.println(nfe.getMessage() + ": " + line.toString());
+            throw new RuntimeException(nfe);
         }
+    }
+
+    private void setOptionalBoolean(PreparedStatement pstmt,
+                                    int index,  // Index of field in insert statement
+                                    String name, // name of field in line
+                                    Map<String, Object> line) throws SQLException {
+        if (line.get(name) instanceof Boolean)
+            pstmt.setBoolean(index, (Boolean) line.get(name));
+        else
+            pstmt.setNull(index, Types.BOOLEAN);
+    }
+
+    private void setOptionalLong(PreparedStatement pstmt,
+                                    int index,  // Index of field in insert statement
+                                    String name, // name of field in line
+                                    Map<String, Object> line) throws SQLException {
+        if (line.get(name) instanceof Long)
+            pstmt.setLong(index, (Long) line.get(name));
+        else
+            pstmt.setNull(index, Types.INTEGER);
+    }
+
+    private void setOptionalDouble(PreparedStatement pstmt,
+                                    int index,  // Index of field in insert statement
+                                    String name, // name of field in line
+                                    Map<String, Object> line) throws SQLException {
+        if (line.get(name) instanceof Double)
+            pstmt.setDouble(index, (Double) line.get(name));
+        else
+            pstmt.setNull(index, Types.DOUBLE);
     }
 
     private @NotNull
@@ -119,7 +140,9 @@ public class Budgets {
         String sql =
                 "SELECT st, ramt, isIncome, isTransfer, isExpense, " +
                         "amt, pid, type, bgt, rbal, ex,\n" +
-                        "cat,catName,id,catTypeFilter,parent, grouping \n" +
+                        "cat,catName,id,catTypeFilter,parent, grouping,\n" +
+                        "period, aamt, tbgt, isLast" +
+                        " \n" +
                         "FROM budgets \n";
         try {
             Statement stmt = conn.getConnection().createStatement();

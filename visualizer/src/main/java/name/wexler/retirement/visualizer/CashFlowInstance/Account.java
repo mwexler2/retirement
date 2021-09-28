@@ -1,6 +1,9 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
+import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.*;
+import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
+import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Spending;
@@ -21,7 +24,6 @@ import java.time.ZoneId;
 import java.util.*;
 
 public interface Account extends CashFlowSource, CashFlowSink {
-
     Entity getCompany();
     String getTxnSource();
     String getName();
@@ -107,6 +109,8 @@ public interface Account extends CashFlowSource, CashFlowSink {
         instance.setLabels(names);
         return instance;
     }
+
+    void setRunningTotal(LocalDate balanceDate, BigDecimal value);
 
     public class AccountNotFoundException extends Exception {
         private final String accountName;

@@ -153,6 +153,9 @@ public class MintCrawler {
                     Object value = ((JSONObject) budgetEntry).getOrDefault(key, "");
                     fieldNameVals.put((String) key, value);
                 }
+                if (!fieldNameVals.containsKey("catName")) {
+                    fieldNameVals.put("catName", fieldNameVals.get("cat")); // If no category name is specified use category id
+                }
                 fieldNameVals.put(TxnHistory.source, mintSource);
                 budgets.insertRow((String) grouping, fieldNameVals);
             });

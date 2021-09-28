@@ -53,7 +53,7 @@ public class SecuredLoan extends Liability {
     private BigDecimal paymentAmount;
     private final BigDecimal impoundAmount;
     private CashFlowSink defaultSink;
-    private BigDecimal runningTotal;
+    private CashBalance runningTotal;
 
     @JsonCreator
     public SecuredLoan(@JacksonInject("context") Context context,
@@ -89,11 +89,6 @@ public class SecuredLoan extends Liability {
     @Override
     public String getTxnSource() {
         return AccountReader.mintTxnSource;
-    }
-
-    @JsonIgnore
-    public void setRunningTotal(BigDecimal bigDecimal) {
-        this.runningTotal = runningTotal;
     }
 
     @JsonIgnore
@@ -136,6 +131,11 @@ public class SecuredLoan extends Liability {
             result = getLender().getName();
         }
         return result;
+    }
+
+    @Override
+    public void setRunningTotal(LocalDate balanceDate, BigDecimal value) {
+        this.runningTotal = new CashBalance(balanceDate, value);
     }
 
     @JsonProperty(value = "source")

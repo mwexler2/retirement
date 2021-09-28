@@ -243,7 +243,9 @@ public class AccountTable {
 
     public ResultSet getAccounts() {
         String sql =
-                "SELECT TRIM(name) AS name, TRIM(accountName) AS accountName, TRIM(userName) AS userName, TRIM(yodleeName) AS yodleeName, value, lastUpdatedInDate " +
+                "SELECT TRIM(name) AS name, TRIM(accountName) AS accountName, TRIM(userName) AS userName, " +
+                        "TRIM(yodleeName) AS yodleeName, value, lastUpdatedInDate, accountType, " +
+                        "accountId, fiName " +
                         "FROM accounts \n";
         try {
             Statement stmt = conn.getConnection().createStatement();

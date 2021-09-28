@@ -30,7 +30,6 @@ public class Security extends Entity {
         tickerHistory = ds.getTickerHistory();
         Map<String, LocalDate> tickers = tickerHistory.getTickers();
         tickers.forEach((name, date) -> {
-            System.out.println("Reading " + name);
             Map<LocalDate, BigDecimal> singleTickerHistory = tickerHistory.getHistoricalPrices(name);
             historicalPrices.put(name, singleTickerHistory);
         });

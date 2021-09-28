@@ -260,4 +260,9 @@ public class AssetAccount extends Asset implements Account {
         }
         return instance;
     }
+
+    @Override
+    public void setRunningTotal(LocalDate balanceDate, BigDecimal value) {
+        this.cashBalance = new CashBalance(balanceDate, value);
+    }
 }

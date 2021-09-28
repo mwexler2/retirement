@@ -6,11 +6,14 @@ import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowInstance.*;
 import name.wexler.retirement.visualizer.CashFlowEstimator.CreditCardAccount;
 import name.wexler.retirement.visualizer.CashFlowEstimator.SecuredLoan;
+import name.wexler.retirement.visualizer.Entity.Company;
+import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Expense;
 import name.wexler.retirement.visualizer.Expense.Spending;
 import org.jetbrains.annotations.NotNull;
 
 
+import javax.lang.model.UnknownEntityException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -66,25 +69,70 @@ public class AccountReader {
         DataStore ds = Retirement.getDataStore();
         try (ResultSet rs = ds.getAccountTable().getAccounts()) {
             while (rs.next()) {
+                String accountType = rs.getString("accountType");
+                if (accountType.equals("real estate") || accountType.equals("vehicle"))
+                    continue;
                 String accountName = rs.getString("userName");
                 if (accountName == null)
                     accountName = rs.getString("yodleeName");
                 BigDecimal value = rs.getBigDecimal("value");
                 String balanceDateStr = rs.getString("lastUpdatedInDate");
                 LocalDate balanceDate = LocalDate.parse(balanceDateStr, formatter);
-                CashFlowSink sink = context.getById(AssetAccount.class, accountName);
-                if (sink instanceof AssetAccount) {
-                    AssetAccount assetAccount = (AssetAccount) sink;
+                Account account;
+                try {
+                    account = getAccountFromAccountName(context,
+                            rs.getString("accountName"));
+                } catch (Account.AccountNotFoundException anfe) {
+                    account = createAccountFromDB(context, rs);
+                }
+                if (account instanceof AssetAccount) {
+                    AssetAccount assetAccount = (AssetAccount) account;
                     String accountId = assetAccount.getAccountId();
                     Map<String, PositionHistory.Position> positions = ds.getPositionHistory().getAccountPositions(accountId);
                     assetAccount.setRunningTotal(balanceDate, value, positions);
                 }
-                else
-                    System.err.println("Skipping accountBalance for " + accountName + " not an asset account.");
+                else if (value != null)
+                    account.setRunningTotal(balanceDate, value);
             }
         } catch (SQLException sqle) {
-            System.err.println(sqle);
+            throw new RuntimeException(sqle);
         }
+    }
+
+    private Account createAccountFromDB(Context context, ResultSet rs) {
+        Account account = null;
+        try {
+            String accountType = rs.getString("accountType");
+            String id = rs.getString("accountId");
+            List<String> ownerIds = Collections.emptyList();
+            String fiName = rs.getString("fiName");
+            Company company = context.getByName(Entity.class, fiName);
+            if (company == null) {
+                throw new RuntimeException("Can't find company " + fiName);
+            }
+            List<String> indicators = Collections.emptyList();
+            String accountId = rs.getString("accountId");
+            String accountName = rs.getString("accountName");
+            String txnSource = "mint";
+            if (accountType.equals("investment") || accountType.equals("bank")) {
+                account = new AssetAccount(context,
+                        id,
+                        ownerIds,
+                        accountName,
+                        company.getId(),
+                        indicators,
+                        accountId,
+                        txnSource
+                );
+            }
+        } catch (SQLException sqle) {
+            throw new RuntimeException(sqle);
+        } catch (Entity.DuplicateEntityException e) {
+            throw new RuntimeException(e);
+        } catch (AssetAccount.NotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return account;
     }
 
 
@@ -116,7 +164,7 @@ public class AccountReader {
             Context context,
             ResultSet rs)  {
         try {
-            Account account = getAccountFromResultSet(context, rs);
+            Account account = getAccountFromAccountName(context, rs.getString("account_name"));
             if (account == null)
                 return null;
             String txnSource = rs.getString("source");
@@ -153,12 +201,13 @@ public class AccountReader {
         Job job = context.getById(Job.class, companyName);
         return job;
     }
-    private Account getAccountFromResultSet(Context context, ResultSet rs)
-            throws SQLException {
+
+    @NotNull
+    private Account getAccountFromAccountName(Context context, String accountName)
+            throws SQLException, Account.AccountNotFoundException {
         Account account = null;
-        String accountName = rs.getString("account_name").trim();
-        CreditCardAccount creditCardAccount = context.getById(CreditCardAccount.class, accountName);
-        SecuredLoan securedLoan = context.getById(SecuredLoan.class, accountName);
+        Account creditCardAccount = context.getById(CreditCardAccount.class, accountName);
+        Account securedLoan = context.getById(SecuredLoan.class, accountName);
         if (creditCardAccount != null) {
             account = creditCardAccount;
         } else if (securedLoan != null) {
@@ -166,8 +215,7 @@ public class AccountReader {
         } else {
             AssetAccount assetAccount = context.getById(AssetAccount.class, accountName);
             if (assetAccount == null) {
-                System.err.println("Asset Account: " + accountName + " not found.");
-                return null;
+                throw(new Account.AccountNotFoundException(accountName));
             }
             account = assetAccount;
         }
@@ -200,15 +248,21 @@ public class AccountReader {
             Boolean isIncome = rs.getBoolean("isIncome");
             Boolean isTransfer = rs.getBoolean("isTransfer");
             Boolean isExpense = rs.getBoolean("isExpense");
-            BigDecimal amount = rs.getBigDecimal("amt");
+            Optional<BigDecimal> amount =
+                    Optional.ofNullable(rs.getBigDecimal("amt"));
             BigDecimal budget = rs.getBigDecimal("bgt");
             BigDecimal rBal = rs.getBigDecimal("rbal");
             String category = rs.getString("cat");
             String grouping = rs.getString("grouping");
             String parentCategory = rs.getString("parent");
+            Optional<Long> period = Optional.ofNullable(rs.getLong("period"));
+            Optional<BigDecimal> aamt = Optional.ofNullable(rs.getBigDecimal("aamt"));
+            Optional<BigDecimal> tbgt = Optional.ofNullable(rs.getBigDecimal("tbgt"));
+            Optional<Boolean> isLast = Optional.ofNullable(rs.getBoolean("isLast"));
 
             Budget budgetEntry =
-                    new Budget(context, grouping, isIncome, isTransfer, isExpense, amount, budget, rBal, parentCategory, category);
+                    new Budget(context, grouping, isIncome, isTransfer, isExpense, amount, budget, rBal, parentCategory, category,
+                            period, aamt, tbgt, isLast);
 
             return budgetEntry;
         } catch (SQLException sqle) {

@@ -48,7 +48,7 @@ public class CreditCardAccount extends Liability {
 
     private final String accountName;
     private final Company company;
-    private BigDecimal runningTotal;
+    private CashBalance runningTotal;
 
     // History of balances for Cash and Securities
     private final Map<LocalDate, Map<String, ShareBalance>> shareBalancesByDateAndSymbol = new HashMap<>();
@@ -69,25 +69,22 @@ public class CreditCardAccount extends Liability {
                              @JsonProperty(value = "interestRate", required = true) BigDecimal interestRate,
                              @JsonProperty(value = "accountName", required = true) String accountName,
                              @JsonProperty(value = "company", required = true) String companyId,
-                             @JsonProperty(value = "indicator") String indicator,
+                             @JsonProperty(value = "indicators") List<String> indicators,
                              @JsonProperty(value = "source", required = true) String sourceId)
             throws DuplicateEntityException {
         super(context, id, companyId, borrowersIds, startDate, endDate, interestRate, BigDecimal.ZERO, sourceId);
         this.accountName = accountName;
         this.company = context.getById(Entity.class, companyId);
-        context.put(CreditCardAccount.class, indicator, this);
+        for (String indicator : indicators) {
+            context.put(CreditCardAccount.class, indicator, this);
+        }
         accounts.add(this);
-        runningTotal = BigDecimal.ZERO;
+        runningTotal = new CashBalance(LocalDate.EPOCH, BigDecimal.ZERO);
     }
 
     @Override
     public String getTxnSource() {
         return AccountReader.mintTxnSource;
-    }
-
-    @JsonIgnore
-    public void setRunningTotal(BigDecimal bigDecimal) {
-        this.runningTotal = runningTotal;
     }
 
     public String getId() {
@@ -96,6 +93,11 @@ public class CreditCardAccount extends Liability {
 
     public String getName() {
         return accountName;
+    }
+
+    @Override
+    public void setRunningTotal(LocalDate balanceDate, BigDecimal value) {
+        this.runningTotal = new CashBalance(balanceDate, value);
     }
 
     public String getAccountName() {
@@ -148,7 +150,8 @@ public class CreditCardAccount extends Liability {
     @Override
     @JsonIgnore
     public void updateRunningTotal(CashFlowInstance cashFlowInstance, boolean negate) {
-        runningTotal = runningTotal.add(cashFlowInstance.getAmount());
-        cashFlowInstance.setCashBalance(runningTotal);
+        runningTotal = new CashBalance(cashFlowInstance.getCashFlowDate(),
+                runningTotal.getValue().add(cashFlowInstance.getAmount()));
+        cashFlowInstance.setCashBalance(runningTotal.getValue());
     }
 }
