@@ -69,6 +69,9 @@ public class AccountReader {
         DataStore ds = Retirement.getDataStore();
         try (ResultSet rs = ds.getAccountTable().getAccounts()) {
             while (rs.next()) {
+                boolean isActive = rs.getBoolean("isActive");
+                if (!isActive)
+                    continue;
                 String accountType = rs.getString("accountType");
                 if (accountType.equals("real estate") || accountType.equals("vehicle"))
                     continue;
@@ -80,8 +83,7 @@ public class AccountReader {
                 LocalDate balanceDate = LocalDate.parse(balanceDateStr, formatter);
                 Account account;
                 try {
-                    account = getAccountFromAccountName(context,
-                            rs.getString("accountName"));
+                    account = getAccountFromAccountName(context, accountName);
                 } catch (Account.AccountNotFoundException anfe) {
                     account = createAccountFromDB(context, rs);
                 }
@@ -110,9 +112,10 @@ public class AccountReader {
             if (company == null) {
                 throw new RuntimeException("Can't find company " + fiName);
             }
-            List<String> indicators = Collections.emptyList();
+            List<String> indicators = new ArrayList<>();
             String accountId = rs.getString("accountId");
             String accountName = rs.getString("accountName");
+            indicators.add(accountName);
             String txnSource = "mint";
             if (accountType.equals("investment") || accountType.equals("bank")) {
                 account = new AssetAccount(context,

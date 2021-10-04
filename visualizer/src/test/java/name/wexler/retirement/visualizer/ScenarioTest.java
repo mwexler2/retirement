@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import name.wexler.retirement.datastore.DataStore;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
@@ -17,12 +18,15 @@ import name.wexler.retirement.visualizer.Expense.Expense;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sqlite.JDBC;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -50,6 +54,13 @@ public class ScenarioTest {
         AssetAccount.readAssetAccounts(context);
         Job.readJobs(context);
         CashFlowFrequency.readCashFlowFrequencies(context);
+        try {
+            DriverManager.registerDriver(new JDBC());
+        } catch (SQLException var1) {
+            var1.printStackTrace();
+        }
+        DataStore ds = new DataStore();
+        Security.readSecurities(context, ds);
         CashFlowEstimator.readCashFlowSources(context);
         Asset.readAssets(context);
 
@@ -66,7 +77,7 @@ public class ScenarioTest {
     @Test
     public void getName() {
         String name1 = scenario1.getName();
-        assertEquals(name1, "Scenario 1");
+        assertEquals("Go to Amazon", name1);
     }
 
 

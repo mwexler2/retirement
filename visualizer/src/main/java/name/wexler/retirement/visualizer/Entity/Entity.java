@@ -48,7 +48,7 @@ public abstract class Entity {
 
     public class DuplicateEntityException extends Exception {
         public DuplicateEntityException(String id) {
-            super("Key" + id + "already exists.");
+            super("Key " + id + " already exists.");
         }
     }
     private final String id;

@@ -1,5 +1,6 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.*;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
@@ -48,17 +49,7 @@ public interface Account extends CashFlowSource, CashFlowSink {
         String category = rs.getString("category");
         String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
         String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
-        List<String> names = new ArrayList<>();
-        if (labelsStr != null && !labelsStr.isEmpty()) {
-            try (JsonParser parser = Json.createParserFactory((Map<String, ?>) Collections.EMPTY_MAP).createParser(new StringReader(labelsStr))) {
-                JsonArray labels = parser.getArray();
-                labels.forEach(label -> {
-                    JsonObject obj = label.asJsonObject();
-                    String name = obj.getString("name");
-                    names.add(name);
-                });
-            }
-        }
+        List<String> names = getLabels(labelsStr);
         Category c = context.getById(Category.class, category);
         String itemType = c.getItemType();
         Boolean isDebit = rs.getBoolean("isDebit");
@@ -108,6 +99,22 @@ public interface Account extends CashFlowSource, CashFlowSink {
         instance.setNotes(notes);
         instance.setLabels(names);
         return instance;
+    }
+
+    private List<String> getLabels(String labelsStr) {
+        List<String> names = new ArrayList<>();
+        if (labelsStr != null && !labelsStr.isEmpty()) {
+            try (JsonParser parser = Json.createParser(new StringReader(labelsStr))) {
+                JsonParser.Event event = parser.next();
+                JsonArray labels = parser.getArray();
+                labels.forEach(label -> {
+                    JsonObject obj = label.asJsonObject();
+                    String name = obj.getString("name");
+                    names.add(name);
+                });
+            }
+        }
+        return names;
     }
 
     void setRunningTotal(LocalDate balanceDate, BigDecimal value);
