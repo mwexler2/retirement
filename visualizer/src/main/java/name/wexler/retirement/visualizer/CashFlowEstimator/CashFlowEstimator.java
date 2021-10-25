@@ -36,6 +36,7 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -61,7 +62,7 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = Budget.class, name="budgets")
 })
 public abstract class CashFlowEstimator extends Entity implements CashFlowSource {
-    ;
+    private static List<CashFlowEstimator> cashFlowEstimators = new ArrayList<>();
     private final List<Entity> payers;
     private final List<Entity> payees;
     private CashFlowFrequency cashFlow;
@@ -83,6 +84,11 @@ public abstract class CashFlowEstimator extends Entity implements CashFlowSource
         if (this.cashFlow == null) {
             throw new NoSuchElementException("CashFlowFrequency " + cashFlowId + " not found");
         }
+        cashFlowEstimators.add(this);
+    }
+
+    protected List<CashFlowEstimator> getCashFlowEstimators() {
+        return cashFlowEstimators;
     }
 
     public String getCategory() {

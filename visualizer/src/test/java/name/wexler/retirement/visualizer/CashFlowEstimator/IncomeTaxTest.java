@@ -17,10 +17,7 @@ import org.mockito.Mock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -35,23 +32,26 @@ public class IncomeTaxTest {
     private IncomeTax medicareTax;
     private IncomeTax socialSecurityTax;
     Assumptions assumptions;
-    private Context context;
+    private Context context = new Context();
     @Mock
     private Scenario scenario;
     CashFlowCalendar cashFlowCalendar;
+    Person payor = new Person(
+            context, "payor1",
+            LocalDate.of(1976, Month.JULY, 4),
+            65, "Payor", "1");
+    Company irsPayee = new Company(context, "irs", "Internal Revenue Service");
+    Company ftbPayee = new Company(context, "ftb", "Franchise Tax Board");
+
+    public IncomeTaxTest() throws Exception {
+    }
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
         assumptions = new Assumptions();
         context.setAssumptions(assumptions);
         cashFlowCalendar = new CashFlowCalendar(scenario, assumptions);
-        Person payor = new Person(
-                context, "payor1",
-                LocalDate.of(1976, Month.JULY, 4),
-                65, "Payor", "1");
-        Company irsPayee = new Company(context, "irs", "Internal Revenue Service");
-        Company ftbPayee = new Company(context, "ftb", "Franchise Tax Board");
+
         LocalDate now = LocalDate.now();
         int nextYear = now.getYear() + 1;
         LocalDate accrueStart = LocalDate.of(nextYear, Month.JANUARY, 1);
@@ -89,7 +89,7 @@ public class IncomeTaxTest {
     }
 
     private TaxTable setupTaxTable() throws Entity.DuplicateEntityException {
-        return new TaxTable(Map.of(
+        return new TaxTable(new TreeMap(Map.of(
                 "2021",
                 new TaxTable.TaxYearTable(Arrays.asList(
                         new TaxTable.TaxYearTable.TaxBracket(BigDecimal.ZERO, BigDecimal.valueOf(0.10)),
@@ -102,7 +102,7 @@ public class IncomeTaxTest {
                 ),
                         BigDecimal.valueOf(24800.00))
 
-        ));
+        )));
     }
 
     @After
@@ -176,5 +176,11 @@ public class IncomeTaxTest {
                 CASH_ESTIMATE_PASS.TAXES,
                 federalIncomeTax.getPass()
         );
+    }
+
+    @Test
+    public void getOwner() {
+        assertEquals(true, federalIncomeTax.isOwner(payor));
+        assertEquals(false, federalIncomeTax.isOwner(irsPayee));
     }
 }

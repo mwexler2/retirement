@@ -7,10 +7,7 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "id", "taxTable" })
@@ -108,11 +105,11 @@ public class TaxTable {
             return tax;
         }
     }
-    Map<String, TaxYearTable> taxRateMap;  // Map year to a TaxYearTable
+    TreeMap<String, TaxYearTable> taxRateMap;  // Map year to a TaxYearTable
 
     @JsonCreator
     public TaxTable(
-                     @JsonProperty(value = "taxRateMap", required = true) Map<String, TaxYearTable> taxRateMap
+                     @JsonProperty(value = "taxRateMap", required = true) TreeMap<String, TaxYearTable> taxRateMap
     ) throws Entity.DuplicateEntityException {
         this.taxRateMap = taxRateMap;
     }
@@ -124,12 +121,17 @@ public class TaxTable {
         return agi;
     }
 
+    private @NotNull TaxYearTable getTaxYearTable(int year) throws TaxYearNotFoundException {
+        String floorYear = taxRateMap.floorKey(Integer.toString(year));
+        if (floorYear != null) {
+            return taxRateMap.get(floorYear);
+        }
+        throw new TaxYearNotFoundException(year);
+    }
+
     public BigDecimal computeTax(int year, BigDecimal grossIncome) throws TaxYearNotFoundException {
 
-        String yearString = Integer.toString(year);
-        if (!taxRateMap.containsKey(yearString))
-            throw new TaxYearNotFoundException(year);
-        TaxYearTable taxYearTable = taxRateMap.get(yearString);
+        TaxYearTable taxYearTable = getTaxYearTable(year);
         BigDecimal agi = calculateAdjustedGrossIncome(taxYearTable, grossIncome);
         return taxYearTable.computeTax(agi);
     }

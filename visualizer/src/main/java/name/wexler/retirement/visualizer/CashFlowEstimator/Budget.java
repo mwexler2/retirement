@@ -34,6 +34,7 @@ import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
+import name.wexler.retirement.visualizer.Scenario;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 
 import java.math.BigDecimal;
@@ -64,20 +65,19 @@ public class Budget extends CashFlowEstimator {
                   @JsonProperty("endDate") LocalDate endDate,
                   @JsonProperty(value = "paymentAmount",   required = true) BigDecimal paymentAmount,
                   @JsonProperty(value = "source",          required = true) String sourceId,
-                  @JsonProperty(value = "defaultSink",   required = true) String defaultSourceId,
+                  @JsonProperty(value = "defaultSink",   required = true) String defaultSinkId,
                   @JsonProperty(value = "skipGroupings",   required = true) List<String> skipGroupings,
-                  @JsonProperty(value = "skipParentCategories",   required = true)List<String> skipParentCategories,
-                  @JsonProperty(value = "skipCategories",   required = true)List<String> skipCategories)
+                  @JsonProperty(value = "skipParentCategories",   required = true)List<String> skipParentCategories)
     throws DuplicateEntityException {
         super(context, id, sourceId,
                 Collections.emptyList(),
                 Collections.emptyList());
         this.endDate = endDate;
         this.paymentAmount = paymentAmount;
-        this.defaultSink = context.getById(Asset.class, defaultSourceId);
+        this.defaultSink = context.getById(Asset.class, defaultSinkId);
         skipGroupings.forEach(grouping -> this.skipGroupings.put(grouping, true));
         skipParentCategories.forEach(parentCategory -> this.skipParentCategories.put(parentCategory, true));
-        skipCategories.forEach(category -> this.skipCategories.put(category, true));
+        this.getCashFlowEstimators().forEach(estimator -> this.skipCategories.put(estimator.getCategory(), true));
         context.put(Budget.class, id, this);
     }
 
@@ -121,7 +121,7 @@ public class Budget extends CashFlowEstimator {
     @JsonIgnore
     @Override
     public String getName() {
-        return this.getClass().getName();
+        return this.getClass().getSimpleName();
     }
 
     @JsonProperty(value = "source")
@@ -140,6 +140,6 @@ public class Budget extends CashFlowEstimator {
 
     @Override
     public boolean isOwner(Entity entity) {
-        return this.isPayee(entity);
+        return defaultSink.isOwner(entity);
     }
 }

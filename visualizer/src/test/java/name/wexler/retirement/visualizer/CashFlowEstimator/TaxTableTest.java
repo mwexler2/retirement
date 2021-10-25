@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static java.util.Map.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
 import static org.junit.Assert.assertThrows;
@@ -12,6 +13,7 @@ import static org.junit.Assert.assertThrows;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.TreeMap;
 
 @RunWith(Parameterized.class)
 public class TaxTableTest {
@@ -25,7 +27,7 @@ public class TaxTableTest {
     @Before
     public void setUp() throws Exception {
         TaxTable.TaxYearTable.TaxBracket bracket1 = new TaxTable.TaxYearTable.TaxBracket(BigDecimal.ZERO, BigDecimal.valueOf(0.0));
-        taxTable = new TaxTable(Map.of(
+        taxTable = new TaxTable(new TreeMap(of(
                 "2021",
                 new TaxTable.TaxYearTable(Arrays.asList(
                         new TaxTable.TaxYearTable.TaxBracket(BigDecimal.ZERO, BigDecimal.valueOf(0.10)),
@@ -38,7 +40,7 @@ public class TaxTableTest {
                 ),
                         STANDARD_DEDUCTION)
 
-        ));
+        )));
     }
 
     public TaxTableTest(int year, BigDecimal income, BigDecimal expectedTax, Class<Exception> expectedException) {
@@ -72,7 +74,7 @@ public class TaxTableTest {
                 {2021, STANDARD_DEDUCTION.add(BigDecimal.valueOf(418850.00)), BigDecimal.valueOf(95686.00), null},
                 {2021, STANDARD_DEDUCTION.add(BigDecimal.valueOf(628301.00)), BigDecimal.valueOf(168993.87), null},
                 {2020, STANDARD_DEDUCTION.add(BigDecimal.valueOf(628301.00)), BigDecimal.valueOf(168993.87), TaxTable.TaxYearNotFoundException.class},
-                {2022, STANDARD_DEDUCTION.add(BigDecimal.valueOf(628301.00)), BigDecimal.valueOf(168993.87), TaxTable.TaxYearNotFoundException.class}
+                {2022, STANDARD_DEDUCTION.add(BigDecimal.valueOf(628301.00)), BigDecimal.valueOf(168993.87), null}
         });
     }
 }

@@ -38,7 +38,7 @@ public class Budgets {
                 + " rbal REAL NOT NULL,\n"
                 + " ex BOOLEAN NOT NULL,\n"
                 + " isLast BOOLEAN,\n"
-                + " cat TEXT NOT NULL,\n"
+                + " cat TEXT NOT NULL UNIQUE,\n"
                 + " catName TEXT NOT NULL,\n"
                 + " catTypeFilter TEXT NOT NULL,\n"
                 + " parent TEXT NOT NULL\n"

@@ -1,6 +1,9 @@
 package name.wexler.retirement.visualizer;
 
+import name.wexler.retirement.visualizer.Budget;
+import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Category;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,14 +14,14 @@ import static org.junit.Assert.assertEquals;
 
 
 public class BudgetTest {
-    private Budget budget;
-    private Budget budget2;
+    private name.wexler.retirement.visualizer.Budget budget;
+    private name.wexler.retirement.visualizer.Budget budget2;
 
     @Before
     public void setUp() throws Exception {
         Context context = new Context();
-        budget = new Budget(context,
-                Budget.INCOME_GROUPING,
+        budget = new name.wexler.retirement.visualizer.Budget(context,
+                name.wexler.retirement.visualizer.Budget.INCOME_GROUPING,
                 true,
                 false,
                 true,
@@ -33,8 +36,8 @@ public class BudgetTest {
                 Optional.empty()
         );
 
-        budget2 = new Budget(context,
-                Budget.EXPENSE_GROUPING,
+        budget2 = new name.wexler.retirement.visualizer.Budget(context,
+                name.wexler.retirement.visualizer.Budget.EXPENSE_GROUPING,
                 true,
                 false,
                 true,
@@ -68,7 +71,7 @@ public class BudgetTest {
 
     @Test
     public void getGrouping() {
-        assertEquals(Budget.INCOME_GROUPING, budget.getGrouping());
+        Assert.assertEquals(Budget.INCOME_GROUPING, budget.getGrouping());
     }
 
     @Test

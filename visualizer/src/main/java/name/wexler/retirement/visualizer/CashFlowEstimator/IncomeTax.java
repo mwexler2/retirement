@@ -77,6 +77,8 @@ public class IncomeTax extends CashFlowEstimator {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     BigDecimal income = calendar.sumMatchingCashFlowForPeriod(accrualStart, accrualEnd,
                             (instance) -> true);
+                    if (income.equals(BigDecimal.ZERO))
+                        return null;
                     try {
                         BigDecimal incomeTax = taxTable.computeTax(accrualEnd.getYear(), income).negate();
                         String description = "Estimated " + this.getName();
