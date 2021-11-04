@@ -2,6 +2,7 @@ package name.wexler.retirement.datastore;
 
 import com.opencsv.CSVReaderHeaderAware;
 import name.wexler.retirement.jdbcDrivers.generic.JDBCDriverConnection;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -163,22 +164,33 @@ public class TxnHistory {
         return LocalDate.ofEpochDay(0);
     }
 
-    public ResultSet getTransactions() {
+    public @NotNull ResultSet getTransactions() {
         String sql =
-                "SELECT id, date, description, original_description, amount, txn_type, " +
-                        "itemType, IFNULL(cooked_category, txnHistory.category) AS category, TRIM(account_name) AS account_name, labels, notes, fi,\n" +
-                        "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule,isMatched,isPending,isPercent,isSell,isSpending,isTransfer, \n" +
-                        "symbol, shares, source \n" +
+                "SELECT txnHistory.id, date, " +
+                        "description, " +
+                        "original_description, " +
+                        "amount, " +
+                        "txn_type, " +
+                        "itemType, " +
+                        "IFNULL(cooked_category, txnHistory.category) AS category, " +
+                        "TRIM(account_name) AS account_name, " +
+                        "labels, " +
+                        "notes, " +
+                        "fi,\n" +
+                        "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule," +
+                        "isMatched,isPending,isPercent,isSell,isSpending," +
+                        "txnHistory.isTransfer, \n" +
+                        "symbol, shares, source, budgets.parent \n" +
                         "FROM txnHistory \n" +
                         "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n" +
+                        "LEFT JOIN budgets ON budgets.cat=txnHistory.category\n" +
                         "WHERE isDuplicate=0\n";
         try {
             Statement stmt = conn.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql);
             return rs;
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }

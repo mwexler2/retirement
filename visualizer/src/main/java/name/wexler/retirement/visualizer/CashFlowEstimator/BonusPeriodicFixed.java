@@ -28,12 +28,14 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -65,10 +67,15 @@ public class BonusPeriodicFixed extends Bonus {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     String description = "Estimated bonus for " + getJob().getName();
                     return new CashFlowInstance(NO_ID, true, this.getJob(), this.getJob().getDefaultSink(),
-                            getItemType(), getCategory(),
+                            getItemType(), getParentCategory(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                 }
         );
+    }
+
+    @Override
+    @NotNull String getParentCategory() {
+        return INCOME;
     }
 
     public BigDecimal getAnnualAmount() {

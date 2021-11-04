@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -65,10 +66,16 @@ public class BonusAnnualPct extends Bonus {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                 String description = "Estimated bonus for " + getJob().getName();
                 return new CashFlowInstance(NO_ID, true,this, this.getJob().getDefaultSink(),
-                    getItemType(), getCategory(),
+                    getItemType(), getParentCategory(), getCategory(),
                     accrualStart, accrualEnd, cashFlowDate, annualAmount, balance,
                     description);
                 });
+    }
+
+    @JsonIgnore
+    @Override
+    public String getParentCategory() {
+        return INCOME;
     }
 
     @JsonProperty(value = "salary")
@@ -89,6 +96,7 @@ public class BonusAnnualPct extends Bonus {
     public CASH_ESTIMATE_PASS getPass() {
         return CASH_ESTIMATE_PASS.DERIVED_INCOME;   // Calculated after Salary, because bonus is a percent of salary.
     }
+
 
     @Override
     public boolean isOwner(Entity entity) {

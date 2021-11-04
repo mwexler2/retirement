@@ -18,10 +18,11 @@ import java.time.LocalDate;
 public abstract class AssetTransaction extends CashFlowInstance {
     public AssetTransaction(boolean estimated,
                             CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
-                            String itemType, String category,
+                            String itemType, String parentCategory, String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount,
                             BigDecimal balance, String description) {
-        super(NO_ID, estimated, cashFlowSource, cashFlowSink, itemType, category, accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
+        super(NO_ID, estimated, cashFlowSource, cashFlowSink, itemType, parentCategory,
+                category, accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
     }
 }

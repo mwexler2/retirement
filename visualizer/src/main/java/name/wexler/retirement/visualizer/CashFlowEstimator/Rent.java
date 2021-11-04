@@ -35,6 +35,7 @@ import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -59,6 +60,7 @@ public class Rent extends CashFlowEstimator {
     private CashFlowSink defaultCashFlowSink;
     private CashFlowSink defaultSink;
     private static final String RENTAL_INCOME = "Rental Income";
+    private static final String INCOME = "Income";
 
 
     @JsonCreator
@@ -93,7 +95,7 @@ public class Rent extends CashFlowEstimator {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     String description = "Estimated rent for " + getPayees().get(0).getName();
                     CashFlowInstance instance = new CashFlowInstance(CashFlowInstance.NO_ID, true,this, defaultSink,
-                            getItemType(), getCategory(),
+                            getItemType(), getParentCategory(), getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, paymentAmount, balance, description);
                     return instance;
                 });
@@ -164,7 +166,13 @@ public class Rent extends CashFlowEstimator {
 
     @JsonIgnore
     @Override
-    public String getCategory() {
+    public @NotNull String getParentCategory() {
+        return INCOME;
+    }
+
+    @JsonIgnore
+    @Override
+    public @NotNull String getCategory() {
         return RENTAL_INCOME;
     }
 }

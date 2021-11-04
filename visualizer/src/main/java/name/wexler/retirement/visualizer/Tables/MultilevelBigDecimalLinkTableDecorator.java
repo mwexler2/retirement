@@ -174,6 +174,10 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
         return subtotalHeaderClass;
     }
 
+    private String cleanupClassName(String groupName) {
+        return groupName.replace(" ", "-").replace("&", "-");
+    }
+
     @Override
     public void startOfGroup(String value, int group)
     {
@@ -186,7 +190,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
                     append(" ").
                     append(TagConstants.ATTRIBUTE_CLASS).
                     append("=\"").
-                    append(value).append(" ").
+                    append(cleanupClassName(value)).append(" ").
                     append(getSubtotalHeaderClass()).
                     append(" group-").append(group).
                     append("\" ").
@@ -243,7 +247,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             int columnNumber = ((GroupTotals) total).columnNumber;
             HeaderCell headerCell = (HeaderCell) tableModel.getHeaderCellList().get(columnNumber);
             String beanPropertyName = headerCell.getBeanPropertyName();
-            classes.add((String) evaluate(beanPropertyName));
+            classes.add(cleanupClassName((String) evaluate(beanPropertyName)));
         });
         return String.join(" ", classes);
     }
@@ -533,7 +537,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             if (firstRowOfCurrentSet < currentRow) // If there is more than one row, show a total
             {
                 String currentLabel = getCellValue(columnNumber, firstRowOfCurrentSet);
-                out.append(getTotalsRowOpen(currentLabel));
+                out.append(getTotalsRowOpen(cleanupClassName(currentLabel)));
                 for (Iterator iterator = headerCells.iterator(); iterator.hasNext();)
                 {
                     HeaderCell headerCell = (HeaderCell) iterator.next();

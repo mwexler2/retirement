@@ -25,6 +25,7 @@ package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import com.fasterxml.jackson.annotation.*;
 import name.wexler.retirement.visualizer.Asset.Asset;
+import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowSink;
@@ -33,6 +34,7 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Expense.Expense;
 import name.wexler.retirement.visualizer.Expense.Spending;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -96,7 +98,7 @@ public class Alimony extends CashFlowEstimator {
                     BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                     CashFlowInstance cashFlowInstance =
                             new CashFlowInstance(NO_ID, true, this, defaultSink,
-                                    getItemType(), getCategory(),
+                                    getItemType(), getParentCategory(), getCategory(),
                                     accrualStart, accrualEnd, cashFlowDate, baseAlimony, balance,
                                     payee.getName());
                     return cashFlowInstance;
@@ -126,7 +128,7 @@ public class Alimony extends CashFlowEstimator {
                         String description = "Estimated Smith Ostler for " + this.payee.getName();
                         return new CashFlowInstance(NO_ID,
                                 true, this, defaultSink,
-                                getItemType(), getCategory(),
+                                getItemType(), getParentCategory(), getCategory(),
                                 accrualStart, accrualEnd, cashFlowDate,
                                 alimony, BigDecimal.ZERO,
                                 description);
@@ -160,7 +162,7 @@ public class Alimony extends CashFlowEstimator {
                 CashFlowInstance remainingBalanceInstance = new CashFlowInstance(
                         NO_ID,
                         true, spending, defaultSink,
-                        getItemType(), getCategory(),
+                        getItemType(), getParentCategory(), getCategory(),
                         instance.getAccrualStart(),
                         instance.getAccrualEnd(),
                         instance.getCashFlowDate(),
@@ -198,6 +200,11 @@ public class Alimony extends CashFlowEstimator {
         String result;
         result = this.getId() + ": " + payor.getName() + "(" + payee.getName() + ")";
         return result;
+    }
+
+    @Override
+    @NotNull String getParentCategory() {
+        return Category.BILLS_AND_UTILITIES;
     }
 
 

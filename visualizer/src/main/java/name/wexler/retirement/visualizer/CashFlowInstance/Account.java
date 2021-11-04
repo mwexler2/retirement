@@ -28,7 +28,10 @@ public interface Account extends CashFlowSource, CashFlowSink {
     Entity getCompany();
     String getTxnSource();
     String getName();
-    CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
+    CashFlowInstance processSymbol(Context context, String symbol, String description,
+                                   final @NotNull String parentCategory,
+                                   final @NotNull String category,
+                                   final @NotNull String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount);
 
     public @NotNull
@@ -51,6 +54,9 @@ public interface Account extends CashFlowSource, CashFlowSink {
         String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
         List<String> names = getLabels(labelsStr);
         Category c = context.getById(Category.class, category);
+        String parentCategory = rs.getString("parent");
+        if (parentCategory == null)
+            parentCategory = Category.UNKNOWN;
         String itemType = c.getItemType();
         Boolean isDebit = rs.getBoolean("isDebit");
         Entity company = this.getCompany();
@@ -63,7 +69,8 @@ public interface Account extends CashFlowSource, CashFlowSink {
         }
         if (symbol != null && symbol.length() > 0) {
             BigDecimal shares = rs.getBigDecimal("shares");
-            instance = processSymbol(context, symbol, description, category, itemType, shares, txnDate, txnAmount);
+            instance = processSymbol(context, symbol, description,
+                    parentCategory, category, itemType, shares, txnDate, txnAmount);
         }
         if (instance != null) {
         } else if (isDebit && !itemType.equals("TRANSFER")) {
@@ -72,30 +79,32 @@ public interface Account extends CashFlowSource, CashFlowSink {
             }
             if (cashFlowSource == null)
                 cashFlowSource = spending;
-            instance = new PaymentInstance(id, cashFlowSource, this, category,
+            instance = new PaymentInstance(id, cashFlowSource, this,
+                    parentCategory, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, company, description);
         } else if (job != null && !isDebit && category.equals("Paycheck")) {
             if (company == null) {
                 throw new AccountNotFoundException(this.getName());
             }
-            instance = new PaycheckInstance(id, job, this, category, accrualEnd, accrualEnd, txnDate, txnAmount,
+            instance = new PaycheckInstance(id, job, this,
+                    parentCategory, category, accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, description);
         } else if (job != null && !isDebit && category.equals("Reimbursement")) {
             if (company == null) {
                 throw new AccountNotFoundException(this.getName());
             }
-            instance = new ReimbursementInstance(id, this, job.getDefaultSink(), category,
+            instance = new ReimbursementInstance(id, this, job.getDefaultSink(),
+                    parentCategory, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, company,
                     description);
         } else {
             instance = new CashFlowInstance(id, false, this, this,
-                    itemType, category,
+                    itemType, parentCategory, category,
                     accrualEnd, accrualEnd, txnDate, txnAmount,
                     BigDecimal.ZERO, description);
         }
-        instance.setCategory(category);
         instance.setNotes(notes);
         instance.setLabels(names);
         return instance;

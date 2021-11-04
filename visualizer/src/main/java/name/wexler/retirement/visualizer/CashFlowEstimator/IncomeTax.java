@@ -30,6 +30,7 @@ import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -83,7 +84,7 @@ public class IncomeTax extends CashFlowEstimator {
                         BigDecimal incomeTax = taxTable.computeTax(accrualEnd.getYear(), income).negate();
                         String description = "Estimated " + this.getName();
                         return new CashFlowInstance(NO_ID, true, this, defaultSink,
-                                    getItemType(), getCategory(),
+                                    getItemType(), getParentCategory(), getCategory(),
                                     accrualStart, accrualEnd, cashFlowDate, incomeTax, balance, description);
                     } catch (TaxTable.TaxYearNotFoundException tynfe) {
                         return null;
@@ -97,6 +98,11 @@ public class IncomeTax extends CashFlowEstimator {
     public String getName() {
         return this.getId() + " for " + getPayers().stream().map((payer) -> payer.getName()).collect(Collectors.joining(",")) + "/" +
                 getPayees().stream().map((payee) -> payee.getName()).collect(Collectors.joining(","));
+    }
+
+    @Override
+    @NotNull String getParentCategory() {
+        return INCOME_TAX;
     }
 
     @JsonIgnore

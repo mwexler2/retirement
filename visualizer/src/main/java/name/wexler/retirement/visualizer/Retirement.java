@@ -55,7 +55,6 @@ public class Retirement {
 
 
     Retirement() {
-        Locale enUS = Locale.forLanguageTag("en-US");
         Context context = new Context();
 
         try {
@@ -77,23 +76,11 @@ public class Retirement {
         }
     }
 
-    public List<Scenario> getScenarios() {
-        return scenarios;
-    }
-
-    private Scenario getScenario(String id) {
-        for (Scenario scenario : scenarios) {
-            if (scenario.getId().equals(id))
-            return scenario;
-        }
-        return null;
+    public Scenario getScenario() {
+        return scenarios.get(0);
     }
 
     static public DataStore getDataStore() { return ds; }
-
-    public void setScenarios(List<Scenario> scenarios) {
-        this.scenarios = scenarios;
-    }
 
     public List<Person> getPeople() {
         return people;
@@ -101,7 +88,7 @@ public class Retirement {
 
 
     public CashFlowCalendar getCashFlowCalendar(String scenarioId) {
-        return getScenario(scenarioId).getCashFlowCalendar();
+        return getScenario().getCashFlowCalendar();
     }
 
 

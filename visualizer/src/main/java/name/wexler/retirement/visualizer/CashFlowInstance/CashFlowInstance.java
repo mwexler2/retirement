@@ -2,6 +2,7 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 
 import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.CashFlowSource;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,8 +23,11 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     private String description = "";
     private String notes = "";
     private List<String> labels = Collections.emptyList();
-    public String itemType = "";
-    private String category = "";
+    public final String itemType;
+
+
+    private final String parentCategory ;
+    private final String category;
     private CashFlowSink cashFlowSink;
     private boolean estimated;
     private long id;
@@ -31,7 +35,9 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
 
     public CashFlowInstance(long id, boolean estimated,
                             CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
-                            String itemType, String category,
+                            final @NotNull String itemType,
+                            final @NotNull String parentCategory,
+                            final @NotNull String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount, BigDecimal balance, String description) {
         this.id = id;
@@ -45,6 +51,7 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
         this.cashFlowSource = cashFlowSource;
         this.cashFlowSink = cashFlowSink;
         this.itemType = itemType;
+        this.parentCategory = parentCategory;
         this.category = category;
         this.description = description;
     }
@@ -84,8 +91,6 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
             return "unknown";
         return itemType;
     }
-
-    public void setCategory(String category) { this.category = category; }
 
     public String getNotes() { return notes; }
 
@@ -157,5 +162,9 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
     public String toString() {
         String result = cashFlowDate.toString() + ": " + getAmount() + " => " + cashBalance;
         return result;
+    }
+
+    public @NotNull  String getParentCategory() {
+        return parentCategory;
     }
 }

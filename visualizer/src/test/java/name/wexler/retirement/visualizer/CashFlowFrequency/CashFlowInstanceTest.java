@@ -50,6 +50,7 @@ public class CashFlowInstanceTest {
                 salary1,
                 defaultSink,
                 CashFlowCalendar.ITEM_TYPE.TRANSFER.toString(),
+                "Parent Category",
                 "test",
                 LocalDate.of(2014, Month.MAY, 1),
                 LocalDate.of(2014, Month.MAY, 15),

@@ -5,6 +5,7 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.*;
 import name.wexler.retirement.visualizer.Entity.Company;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +19,6 @@ import static org.mockito.Mockito.mock;
 
 public class AccountTest {
     private AssetAccount a1;
-    private Scenario scenario;
 
     @Before
     public void setUp() throws Exception {
@@ -29,7 +29,6 @@ public class AccountTest {
 
         new Monthly(context, "a1", LocalDate.now(), LocalDate.now(), LocalDate.now(),
                 CashFlowFrequency.ApportionmentPeriod.EQUAL_MONTHLY);
-        scenario = mock(Scenario.class);
         List<String> owners = Collections.singletonList("o1");
 
         Company bob = new Company(context, "BoB", "Bank of Banking");

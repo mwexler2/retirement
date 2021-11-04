@@ -31,11 +31,13 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.Context;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -61,6 +63,11 @@ public class StockOption extends EquityCompensation {
         return getJob().getName() + " Stock Option";
     }
 
+    @Override
+    @NotNull String getParentCategory() {
+        return INCOME;
+    }
+
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
@@ -72,7 +79,7 @@ public class StockOption extends EquityCompensation {
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             String description =  "Estimated option vest: " + shares + " of " + getSecurity() + " @" + strikePrice;
             return new CashFlowInstance(NO_ID, true, this, getJob().getDefaultSink(),
-                    this.getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                    this.getItemType(), getParentCategory(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
                    description);
         });
     }

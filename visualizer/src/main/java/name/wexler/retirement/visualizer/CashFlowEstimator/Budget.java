@@ -36,6 +36,7 @@ import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import name.wexler.retirement.visualizer.Scenario;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -108,7 +109,7 @@ public class Budget extends CashFlowEstimator {
                                 if (budget.getItemType().equals(Category.EXPENSE))
                                     amount = amount.negate();
                                 CashFlowInstance instance = new CashFlowInstance(NO_ID, true, this, defaultSink,
-                                        budget.getItemType(), budget.getCategory(),
+                                        budget.getItemType(), budget.getParentCategory(), budget.getCategory(),
                                         accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                                 return instance;
                             });
@@ -141,5 +142,10 @@ public class Budget extends CashFlowEstimator {
     @Override
     public boolean isOwner(Entity entity) {
         return defaultSink.isOwner(entity);
+    }
+
+    @Override
+    public @NotNull String getParentCategory() {
+        return "Parent Category";
     }
 }

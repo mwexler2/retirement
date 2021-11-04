@@ -37,6 +37,7 @@ import name.wexler.retirement.visualizer.CashFlowInstance.SecurityTransaction;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -213,7 +214,10 @@ public class AssetAccount extends Asset implements Account {
     }
 
     @Override
-    public CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
+    public CashFlowInstance processSymbol(Context context, String symbol, String description,
+                                          final @NotNull String parentCategory,
+                                          final @NotNull String category,
+                                          final @NotNull String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount) {
         CashFlowInstance instance = null;
         AssetAccount assetAccount = (AssetAccount) this;
@@ -255,7 +259,9 @@ public class AssetAccount extends Asset implements Account {
                 }
             }
             ShareBalance shareChange = new ShareBalance(txnDate, shares, sharePrice, security);
-            instance = new SecurityTransaction(context, assetAccount, itemType, category, txnAmount, shareChange,
+            instance = new SecurityTransaction(context, assetAccount,
+                    itemType, parentCategory, category,
+                    txnAmount, shareChange,
                     description);
         }
         return instance;

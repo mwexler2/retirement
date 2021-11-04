@@ -3,6 +3,7 @@ package name.wexler.retirement.visualizer.CashFlowInstance;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Context;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 
@@ -14,15 +15,16 @@ public class SecurityTransaction extends AssetTransaction {
     public SecurityTransaction(
             Context context,
             AssetAccount account,
-            String itemType,
-            String category,
+            final @NotNull String itemType,
+            final @NotNull String parentCategory,
+            final @NotNull String category,
             BigDecimal amount,
             ShareBalance shareChange,
             String description) {
         super(false,
                 account,
                 account,
-                itemType, category,
+                itemType, parentCategory, category,
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(),
                 shareChange.getBalanceDate(), amount, BigDecimal.ZERO,

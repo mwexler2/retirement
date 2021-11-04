@@ -5,8 +5,6 @@ import name.wexler.retirement.visualizer.Asset.AssetAccount;
 import name.wexler.retirement.visualizer.Budget;
 import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
 import name.wexler.retirement.visualizer.Assumptions;
-import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowInstance.LiabilityCashFlowInstance;
@@ -19,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -122,7 +119,7 @@ public class CashFlowCalendar {
                 collect(Collectors.toList());
     }
 
-    public BigDecimal getAnnualCashFlow(String cashFlowId, Integer year) {
+    private BigDecimal getAnnualCashFlow(String cashFlowId, Integer year) {
         return cashFlowInstances.stream().
                 filter(instance->instance.getYear() == year).
                 filter(instance->instance.getCashFlowId() == cashFlowId).
@@ -179,7 +176,6 @@ public class CashFlowCalendar {
         return sum;
     }
 
-
     public Assumptions getAssumptions() {
         return _assumptions;
     }
@@ -210,21 +206,6 @@ public class CashFlowCalendar {
     }
 
 
-    public class TableList extends ArrayList<Map<String, Object>> {
-        private List<ColumnDefinition> columnDefinitions;
-        TableList(List<ColumnDefinition> columnDefinitions) {
-            super();
-            this.columnDefinitions = columnDefinitions;
-        }
-
-        public List<ColumnDefinition> getColumnDefinitions() {
-            return columnDefinitions;
-        }
-
-        public String getItemCategory(Map<String, Object> item) { return (String) item.get("itemCategory"); }
-        public String getItemType(Map<String, Object> item) { return (String) item.get("itemType"); }
-    }
-
     public class AmountAndLink {
         private BigDecimal amount;
         private String link;
@@ -243,49 +224,53 @@ public class CashFlowCalendar {
         }
     }
 
-    public Map createRow(Entity entity, String itemType) {
-            Map row = new HashMap();
-            row.put("id", entity.getId());
-            row.put("name", decorateName(itemType, entity.getId(), entity.getName()));
-            row.put("itemType", itemType);
-            row.put("itemCategory", entity.getCategory());
-            for (int year: getYears()) {
-                String link = String.join("/",
-                        "scenario", this._scenario.getId(),
-                        itemType, entity.getId(),
-                        "year", Integer.toString(year));
-                row.put(Integer.toString(year),
-                        new AmountAndLink(getEntityValue(entity, year), link));
-            }
-            return row;
+    private Map createRow(Entity entity,
+                         final @NotNull String parentCategory,
+                         final @NotNull String itemType) {
+        Map row = new HashMap();
+        row.put("id", entity.getId());
+        row.put("name", decorateName(itemType, entity.getId(), entity.getName()));
+        row.put("itemType", itemType);
+        row.put("parentCategory", parentCategory);
+        row.put("itemCategory", entity.getCategory());
+        for (int year : getYears()) {
+            String link = String.join("/",
+                    "scenario", this._scenario.getId(),
+                    itemType, entity.getId(),
+                    "year", Integer.toString(year));
+            row.put(Integer.toString(year),
+                    new AmountAndLink(getEntityValue(entity, year), link));
+        }
+        return row;
     }
 
-    public String decorateName(String itemType, String id, String name) {
+    private String decorateName(String itemType, String id, String name) {
         return "<a href='scenario/" + this._scenario.getId() + "/grouping/" + itemType + "/" + id + "'>" +
                 name + "</a>";
     }
 
-    private Comparator<Map<String, Object>> byTypeClassAndName = new Comparator<Map<String, Object>>() {
+    private Comparator<Map<String, Object>> byTypeParentAndCategory = new Comparator<Map<String, Object>>() {
         @Override
         public int compare(Map<String, Object> o1, Map<String, Object> o2) {
             int result = 0;
             result = ((String) o1.getOrDefault("itemType", "")).
                     compareTo((String) o2.getOrDefault("itemType", ""));
             if (result == 0)
+                result = ((String) o1.getOrDefault("parentCategory", "")).
+                        compareTo((String) o2.getOrDefault("parentCategory", ""));
+            if (result == 0)
                 result = ((String) o1.getOrDefault("itemCategory", "")).
                         compareTo((String) o2.getOrDefault("itemCategory", ""));
-            if (result == 0)
-                result = ((String) o1.getOrDefault("name", "")).compareTo((String) o2.getOrDefault("name", ""));
             return result;
         }
     };
 
-    @org.jetbrains.annotations.NotNull
+    @NotNull
     @org.jetbrains.annotations.Contract(" -> new")
     private TableList getTableList() {
         List<ColumnDefinition> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(ColumnDefinition.Builder.newInstance().
-                setName("").
+                setName("Category").
                 setProperty("name").
                 setClassName("fixed-column").
                 setHeaderClassName("fixed-column").
@@ -308,59 +293,64 @@ public class CashFlowCalendar {
     public TableList getAssetsAndLiabilities() {
         TableList tableList = getTableList();
 
-
         String itemType = "asset";
+        String parentCategory = "parent";
         for (Asset asset: this._assets.values()) {
-            Map assetRow = createRow(asset, itemType);
+            Map assetRow = createRow(asset, parentCategory, itemType);
             tableList.add(assetRow);
         }
 
         itemType = "liability";
         for (Liability liability: _liabilities.values()) {
-            Map<String, Object> liabilityRow = createRow(liability, itemType);
+            Map<String, Object> liabilityRow = createRow(liability, parentCategory, itemType);
             tableList.add(liabilityRow);
         }
 
-        Collections.sort(tableList, byTypeClassAndName);
+        Collections.sort(tableList, byTypeParentAndCategory);
         return tableList;
     }
 
-    public TableList createTableListFromNestedHash(@NotNull Map<String, Map<String, Map<Integer, BigDecimal>>> nestedHash) {
+    private TableList createTableListFromNestedHash(@NotNull Map<String, Map<String, Map<String, Map<Integer, BigDecimal>>>> nestedHash) {
         TableList tableList = getTableList();
 
-        for (Map.Entry<String, Map<String, Map<Integer, BigDecimal>>> outerEntry: nestedHash.entrySet()) {
+        for (Map.Entry<String, Map<String, Map<String, Map<Integer, BigDecimal>>>> outerEntry: nestedHash.entrySet()) {
             String itemType = outerEntry.getKey();
-            for (Map.Entry<String, Map<Integer, BigDecimal>> innerEntry: outerEntry.getValue().entrySet()) {
-                Map<String, Object> row = new HashMap<>();
-                String itemCategory = innerEntry.getKey();
-                row.put("itemCategory", itemCategory);
-                row.put("itemType", itemType);
-                row.put("name", decorateName(itemType, innerEntry.getKey(), innerEntry.getKey()));
-                for (int year : getYears()) {
-                    String link = String.join("/",
-                            SCENARIO_PATH_ELEM,
-                            this._scenario.getId(),
-                            GROUPING_PATH_ELEM,
-                            itemType, itemCategory,
-                            "year", Integer.toString(year));
-                    row.put(Integer.toString(year),
-                            new AmountAndLink(innerEntry.getValue().getOrDefault(year, BigDecimal.ZERO), link));
+            for (Map.Entry<String, Map<String, Map<Integer, BigDecimal>>> middleEntry: outerEntry.getValue().entrySet()) {
+                String parentCategory = middleEntry.getKey();
+                for (Map.Entry<String, Map<Integer, BigDecimal>> innerEntry: middleEntry.getValue().entrySet()) {
+                    Map<String, Object> row = new HashMap<>();
+                    String itemCategory = innerEntry.getKey();
+                    row.put("itemCategory", itemCategory);
+                    row.put("parentCategory", parentCategory);
+                    row.put("itemType", itemType);
+                    row.put("name", decorateName(itemType, innerEntry.getKey(), innerEntry.getKey()));
+                    for (int year : getYears()) {
+                        String link = String.join("/",
+                                SCENARIO_PATH_ELEM,
+                                this._scenario.getId(),
+                                GROUPING_PATH_ELEM,
+                                itemType, itemCategory,
+                                "year", Integer.toString(year));
+                        row.put(Integer.toString(year),
+                                new AmountAndLink(innerEntry.getValue().getOrDefault(year, BigDecimal.ZERO), link));
+                    }
+                    tableList.add(row);
                 }
-                tableList.add(row);
             }
         }
-        Collections.sort(tableList, byTypeClassAndName);
+        Collections.sort(tableList, byTypeParentAndCategory);
         return tableList;
     }
 
     public TableList getCashFlows() {
-        Map<String, Map<String, Map<Integer, BigDecimal>>> categoryMap =
+        Map<String, Map<String, Map<String, Map<Integer, BigDecimal>>>> categoryMap =
                 cashFlowInstances.stream().
                         collect(Collectors.groupingBy(CashFlowInstance::getItemType,
-                                Collectors.groupingBy(CashFlowInstance::getCategory,
-                                        Collectors.groupingBy(CashFlowInstance::getYear,
-                                                Collectors.mapping(instance -> instance.getAmount(),
-                                                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))))));
+                                    Collectors.groupingBy(CashFlowInstance::getParentCategory,
+                                            Collectors.groupingBy(CashFlowInstance::getCategory,
+                                                    Collectors.groupingBy(CashFlowInstance::getYear,
+                                                            Collectors.mapping(instance -> instance.getAmount(),
+                                                                    Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)))))));
         return createTableListFromNestedHash(categoryMap);
     }
     public List<CashFlowInstance> getCashFlowInstances() {

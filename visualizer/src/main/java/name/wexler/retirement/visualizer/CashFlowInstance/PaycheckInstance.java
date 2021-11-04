@@ -4,6 +4,7 @@ import name.wexler.retirement.visualizer.CashFlowSink;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Job;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,11 +16,12 @@ public class PaycheckInstance extends CashFlowInstance {
             long id,
             Job job,
             CashFlowSink sink,
-            String category,
+            @NotNull String parentCategory,
+            @NotNull String category,
             LocalDate accrualStart, LocalDate accrualEnd,
             LocalDate cashFlowDate, BigDecimal amount, BigDecimal balance, String description) {
         super(id, false, job, sink,
-                CashFlowCalendar.ITEM_TYPE.INCOME.toString(), category,
+                CashFlowCalendar.ITEM_TYPE.INCOME.toString(), parentCategory, category,
                 accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
         this.employer = job.getEmployer();
     }

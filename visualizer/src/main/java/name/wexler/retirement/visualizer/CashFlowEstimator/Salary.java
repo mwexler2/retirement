@@ -29,6 +29,7 @@ import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Job;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -110,7 +112,7 @@ public class Salary extends CashFlowEstimator {
                     String description = String.join(", ", getPayers().stream().map(e -> e.getName()).collect(Collectors.toList()));
                     CashFlowInstance instance =
                             new CashFlowInstance(NO_ID, true, this, getJob().getDefaultSink(),
-                            getItemType(), this.getCategory(),
+                            getItemType(), this.getParentCategory(), this.getCategory(),
                             accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
                     return instance;
                 }
@@ -153,5 +155,11 @@ public class Salary extends CashFlowEstimator {
     @Override
     public String getCategory() {
         return PAYCHECK;
+    }
+
+    @JsonIgnore
+    @Override
+    public @NotNull  String getParentCategory() {
+        return INCOME;
     }
 }

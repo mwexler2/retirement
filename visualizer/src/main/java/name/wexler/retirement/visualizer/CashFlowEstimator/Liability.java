@@ -37,6 +37,7 @@ import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -207,7 +208,10 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     }
 
     @Override
-    public CashFlowInstance processSymbol(Context context, String symbol, String description, String category, String itemType,
+    public CashFlowInstance processSymbol(Context context, String symbol, String description,
+                                          final @NotNull String parentCategory,
+                                          final @NotNull String category,
+                                          final @NotNull String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount) {
         return null;
     }

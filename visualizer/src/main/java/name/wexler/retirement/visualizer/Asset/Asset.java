@@ -52,6 +52,8 @@ import name.wexler.retirement.visualizer.Entity.Entity;
         @JsonSubTypes.Type(value = AssetAccount.class, name = "account")
 })
 public abstract class Asset extends Entity implements CashFlowSource, CashFlowSink {
+    private static final String INTERIM_BALANCE = "interim_balance";
+    private static final String BALANCE = "balance";
     private final List<Balance> _balances;
     private final Context context;
     private final List<Entity> _owners;
@@ -174,7 +176,7 @@ public abstract class Asset extends Entity implements CashFlowSource, CashFlowSi
         _balances.stream().
                 forEach(balance -> {
                     AssetTransaction instance = new AssetTransaction(
-                            true, this, this, "interimBalance", "balance",
+                            true, this, this, INTERIM_BALANCE, BALANCE, BALANCE,
                             balance.getBalanceDate(),
                             balance.getBalanceDate(),
                             balance.getBalanceDate(), BigDecimal.ZERO, BigDecimal.ZERO,

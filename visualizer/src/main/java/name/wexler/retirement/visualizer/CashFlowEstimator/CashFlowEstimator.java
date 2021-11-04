@@ -32,6 +32,7 @@ import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -171,6 +172,10 @@ public abstract class CashFlowEstimator extends Entity implements CashFlowSource
     public void sourceCashFlowInstance(CashFlowInstance cashFlowInstance) {
 
     }
+
+    @JsonIgnore
+    @NotNull
+    abstract String getParentCategory();
 
     @JsonIgnore
     @Override

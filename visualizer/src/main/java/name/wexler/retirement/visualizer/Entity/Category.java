@@ -16,6 +16,10 @@ public class Category extends Entity {
     private static final String categoryPath = "categories.json";
     public static final String EXPENSE = "EXPENSE";
     public static final String INCOME = "INCOME";
+    public static final String BILLS_AND_UTILITIES = "Bills & Utilities";
+    public static final String HOME = "Home";
+    public static final String TRANSFERS = "Transfers";
+    public static final String UNKNOWN = "Unknown";
 
     public static void readCategories(Context context) throws IOException {
         context.fromJSONFileList(Category[].class, categoryPath);

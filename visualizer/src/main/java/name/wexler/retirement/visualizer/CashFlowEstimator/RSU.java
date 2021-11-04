@@ -31,12 +31,14 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
+import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -60,6 +62,11 @@ public class RSU extends EquityCompensation {
         return getJob().getName() + " RSU";
     }
 
+    @Override
+    @NotNull String getParentCategory() {
+        return INCOME;
+    }
+
     @JsonIgnore
     @Override
     public List<CashFlowInstance> getEstimatedFutureCashFlows(CashFlowCalendar cashFlowCalendar) {
@@ -71,7 +78,8 @@ public class RSU extends EquityCompensation {
             BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
             CashFlowInstance instance =
                     new CashFlowInstance(NO_ID, true, this, getJob().getDefaultSink(),
-                    getItemType(), getCategory(), accrualStart, accrualEnd, cashFlowDate, amount, balance,
+                    getItemType(), getParentCategory(), getCategory(),
+                            accrualStart, accrualEnd, cashFlowDate, amount, balance,
                     getDescription(shares, sharePrice));
             return instance;
         });

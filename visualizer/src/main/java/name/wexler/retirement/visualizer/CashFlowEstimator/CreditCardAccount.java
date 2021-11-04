@@ -32,8 +32,10 @@ import name.wexler.retirement.visualizer.CashFlowFrequency.Balance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Company;
 import name.wexler.retirement.visualizer.Entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -137,6 +139,11 @@ public class CreditCardAccount extends Liability {
         BigDecimal interest = prevBalance.getValue().multiply(getPeriodicInterestRate()).setScale(2, RoundingMode.HALF_UP);
         BigDecimal principal = getPaymentAmount().subtract(interest);
         return new CashBalance(cashFlowInstance.getCashFlowDate(), prevBalance.getValue().subtract(principal));
+    }
+
+    @Override
+    @NotNull String getParentCategory() {
+        return Category.TRANSFERS;
     }
 
     public CashFlowEstimator getCashFlowSource() {

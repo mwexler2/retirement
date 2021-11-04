@@ -140,8 +140,8 @@ public class AccountReader {
 
 
     private List<CashFlowInstance> readCashFlowInstancesFromResultSet (
-            Context context,
-            ResultSet rs) {
+            @NotNull Context context,
+            @NotNull  ResultSet rs) {
         List<CashFlowInstance> cashFlowInstances = new ArrayList<>();
 
         try {
