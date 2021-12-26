@@ -53,7 +53,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
     /**
      * Maps the groups to their current totals.
      */
-    private Map groupNumberToGroupTotal = new HashMap();
+    private final Map groupNumberToGroupTotal = new HashMap();
 
     /**
      * The deepest reset group. Resets on an outer group will force any deeper groups to reset as well.
@@ -68,7 +68,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
     /**
      * Logger.
      */
-    private Log logger = LogFactory.getLog(MultilevelBigDecimalLinkTableDecorator.class);
+    private final Log logger = LogFactory.getLog(MultilevelBigDecimalLinkTableDecorator.class);
 
     /**
      * CSS class applied to grand total totals.
@@ -94,28 +94,28 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
     /**
      * CSS class appplied to subtotal headers.
      */
-    private String subtotalHeaderClass = "subtotal-header";
+    private final String subtotalHeaderClass = "subtotal-header";
 
     /**
      * CSS class applied to subtotal labels.
      */
-    private String subtotalLabelClass = "subtotal-label";
+    private final String subtotalLabelClass = "subtotal-label";
 
     /**
      * Message format for subtotal descriptions.
      */
-    private MessageFormat subtotalDesc = new MessageFormat("{0} Total");
+    private final MessageFormat subtotalDesc = new MessageFormat("{0} Total");
 
     /**
      * CSS class applied to subtotal totals.
      */
-    private String subtotalValueClass = "subtotal-sum";
+    private final String subtotalValueClass = "subtotal-sum";
 
 
     /**
      * Holds the header rows and their content for a particular group.
      */
-    private List headerRows = new ArrayList(5);
+    private final List headerRows = new ArrayList(5);
 
     @Override
     public void init(PageContext context, Object decorated, TableModel model)
@@ -434,8 +434,8 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
             return total;
         } else if (value instanceof BigDecimal) {
             return totalDecimal.add((BigDecimal) value);
-        } else if (value instanceof CashFlowCalendar.AmountAndLink) {
-            return totalDecimal.add(((CashFlowCalendar.AmountAndLink) value).getAmount());
+        } else if (value instanceof AmountAndLink) {
+            return totalDecimal.add(((AmountAndLink) value).getAmount());
         } else {
             throw new UnsupportedOperationException("Cannot add a value of " + value + " in column " + column.getHeaderCell().getTitle());
         }
@@ -519,7 +519,7 @@ public class MultilevelBigDecimalLinkTableDecorator extends TableDecorator
          */
         protected String totalValueClass = getSubtotalValueClass();
 
-        private int columnNumber;
+        private final int columnNumber;
 
         private int firstRowOfCurrentSet;
 

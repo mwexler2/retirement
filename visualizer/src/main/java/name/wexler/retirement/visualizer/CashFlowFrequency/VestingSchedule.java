@@ -41,7 +41,7 @@ import java.util.List;
  * Created by mwexler on 7/9/16.
  */
 public class VestingSchedule extends CashFlowFrequency {
-    private List<Vesting> vestings;
+    private final List<Vesting> vestings;
 
     @JsonIgnore
     final

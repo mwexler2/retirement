@@ -28,9 +28,9 @@ public class CashFlowInstance implements Comparable<CashFlowInstance> {
 
     private final String parentCategory ;
     private final String category;
-    private CashFlowSink cashFlowSink;
-    private boolean estimated;
-    private long id;
+    private final CashFlowSink cashFlowSink;
+    private final boolean estimated;
+    private final long id;
     public static long NO_ID = 2102102102;
 
     public CashFlowInstance(long id, boolean estimated,

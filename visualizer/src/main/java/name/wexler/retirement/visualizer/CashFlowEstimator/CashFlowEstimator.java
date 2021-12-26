@@ -63,10 +63,10 @@ import java.util.NoSuchElementException;
         @JsonSubTypes.Type(value = Budget.class, name="budgets")
 })
 public abstract class CashFlowEstimator extends Entity implements CashFlowSource {
-    private static List<CashFlowEstimator> cashFlowEstimators = new ArrayList<>();
+    private static final List<CashFlowEstimator> cashFlowEstimators = new ArrayList<>();
     private final List<Entity> payers;
     private final List<Entity> payees;
-    private CashFlowFrequency cashFlow;
+    private final CashFlowFrequency cashFlow;
     private static final String cashFlowSourcesPath = "cashFlowSources.json";
 
     static public void readCashFlowSources(Context context) throws IOException {

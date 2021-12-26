@@ -6,6 +6,6 @@ import name.wexler.retirement.visualizer.Entity.Entity;
 public interface CashFlowSource {
     String getId();
 
-    public String getItemType();
-    public boolean isOwner(Entity entity);
+    String getItemType();
+    boolean isOwner(Entity entity);
 }

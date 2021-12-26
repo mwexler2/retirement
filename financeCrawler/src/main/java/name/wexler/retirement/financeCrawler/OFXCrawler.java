@@ -60,9 +60,9 @@ public class OFXCrawler {
                 ResponseEnvelope responseEnvelope = unmarshaller.unmarshal(p.getInputStream());
                 processResponse(responseEnvelope);
             } catch (OFXParseException ope) {
-                System.err.println(ope);
+                throw new RuntimeException(ope);
             } catch (IOException ioe) {
-                System.err.println(ioe);
+                throw new RuntimeException(ioe);
             }
         }
     }

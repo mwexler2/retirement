@@ -43,12 +43,12 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "type", "id", "owners", "initialBalance", "address", "city", "county", "state", "zipCode", "country" })
 public class RealProperty extends Asset {
-    private String[] address;
-    private String city;
-    private String county;
-    private String state;
-    private String zipCode;
-    private String country;
+    private final String[] address;
+    private final String city;
+    private final String county;
+    private final String state;
+    private final String zipCode;
+    private final String country;
 
     @JsonCreator
     public RealProperty(

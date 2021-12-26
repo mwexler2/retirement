@@ -1,12 +1,18 @@
 package name.wexler.retirement.visualizer.Tables;
 
+import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
+import name.wexler.retirement.visualizer.CashFlowSink;
+import name.wexler.retirement.visualizer.CashFlowSource;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class TableListTest {
     List<ColumnDefinition> columnDefinitions = Collections.emptyList();

@@ -28,7 +28,7 @@ public class FinanceCrawler
             MintCrawler mintCrawler = new MintCrawler(txnHistory, accountTable, budgets, txnHistory.getLastDate());
             mintCrawler.crawl();
         }
-        if (true) {
+        if (false) {
             OFXCrawler ofxCrawler = new OFXCrawler(positionHistory, accountTable, txnHistory);
             ofxCrawler.crawl();
         }

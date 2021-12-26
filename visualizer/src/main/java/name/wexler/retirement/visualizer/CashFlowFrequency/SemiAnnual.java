@@ -43,11 +43,11 @@ import static java.time.temporal.ChronoUnit.DAYS;
  * Created by mwexler on 7/9/16.
  */
 public class SemiAnnual extends CashFlowFrequency {
-    private MonthDay monthDay;
-    private int firstYear;
-    private int lastYear;
+    private final MonthDay monthDay;
+    private final int firstYear;
+    private final int lastYear;
     private static final int periodsPerYear = 2;
-    private LocalDate firstAccrualEnd;
+    private final LocalDate firstAccrualEnd;
 
     public SemiAnnual(@JacksonInject("context") Context context,
                       @JsonProperty(value = "id", required = true) String id,

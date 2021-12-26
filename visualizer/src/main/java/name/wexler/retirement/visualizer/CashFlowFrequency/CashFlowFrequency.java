@@ -80,7 +80,7 @@ public abstract class CashFlowFrequency extends Entity {
 
     public enum ApportionmentPeriod { WHOLE_TERM, ANNUAL, EQUAL_MONTHLY }
 
-    private  ApportionmentPeriod apportionmentPeriod;
+    private final ApportionmentPeriod apportionmentPeriod;
 
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)

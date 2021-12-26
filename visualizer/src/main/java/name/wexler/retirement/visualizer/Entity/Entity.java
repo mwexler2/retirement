@@ -44,7 +44,7 @@ import name.wexler.retirement.visualizer.Security;
         @JsonSubTypes.Type(value = Security.class, name = "security"),
         @JsonSubTypes.Type(value = Scenario.class, name="scenario")})
 public abstract class Entity {
-    private Context context;
+    private final Context context;
 
     public class DuplicateEntityException extends Exception {
         public DuplicateEntityException(String id) {

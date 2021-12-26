@@ -220,7 +220,7 @@ public class AssetAccount extends Asset implements Account {
                                           final @NotNull String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount) {
         CashFlowInstance instance = null;
-        AssetAccount assetAccount = (AssetAccount) this;
+        AssetAccount assetAccount = this;
         BigDecimal sharePrice = null;
         Security security;
         if (symbol == null || symbol.equals("")) {

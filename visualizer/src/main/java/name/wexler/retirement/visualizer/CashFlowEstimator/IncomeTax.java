@@ -48,7 +48,7 @@ public class IncomeTax extends CashFlowEstimator {
 
     TaxTable taxTable;
 
-    private CashFlowSink defaultSink;
+    private final CashFlowSink defaultSink;
     public static String INCOME_TAX = "Income Tax";
     private static final BigDecimal INCOME_TAX_RATE = BigDecimal.valueOf(0.10);
 

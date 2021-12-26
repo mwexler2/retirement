@@ -54,7 +54,7 @@ public class SecuredLoan extends Liability {
     private final int term;
     private BigDecimal paymentAmount;
     private final BigDecimal impoundAmount;
-    private CashFlowSink defaultSink;
+    private final CashFlowSink defaultSink;
     private CashBalance runningTotal;
 
     @JsonCreator
@@ -171,7 +171,12 @@ public class SecuredLoan extends Liability {
 
     @Override
     @NotNull String getParentCategory() {
-        return Category.HOME;
+        return Category.MORTGAGE;
+    }
+
+    @Override
+    @NotNull public String getCategory() {
+        return Category.MORTGAGE;
     }
 
     @JsonIgnore

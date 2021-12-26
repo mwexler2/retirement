@@ -121,14 +121,6 @@ public class CashFlowCalendarTest {
     public void tearDown() {
     }
 
-
-    @Test
-    public void getYears() {
-        List<Integer> result = calendar.getYears();
-        assertEquals(2, result.size());
-        assertEquals(2015, result.get(0).intValue());
-    }
-
     @Test
     public void getAnnualExpense() {
         /*

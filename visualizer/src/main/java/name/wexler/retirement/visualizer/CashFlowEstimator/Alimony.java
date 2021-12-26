@@ -59,8 +59,8 @@ public class Alimony extends CashFlowEstimator {
     private final BigDecimal smithOstlerRate;
     private final BigDecimal maxAlimony;
     private CashFlowFrequency smithOstlerCashFlow;
-    private CashFlowSink defaultSink;
-    private static String ALIMONY = "Alimony";
+    private final CashFlowSink defaultSink;
+    private static final String ALIMONY = "Alimony";
 
 
     @JsonCreator

@@ -43,9 +43,9 @@ import static java.time.temporal.ChronoUnit.DAYS;
  * Created by mwexler on 7/9/16.
  */
 public class Annual extends CashFlowFrequency {
-    private MonthDay monthDay;
-    private int firstYear;
-    private int lastYear;
+    private final MonthDay monthDay;
+    private final int firstYear;
+    private final int lastYear;
 
     public Annual(@JacksonInject("context") Context context,
                   @JsonProperty(value = "id", required = true) String id,

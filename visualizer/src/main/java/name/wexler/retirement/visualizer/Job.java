@@ -50,7 +50,7 @@ public class Job extends Entity implements CashFlowSource {
     @JsonSerialize(using=JSONDateSerialize.class)
     private LocalDate endDate;
     private MonthDay bonusDay;
-    private CashFlowSink defaultSink;
+    private final CashFlowSink defaultSink;
 
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,

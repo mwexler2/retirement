@@ -13,7 +13,7 @@ public enum CASH_ESTIMATE_PASS implements
     DERIVED_EXPENSES(3),
     TAXES(4);
 
-    private int ordinal;
+    private final int ordinal;
 
     CASH_ESTIMATE_PASS(int ordinal) {
         this.ordinal = ordinal;

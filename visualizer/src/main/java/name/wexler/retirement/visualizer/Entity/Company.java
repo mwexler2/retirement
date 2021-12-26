@@ -32,7 +32,7 @@ import java.io.IOException;
  */
 @JsonTypeName("company")
 public class Company extends Entity {
-    private String companyName;
+    private final String companyName;
     private static final String companyPath = "company.json";
 
     public static void readCompanies(Context context) throws IOException {

@@ -47,9 +47,9 @@ import java.util.*;
 @JsonPropertyOrder({ "id", "assumptions", "name", "cashFlowSources"})
 public class Scenario extends Entity {
     private final String name;
-    private Assumptions _assumptions;
+    private final Assumptions _assumptions;
     private static final String scenariosPath = "scenarios.json";
-    private List<CashFlowEstimator> _cashFlowEstimators;
+    private final List<CashFlowEstimator> _cashFlowEstimators;
 
     @JsonIgnore
     private final CashFlowCalendar calendar;

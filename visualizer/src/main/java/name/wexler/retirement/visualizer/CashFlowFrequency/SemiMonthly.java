@@ -44,8 +44,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
  */
 @JsonPropertyOrder({ "type", "id", "accrueStart", "accrueEnd", "firstPaymentDate", "firstPaymentDayOfMonth", "secondPaymentDayOfMonth" })
 public class SemiMonthly extends Monthly {
-    private int firstPaymentDayOfMonth;
-    private int secondPaymentDayOfMonth;
+    private final int firstPaymentDayOfMonth;
+    private final int secondPaymentDayOfMonth;
     private static final int middleOfMonth = 15;
     private static final int periodsPerYear = 24;
 

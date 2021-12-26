@@ -46,7 +46,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
  * Created by mwexler on 7/9/16.
  */
 public class Biweekly extends CashFlowFrequency {
-    private DayOfWeek dayOfWeek;
+    private final DayOfWeek dayOfWeek;
     private static final int twoWeeks = 2 * 7;
     private static final int weeksInBiweek = 2;
     private static final int periodsPeryear = 26;

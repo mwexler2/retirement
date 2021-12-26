@@ -53,9 +53,9 @@ public class Budget extends CashFlowEstimator {
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private final LocalDate endDate;
-    private BigDecimal paymentAmount;
-    private BigDecimal periodsPerYear = BigDecimal.valueOf(12);
-    private CashFlowSink defaultSink;
+    private final BigDecimal paymentAmount;
+    private final BigDecimal periodsPerYear = BigDecimal.valueOf(12);
+    private final CashFlowSink defaultSink;
     Map<String, Boolean> skipGroupings = new HashMap<>();
     Map<String, Boolean> skipParentCategories = new HashMap<>();
     Map<String, Boolean> skipCategories = new HashMap<>();
@@ -87,9 +87,7 @@ public class Budget extends CashFlowEstimator {
             return true;
         if (skipParentCategories.containsKey(budget.getParentCategory()))
             return true;
-        if (skipCategories.containsKey(budget.getCategory()))
-            return true;
-        return false;
+        return skipCategories.containsKey(budget.getCategory());
     }
 
     @JsonIgnore
@@ -114,7 +112,7 @@ public class Budget extends CashFlowEstimator {
                                 return instance;
                             });
             allInstances.addAll(cashFlowInstances);
-        };
+        }
         return allInstances;
     }
 

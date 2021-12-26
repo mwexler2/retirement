@@ -194,7 +194,7 @@ public class CashFlowTypeTest {
                             accrualStart, accrualEnd, cashFlowDate, annualAmount, balance,
                             "Salary for " + salary1.getName());
                 });
-        assertEquals(2, annualCashFlows.size());
+        assertEquals(3, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());
         assertEquals(annualAmount, annualCashFlows.get(1).getAmount());
 
@@ -208,7 +208,7 @@ public class CashFlowTypeTest {
                             accrualStart, accrualEnd, cashFlowDate, amount, balance,
                             "Salary for " + salary1.getName());
                 });
-        assertEquals(2, annualCashFlows.size());
+        assertEquals(3, annualCashFlows.size());
         assertEquals(annualAmount, annualCashFlows.get(0).getAmount());
         assertEquals(annualAmount, annualCashFlows.get(1).getAmount());
     }

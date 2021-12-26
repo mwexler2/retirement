@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ReimbursementInstance extends CashFlowInstance {
-    private Entity employer;
+    private final Entity employer;
 
     public ReimbursementInstance(long id, CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
                                  @NotNull String parentCategory,

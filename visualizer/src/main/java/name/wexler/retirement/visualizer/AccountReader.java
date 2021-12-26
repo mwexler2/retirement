@@ -33,7 +33,7 @@ import static java.util.Map.entry;
 public class AccountReader {
     public static final String mintTxnSource = "mint";
     public static final String ofxTxnSource = "OFX";
-    private Spending spending;
+    private final Spending spending;
 
     public AccountReader(Context context) {
         spending = context.getById(Expense.class, "spending");
@@ -187,7 +187,13 @@ public class AccountReader {
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
         } catch (Account.AccountNotFoundException anfe) {
-            throw new RuntimeException(anfe);
+            String id = "none";
+            try {
+                id = rs.getString("id");
+            } catch (SQLException sqle) {
+                // do nothing
+            }
+            throw new RuntimeException(id, anfe);
         }
     }
 

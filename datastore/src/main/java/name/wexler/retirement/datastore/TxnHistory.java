@@ -180,9 +180,9 @@ public class TxnHistory {
                         "isBuy,isCheck,isChild,isDebit,isDuplicate,isEdited,isFirstDate,isLinkedToRule," +
                         "isMatched,isPending,isPercent,isSell,isSpending," +
                         "txnHistory.isTransfer, \n" +
-                        "symbol, shares, source, budgets.parent \n" +
+                        "symbol, shares, source, IFNULL(budgets.parent, categoryMapping.parentCategory) AS parent \n" +
                         "FROM txnHistory \n" +
-                        "LEFT JOIN categoryMapping ON categoryMapping.raw_category=txnHistory.category\n" +
+                        "LEFT JOIN categoryMapping ON LOWER(categoryMapping.raw_category)=LOWER(txnHistory.category)\n" +
                         "LEFT JOIN budgets ON budgets.cat=txnHistory.category\n" +
                         "WHERE isDuplicate=0\n";
         try {

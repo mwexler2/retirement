@@ -44,7 +44,7 @@ public class Person extends Entity {
     @JsonDeserialize(using= JSONDateDeserialize.class)
     @JsonSerialize(using= JSONDateSerialize.class)
     private LocalDate birthDate;
-    private int retirementAge;
+    private final int retirementAge;
     private static final String peoplePath = "people.json";
 
     public static List<Person> readPeople(Context context) throws IOException {

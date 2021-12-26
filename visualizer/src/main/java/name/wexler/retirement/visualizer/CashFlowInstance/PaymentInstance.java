@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class PaymentInstance extends CashFlowInstance {
-    private Entity payee;
-    private String category;
+    private final Entity payee;
+    private final String category;
 
     public PaymentInstance(long id,
                            CashFlowSource cashFlowSource,

@@ -55,10 +55,10 @@ public class Rent extends CashFlowEstimator {
     @JsonDeserialize(using=JSONDateDeserialize.class)
     @JsonSerialize(using=JSONDateSerialize.class)
     private final LocalDate endDate;
-    private BigDecimal paymentAmount;
-    private BigDecimal periodsPerYear = BigDecimal.valueOf(12);
+    private final BigDecimal paymentAmount;
+    private final BigDecimal periodsPerYear = BigDecimal.valueOf(12);
     private CashFlowSink defaultCashFlowSink;
-    private CashFlowSink defaultSink;
+    private final CashFlowSink defaultSink;
     private static final String RENTAL_INCOME = "Rental Income";
     private static final String INCOME = "Income";
 

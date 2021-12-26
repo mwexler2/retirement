@@ -33,7 +33,7 @@ public class Assumptions {
     private double longTermInvestmentReturn  = 7.0/100.0;
     private double shortTermInvestmentReturn	= 3.0/100.0;
     private double inflation                 = 4.0/100.0;
-    private int alimonyEndAge               = 65;
+    private final int alimonyEndAge               = 65;
     private int yearsInShortTerm            = 10;
 
     static public void readAssumptions(Context context) throws IOException {

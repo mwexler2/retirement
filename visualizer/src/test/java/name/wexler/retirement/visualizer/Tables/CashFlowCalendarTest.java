@@ -53,12 +53,6 @@ public class CashFlowCalendarTest {
     }
 
     @Test
-    public void getYears() {
-        List<Integer> years = cashFlowCalendar.getYears();
-        assertEquals(0, years.size());
-    }
-
-    @Test
     public void getAssetValue() {
         BigDecimal assetValue = cashFlowCalendar.getAssetValue("asset1", 2020);
         assert(BigDecimal.ZERO.compareTo(assetValue) == 0);
@@ -110,74 +104,8 @@ public class CashFlowCalendarTest {
     }
 
     @Test
-    public void getAssetsAndLiabilities() {
-        TableList tableList = cashFlowCalendar.getAssetsAndLiabilities();
-        assertEquals(0, tableList.size());
-    }
-
-    @Test
-    public void getCashFlows() {
-        TableList cashFlows = cashFlowCalendar.getCashFlows();
-        assertEquals(0, cashFlows.size());
-    }
-
-    @Test
-    public void getCashFlowsOneEntry() {
-        CashFlowSource source = mock(CashFlowSource.class);
-        CashFlowSink sink = mock(CashFlowSink.class);
-        CashFlowInstance cashFlowInstance = new CashFlowInstance(
-                1L, false, source, sink,
-                "itemType", "parentCategory", "category",
-                LocalDate.EPOCH, LocalDate.MAX, LocalDate.EPOCH,
-                BigDecimal.ONE, BigDecimal.TEN,
-                "description");
-        cashFlowCalendar.addCashFlowInstances(List.of(cashFlowInstance));
-        TableList cashFlows = cashFlowCalendar.getCashFlows();
-        assertEquals(1, cashFlows.size());
-        assertEquals(5, cashFlows.get(0).size());
-        assertEquals("itemType", cashFlows.get(0).get("itemType"));
-        assertEquals("parentCategory", cashFlows.get(0).get("parentCategory"));
-        assertEquals("category", cashFlows.get(0).get("itemCategory"));
-    }
-
-    @Test
-    public void getCashFlowsTwoEntries() {
-        CashFlowSource source = mock(CashFlowSource.class);
-        CashFlowSink sink = mock(CashFlowSink.class);
-        CashFlowInstance cashFlowInstance = new CashFlowInstance(
-                1L, false, source, sink,
-                "itemType", "parentCategory", "category",
-                LocalDate.EPOCH, LocalDate.MAX, LocalDate.EPOCH,
-                BigDecimal.ONE, BigDecimal.TEN,
-                "description");
-        cashFlowCalendar.addCashFlowInstances(List.of(cashFlowInstance));
-        cashFlowInstance = new CashFlowInstance(
-                2L, false, source, sink,
-                "itemType", "otherParent", "category",
-                LocalDate.EPOCH, LocalDate.MAX, LocalDate.EPOCH,
-                BigDecimal.ONE, BigDecimal.TEN,
-                "description");
-        cashFlowCalendar.addCashFlowInstances(List.of(cashFlowInstance));
-        TableList cashFlows = cashFlowCalendar.getCashFlows();
-        assertEquals(2, cashFlows.size());
-        assertEquals(5, cashFlows.get(0).size());
-        assertEquals("itemType", cashFlows.get(0).get("itemType"));
-        assertEquals("otherParent", cashFlows.get(0).get("parentCategory"));
-        assertEquals("category", cashFlows.get(0).get("itemCategory"));
-        assertEquals("itemType", cashFlows.get(1).get("itemType"));
-        assertEquals("parentCategory", cashFlows.get(1).get("parentCategory"));
-        assertEquals("category", cashFlows.get(1).get("itemCategory"));
-    }
-
-    @Test
     public void getCashFlowInstances() {
         List<CashFlowInstance> cashFlows = cashFlowCalendar.getCashFlowInstances();
         assertEquals(0, cashFlows.size());
-    }
-
-    @Test
-    public void getShareBalances() {
-        List<Map<String, Object>> balances = cashFlowCalendar.getShareBalances((foo) -> (Collections.emptyList()));
-        assertEquals(0, balances.size());
     }
 }

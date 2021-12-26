@@ -14,7 +14,7 @@ import java.io.IOException;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Spending.class, name = "spending")})
 abstract public class Expense extends Entity implements CashFlowSource {
-    private Context context;
+    private final Context context;
     private static final String expensesPath = "expenses.json";
 
     @JsonCreator

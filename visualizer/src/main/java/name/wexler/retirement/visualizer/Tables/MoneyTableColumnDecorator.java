@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 public class MoneyTableColumnDecorator implements DisplaytagColumnDecorator {
-    private DecimalFormat moneyFormat = new DecimalFormat("$#,###,##0.00");
+    private final DecimalFormat moneyFormat = new DecimalFormat("$#,###,##0.00");
 
     public MoneyTableColumnDecorator() {
 
@@ -28,8 +28,8 @@ public class MoneyTableColumnDecorator implements DisplaytagColumnDecorator {
         if (columnValue instanceof BigDecimal) {
             BigDecimal money = (BigDecimal) columnValue;
             return this.moneyFormat.format(money);
-        } else if (columnValue instanceof CashFlowCalendar.AmountAndLink) {
-            CashFlowCalendar.AmountAndLink amountAndLink = (CashFlowCalendar.AmountAndLink) columnValue;
+        } else if (columnValue instanceof AmountAndLink) {
+            AmountAndLink amountAndLink = (AmountAndLink) columnValue;
             return "<a href='" + amountAndLink.getLink() + "'>" +
                     this.moneyFormat.format(amountAndLink.getAmount()) + "</a>";
         }

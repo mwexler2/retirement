@@ -19,7 +19,7 @@ import java.util.*;
  * Created by mwexler on 6/4/17.
  */
 public class Security extends Entity {
-    private static Map<String, Map<LocalDate, BigDecimal>> historicalPrices = new HashMap<>();
+    private static final Map<String, Map<LocalDate, BigDecimal>> historicalPrices = new HashMap<>();
     private static final String securitiesPath = "securities.json";
     private static TickerHistory tickerHistory = null;
     private final static BigDecimal daysInYear = BigDecimal.valueOf(365.25);

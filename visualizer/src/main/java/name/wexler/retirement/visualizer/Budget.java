@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.Optional;
 
 public class Budget {
-    private String parentCategory;
-    private Boolean isIncome;
-    private Boolean isTransfer;
-    private Boolean isExpense;
-    private Optional<BigDecimal> amount;
-    private BigDecimal budget;
-    private BigDecimal rBal;
-    private String category;
-    private String grouping;
-    private Optional<Long> period;
-    private Optional<BigDecimal> aamt;
-    private Optional<BigDecimal> tbgt;
-    private Optional<Boolean> isLast;
+    private final String parentCategory;
+    private final Boolean isIncome;
+    private final Boolean isTransfer;
+    private final Boolean isExpense;
+    private final Optional<BigDecimal> amount;
+    private final BigDecimal budget;
+    private final BigDecimal rBal;
+    private final String category;
+    private final String grouping;
+    private final Optional<Long> period;
+    private final Optional<BigDecimal> aamt;
+    private final Optional<BigDecimal> tbgt;
+    private final Optional<Boolean> isLast;
     public static final String INCOME_GROUPING = "income";
     public static final String EXPENSE_GROUPING = "expense";
 

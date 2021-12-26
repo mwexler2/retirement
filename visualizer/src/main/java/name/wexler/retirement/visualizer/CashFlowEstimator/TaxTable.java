@@ -75,8 +75,8 @@ public class TaxTable {
             }
         }
 
-        private List<TaxBracket> taxBracketList;
-        private BigDecimal standardDeduction;
+        private final List<TaxBracket> taxBracketList;
+        private final BigDecimal standardDeduction;
 
         @JsonCreator
         public TaxYearTable(
@@ -137,7 +137,7 @@ public class TaxTable {
     }
 
     public class TaxYearNotFoundException extends Exception {
-        private int year;
+        private final int year;
 
         @Override
         public String toString() {

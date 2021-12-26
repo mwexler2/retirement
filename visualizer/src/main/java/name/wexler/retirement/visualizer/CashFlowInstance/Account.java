@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public interface Account extends CashFlowSource, CashFlowSink {
     Entity getCompany();
@@ -34,13 +35,13 @@ public interface Account extends CashFlowSource, CashFlowSink {
                                    final @NotNull String itemType,
                                           BigDecimal shares, LocalDate txnDate, BigDecimal txnAmount);
 
-    public @NotNull
+    @NotNull
     default CashFlowInstance getInstance(Context context,
-                                                Spending spending,
-                                                ResultSet rs,
-                                                CashFlowSource cashFlowSource,
-                                                String description,
-                                                Job job
+                                         Spending spending,
+                                         ResultSet rs,
+                                         CashFlowSource cashFlowSource,
+                                         String description,
+                                         Job job
     ) throws SQLException, AccountNotFoundException {
         CashFlowInstance instance = null;
 
@@ -53,11 +54,80 @@ public interface Account extends CashFlowSource, CashFlowSink {
         String notes = ObjectUtils.defaultIfNull(rs.getString("notes"), "");
         String labelsStr = ObjectUtils.defaultIfNull(rs.getString("labels"), "");
         List<String> names = getLabels(labelsStr);
-        Category c = context.getById(Category.class, category);
         String parentCategory = rs.getString("parent");
         if (parentCategory == null)
             parentCategory = Category.UNKNOWN;
-        String itemType = c.getItemType();
+        String itemType = rs.getString("itemType");
+        String txnType = rs.getString("txn_type");
+        if (description.startsWith("BANK INT")) {
+            category = "Interest Income";
+            parentCategory = "Investment";
+            itemType = "INCOME";
+        } else if (description.startsWith("Tfr")) {
+            category = "Transfer";
+            parentCategory = "Transfer";
+            itemType = "Transfer";
+        } else if (description.startsWith("JOURNAL ")) {
+            category = "Journal";
+            parentCategory = "Transfer";
+            itemType = "Transfer";
+        } else if (description.startsWith("OVERDRAFT ")) {
+            category = "Overdraft";
+            parentCategory = "Transfer";
+            itemType = "Transfer";
+        } else if (description.startsWith("Check:")) {
+            category = "Check";
+            parentCategory = "Uncategorized";
+            itemType = Category.EXPENSE;
+        } else if (parentCategory.equals(Category.INVESTMENT) &&
+                (description.startsWith("Interest ") || description.endsWith("ACCOUNT INTEREST"))) {
+            category = "Interest Income";
+            parentCategory = "Investment";
+            itemType = Category.INCOME;
+        } else if (description.startsWith("Olink Tid")) {
+            category = "Transfer";
+            parentCategory = "Investment";
+            itemType = Category.TRANSFERS;
+        } else if (description.equals("Payroll Contribution")) {
+            category="Payroll Contribution";
+            parentCategory = "Investment";
+            itemType = Category.TRANSFERS;
+        } else if (description.startsWith("FUNDS RECEIVED ")) {
+            category = "Funds Received";
+            parentCategory = "Transfer";
+            itemType = "Transfer";
+        } else if (description.endsWith("Plan Contribution") ||
+                   description.endsWith("- Contribution") ||
+                   description.contains(" CONTRIBUTION ") ||
+                   description.startsWith("Contribution ")) {
+            category = "Contribution";
+            parentCategory = "Retirement";
+            itemType = "Transfer";
+        } else if (description.startsWith("WAIVE ")) {
+            category = "Bank fee";
+            parentCategory = "Fees & Charges";
+            itemType = "Income";
+        } else if (txnType.equals("CHECK")) {
+            category = "Check";
+            parentCategory = "Uncategorized";
+            itemType = Category.EXPENSE;
+        } else if (txnType.equals("FEE")) {
+            category = "Bank Fee";
+            parentCategory = "Fees & Charges";
+            itemType = Category.EXPENSE;
+        } else if (Pattern.matches("US TREASURY.*MATURED", description)) {
+            category = "Principal";
+            parentCategory = "Investment";
+            itemType = "Income";
+        } else if (description.contains("CASH DIV")) {
+            category = "Dividends & Capital Gains";
+            parentCategory = Category.INVESTMENT;
+            itemType = "Income";
+        } else if (itemType == null) {
+            itemType = txnType.equals("DEBIT") ? Category.EXPENSE : txnType.equals("CREDIT") ? "Income" : "Transfer";
+            parentCategory = "Uncategorized";
+            category = "Uncategorized";
+        }
         Boolean isDebit = rs.getBoolean("isDebit");
         Entity company = this.getCompany();
         String symbol = rs.getString("symbol");
@@ -128,7 +198,7 @@ public interface Account extends CashFlowSource, CashFlowSink {
 
     void setRunningTotal(LocalDate balanceDate, BigDecimal value);
 
-    public class AccountNotFoundException extends Exception {
+    class AccountNotFoundException extends Exception {
         private final String accountName;
 
         public AccountNotFoundException(String accountName) {

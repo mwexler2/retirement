@@ -51,7 +51,7 @@ import org.sqlite.JDBC;
 public class Retirement {
     private List<Scenario> scenarios;
     private List<Person> people;
-    static private DataStore ds;
+    static private final DataStore ds;
 
 
     Retirement() {

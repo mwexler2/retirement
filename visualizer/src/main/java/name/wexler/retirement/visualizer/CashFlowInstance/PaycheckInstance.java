@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class PaycheckInstance extends CashFlowInstance {
-    private Entity employer;
+    private final Entity employer;
 
     public PaycheckInstance(
             long id,
