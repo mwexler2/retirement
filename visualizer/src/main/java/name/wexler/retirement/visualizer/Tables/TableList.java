@@ -1,15 +1,12 @@
 package name.wexler.retirement.visualizer.Tables;
 
-import name.wexler.retirement.visualizer.Asset.Asset;
-import name.wexler.retirement.visualizer.CashFlowEstimator.CashFlowEstimator;
-import name.wexler.retirement.visualizer.CashFlowEstimator.Liability;
-import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
-import name.wexler.retirement.visualizer.Entity.Entity;
+
 import org.jetbrains.annotations.NotNull;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 public class TableList extends ArrayList<Map<String, Object>> {
     private final List<ColumnDefinition> columnDefinitions;
