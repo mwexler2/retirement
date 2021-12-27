@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -38,7 +39,8 @@ public class LiabilityTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         context.setAssumptions(new Assumptions());
         Company lender = new Company(context, "lender1", "Lender 1");
         Person borrower = new Person(context, "borrower1", LocalDate.of(1980, Month.FEBRUARY, 29), 80,

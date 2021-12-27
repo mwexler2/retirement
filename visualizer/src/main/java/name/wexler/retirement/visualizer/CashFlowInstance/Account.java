@@ -1,10 +1,6 @@
 package name.wexler.retirement.visualizer.CashFlowInstance;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import name.wexler.retirement.datastore.PositionHistory;
 import name.wexler.retirement.visualizer.*;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
-import name.wexler.retirement.visualizer.CashFlowFrequency.ShareBalance;
 import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.Expense.Spending;
@@ -78,20 +74,20 @@ public interface Account extends CashFlowSource, CashFlowSink {
         } else if (description.startsWith("Check:")) {
             category = "Check";
             parentCategory = "Uncategorized";
-            itemType = Category.EXPENSE;
+            itemType = Category.EXPENSE_ITEM_TYPE;
         } else if (parentCategory.equals(Category.INVESTMENT) &&
                 (description.startsWith("Interest ") || description.endsWith("ACCOUNT INTEREST"))) {
             category = "Interest Income";
             parentCategory = "Investment";
-            itemType = Category.INCOME;
+            itemType = Category.INCOME_ITEM_TYPE;
         } else if (description.startsWith("Olink Tid")) {
             category = "Transfer";
             parentCategory = "Investment";
-            itemType = Category.TRANSFERS;
+            itemType = Category.TRANSFER_ITEM_TYPE;
         } else if (description.equals("Payroll Contribution")) {
             category="Payroll Contribution";
             parentCategory = "Investment";
-            itemType = Category.TRANSFERS;
+            itemType = Category.TRANSFER_ITEM_TYPE;
         } else if (description.startsWith("FUNDS RECEIVED ")) {
             category = "Funds Received";
             parentCategory = "Transfer";
@@ -110,11 +106,11 @@ public interface Account extends CashFlowSource, CashFlowSink {
         } else if (txnType.equals("CHECK")) {
             category = "Check";
             parentCategory = "Uncategorized";
-            itemType = Category.EXPENSE;
+            itemType = Category.EXPENSE_ITEM_TYPE;
         } else if (txnType.equals("FEE")) {
             category = "Bank Fee";
             parentCategory = "Fees & Charges";
-            itemType = Category.EXPENSE;
+            itemType = Category.EXPENSE_ITEM_TYPE;
         } else if (Pattern.matches("US TREASURY.*MATURED", description)) {
             category = "Principal";
             parentCategory = "Investment";
@@ -124,7 +120,7 @@ public interface Account extends CashFlowSource, CashFlowSink {
             parentCategory = Category.INVESTMENT;
             itemType = "Income";
         } else if (itemType == null) {
-            itemType = txnType.equals("DEBIT") ? Category.EXPENSE : txnType.equals("CREDIT") ? "Income" : "Transfer";
+            itemType = txnType.equals("DEBIT") ? Category.EXPENSE_ITEM_TYPE : txnType.equals("CREDIT") ? "Income" : "Transfer";
             parentCategory = "Uncategorized";
             category = "Uncategorized";
         }

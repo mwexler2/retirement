@@ -13,19 +13,14 @@ import name.wexler.retirement.visualizer.Expense.Spending;
 import org.jetbrains.annotations.NotNull;
 
 
-import javax.lang.model.UnknownEntityException;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import static java.util.Map.entry;
 
@@ -33,10 +28,8 @@ import static java.util.Map.entry;
 public class AccountReader {
     public static final String mintTxnSource = "mint";
     public static final String ofxTxnSource = "OFX";
-    private final Spending spending;
 
-    public AccountReader(Context context) {
-        spending = context.getById(Expense.class, "spending");
+    public AccountReader() {
     }
 
     public List<CashFlowInstance> readCashFlowInstances(Context context) throws IOException {
@@ -166,6 +159,7 @@ public class AccountReader {
     CashFlowInstance getInstanceFromResultSet(
             Context context,
             ResultSet rs)  {
+        Spending spending = context.getById(Expense.class, "spending");
         try {
             Account account = getAccountFromAccountName(context, rs.getString("account_name"));
             if (account == null)
@@ -268,9 +262,12 @@ public class AccountReader {
             Optional<BigDecimal> aamt = Optional.ofNullable(rs.getBigDecimal("aamt"));
             Optional<BigDecimal> tbgt = Optional.ofNullable(rs.getBigDecimal("tbgt"));
             Optional<Boolean> isLast = Optional.ofNullable(rs.getBoolean("isLast"));
+            Optional<LocalDate> date = Optional.of(LocalDate.ofEpochDay(rs.getLong("date")));
+            int st = rs.getInt("st");
+            int type = rs.getInt("type");
 
             Budget budgetEntry =
-                    new Budget(context, grouping, isIncome, isTransfer, isExpense, amount, budget, rBal, parentCategory, category,
+                    new Budget(context, date, st, type, grouping, isIncome, isTransfer, isExpense, amount, budget, rBal, parentCategory, category,
                             period, aamt, tbgt, isLast);
 
             return budgetEntry;

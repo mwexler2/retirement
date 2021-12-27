@@ -1,10 +1,7 @@
 package name.wexler.retirement.visualizer.CashFlowEstimator;
 
 import name.wexler.retirement.visualizer.*;
-import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.Asset.AssetAccount;
-import name.wexler.retirement.visualizer.Asset.RealProperty;
-import name.wexler.retirement.visualizer.CashFlowFrequency.CashBalance;
 import name.wexler.retirement.visualizer.CashFlowFrequency.CashFlowFrequency;
 import name.wexler.retirement.visualizer.CashFlowFrequency.Monthly;
 import name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance;
@@ -18,7 +15,6 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +24,8 @@ import static org.mockito.Mockito.mock;
 
 public class BudgetTest {
     Budget budget;
-    Context context = new Context();
+    AccountReader accountReader = mock(AccountReader.class);
+    Context context = new Context(accountReader);
     CashFlowCalendar calendar;
     Person payer = new Person(context, "payer1",
             LocalDate.of(1980, Month.FEBRUARY, 29), 80,
@@ -93,7 +90,7 @@ public class BudgetTest {
 
     @Test
     public void getItemType() {
-        assertEquals(Category.INCOME, budget.getItemType());
+        assertEquals(Category.INCOME_ITEM_TYPE, budget.getItemType());
     }
 
     @Test

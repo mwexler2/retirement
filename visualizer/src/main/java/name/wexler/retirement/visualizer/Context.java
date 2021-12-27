@@ -59,8 +59,10 @@ public class Context {
     private final ObjectMapper mapper;
     private Assumptions assumptions;
 
-    public Context() {
-        InjectableValues injectableValues = new InjectableValues.Std().addValue("context", this);
+    public Context(AccountReader accountReader) {
+        InjectableValues injectableValues = new InjectableValues.Std()
+                .addValue("context", this)
+                .addValue("accountReader", accountReader);
         classEntityManager = new HashMap<>();
         mapper = new ObjectMapper();
         mapper.setInjectableValues(injectableValues);

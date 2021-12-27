@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -21,7 +22,8 @@ public class PersonTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         context.setAssumptions(new Assumptions());
         person1 = new Person(context, "john1", LocalDate.of(1999, Month.DECEMBER, 25), 70, "John", "Doe");
         person1.setFirstName("John");

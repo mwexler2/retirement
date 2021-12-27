@@ -49,6 +49,7 @@ public class Scenario extends Entity {
     private final String name;
     private final Assumptions _assumptions;
     private static final String scenariosPath = "scenarios.json";
+    private AccountReader accountReader;
     private final List<CashFlowEstimator> _cashFlowEstimators;
 
     @JsonIgnore
@@ -62,7 +63,9 @@ public class Scenario extends Entity {
     }
 
     @JsonCreator
-    public Scenario(@JacksonInject("context") Context context,
+    public Scenario(
+            @JacksonInject("context") Context context,
+             @JacksonInject("accountReader") AccountReader accountReader,
              @JsonProperty(value = "id", required = true) String id,
              @JsonProperty(value = "name", required = true) String name,
              @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowEstimators,
@@ -72,9 +75,10 @@ public class Scenario extends Entity {
              @JsonProperty(value = "assumptions", required = true) Assumptions assumptions) throws DuplicateEntityException {
         super(context, id, Scenario.class);
         this.name = name;
+        this.accountReader = accountReader;
         this._assumptions = assumptions;
-        _cashFlowEstimators = new ArrayList<>();
 
+        _cashFlowEstimators = new ArrayList<>();
         setCashFlowEstimators(context, cashFlowEstimators);
         calendar = new CashFlowCalendar(this, assumptions);
         List<Asset> assetList = setAssetIds(context, assets);
@@ -128,7 +132,6 @@ public class Scenario extends Entity {
     private @NotNull
     List<CashFlowInstance> getHistoricalCashFlowInstances() {
         try {
-            AccountReader accountReader = new AccountReader(getContext());
             return accountReader.readCashFlowInstances(getContext());
         } catch (IOException ioe) {
             throw new RuntimeException("Can't getHistoricalCashFlowInstances", ioe);
@@ -138,7 +141,6 @@ public class Scenario extends Entity {
     private @NotNull
     List<Budget> getBudgets() {
         try {
-            AccountReader accountReader = new AccountReader(getContext());
             return accountReader.readBudgets(getContext());
         } catch (IOException ioe) {
             throw new RuntimeException("Can't getBudgets", ioe);
@@ -148,7 +150,6 @@ public class Scenario extends Entity {
     private @NotNull
     void setCurrentBalances() {
         try {
-            AccountReader accountReader = new AccountReader(getContext());
             accountReader.getAccountBalances(getContext());
         } catch (IOException ioe) {
             throw new RuntimeException("Can't setCurrentBalances", ioe);
@@ -160,7 +161,11 @@ public class Scenario extends Entity {
     private void setCashFlowEstimators(@JacksonInject("context") Context context,
                                        @JsonProperty(value = "cashFlowSources", required = true) String[] cashFlowSourceIds) {
         for (String cashFlowSourceId : cashFlowSourceIds) {
-            _cashFlowEstimators.add(context.getById(CashFlowEstimator.class, cashFlowSourceId));
+            CashFlowEstimator cashFlowEstimator = context.getById(CashFlowEstimator.class, cashFlowSourceId);
+            if (cashFlowEstimator != null)
+                _cashFlowEstimators.add(cashFlowEstimator);
+            else
+                System.err.println("Can't find CashFlowEstimator: " + cashFlowSourceId);
         }
     }
 
@@ -193,7 +198,11 @@ public class Scenario extends Entity {
                              @JsonProperty(value = "liabilities", required = true) String[] liabilityIds) {
         List<Liability> liabilities = new ArrayList<>(liabilityIds.length);
         for (String id : liabilityIds) {
-            liabilities.add(context.getById(Liability.class, id));
+            Liability liability = context.getById(Liability.class, id);
+            if (liability != null)
+                liabilities.add(liability);
+            else
+                System.out.println("Liability not found: " + id);
         }
         calendar.addLiabilities(liabilities);
     }

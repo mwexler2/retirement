@@ -34,7 +34,6 @@ import name.wexler.retirement.visualizer.Entity.Category;
 import name.wexler.retirement.visualizer.Entity.Entity;
 import name.wexler.retirement.visualizer.JSON.JSONDateDeserialize;
 import name.wexler.retirement.visualizer.JSON.JSONDateSerialize;
-import name.wexler.retirement.visualizer.Scenario;
 import name.wexler.retirement.visualizer.Tables.CashFlowCalendar;
 import org.jetbrains.annotations.NotNull;
 
@@ -99,12 +98,12 @@ public class Budget extends CashFlowEstimator {
             if (skipBudget(budget))
                 continue;
             List<CashFlowInstance> cashFlowInstances =
-                    getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
+                    budget.getCashFlowFrequency().getFutureCashFlowInstances(cashFlowCalendar, this,
                             (calendar, cashFlowId, accrualStart, accrualEnd, cashFlowDate, percent, prevCashFlowInstance) -> {
                                 BigDecimal balance = (prevCashFlowInstance == null) ? BigDecimal.ZERO : prevCashFlowInstance.getCashBalance();
                                 String description = "Monthly budget for " + budget.getCategory();
                                 BigDecimal amount = budget.getBudget();
-                                if (budget.getItemType().equals(Category.EXPENSE))
+                                if (budget.getItemType().equals(Category.EXPENSE_ITEM_TYPE))
                                     amount = amount.negate();
                                 CashFlowInstance instance = new CashFlowInstance(NO_ID, true, this, defaultSink,
                                         budget.getItemType(), budget.getParentCategory(), budget.getCategory(),

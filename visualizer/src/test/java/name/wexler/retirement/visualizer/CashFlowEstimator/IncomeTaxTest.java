@@ -32,7 +32,8 @@ public class IncomeTaxTest {
     private IncomeTax medicareTax;
     private IncomeTax socialSecurityTax;
     Assumptions assumptions;
-    private Context context = new Context();
+    AccountReader accountReader = mock(AccountReader.class);
+    private Context context = new Context(accountReader);
     @Mock
     private Scenario scenario;
     CashFlowCalendar cashFlowCalendar;

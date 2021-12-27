@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
-import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -64,7 +63,7 @@ public class RSU extends EquityCompensation {
 
     @Override
     @NotNull String getParentCategory() {
-        return INCOME;
+        return Salary.SALARY_CATEGORY;
     }
 
     @JsonIgnore

@@ -23,7 +23,8 @@ public class CashFlowCalendarTest {
     @Before
     public void setUp() throws Exception {
         Scenario scenario = mock(Scenario.class);
-        Context context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        Context context = new Context(accountReader);
         when(scenario.getContext()).thenReturn(context);
         Assumptions assumptions = mock(Assumptions.class);
         cashFlowCalendar = new CashFlowCalendar(scenario, assumptions);

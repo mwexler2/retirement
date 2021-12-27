@@ -33,7 +33,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
-import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -75,7 +74,7 @@ public class BonusAnnualPct extends Bonus {
     @JsonIgnore
     @Override
     public String getParentCategory() {
-        return INCOME;
+        return Salary.SALARY_CATEGORY;
     }
 
     @JsonProperty(value = "salary")

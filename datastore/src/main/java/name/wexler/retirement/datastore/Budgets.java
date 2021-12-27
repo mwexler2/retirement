@@ -22,6 +22,7 @@ public class Budgets {
         // SQL statement for creating a new table
         String sql = "CREATE TABLE budgets (\n"
                 + " id integer PRIMARY KEY,\n"
+                + " date int NOT NULL,\n"
                 + " grouping TEXT NOT NULL,\n"
                 + " st INTEGER,\n"
                 + " period INTEGER,\n"
@@ -59,12 +60,12 @@ public class Budgets {
                 + "(st, ramt, isIncome, isTransfer, isExpense, amt, pid, type, bgt, " +
                 "   rbal, ex, cat," +
                 "   catName, id, catTypeFilter, parent, grouping," +
-                "   period, aamt, tbgt, isLast" +
+                "   period, aamt, tbgt, isLast, date" +
                 ") \n" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 "          ?, ?, ?," +
                 "          ?, ?, ?, ?, ?," +
-                "          ?, ?, ?, ?);\n";
+                "          ?, ?, ?, ?, ?);\n";
 
         try (PreparedStatement pstmt = conn.getConnection().prepareStatement(sql)) {
             pstmt.setLong(1, getOptionalLong(line, "st"));
@@ -89,6 +90,7 @@ public class Budgets {
             setOptionalDouble(pstmt, 19, "aamt", line);
             setOptionalDouble(pstmt, 20, "tbgt", line);
             setOptionalBoolean(pstmt, 21,"isLast", line);
+            setOptionalLong(pstmt, 22,"date", line);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -138,7 +140,7 @@ public class Budgets {
 
     public @NotNull ResultSet getBudgets() {
         String sql =
-                "SELECT st, ramt, isIncome, isTransfer, isExpense, " +
+                "SELECT date, st, ramt, isIncome, isTransfer, isExpense, " +
                         "amt, pid, type, bgt, rbal, ex,\n" +
                         "cat,catName,id,catTypeFilter,parent, grouping,\n" +
                         "period, aamt, tbgt, isLast" +

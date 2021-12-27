@@ -27,6 +27,7 @@ import java.util.List;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -47,7 +48,8 @@ public class AlimonyTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         assumptions = new Assumptions();
         context.setAssumptions(assumptions);
 
@@ -125,8 +127,8 @@ public class AlimonyTest {
                         salary,
                         defaultSink,
                         salary.getItemType(),
-                        Category.INCOME,
-                        Salary.PAYCHECK,
+                        Category.INCOME_ITEM_TYPE,
+                        Salary.PAYCHECK_CATEGORY,
                         LocalDate.of(1999, Month.OCTOBER, 1),
                         LocalDate.of(1999, Month.OCTOBER, 15),
                         LocalDate.of(1999, Month.OCTOBER, 22),
@@ -143,8 +145,8 @@ public class AlimonyTest {
                         salary,
                         defaultSink,
                         salary.getItemType(),
-                        Category.INCOME,
-                        Salary.PAYCHECK,
+                        Category.INCOME_ITEM_TYPE,
+                        Salary.PAYCHECK_CATEGORY,
                         LocalDate.of(now.getYear(), firstMonthOfQuarter, 1),
                         LocalDate.of(now.getYear(), lastMonthOfQuarter,
                                 lastMonthOfQuarter.length(false)),
@@ -201,7 +203,7 @@ public class AlimonyTest {
 
     @Test
     public void testGetItemType() {
-        assertEquals(Category.EXPENSE, alimony.getItemType());
+        assertEquals(Category.EXPENSE_ITEM_TYPE, alimony.getItemType());
     }
 
     @Test

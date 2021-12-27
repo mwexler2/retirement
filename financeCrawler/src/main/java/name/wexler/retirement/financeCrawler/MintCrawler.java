@@ -7,10 +7,13 @@ import name.wexler.retirement.datastore.TxnHistory;
 import name.wexler.retirement.datastore.Budgets;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.springframework.format.datetime.joda.DateTimeParser;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -145,12 +148,16 @@ public class MintCrawler {
     }
 
     private void processBudgetsJSON(JSONObject budgetEntries, String cmd) {
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("MM/dd/yyyy").withZone(ZoneId.systemDefault());
         System.out.println("Processing download file for '" + cmd + "'");
         budgetEntries.forEach((grouping, entries) -> {
             ((JSONArray) entries).forEach((budgetEntry) -> {
                 Map<String, Object> fieldNameVals = new HashMap<>();
                 for (Object key : ((JSONObject) budgetEntry).keySet()) {
                     Object value = ((JSONObject) budgetEntry).getOrDefault(key, "");
+                    if (key.equals("date") && value instanceof String) {
+                        value = LocalDate.parse((String) value, parser).toEpochDay();
+                    }
                     fieldNameVals.put((String) key, value);
                 }
                 if (!fieldNameVals.containsKey("catName")) {

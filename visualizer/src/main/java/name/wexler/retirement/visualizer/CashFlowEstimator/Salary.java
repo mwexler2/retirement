@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
-import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -52,7 +51,8 @@ public class Salary extends CashFlowEstimator {
     @JsonIgnore
     private Job job;
     private final BigDecimal baseAnnualSalary;
-    public static final String PAYCHECK = "Paycheck";
+    public static final String PAYCHECK_CATEGORY = "Paycheck";
+    public static final String SALARY_CATEGORY = "Salary";
 
     public Salary(@JacksonInject("context") Context context,
                   @JsonProperty("id") String id,
@@ -154,12 +154,12 @@ public class Salary extends CashFlowEstimator {
     @JsonIgnore
     @Override
     public String getCategory() {
-        return PAYCHECK;
+        return PAYCHECK_CATEGORY;
     }
 
     @JsonIgnore
     @Override
     public @NotNull  String getParentCategory() {
-        return INCOME;
+        return Salary.SALARY_CATEGORY;
     }
 }

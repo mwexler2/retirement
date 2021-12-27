@@ -204,7 +204,7 @@ public class Alimony extends CashFlowEstimator {
 
     @Override
     @NotNull String getParentCategory() {
-        return Category.BILLS_AND_UTILITIES;
+        return Category.BILLS_AND_UTILITIES_CATEGORY;
     }
 
 

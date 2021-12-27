@@ -44,6 +44,8 @@ import name.wexler.retirement.visualizer.Entity.Person;
 import name.wexler.retirement.visualizer.Expense.Expense;
 import org.sqlite.JDBC;
 
+import static org.mockito.Mockito.mock;
+
 
 /**
  * Created by mwexler on 6/28/16.
@@ -55,7 +57,8 @@ public class Retirement {
 
 
     Retirement() {
-        Context context = new Context();
+        AccountReader accountReader = new AccountReader();
+        Context context = new Context(accountReader);
 
         try {
             this.people = Person.readPeople(context);

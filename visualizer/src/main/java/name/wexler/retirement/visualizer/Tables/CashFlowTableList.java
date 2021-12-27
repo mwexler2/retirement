@@ -46,7 +46,8 @@ public class CashFlowTableList extends TableList {
                     setProperty(Integer.toString(year)).
                     setDecorator(MoneyTableColumnDecorator.class.getName()).
                     setTotal(true).
-                    setHref(String.join("/",
+                    setHref("/" +
+                            String.join("/",
                                     VISUALIZER_PATH_ELEM,
                                     SCENARIO_PATH_ELEM, scenario.getId())).
                     build());

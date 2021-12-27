@@ -27,5 +27,4 @@ public class TableList extends ArrayList<Map<String, Object>> {
     public String getItemType(@NotNull Map<String, Object> item) {
         return (String) item.get("itemType");
     }
-
 }

@@ -19,6 +19,7 @@ import java.util.Collections;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 11/29/16.
@@ -31,7 +32,8 @@ public class CashFlowInstanceTest {
     public void setUp() throws Exception {
         BigDecimal thousand = BigDecimal.valueOf(1000.00);
         Assumptions assumptions = new Assumptions();
-        Context context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        Context context = new Context(accountReader);
         context.setAssumptions(assumptions);
         Person employee1 = new Person(context, "employee1", LocalDate.of(1999, Month.DECEMBER, 31), 62,
                 "Employee", "1");

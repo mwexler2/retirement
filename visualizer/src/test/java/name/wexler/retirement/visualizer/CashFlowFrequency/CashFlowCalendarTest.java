@@ -34,7 +34,8 @@ public class CashFlowCalendarTest {
     @Before
     public void setUp() throws Exception {
         Assumptions assumptions = new Assumptions();
-        Context context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        Context context = new Context(accountReader);
         context.setAssumptions(assumptions);
         String[] cashFlowSourceIds = new String[0];
         String[] assets = new String[0];

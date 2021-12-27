@@ -1,5 +1,6 @@
 package name.wexler.retirement.visualizer.Asset;
 
+import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.Asset.Asset;
 import name.wexler.retirement.visualizer.Asset.RealProperty;
 import name.wexler.retirement.visualizer.Assumptions;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -27,7 +29,8 @@ public class AssetTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         context.setAssumptions(new Assumptions());
         Person owner = new Person(context, "owner1", LocalDate.of(1980, Month.APRIL, 15), 75,
                 "Owner", "1");

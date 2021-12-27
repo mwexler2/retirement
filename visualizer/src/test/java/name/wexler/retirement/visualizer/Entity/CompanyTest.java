@@ -1,5 +1,6 @@
 package name.wexler.retirement.visualizer.Entity;
 
+import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.Assumptions;
 import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Company;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -20,7 +22,8 @@ public class CompanyTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         context.setAssumptions(new Assumptions());
         company1 = new Company(context, "comp1", "Company #1");
         company2 = new Company(context, "comp2", "Company #2");

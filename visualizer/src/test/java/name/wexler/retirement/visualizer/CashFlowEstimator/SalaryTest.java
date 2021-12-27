@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by mwexler on 8/13/16.
@@ -30,7 +31,8 @@ public class SalaryTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         context.setAssumptions(new Assumptions());
         Company employer = new Company(context, "employer1", "Employer #1");
         Person employee = new Person(context, "employee1", LocalDate.of(1955, Month.JULY, 4), 77,

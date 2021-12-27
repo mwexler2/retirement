@@ -1,18 +1,21 @@
 package name.wexler.retirement.visualizer.Entity;
 
+import name.wexler.retirement.visualizer.AccountReader;
 import name.wexler.retirement.visualizer.Context;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class CategoryTest {
     Category category1;
-    Context context = new Context();
+    AccountReader accountReader = mock(AccountReader.class);
+    Context context = new Context(accountReader);
 
     @Before
     public void setUp() throws Exception {
-        category1 = new Category(context, "Foo Expense", Category.EXPENSE);
+        category1 = new Category(context, "Foo Expense", Category.EXPENSE_ITEM_TYPE);
     }
 
     @Test

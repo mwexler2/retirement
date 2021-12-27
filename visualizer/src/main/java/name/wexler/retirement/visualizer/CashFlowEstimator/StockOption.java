@@ -37,7 +37,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static name.wexler.retirement.visualizer.CashFlowInstance.CashFlowInstance.NO_ID;
-import static name.wexler.retirement.visualizer.Entity.Category.INCOME;
+import static name.wexler.retirement.visualizer.Entity.Category.INCOME_ITEM_TYPE;
 
 /**
  * Created by mwexler on 7/5/16.
@@ -65,7 +65,7 @@ public class StockOption extends EquityCompensation {
 
     @Override
     @NotNull String getParentCategory() {
-        return INCOME;
+        return Salary.SALARY_CATEGORY;
     }
 
     @JsonIgnore

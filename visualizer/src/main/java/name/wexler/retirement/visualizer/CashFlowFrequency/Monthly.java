@@ -50,7 +50,7 @@ public class Monthly extends CashFlowFrequency {
                    @JsonProperty("accrueEnd") LocalDate accrueEnd,
                    @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
                    @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
-    throws Exception
+    throws DuplicateEntityException
     {
         super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
 

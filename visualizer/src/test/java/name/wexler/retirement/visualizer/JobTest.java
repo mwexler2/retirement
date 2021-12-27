@@ -38,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Arrays;
@@ -61,7 +62,8 @@ public class JobTest {
     @Before
     public void setUp() throws Exception {
         Assumptions assumptions = new Assumptions();
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         context.setAssumptions(assumptions);
         company1 = new Company(context, "comp1", "Company #1");
         company2 = new Company(context, "comp2", "Company #2");

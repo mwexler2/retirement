@@ -56,7 +56,7 @@ public class SemiAnnual extends CashFlowFrequency {
                       @JsonProperty("firstAccrualEnd") LocalDate firstAccrualEnd,
                       @JsonProperty("firstPaymentDate") LocalDate firstPaymentDate,
                       @JsonProperty("apportionmentPeriod") ApportionmentPeriod apportionmentPeriod)
-    throws Exception
+    throws DuplicateEntityException
     {
         super(context, id, accrueStart, accrueEnd, firstPaymentDate, apportionmentPeriod);
         this.firstAccrualEnd = firstAccrualEnd;

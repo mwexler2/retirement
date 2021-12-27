@@ -166,7 +166,7 @@ public class TxnHistory {
 
     public @NotNull ResultSet getTransactions() {
         String sql =
-                "SELECT txnHistory.id, date, " +
+                "SELECT txnHistory.id, txnHistory.date, " +
                         "description, " +
                         "original_description, " +
                         "amount, " +

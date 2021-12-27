@@ -40,7 +40,8 @@ public class CashFlowTypeTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        context = new Context(accountReader);
         Assumptions assumptions = new Assumptions();
         context.setAssumptions(assumptions);
         LocalDate annualAccrueStart = LocalDate.of(2014, Month.AUGUST, 17);

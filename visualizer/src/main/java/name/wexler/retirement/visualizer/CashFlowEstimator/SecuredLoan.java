@@ -171,12 +171,12 @@ public class SecuredLoan extends Liability {
 
     @Override
     @NotNull String getParentCategory() {
-        return Category.MORTGAGE;
+        return Category.MORTGAGE_CATEGORY;
     }
 
     @Override
     @NotNull public String getCategory() {
-        return Category.MORTGAGE;
+        return Category.MORTGAGE_CATEGORY;
     }
 
     @JsonIgnore

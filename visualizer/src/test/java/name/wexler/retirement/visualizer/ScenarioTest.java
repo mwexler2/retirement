@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -41,31 +42,19 @@ public class ScenarioTest {
     private Scenario scenario1;
     private Scenario scenario2;
     private Context context;
+    AccountReader accountReader = mock(AccountReader.class);
 
     @Before
     public void setUp() throws Exception {
-        context = new Context();
+        context = new Context(accountReader);
         context.setAssumptions(new Assumptions());
 
-
-        Person.readPeople(context);
-        Expense.readExpenses(context);
-        Company.readCompanies(context);
-        AssetAccount.readAssetAccounts(context);
-        Job.readJobs(context);
-        CashFlowFrequency.readCashFlowFrequencies(context);
-        try {
-            DriverManager.registerDriver(new JDBC());
-        } catch (SQLException var1) {
-            var1.printStackTrace();
-        }
-        DataStore ds = new DataStore();
-        Security.readSecurities(context, ds);
-        CashFlowEstimator.readCashFlowSources(context);
-        Asset.readAssets(context);
-
-        List<Scenario> scenarios = Scenario.readScenarios(context);
-        scenario1 = scenarios.get(0);
+        scenario1 = new Scenario(context, accountReader, "scenario1", "Scenario 1",
+                new String[] {}, new String[] {}, new String[] {}, new String[] {},
+                context.getAssumptions());
+        scenario2 = new Scenario(context, accountReader, "scenario2", "Scenario 2",
+                new String[] {}, new String[] {}, new String[] {}, new String[] {},
+                context.getAssumptions());
     }
 
     @After
@@ -73,11 +62,22 @@ public class ScenarioTest {
 
     }
 
+    @Test
+    public void readScenarios() throws IOException {
+        List<Scenario> scenarios = Scenario.readScenarios(context);
+        assertEquals(1, scenarios.size());
+    }
+
+    @Test
+    public void readAssets() throws IOException {
+        List<Scenario> scenarios = Scenario.readScenarios(context);
+        assertEquals(1, scenarios.size());
+    }
 
     @Test
     public void getName() {
         String name1 = scenario1.getName();
-        assertEquals("Go to Amazon", name1);
+        assertEquals("Scenario 1", name1);
     }
 
 
@@ -92,10 +92,13 @@ public class ScenarioTest {
         String scenario1aStr = "{\"type\": \"scenario\", \"id\": \"s1a\", \"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario1a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
         String scenario2aStr = "{\"type\": \"scenario\", \"id\": \"s2a\", \"assumptions\":null,\"cashFlowSources\":[],\"name\":\"scenario2a\",\"expenseSources\":[],\"assets\":[],\"liabilities\":[],\"accounts\":[]}";
 
-        Scenario scenario1a = context.fromJSON(Scenario.class, scenario1aStr);
+        // Note, each Scenario requires a different context because things like budgets might have same ids but different values.
+        Context context1 = new Context(accountReader);
+        Scenario scenario1a = context1.fromJSON(Scenario.class, scenario1aStr);
         assertEquals("scenario1a", scenario1a.getName());
 
-        Scenario sceanrio2a = context.fromJSON(Scenario.class, scenario2aStr);
+        Context context2 = new Context(accountReader);
+        Scenario sceanrio2a = context2.fromJSON(Scenario.class, scenario2aStr);
         assertEquals("scenario2a", sceanrio2a.getName());
     }
 

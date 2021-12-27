@@ -1,16 +1,16 @@
 package name.wexler.retirement.visualizer;
 
-import name.wexler.retirement.visualizer.Budget;
-import name.wexler.retirement.visualizer.Context;
 import name.wexler.retirement.visualizer.Entity.Category;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 
 public class BudgetTest {
@@ -19,8 +19,13 @@ public class BudgetTest {
 
     @Before
     public void setUp() throws Exception {
-        Context context = new Context();
-        budget = new name.wexler.retirement.visualizer.Budget(context,
+        AccountReader accountReader = mock(AccountReader.class);
+        Context context1 = new Context(accountReader);   // Each budget needs its own context.
+        Optional<LocalDate> date = Optional.ofNullable(null);
+        budget = new name.wexler.retirement.visualizer.Budget(context1,
+                date,
+                1,
+                0,
                 name.wexler.retirement.visualizer.Budget.INCOME_GROUPING,
                 true,
                 false,
@@ -36,7 +41,11 @@ public class BudgetTest {
                 Optional.empty()
         );
 
-        budget2 = new name.wexler.retirement.visualizer.Budget(context,
+        Context context2 = new Context(accountReader);
+        budget2 = new name.wexler.retirement.visualizer.Budget(context2,
+                Optional.ofNullable(null),
+                1,
+                0,
                 name.wexler.retirement.visualizer.Budget.EXPENSE_GROUPING,
                 true,
                 false,
@@ -105,7 +114,7 @@ public class BudgetTest {
 
     @Test
     public void getItemType() {
-        assertEquals(Category.INCOME, budget.getItemType());
-        assertEquals(Category.EXPENSE, budget2.getItemType());
+        assertEquals(Category.INCOME_ITEM_TYPE, budget.getItemType());
+        assertEquals(Category.EXPENSE_ITEM_TYPE, budget2.getItemType());
     }
 }

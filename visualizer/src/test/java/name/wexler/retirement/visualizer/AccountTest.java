@@ -24,7 +24,8 @@ public class AccountTest {
     public void setUp() throws Exception {
         Assumptions assumptions = new Assumptions();
 
-        Context context = new Context();
+        AccountReader accountReader = mock(AccountReader.class);
+        Context context = new Context(accountReader);
         context.setAssumptions(assumptions);
 
         new Monthly(context, "a1", LocalDate.now(), LocalDate.now(), LocalDate.now(),

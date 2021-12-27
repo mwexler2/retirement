@@ -143,7 +143,7 @@ public class CreditCardAccount extends Liability {
 
     @Override
     @NotNull String getParentCategory() {
-        return Category.TRANSFERS;
+        return Category.TRANSFER_ITEM_TYPE;
     }
 
     public CashFlowEstimator getCashFlowSource() {
