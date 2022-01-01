@@ -142,7 +142,8 @@ public class Budgets {
         String sql =
                 "SELECT date, st, ramt, isIncome, isTransfer, isExpense, " +
                         "amt, pid, type, bgt, rbal, ex,\n" +
-                        "cat,catName,id,catTypeFilter,parent, grouping,\n" +
+                        "cat,catName,id,catTypeFilter," +
+                        "CASE WHEN parent=\"Root\" THEN cat ELSE parent END AS parent, grouping,\n" +
                         "period, aamt, tbgt, isLast" +
                         " \n" +
                         "FROM budgets \n";

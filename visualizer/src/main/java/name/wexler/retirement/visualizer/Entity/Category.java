@@ -19,8 +19,8 @@ public class Category extends Entity {
     public static final String BILLS_AND_UTILITIES_CATEGORY = "Bills & Utilities";
     public static final String HOME_CATEGORY = "Home";
     public static final String MORTGAGE_CATEGORY = "Mortgage";
-    public static final String INVESTMENT = "Invesmtent";
-    public static final String TRANSFER_ITEM_TYPE = "Transfer";
+    public static final String INVESTMENT = "Invesmtents";
+    public static final String TRANSFER_ITEM_TYPE = "TRANSFER";
     public static final String UNKNOWN = "Unknown";
 
     public static void readCategories(Context context) throws IOException {

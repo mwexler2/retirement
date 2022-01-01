@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 public class SharesController {
     private static final String VIEW_INDEX = "index";
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(SharesController.class);
-    Retirement retirement = new Retirement();
+    Retirement retirement = Retirement.getInstance();
 
     private final Comparator<Map<String, Object>> byTickerCompanyAndAccount = new Comparator<Map<String, Object>>() {
         @Override

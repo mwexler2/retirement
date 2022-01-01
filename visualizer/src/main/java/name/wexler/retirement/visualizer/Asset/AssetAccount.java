@@ -214,7 +214,8 @@ public class AssetAccount extends Asset implements Account {
     }
 
     @Override
-    public CashFlowInstance processSymbol(Context context, String symbol, String description,
+    public CashFlowInstance processSymbol(long id,
+                                          Context context, String symbol, String description,
                                           final @NotNull String parentCategory,
                                           final @NotNull String category,
                                           final @NotNull String itemType,
@@ -259,7 +260,7 @@ public class AssetAccount extends Asset implements Account {
                 }
             }
             ShareBalance shareChange = new ShareBalance(txnDate, shares, sharePrice, security);
-            instance = new SecurityTransaction(context, assetAccount,
+            instance = new SecurityTransaction(id, context, assetAccount,
                     itemType, parentCategory, category,
                     txnAmount, shareChange,
                     description);

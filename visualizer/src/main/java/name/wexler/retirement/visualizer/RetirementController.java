@@ -52,7 +52,7 @@ public class RetirementController {
 
     private static final String VIEW_INDEX = "index";
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(RetirementController.class);
-    Retirement retirement = new Retirement();
+    Retirement retirement = Retirement.getInstance();
 
     @RequestMapping(value = "/visualizer/scenario/{scenarioId}/asset/{assetId}/year/{year}", method = RequestMethod.GET)
     public ModelAndView retirementAsset(@PathVariable String assetId,

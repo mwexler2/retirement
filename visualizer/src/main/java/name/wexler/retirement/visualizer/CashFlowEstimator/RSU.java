@@ -55,7 +55,6 @@ public class RSU extends EquityCompensation {
         super(context, id, jobId, cashFlowId, securityId, totalShares);
     }
 
-
     @JsonIgnore
     public String getName() {
         return getJob().getName() + " RSU";

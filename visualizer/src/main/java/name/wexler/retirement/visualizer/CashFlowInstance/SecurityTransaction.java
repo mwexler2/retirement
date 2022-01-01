@@ -13,6 +13,7 @@ public class SecurityTransaction extends AssetTransaction {
     private final AssetAccount account;
 
     public SecurityTransaction(
+            long id,
             Context context,
             AssetAccount account,
             final @NotNull String itemType,
@@ -21,7 +22,8 @@ public class SecurityTransaction extends AssetTransaction {
             BigDecimal amount,
             ShareBalance shareChange,
             String description) {
-        super(false,
+        super(id,
+                false,
                 account,
                 account,
                 itemType, parentCategory, category,

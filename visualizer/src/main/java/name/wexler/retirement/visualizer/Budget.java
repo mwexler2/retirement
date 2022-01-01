@@ -125,7 +125,7 @@ public class Budget {
     }
 
     public BigDecimal getBudget() {
-        if (type == ONCE)
+        if (type == ONCE || (type == EVERY_FEW_MONTHS && period.equals(12)))
             return tbgt.get();
         return budget;
     }

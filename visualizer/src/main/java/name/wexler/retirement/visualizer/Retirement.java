@@ -54,9 +54,18 @@ public class Retirement {
     private List<Scenario> scenarios;
     private List<Person> people;
     static private final DataStore ds;
+    static private Retirement INSTANCE = null;
 
+    public static Retirement getInstance() {
+        if (INSTANCE == null) {
+            synchronized(Retirement.class) {
+                INSTANCE = new Retirement();
+            }
+        }
+        return INSTANCE;
+    }
 
-    Retirement() {
+    private Retirement() {
         AccountReader accountReader = new AccountReader();
         Context context = new Context(accountReader);
 

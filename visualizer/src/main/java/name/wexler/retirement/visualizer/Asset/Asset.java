@@ -176,6 +176,7 @@ public abstract class Asset extends Entity implements CashFlowSource, CashFlowSi
         _balances.stream().
                 forEach(balance -> {
                     AssetTransaction instance = new AssetTransaction(
+                            CashFlowInstance.NO_ID,
                             true, this, this, INTERIM_BALANCE, BALANCE, BALANCE,
                             balance.getBalanceDate(),
                             balance.getBalanceDate(),

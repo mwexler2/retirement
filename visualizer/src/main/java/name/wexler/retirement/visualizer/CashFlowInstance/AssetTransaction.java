@@ -16,13 +16,14 @@ import java.time.LocalDate;
         @JsonSubTypes.Type(value = SecurityTransaction.class, name = "security")
 })
 public abstract class AssetTransaction extends CashFlowInstance {
-    public AssetTransaction(boolean estimated,
+    public AssetTransaction(long id,
+                            boolean estimated,
                             CashFlowSource cashFlowSource, CashFlowSink cashFlowSink,
                             String itemType, String parentCategory, String category,
                             LocalDate accrualStart, LocalDate accrualEnd, LocalDate cashFlowDate,
                             BigDecimal amount,
                             BigDecimal balance, String description) {
-        super(NO_ID, estimated, cashFlowSource, cashFlowSink, itemType, parentCategory,
+        super(id, estimated, cashFlowSource, cashFlowSink, itemType, parentCategory,
                 category, accrualStart, accrualEnd, cashFlowDate, amount, balance, description);
     }
 }

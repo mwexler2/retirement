@@ -208,7 +208,8 @@ abstract public class Liability extends CashFlowEstimator implements Account {
     }
 
     @Override
-    public CashFlowInstance processSymbol(Context context, String symbol, String description,
+    public CashFlowInstance processSymbol(long id,
+                                          Context context, String symbol, String description,
                                           final @NotNull String parentCategory,
                                           final @NotNull String category,
                                           final @NotNull String itemType,
