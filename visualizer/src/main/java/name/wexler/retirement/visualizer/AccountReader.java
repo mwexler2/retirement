@@ -77,7 +77,7 @@ public class AccountReader {
                 Account account;
                 try {
                     account = getAccountFromAccountName(context, accountName);
-                } catch (Account.AccountNotFoundException anfe) {
+                } catch (CashFlowCategorizationHeuristics.AccountNotFoundException anfe) {
                     account = createAccountFromDB(context, rs);
                 }
                 if (account instanceof AssetAccount) {
@@ -175,12 +175,12 @@ public class AccountReader {
             Job job = getJobFromDescription(context, description);
 
             CashFlowInstance instance =
-                    account.getInstance(context, spending, rs, cashFlowSource, description, job);
+                    CashFlowCategorizationHeuristics.getInstance(context, account, spending, rs, cashFlowSource, description, job);
 
             return instance;
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
-        } catch (Account.AccountNotFoundException anfe) {
+        } catch (CashFlowCategorizationHeuristics.AccountNotFoundException anfe) {
             String id = "none";
             try {
                 id = rs.getString("id");
@@ -207,7 +207,7 @@ public class AccountReader {
 
     @NotNull
     private Account getAccountFromAccountName(Context context, String accountName)
-            throws SQLException, Account.AccountNotFoundException {
+            throws SQLException, CashFlowCategorizationHeuristics.AccountNotFoundException {
         Account account = null;
         Account creditCardAccount = context.getById(CreditCardAccount.class, accountName);
         Account securedLoan = context.getById(SecuredLoan.class, accountName);
@@ -218,7 +218,7 @@ public class AccountReader {
         } else {
             AssetAccount assetAccount = context.getById(AssetAccount.class, accountName);
             if (assetAccount == null) {
-                throw(new Account.AccountNotFoundException(accountName));
+                throw(new CashFlowCategorizationHeuristics.AccountNotFoundException(accountName));
             }
             account = assetAccount;
         }
